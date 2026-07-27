@@ -99,14 +99,14 @@ templ overviewLineHeader() {
 
 templ demoPanel(title string, description string, preview templ.Component, code string) {
 	<section class="overflow-hidden rounded-radius border border-outline dark:border-outline-dark">
-		<div class="border-b border-outline bg-surface-alt px-5 py-4 dark:border-outline-dark dark:bg-surface-dark-alt"><h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">{ title }</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">{ description }</p></div>
+		<div class="border-b border-outline bg-surface-alt px-5 py-4 dark:border-outline-dark dark:bg-surface-dark-alt"><h2 id={ tocID(title) } data-toc-heading class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">{ title }</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">{ description }</p></div>
 		<div class="p-5">@preview</div>
 		<pre class="overflow-x-auto border-t border-outline bg-surface-alt p-5 text-xs text-on-surface dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark"><code>{ code }</code></pre>
 	</section>
 }
 
 templ demoNote(title string, text string) {
-	<section class="rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt"><h2 class="text-base font-bold text-on-surface-strong dark:text-on-surface-dark-strong">{ title }</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">{ text }</p></section>
+	<section class="rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt"><h2 id={ tocID(title) } data-toc-heading class="text-base font-bold text-on-surface-strong dark:text-on-surface-dark-strong">{ title }</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">{ text }</p></section>
 }
 
 templ componentContract(purposeLabel string, purpose string, primitiveLabel string, primitive string, kindLabel string, kind string, configLabel string, config string, accessibilityLabel string, accessibility string) {

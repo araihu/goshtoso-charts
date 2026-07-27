@@ -4,8 +4,8 @@ package server
 import (
 	"net/http"
 
+	shellassets "github.com/araihu/goshtoso-app-shells/catalogshell/assets"
 	"github.com/araihu/goshtoso-charts/site/internal/pages"
-	"github.com/araihu/goshtoso-charts/site/internal/siteassets"
 	"github.com/araihu/goshtoso/assets"
 )
 
@@ -13,10 +13,7 @@ import (
 func New() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("GET /assets/", assets.Handler())
-	mux.HandleFunc("GET /site.css", func(writer http.ResponseWriter, _ *http.Request) {
-		writer.Header().Set("Content-Type", "text/css; charset=utf-8")
-		_, _ = writer.Write([]byte(siteassets.CSS))
-	})
+	mux.Handle("GET /catalogshell/assets/", shellassets.Handler())
 	mux.HandleFunc("GET /", func(writer http.ResponseWriter, request *http.Request) {
 		if request.URL.Path != "/" {
 			http.NotFound(writer, request)
