@@ -3,17 +3,6 @@ package line
 
 import "fmt"
 
-// Theme selects a Goshtoso-aligned static palette. Render the chart again when
-// the server-selected color mode changes.
-type Theme string
-
-const (
-	// ThemeGoshtoso uses the default light Goshtoso surface and semantic colors.
-	ThemeGoshtoso Theme = "goshtoso"
-	// ThemeGoshtosoDark uses colors that retain contrast on Goshtoso dark surfaces.
-	ThemeGoshtosoDark Theme = "goshtoso-dark"
-)
-
 // Series is one labeled sequence of values. Values must align with Config.Labels.
 type Series struct {
 	Name   string
@@ -32,7 +21,6 @@ type Config struct {
 	Series  []Series
 	Width   int
 	Height  int
-	Theme   Theme
 }
 
 func (cfg Config) validate() error {

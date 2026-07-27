@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/a-h/templ"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
@@ -51,11 +52,12 @@ func renderSVG(cfg Config) (string, error) {
 	options := chart.NewLineChartOptionWithData(values)
 	options.XAxis.Labels = cfg.Labels
 	options.Legend.SeriesNames = names
+	options.Theme = tokenPalette()
 	painter := chart.NewPainter(chart.PainterOptions{
 		OutputFormat: chart.ChartOutputSVG,
 		Width:        cfg.width(),
 		Height:       cfg.height(),
-		Theme:        palette(cfg.Theme),
+		Theme:        tokenPalette(),
 	})
 	if err := painter.LineChart(options); err != nil {
 		return "", fmt.Errorf("render line chart: %w", err)
@@ -64,26 +66,51 @@ func renderSVG(cfg Config) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("encode line chart SVG: %w", err)
 	}
-	return string(data), nil
+	return tokenizedSVG(string(data)), nil
 }
 
-func palette(theme Theme) chart.ColorPalette {
-	if theme == ThemeGoshtosoDark {
-		return chart.GetTheme(chart.ThemeDark).WithSeriesColors([]chart.Color{
-			{R: 167, G: 139, B: 250, A: 255}, // primary-dark
-			{R: 52, G: 211, B: 153, A: 255},  // success action
-			{R: 96, G: 165, B: 250, A: 255},  // info action
-			{R: 251, G: 191, B: 36, A: 255},  // warning action
-			{R: 248, G: 113, B: 113, A: 255}, // danger action
+// tokenPalette uses unique placeholder colors that become Goshtoso CSS tokens
+// in tokenizedSVG. This preserves Go-native SSR while allowing the rendered
+// SVG to follow every Goshtoso theme and its dark mode without hydration.
+func tokenPalette() chart.ColorPalette {
+	return chart.GetTheme(chart.ThemeLight).
+		WithBackgroundColor(chart.Color{R: 1, G: 1, B: 1, A: 255}).
+		WithXAxisColor(chart.Color{R: 2, G: 2, B: 2, A: 255}).
+		WithYAxisColor(chart.Color{R: 2, G: 2, B: 2, A: 255}).
+		WithAxisSplitLineColor(chart.Color{R: 3, G: 3, B: 3, A: 255}).
+		WithTitleTextColor(chart.Color{R: 4, G: 4, B: 4, A: 255}).
+		WithMarkTextColor(chart.Color{R: 4, G: 4, B: 4, A: 255}).
+		WithLabelTextColor(chart.Color{R: 4, G: 4, B: 4, A: 255}).
+		WithLegendTextColor(chart.Color{R: 4, G: 4, B: 4, A: 255}).
+		WithXAxisTextColor(chart.Color{R: 4, G: 4, B: 4, A: 255}).
+		WithYAxisTextColor(chart.Color{R: 4, G: 4, B: 4, A: 255}).
+		WithTitleBorderColor(chart.Color{R: 2, G: 2, B: 2, A: 255}).
+		WithLegendBorderColor(chart.Color{R: 2, G: 2, B: 2, A: 255}).
+		WithSeriesColors([]chart.Color{
+			{R: 5, G: 5, B: 5, A: 255},
+			{R: 6, G: 6, B: 6, A: 255},
+			{R: 7, G: 7, B: 7, A: 255},
+			{R: 8, G: 8, B: 8, A: 255},
+			{R: 9, G: 9, B: 9, A: 255},
+			{R: 10, G: 10, B: 10, A: 255},
 		})
-	}
-	return chart.GetTheme(chart.ThemeLight).WithSeriesColors([]chart.Color{
-		{R: 124, G: 58, B: 237, A: 255}, // primary
-		{R: 5, G: 150, B: 105, A: 255},  // success
-		{R: 37, G: 99, B: 235, A: 255},  // info
-		{R: 217, G: 119, B: 6, A: 255},  // warning
-		{R: 220, G: 38, B: 38, A: 255},  // danger
-	})
+}
+
+func tokenizedSVG(svg string) string {
+	replacer := strings.NewReplacer(
+		"rgb(1,1,1)", "var(--goshtoso-charts-surface)",
+		"rgb(2,2,2)", "var(--goshtoso-charts-outline)",
+		"rgb(3,3,3)", "var(--goshtoso-charts-grid)",
+		"rgb(4,4,4)", "var(--goshtoso-charts-text)",
+		"rgb(5,5,5)", "var(--goshtoso-charts-primary)",
+		"rgb(6,6,6)", "var(--goshtoso-charts-success)",
+		"rgb(7,7,7)", "var(--goshtoso-charts-secondary)",
+		"rgb(8,8,8)", "var(--goshtoso-charts-info)",
+		"rgb(9,9,9)", "var(--goshtoso-charts-warning)",
+		"rgb(10,10,10)", "var(--goshtoso-charts-danger)",
+		"'Roboto Medium',sans-serif", "var(--font-paragraph), sans-serif",
+	)
+	return replacer.Replace(svg)
 }
 
 var _ chartcomponents.Component = Instance{}

@@ -1,0 +1,22 @@
+@media (min-width: 1024px) {
+  .charts-shell {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  .charts-sidebar {
+    position: sticky;
+    top: 5rem;
+    width: 13rem;
+    height: fit-content;
+    flex: 0 0 auto;
+  }
+
+  .charts-nav {
+    flex-direction: column;
+  }
+
+  .charts-main {
+    flex: 1 1 0%;
+  }
+}

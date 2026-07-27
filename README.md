@@ -73,7 +73,7 @@ templ SignupTrend() {
 }
 ```
 
-Render `line.ThemeGoshtosoDark` when the server selects dark mode. The initial component does not observe client-side theme changes, by design: its SVG is fully server-rendered.
+Line charts render their SVG geometry on the server but resolve their surface, outline, text, and series colors from Goshtoso semantic CSS tokens at display time. They therefore follow every built-in Goshtoso theme and `.dark` mode without a browser chart renderer or a fresh response.
 
 ## Roadmap
 
@@ -88,3 +88,14 @@ templ generate
 go test ./...
 git diff --exit-code
 ```
+
+## Demo site
+
+`site/` is a separate consumer module, shaped after the Goshtoso component demo catalog. It mounts Goshtoso assets at `/assets/` and uses `head.Dependencies()`.
+
+```bash
+cd site
+GOWORK=off go run ./cmd/server
+```
+
+Open `http://localhost:8091`.
