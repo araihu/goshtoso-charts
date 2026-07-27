@@ -6,6 +6,7 @@ import (
 	"io"
 
 	"github.com/a-h/templ"
+	chartcomponents "github.com/araihu/goshtoso-charts/components"
 	chart "github.com/go-analyze/charts"
 )
 
@@ -18,6 +19,11 @@ type Instance struct {
 // by Render so the component keeps Goshtoso's normal templ.Component contract.
 func Line(cfg Config) Instance {
 	return Instance{cfg: cfg}
+}
+
+// Kind identifies the component as a line chart.
+func (Instance) Kind() chartcomponents.Kind {
+	return chartcomponents.KindLineChart
 }
 
 // Render writes the accessible figure and SVG. It performs no client-side
@@ -72,12 +78,12 @@ func palette(theme Theme) chart.ColorPalette {
 		})
 	}
 	return chart.GetTheme(chart.ThemeLight).WithSeriesColors([]chart.Color{
-		{R: 124, G: 58, B: 237, A: 255},  // primary
-		{R: 5, G: 150, B: 105, A: 255},   // success
-		{R: 37, G: 99, B: 235, A: 255},   // info
-		{R: 217, G: 119, B: 6, A: 255},   // warning
-		{R: 220, G: 38, B: 38, A: 255},   // danger
+		{R: 124, G: 58, B: 237, A: 255}, // primary
+		{R: 5, G: 150, B: 105, A: 255},  // success
+		{R: 37, G: 99, B: 235, A: 255},  // info
+		{R: 217, G: 119, B: 6, A: 255},  // warning
+		{R: 220, G: 38, B: 38, A: 255},  // danger
 	})
 }
 
-var _ templ.Component = Instance{}
+var _ chartcomponents.Component = Instance{}

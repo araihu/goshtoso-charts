@@ -5,6 +5,8 @@ import (
 	"context"
 	"strings"
 	"testing"
+
+	chartcomponents "github.com/araihu/goshtoso-charts/components"
 )
 
 func TestLineRendersSSRAccessibleSVG(t *testing.T) {
@@ -13,8 +15,11 @@ func TestLineRendersSSRAccessibleSVG(t *testing.T) {
 		Label:   "Weekly signups",
 		Caption: "Seven-day trend",
 		Labels:  []string{"Mon", "Tue", "Wed"},
-		Series: []Series{{Name: "Signups", Values: []float64{12, 18, 15}}},
+		Series:  []Series{{Name: "Signups", Values: []float64{12, 18, 15}}},
 	})
+	if instance.Kind() != chartcomponents.KindLineChart {
+		t.Fatalf("Kind() = %q, want %q", instance.Kind(), chartcomponents.KindLineChart)
+	}
 	var output bytes.Buffer
 	if err := instance.Render(context.Background(), &output); err != nil {
 		t.Fatalf("Render() error = %v", err)

@@ -1,6 +1,6 @@
 # Goshtoso Charts
 
-SSR SVG charts for Go applications using [Goshtoso](https://github.com/araihu/goshtoso).
+SSR SVG charts for Go applications using [Goshtoso](https://github.com/araihu/goshtoso). Initial product driver: monitor detail and public status pages in Xisnove. Public API remains product-neutral.
 
 `goshtoso-charts` renders chart markup during the Go request. No Node process, browser chart runtime, hydration, CDN asset, or runtime fetch is required.
 
@@ -12,7 +12,43 @@ Requires Go 1.26.5+ and a Goshtoso-integrated templ application.
 go get github.com/araihu/goshtoso-charts
 ```
 
-## First chart
+## Component contract
+
+Every chart follows Goshtoso component shape: a typed `Config`, concrete `Instance`, stable `Kind()`, and `templ.Component` rendering. Extension-owned kinds live in `github.com/araihu/goshtoso-charts/components`; they deliberately do not modify Goshtoso's core kind registry.
+
+Charts use Goshtoso semantic CSS tokens (`--color-success`, `--color-warning`, `--color-danger`, and neutral outline) so all Goshtoso themes remain in control.
+
+## Heartbeat
+
+Heartbeat is the first monitoring primitive. It shows ordered availability observations, keeps status text in SVG titles, provides an accessible summary, and has a no-data state. It has no Xisnove dependency.
+
+It accepts up to 300 points. Aggregate or bucket denser monitoring streams at application boundary; never silently discard recent failures in presentation code.
+
+```templ
+package monitor
+
+import (
+	"time"
+
+	"github.com/araihu/goshtoso-charts/components/heartbeat"
+)
+
+templ Availability() {
+	@heartbeat.Heartbeat(heartbeat.Config{
+		Label:   "API availability over last three checks",
+		Caption: "Last three checks",
+		Points: []heartbeat.Point{
+			{At: time.Date(2026, time.July, 27, 12, 0, 0, 0, time.UTC), State: heartbeat.StateUp, Latency: 42 * time.Millisecond},
+			{At: time.Date(2026, time.July, 27, 12, 1, 0, 0, time.UTC), State: heartbeat.StateDegraded},
+			{At: time.Date(2026, time.July, 27, 12, 2, 0, 0, time.UTC), State: heartbeat.StateDown},
+		},
+	})
+}
+```
+
+For Xisnove, map retained daily uptime or raw probe-result rows into `heartbeat.Point` in Xisnove's view-model layer. Keep application/domain types out of this module.
+
+## Line chart
 
 Use the chart as supporting evidence inside a Goshtoso `panel.Panel`; keep exact data in nearby text or a table when users need it.
 
@@ -39,7 +75,11 @@ templ SignupTrend() {
 
 Render `line.ThemeGoshtosoDark` when the server selects dark mode. The initial component does not observe client-side theme changes, by design: its SVG is fully server-rendered.
 
-`components/line` is first v1 surface. See [chart-library evaluation](docs/chart-library-evaluation.md) and [surface brief](docs/surface-brief.md).
+## Roadmap
+
+Foundation: `heartbeat` and `line`. Next generic primitives: bar/stacked bar, area, distribution/histogram, and categorical status breakdown. Add each only with a real monitor/status-page use case, stable kind, SSR output, no-data behavior, semantic-token palette, and focused tests.
+
+See [chart-library evaluation](docs/chart-library-evaluation.md), [surface brief](docs/surface-brief.md), and [Xisnove heartbeat brief](docs/xisnove-heartbeat.md).
 
 ## Development
 
