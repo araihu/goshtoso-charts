@@ -1,0 +1,10 @@
+package line
+
+templ lineTemplate(cfg Config, chart templ.Component) {
+	<figure role="img" aria-label={ cfg.Label }>
+		@chart
+		if cfg.Caption != "" {
+			<figcaption class="mt-2 text-sm text-on-surface dark:text-on-surface-dark">{ cfg.Caption }</figcaption>
+		}
+	</figure>
+}
