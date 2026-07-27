@@ -113,12 +113,12 @@ templ demoNote(title string, text string) {
 
 templ componentContract(purposeLabel string, purpose string, primitiveLabel string, primitive string, kindLabel string, kind string, configLabel string, config string, accessibilityLabel string, accessibility string) {
 	<section class="rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt" aria-label="Component contract">
-		<dl class="grid gap-4 sm:grid-cols-2">
+		<dl class="grid gap-4 lg:grid-cols-2">
 			<div><dt class="text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted">{ purposeLabel }</dt><dd class="mt-1 text-sm text-on-surface dark:text-on-surface-dark">{ purpose }</dd></div>
-			<div><dt class="text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted">{ primitiveLabel }</dt><dd class="mt-1 font-mono text-sm text-on-surface dark:text-on-surface-dark">{ primitive }</dd></div>
-			<div><dt class="text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted">{ kindLabel }</dt><dd class="mt-1 font-mono text-sm text-on-surface dark:text-on-surface-dark">{ kind }</dd></div>
+			<div><dt class="text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted">{ primitiveLabel }</dt><dd class="mt-1 break-words font-mono text-sm text-on-surface dark:text-on-surface-dark">{ primitive }</dd></div>
+			<div><dt class="text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted">{ kindLabel }</dt><dd class="mt-1 break-words font-mono text-sm text-on-surface dark:text-on-surface-dark">{ kind }</dd></div>
 			<div><dt class="text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted">{ configLabel }</dt><dd class="mt-1 text-sm text-on-surface dark:text-on-surface-dark">{ config }</dd></div>
-			<div class="sm:col-span-2"><dt class="text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted">{ accessibilityLabel }</dt><dd class="mt-1 text-sm text-on-surface dark:text-on-surface-dark">{ accessibility }</dd></div>
+			<div class="lg:col-span-2"><dt class="text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted">{ accessibilityLabel }</dt><dd class="mt-1 text-sm text-on-surface dark:text-on-surface-dark">{ accessibility }</dd></div>
 		</dl>
 	</section>
 }

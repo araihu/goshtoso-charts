@@ -44,10 +44,13 @@ func TestComponentDocsNavigationHasSearchGroupsAndComponentContract(t *testing.T
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/heartbeat", nil))
 	body := recorder.Body.String()
-	for _, want := range []string{"Search docs...", "Components", "Examples", "component-doc-shell__sidebar", "components.KindHeartbeat", "Accessibility"} {
+	for _, want := range []string{"Search docs...", "Components", "Examples", "component-doc-shell__sidebar", "components.KindHeartbeat", "Accessibility", "lg:grid-cols-2"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("component docs page missing %q", want)
 		}
+	}
+	if strings.Contains(body, "sm:grid-cols-2") {
+		t.Error("component contract switches to two columns before fixed-sidebar content has room")
 	}
 }
 
