@@ -39,6 +39,18 @@ func TestAssetsAreMountedWithoutStripPrefix(t *testing.T) {
 	}
 }
 
+func TestCatalogNavigationHasSearchGroupsAndComponentContract(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/heartbeat", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{"Search catalog", "Components", "Examples", "x-model=\"query\"", "components.KindHeartbeat", "Accessibility"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("catalog page missing %q", want)
+		}
+	}
+}
+
 func TestDemoStylesheetRenders(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()

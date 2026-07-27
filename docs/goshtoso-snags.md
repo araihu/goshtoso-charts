@@ -14,3 +14,10 @@ utility a catalog layout might use (for example, `lg:flex-col`). Keep the
 component primitives on Goshtoso utilities and tokens, but put demo/application
 layout rules in the consumer's own stylesheet rather than assuming an arbitrary
 Tailwind class is emitted.
+
+## 2026-07-27: catalog sidebar follow-through
+
+The searchable grouped demo sidebar used only Goshtoso's bundled Alpine
+dependency and application-owned CSS. `templ generate` regenerated both page
+artifacts cleanly; no new Goshtoso component, helper, or generated-template
+friction appeared beyond the existing consumer utility-coverage constraint.

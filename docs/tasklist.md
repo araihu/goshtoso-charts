@@ -1,12 +1,11 @@
 # Task list
 
-## Next: catalog parity
+## Completed: catalog parity
 
-- Add the Goshtoso demo site's sidebar search, filtering the catalog navigation
-  without making chart rendering client-side.
-- Give every chart page the same concise component description structure used
-  by the Goshtoso component catalog: purpose, primitive, `Kind`, configuration
-  dimensions, and accessibility contract.
+- Added a search-first, grouped sidebar. Alpine filters catalog navigation
+  only; chart rendering remains server-side.
+- Added concise Heartbeat and Line component contracts: purpose, primitive,
+  `Kind`, configuration dimensions, and accessibility contract.
 
 ## Chart primitives
 

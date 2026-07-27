@@ -20,8 +20,11 @@ templ layout(title string, active string, content templ.Component) {
 		<body class="bg-surface text-on-surface dark:bg-surface-dark dark:text-on-surface-dark" x-bind:class="dark ? 'dark' : ''">
 			<a class="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-radius focus:bg-primary focus:px-3 focus:py-2 focus:text-on-primary" href="#main-content">Skip to content</a>
 			<header class="sticky top-0 z-20 border-b border-outline bg-surface/95 backdrop-blur dark:border-outline-dark dark:bg-surface-dark/95">
-				<div class="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-					<a class="font-title text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong" href="/">Goshtoso Charts</a>
+				<div class="flex min-h-16 items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+					<a class="flex min-w-0 items-center gap-3 font-title text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong" href="/">
+						<span class="charts-mark" aria-hidden="true">G</span>
+						<span class="truncate">Goshtoso Charts</span>
+					</a>
 					<div class="flex items-center gap-2">
 						<label class="sr-only" for="theme-select">Theme</label>
 						<select id="theme-select" class="rounded-radius border border-control-outline bg-surface px-2 py-1 text-sm dark:border-control-outline-dark dark:bg-surface-dark" x-model="theme">
@@ -32,13 +35,25 @@ templ layout(title string, active string, content templ.Component) {
 					</div>
 				</div>
 			</header>
-			<div class="charts-shell mx-auto max-w-7xl px-4 py-6 lg:px-6">
-				<aside class="charts-sidebar" aria-label="Component navigation">
-					<nav class="charts-nav flex gap-2 overflow-x-auto">
-						@navItem("/", "Overview", active == "overview")
-						@navItem("/components/heartbeat", "Heartbeat", active == "heartbeat")
-						@navItem("/components/line", "Line chart", active == "line")
-						@navItem("/examples/status-page", "Status page", active == "status-page")
+			<div class="charts-shell px-4 py-6 sm:px-6 lg:px-8">
+				<aside class="charts-sidebar" aria-label="Component navigation" x-data="{ query: '' }">
+					<label class="sr-only" for="catalog-search">Search components</label>
+					<div class="charts-search">
+						<span aria-hidden="true">⌕</span>
+						<input id="catalog-search" type="search" placeholder="Search catalog" autocomplete="off" x-model="query" x-on:keydown.escape="query = ''"/>
+					</div>
+					<nav class="charts-nav" aria-label="Catalog navigation">
+						@navGroup("Start", queryExpression("overview")) {
+							@navItem("/", "Overview", active == "overview", "overview")
+						}
+						@navGroup("Components", queryExpression("heartbeat line chart")) {
+							@navItem("/components/heartbeat", "Heartbeat", active == "heartbeat", "heartbeat")
+							@navItem("/components/line", "Line chart", active == "line", "line chart")
+						}
+						@navGroup("Examples", queryExpression("status page xisnove")) {
+							@navItem("/examples/status-page", "Status page", active == "status-page", "status page xisnove")
+						}
+						<p class="charts-no-results" x-cloak x-show="query && !['overview', 'heartbeat', 'line chart', 'status page xisnove'].some(item => item.includes(query.toLowerCase()))">No catalog entries match.</p>
 					</nav>
 				</aside>
 				<main id="main-content" tabindex="-1" class="charts-main min-w-0 space-y-8">
@@ -49,6 +64,13 @@ templ layout(title string, active string, content templ.Component) {
 	</html>
 }
 
-templ navItem(href string, label string, active bool) {
-	<a href={ templ.SafeURL(href) } class={ navItemClass(active) } aria-current={ navCurrent(active) }>{ label }</a>
+templ navGroup(label string, show string) {
+	<section class="charts-nav-group" x-show={ show }>
+		<h2>{ label }</h2>
+		<div>{ children... }</div>
+	</section>
+}
+
+templ navItem(href string, label string, active bool, searchTerms string) {
+	<a href={ templ.SafeURL(href) } class={ navItemClass(active) } aria-current={ navCurrent(active) } x-show={ queryExpression(searchTerms) }>{ label }</a>
 }
