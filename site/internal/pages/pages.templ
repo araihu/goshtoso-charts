@@ -3,6 +3,7 @@ package pages
 import (
 	"github.com/araihu/goshtoso/components/badge"
 	"github.com/araihu/goshtoso/components/panel"
+	"github.com/araihu/goshtoso-app-shells/componentpage"
 	"github.com/araihu/goshtoso-charts/components/heartbeat"
 	"github.com/araihu/goshtoso-charts/components/line"
 )
@@ -33,15 +34,22 @@ templ HeartbeatPage(fragment bool) {
 }
 
 templ heartbeatContent() {
-	<section class="space-y-2">
-		<p class="text-sm font-semibold text-primary dark:text-primary-dark">Components / Heartbeat</p>
-		<h1 class="font-title text-3xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Heartbeat</h1>
-		<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">Compact availability history. Use it for monitor health and status-page evidence; retain exact values in nearby copy or a detail table.</p>
-	</section>
-	@componentContract("Purpose", "Compact ordered availability evidence for a monitor or public-status row.", "Primitive", "heartbeat.Heartbeat", "Kind", "components.KindHeartbeat", "Configuration", "Label, Caption, chronological Points, RootClass, and RootAttrs.", "Accessibility", "Figure name comes from Label; Caption remains visible; every point exposes timestamp, state, and optional latency in its SVG title. Empty points render an explicit no-data state.")
-	@demoPanel("Monitor availability", "Mixed states and latency titles", heartbeat.Heartbeat(sampleHeartbeat()), heartbeatCode())
-	@demoPanel("No data", "Absence of probes is not uptime", heartbeat.Heartbeat(heartbeat.Config{Label: "API availability"}), noDataCode())
-	@demoNote("State contract", "up, degraded, down, and unknown are distinct. Color supports scanning; figure label, SVG titles, and text summary supply meaning.")
+	@componentpage.Page(componentpage.Config{
+		Title: "Heartbeat",
+		Description: "Compact availability history. Use it for monitor health and status-page evidence; retain exact values in nearby copy or a detail table.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compact ordered availability evidence for a monitor or public-status row.", "Primitive", "heartbeat.Heartbeat", "Kind", "components.KindHeartbeat", "Configuration", "Label, Caption, chronological Points, RootClass, and RootAttrs.", "Accessibility", "Figure name comes from Label; Caption remains visible; every point exposes timestamp, state, and optional latency in its SVG title. Empty points render an explicit no-data state."),
+			Preview: heartbeat.Heartbeat(sampleHeartbeat()),
+			Code: heartbeatCode(),
+		},
+		Sections: []componentpage.Example{{
+			Title: "No data",
+			Description: "Absence of probes is not uptime.",
+			Preview: heartbeat.Heartbeat(heartbeat.Config{Label: "API availability"}),
+			Code: noDataCode(),
+		}},
+		After: demoNote("State contract", "up, degraded, down, and unknown are distinct. Color supports scanning; figure label, SVG titles, and text summary supply meaning."),
+	})
 }
 
 templ LinePage(fragment bool) {
@@ -49,14 +57,16 @@ templ LinePage(fragment bool) {
 }
 
 templ lineContent() {
-	<section class="space-y-2">
-		<p class="text-sm font-semibold text-primary dark:text-primary-dark">Components / Line chart</p>
-		<h1 class="font-title text-3xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Line chart</h1>
-		<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">Quantitative SSR SVG for latency, queue depth, or any ordered numeric series. Renderer stays Go-native; surrounding panel stays application-owned.</p>
-	</section>
-	@componentContract("Purpose", "Summarize one or more ordered numeric series without browser rendering.", "Primitive", "line.Line", "Kind", "components.KindLineChart", "Configuration", "Label, Caption, axis Labels, named Series, optional Width, and Height.", "Accessibility", "Figure name comes from Label; Caption stays visible. Keep an adjacent table or text summary when exact values are needed.")
-	@demoPanel("HTTPS monitor latency", "Seven observations in milliseconds", line.Line(sampleLatency()), lineCode())
-	@demoNote("Theme contract", "Line and heartbeat resolve Goshtoso semantic CSS tokens at display time. One SSR response follows every built-in theme and its dark mode; no browser chart renderer is involved.")
+	@componentpage.Page(componentpage.Config{
+		Title: "Line chart",
+		Description: "Quantitative SSR SVG for latency, queue depth, or any ordered numeric series. Renderer stays Go-native; surrounding panel stays application-owned.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Summarize one or more ordered numeric series without browser rendering.", "Primitive", "line.Line", "Kind", "components.KindLineChart", "Configuration", "Label, Caption, axis Labels, named Series, optional Width, and Height.", "Accessibility", "Figure name comes from Label; Caption stays visible. Keep an adjacent table or text summary when exact values are needed."),
+			Preview: line.Line(sampleLatency()),
+			Code: lineCode(),
+		},
+		After: demoNote("Theme contract", "Line and heartbeat resolve Goshtoso semantic CSS tokens at display time. One SSR response follows every built-in theme and its dark mode; no browser chart renderer is involved."),
+	})
 }
 
 templ StatusPageExample(fragment bool) {
@@ -95,14 +105,6 @@ templ overviewHeartbeatHeader() {
 
 templ overviewLineHeader() {
 	<div><h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Latency</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Line primitive</p></div>
-}
-
-templ demoPanel(title string, description string, preview templ.Component, code string) {
-	<section class="overflow-hidden rounded-radius border border-outline dark:border-outline-dark">
-		<div class="border-b border-outline bg-surface-alt px-5 py-4 dark:border-outline-dark dark:bg-surface-dark-alt"><h2 id={ tocID(title) } data-toc-heading class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">{ title }</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">{ description }</p></div>
-		<div class="p-5">@preview</div>
-		<pre class="overflow-x-auto border-t border-outline bg-surface-alt p-5 text-xs text-on-surface dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark"><code>{ code }</code></pre>
-	</section>
 }
 
 templ demoNote(title string, text string) {

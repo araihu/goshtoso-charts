@@ -39,23 +39,23 @@ func TestAssetsAreMountedWithoutStripPrefix(t *testing.T) {
 	}
 }
 
-func TestCatalogNavigationHasSearchGroupsAndComponentContract(t *testing.T) {
+func TestComponentDocsNavigationHasSearchGroupsAndComponentContract(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/heartbeat", nil))
 	body := recorder.Body.String()
-	for _, want := range []string{"Search catalog", "Components", "Examples", "catalog-shell__sidebar", "components.KindHeartbeat", "Accessibility"} {
+	for _, want := range []string{"Search docs...", "Components", "Examples", "component-doc-shell__sidebar", "components.KindHeartbeat", "Accessibility"} {
 		if !strings.Contains(body, want) {
-			t.Errorf("catalog page missing %q", want)
+			t.Errorf("component docs page missing %q", want)
 		}
 	}
 }
 
-func TestCatalogShellAssetsRender(t *testing.T) {
+func TestComponentDocsShellAssetsRender(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()
-	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/catalogshell/assets/shell.css", nil))
-	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), ".catalog-shell__frame") {
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/componentdocshell/assets/shell.css", nil))
+	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), ".component-doc-shell__frame") {
 		t.Fatalf("GET shell stylesheet status/body = %d/%q", recorder.Code, recorder.Body.String())
 	}
 }
@@ -70,7 +70,7 @@ func TestHTMXNavigationRendersContentAndSidebarFragment(t *testing.T) {
 	if strings.Contains(body, "<html") {
 		t.Fatal("HTMX response contains a complete document")
 	}
-	for _, want := range []string{`id="main-content"`, `id="catalogshell-sidebar-content"`, `hx-swap-oob`, `components.KindLineChart`} {
+	for _, want := range []string{`<title>Line chart · Goshtoso Charts</title>`, `id="main-content"`, `id="componentdocshell-sidebar-content"`, `hx-swap-oob`, `components.KindLineChart`} {
 		if !strings.Contains(body, want) {
 			t.Errorf("HTMX response missing %q", want)
 		}

@@ -1,5 +1,8 @@
 # Goshtoso App Shells: Catalog Shell Design
 
+> Superseded by `docs/component-doc-shell-spec.md`. Component documentation and
+> catalog/browse are distinct shell patterns; `catalogshell` was not released.
+
 Date: 2026-07-27
 
 ## Summary

@@ -1,15 +1,17 @@
 # Task list
 
-## Completed: catalog parity
+## Completed: component documentation parity
 
 - Extracted the Goshtoso demo frame into the public
-  `github.com/araihu/goshtoso-app-shells/catalogshell` module and adopted it
+  `github.com/araihu/goshtoso-app-shells/componentdocshell` module and adopted it
   here. The shell owns the full-width header, search-first grouped sidebar,
   theme and dark controls, responsive drawer, main scroll, and page TOC.
 - Kept the sidebar beside content from 720px upward and switched to a drawer
   below that breakpoint; chart rendering remains server-side.
 - Added concise Heartbeat and Line component contracts: purpose, primitive,
   `Kind`, configuration dimensions, and accessibility contract.
+- Kept catalog/browse shells as a separate pattern. Component reference page
+  composition lives in `componentpage`; it is not another shell.
 
 ## Chart primitives
 

@@ -8,7 +8,7 @@ package pages
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
-import "github.com/araihu/goshtoso-app-shells/catalogshell"
+import "github.com/araihu/goshtoso-app-shells/componentdocshell"
 
 type Page interface {
 	templ.Component
@@ -36,12 +36,12 @@ func layout(title string, active string, content templ.Component, fragment bool)
 		}
 		ctx = templ.ClearChildren(ctx)
 		if fragment {
-			templ_7745c5c3_Err = catalogshell.Fragment(shellConfig(), shellPage(title, active, content)).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = componentdocshell.Fragment(shellConfig(), shellPage(title, active, content)).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
 		} else {
-			templ_7745c5c3_Err = catalogshell.Layout(shellConfig(), shellPage(title, active, content)).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = componentdocshell.Layout(shellConfig(), shellPage(title, active, content)).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

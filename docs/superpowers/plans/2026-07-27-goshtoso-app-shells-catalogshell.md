@@ -1,5 +1,8 @@
 # Goshtoso Catalog Shell Implementation Plan
 
+> Superseded by `docs/component-doc-shell-spec.md`. Implementation shipped as
+> `componentdocshell` plus `componentpage`; `catalogshell` remains reserved.
+
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
 **Goal:** Create `github.com/araihu/goshtoso-app-shells/catalogshell`, extract the Goshtoso demo shell into a flexible public module, and adopt it in Goshtoso and Goshtoso Charts.

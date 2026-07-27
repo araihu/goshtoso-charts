@@ -4,8 +4,7 @@ import (
 	"strings"
 
 	"github.com/a-h/templ"
-	"github.com/araihu/goshtoso-app-shells/catalogshell"
-	selectfield "github.com/araihu/goshtoso/components/select"
+	"github.com/araihu/goshtoso-app-shells/componentdocshell"
 	"github.com/araihu/goshtoso/components/sidebar"
 )
 
@@ -13,8 +12,8 @@ func tocID(title string) string {
 	return strings.ToLower(strings.ReplaceAll(title, " ", "-"))
 }
 
-func shellPage(title string, active string, content templ.Component) catalogshell.Page {
-	return catalogshell.Page{
+func shellPage(title string, active string, content templ.Component) componentdocshell.Page {
+	return componentdocshell.Page{
 		Title:       title,
 		Description: "Server-rendered chart components for Goshtoso applications.",
 		Active:      active,
@@ -23,17 +22,14 @@ func shellPage(title string, active string, content templ.Component) catalogshel
 	}
 }
 
-func shellConfig() catalogshell.Config {
-	return catalogshell.Config{
-		Brand: catalogshell.Brand{
-			Name:    "Goshtoso Charts",
-			HomeURL: "/",
-		},
-		Navigation: catalogshell.Navigation{
+func shellConfig() componentdocshell.Config {
+	return componentdocshell.Config{
+		Brand: componentdocshell.GoshtosoBrand("Goshtoso Charts", "/", ""),
+		Navigation: componentdocshell.Navigation{
 			Items: []sidebar.Item{
 				{ID: "overview", Label: "Overview", Href: "/"},
 			},
-			SectionsTitle: "Catalog",
+			SectionsTitle: "Documentation",
 			Sections: []sidebar.Section{
 				{
 					Title: "Components",
@@ -49,14 +45,10 @@ func shellConfig() catalogshell.Config {
 					},
 				},
 			},
-			SearchPlaceholder: "Search catalog",
+			SearchPlaceholder: "Search docs...",
 		},
-		Themes: []selectfield.Option{
-			{Value: "goshtoso", Label: "Goshtoso", Selected: true},
-			{Value: "minimal", Label: "Minimal"},
-		},
-		RepositoryURL:      "https://github.com/araihu/goshtoso-charts",
-		EnableHTMX:         true,
-		PersistPreferences: true,
+		Appearance:    componentdocshell.AppearanceConfig{PersistPreferences: true},
+		Interactions:  componentdocshell.InteractionConfig{EnableHTMX: true},
+		RepositoryURL: "https://github.com/araihu/goshtoso-charts",
 	}
 }
