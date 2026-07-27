@@ -5,7 +5,7 @@ go 1.26.5
 require (
 	github.com/a-h/templ v0.3.1020
 	github.com/araihu/goshtoso v0.0.13
-	github.com/araihu/goshtoso-app-shells v0.0.0-20260727203659-fc397e3e4edc
+	github.com/araihu/goshtoso-app-shells v0.0.0-20260727205257-d4e90bca4190
 	github.com/araihu/goshtoso-charts v0.0.0
 )
 
