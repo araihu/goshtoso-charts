@@ -7,8 +7,8 @@ import (
 	"github.com/araihu/goshtoso-charts/components/line"
 )
 
-templ OverviewPage() {
-	@layout("Overview", "overview", overviewContent())
+templ OverviewPage(fragment bool) {
+	@layout("Overview", "overview", overviewContent(), fragment)
 }
 
 templ overviewContent() {
@@ -28,8 +28,8 @@ templ overviewContent() {
 	@demoNote("Component contract", "Each component has typed Config, concrete Instance, stable Kind, and templ.Component rendering. Consumers choose page composition; charts supply evidence surfaces.")
 }
 
-templ HeartbeatPage() {
-	@layout("Heartbeat", "heartbeat", heartbeatContent())
+templ HeartbeatPage(fragment bool) {
+	@layout("Heartbeat", "heartbeat", heartbeatContent(), fragment)
 }
 
 templ heartbeatContent() {
@@ -44,8 +44,8 @@ templ heartbeatContent() {
 	@demoNote("State contract", "up, degraded, down, and unknown are distinct. Color supports scanning; figure label, SVG titles, and text summary supply meaning.")
 }
 
-templ LinePage() {
-	@layout("Line chart", "line", lineContent())
+templ LinePage(fragment bool) {
+	@layout("Line chart", "line", lineContent(), fragment)
 }
 
 templ lineContent() {
@@ -59,8 +59,8 @@ templ lineContent() {
 	@demoNote("Theme contract", "Line and heartbeat resolve Goshtoso semantic CSS tokens at display time. One SSR response follows every built-in theme and its dark mode; no browser chart renderer is involved.")
 }
 
-templ StatusPageExample() {
-	@layout("Status page example", "status-page", statusPageContent())
+templ StatusPageExample(fragment bool) {
+	@layout("Status page example", "status-page", statusPageContent(), fragment)
 }
 
 templ statusPageContent() {

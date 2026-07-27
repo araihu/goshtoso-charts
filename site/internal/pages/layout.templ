@@ -6,12 +6,10 @@ type Page interface {
 	templ.Component
 }
 
-templ layout(title string, active string, content templ.Component) {
-	@catalogshell.Layout(shellConfig(), catalogshell.Page{
-		Title: title,
-		Description: "Server-rendered chart components for Goshtoso applications.",
-		Active: active,
-		Content: content,
-		EnableTOC: active == "heartbeat" || active == "line",
-	})
+templ layout(title string, active string, content templ.Component, fragment bool) {
+	if fragment {
+		@catalogshell.Fragment(shellConfig(), shellPage(title, active, content))
+	} else {
+		@catalogshell.Layout(shellConfig(), shellPage(title, active, content))
+	}
 }

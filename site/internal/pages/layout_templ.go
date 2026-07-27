@@ -14,7 +14,7 @@ type Page interface {
 	templ.Component
 }
 
-func layout(title string, active string, content templ.Component) templ.Component {
+func layout(title string, active string, content templ.Component, fragment bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -35,15 +35,16 @@ func layout(title string, active string, content templ.Component) templ.Componen
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = catalogshell.Layout(shellConfig(), catalogshell.Page{
-			Title:       title,
-			Description: "Server-rendered chart components for Goshtoso applications.",
-			Active:      active,
-			Content:     content,
-			EnableTOC:   active == "heartbeat" || active == "line",
-		}).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		if fragment {
+			templ_7745c5c3_Err = catalogshell.Fragment(shellConfig(), shellPage(title, active, content)).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		} else {
+			templ_7745c5c3_Err = catalogshell.Layout(shellConfig(), shellPage(title, active, content)).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
 		return nil
 	})

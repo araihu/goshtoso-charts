@@ -59,3 +59,20 @@ func TestCatalogShellAssetsRender(t *testing.T) {
 		t.Fatalf("GET shell stylesheet status/body = %d/%q", recorder.Code, recorder.Body.String())
 	}
 }
+
+func TestHTMXNavigationRendersContentAndSidebarFragment(t *testing.T) {
+	t.Parallel()
+	request := httptest.NewRequest(http.MethodGet, "/components/line", nil)
+	request.Header.Set("HX-Request", "true")
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, request)
+	body := recorder.Body.String()
+	if strings.Contains(body, "<html") {
+		t.Fatal("HTMX response contains a complete document")
+	}
+	for _, want := range []string{`id="main-content"`, `id="catalogshell-sidebar-content"`, `hx-swap-oob`, `components.KindLineChart`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("HTMX response missing %q", want)
+		}
+	}
+}

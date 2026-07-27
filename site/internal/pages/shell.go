@@ -3,6 +3,7 @@ package pages
 import (
 	"strings"
 
+	"github.com/a-h/templ"
 	"github.com/araihu/goshtoso-app-shells/catalogshell"
 	selectfield "github.com/araihu/goshtoso/components/select"
 	"github.com/araihu/goshtoso/components/sidebar"
@@ -10,6 +11,16 @@ import (
 
 func tocID(title string) string {
 	return strings.ToLower(strings.ReplaceAll(title, " ", "-"))
+}
+
+func shellPage(title string, active string, content templ.Component) catalogshell.Page {
+	return catalogshell.Page{
+		Title:       title,
+		Description: "Server-rendered chart components for Goshtoso applications.",
+		Active:      active,
+		Content:     content,
+		EnableTOC:   active == "heartbeat" || active == "line",
+	}
 }
 
 func shellConfig() catalogshell.Config {
@@ -45,6 +56,7 @@ func shellConfig() catalogshell.Config {
 			{Value: "minimal", Label: "Minimal"},
 		},
 		RepositoryURL:      "https://github.com/araihu/goshtoso-charts",
+		EnableHTMX:         true,
 		PersistPreferences: true,
 	}
 }

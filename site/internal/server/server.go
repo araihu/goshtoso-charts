@@ -19,18 +19,22 @@ func New() http.Handler {
 			http.NotFound(writer, request)
 			return
 		}
-		render(writer, request, pages.OverviewPage())
+		render(writer, request, pages.OverviewPage(isFragment(request)))
 	})
 	mux.HandleFunc("GET /components/heartbeat", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.HeartbeatPage())
+		render(writer, request, pages.HeartbeatPage(isFragment(request)))
 	})
 	mux.HandleFunc("GET /components/line", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.LinePage())
+		render(writer, request, pages.LinePage(isFragment(request)))
 	})
 	mux.HandleFunc("GET /examples/status-page", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.StatusPageExample())
+		render(writer, request, pages.StatusPageExample(isFragment(request)))
 	})
 	return mux
+}
+
+func isFragment(request *http.Request) bool {
+	return request.Header.Get("HX-Request") == "true"
 }
 
 func render(writer http.ResponseWriter, request *http.Request, page pages.Page) {
