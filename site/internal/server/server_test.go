@@ -17,12 +17,15 @@ func TestDemoRoutesRender(t *testing.T) {
 		want string
 	}{
 		{"/", "SSR charts for Goshtoso"},
+		{"/attributions", "Backing libraries"},
 		{"/components/heartbeat", "Heartbeat"},
 		{"/components/line", "Line chart"},
 		{"/components/bar", "Bar chart"},
 		{"/components/pie", "Pie chart"},
 		{"/components/echarts/bar", "ECharts bar"},
 		{"/components/echarts/line", "ECharts line"},
+		{"/components/echarts/scatter", "ECharts scatter"},
+		{"/components/echarts/effect-scatter", "ECharts effect scatter"},
 		{"/examples/status-page", "Status page example"},
 		{"/examples/go-echarts", "go-echarts catalog"},
 		{"/examples/go-echarts/bar-basic", "Basic bar"},
@@ -35,6 +38,47 @@ func TestDemoRoutesRender(t *testing.T) {
 		if !strings.Contains(recorder.Body.String(), test.want) {
 			t.Errorf("GET %s missing %q", test.path, test.want)
 		}
+	}
+}
+
+func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
+	t.Parallel()
+	handler := New()
+
+	attributions := httptest.NewRecorder()
+	handler.ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	if attributions.Code != http.StatusOK {
+		t.Fatalf("GET /attributions status = %d, want %d", attributions.Code, http.StatusOK)
+	}
+	for _, want := range []string{"Goshtoso App Shells", "templ", "go-analyze/charts", "go-echarts", "Apache ECharts", "MIT license", "Apache-2.0 license", "site/internal/echartsassets/NOTICE.md"} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("attributions page missing %q", want)
+		}
+	}
+
+	for _, path := range []string{"/components/echarts/bar", "/components/echarts/line", "/components/echarts/scatter", "/components/echarts/effect-scatter"} {
+		page := httptest.NewRecorder()
+		handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, path, nil))
+		for _, unwanted := range []string{"backed by go-echarts", "with go-echarts options", ">go-echarts catalog<"} {
+			if strings.Contains(page.Body.String(), unwanted) {
+				t.Errorf("GET %s repeats centralized attribution %q", path, unwanted)
+			}
+		}
+	}
+}
+
+func TestOverviewAndAttributionsUseNativeSidebarIcons(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{`data-sidebar-icon="overview"`, `data-sidebar-icon="attributions"`, `aria-hidden="true"`} {
+		if !strings.Contains(body, want) {
+			t.Errorf("sidebar navigation missing icon contract %q", want)
+		}
+	}
+	if !strings.Contains(body, `href="/attributions"`) || !strings.Contains(body, `aria-current="page"`) {
+		t.Error("attributions navigation does not retain linked, active accessible state")
 	}
 }
 

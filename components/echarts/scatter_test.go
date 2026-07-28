@@ -1,0 +1,98 @@
+package echarts
+
+import (
+	"bytes"
+	"context"
+	"strings"
+	"testing"
+
+	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/charttheme"
+	"github.com/go-echarts/go-echarts/v2/charts"
+	"github.com/go-echarts/go-echarts/v2/opts"
+)
+
+func TestScatterRendersCategoryChart(t *testing.T) {
+	t.Parallel()
+	instance := Scatter(ScatterConfig{
+		Label: "Release quality", Caption: "Defects by release.", XAxis: []string{"v1", "v2"},
+		Series: []ScatterSeries{{
+			Name: "Defects", Data: []opts.ScatterData{{Value: 8}, {Value: 3}},
+			Options: []charts.SeriesOpts{charts.WithScatterChartOpts(opts.ScatterChart{Symbol: "diamond", SymbolSize: 18})},
+		}},
+		Width: "720px", Height: "360px",
+		GlobalOptions: []charts.GlobalOpts{charts.WithTitleOpts(opts.Title{Title: "Quality"}), charts.WithColorsOpts(opts.Colors{"#000000"})},
+		Style:         charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
+	})
+
+	if instance.Kind() != chartcomponents.KindEChartsScatter {
+		t.Fatalf("Kind() = %q", instance.Kind())
+	}
+	var output bytes.Buffer
+	if err := instance.Render(context.Background(), &output); err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	markup := output.String()
+	for _, want := range []string{
+		"Release quality", "Defects by release.", "width:720px;height:360px", `"v1","v2"`,
+		`"name":"Defects"`, `"symbol":"diamond"`, `"symbolSize":18`, `"text":"Quality"`,
+		`"color":["#123456","#ff8a3d"`, "goshtoso-charts-palette-araihu min-h-80",
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("rendered markup missing %q", want)
+		}
+	}
+	if strings.Contains(markup, "#000000") {
+		t.Error("explicit Style.Colors did not override global color options")
+	}
+}
+
+func TestScatterRendersValueAxisCoordinates(t *testing.T) {
+	t.Parallel()
+	instance := Scatter(ScatterConfig{
+		Label: "Latency and load", XAxisType: CartesianAxisValue,
+		Series: []ScatterSeries{{Name: "Nodes", Data: []opts.ScatterData{
+			{Name: "api-1", Value: [2]float64{1.5, 8}}, {Name: "api-2", Value: [2]float64{3, 13}},
+		}}},
+	})
+	var output bytes.Buffer
+	if err := instance.Render(context.Background(), &output); err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	markup := output.String()
+	for _, want := range []string{`"type":"value"`, `"value":[1.5,8]`, `"value":[3,13]`} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("rendered markup missing %q", want)
+		}
+	}
+}
+
+func TestScatterRejectsInvalidDataContract(t *testing.T) {
+	t.Parallel()
+	tests := map[string]struct {
+		cfg       ScatterConfig
+		wantError string
+	}{
+		"unsupported axis":         {cfg: ScatterConfig{XAxisType: "time"}, wantError: `scatter chart x axis type "time" is not supported`},
+		"missing categories":       {cfg: ScatterConfig{}, wantError: "scatter chart x axis is required for category mode"},
+		"categories in value mode": {cfg: ScatterConfig{XAxisType: CartesianAxisValue, XAxis: []string{"A"}}, wantError: "scatter chart x axis categories are not allowed for value mode"},
+		"missing series":           {cfg: ScatterConfig{XAxis: []string{"A"}}, wantError: "scatter chart series is required"},
+		"missing name":             {cfg: ScatterConfig{XAxis: []string{"A"}, Series: []ScatterSeries{{Data: []opts.ScatterData{{Value: 1}}}}}, wantError: "scatter chart series 0 name is required"},
+		"missing data":             {cfg: ScatterConfig{XAxis: []string{"A"}, Series: []ScatterSeries{{Name: "Events"}}}, wantError: `scatter chart series "Events" data is required`},
+		"misaligned categories":    {cfg: ScatterConfig{XAxis: []string{"A", "B"}, Series: []ScatterSeries{{Name: "Events", Data: []opts.ScatterData{{Value: 1}}}}}, wantError: `scatter chart series "Events" has 1 data points for 2 x-axis categories`},
+		"invalid coordinate":       {cfg: ScatterConfig{XAxisType: CartesianAxisValue, Series: []ScatterSeries{{Name: "Events", Data: []opts.ScatterData{{Value: []float64{1}}}}}}, wantError: `scatter chart series "Events" data point 0 must contain a numeric [x, y] coordinate`},
+	}
+	for name, test := range tests {
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			var output bytes.Buffer
+			err := Scatter(test.cfg).Render(context.Background(), &output)
+			if err == nil || err.Error() != test.wantError {
+				t.Fatalf("Render() error = %v, want %q", err, test.wantError)
+			}
+			if output.Len() != 0 {
+				t.Fatalf("Render() wrote %d bytes for invalid config", output.Len())
+			}
+		})
+	}
+}

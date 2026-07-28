@@ -29,9 +29,13 @@ const (
 	KindInteractiveECharts Kind = "interactive-echarts"
 	KindEChartsBar         Kind = "echarts-bar"
 	KindEChartsLine        Kind = "echarts-line"
+	// KindEChartsScatter identifies a browser-rendered scatter chart.
+	KindEChartsScatter Kind = "echarts-scatter"
+	// KindEChartsEffectScatter identifies a browser-rendered effect scatter chart.
+	KindEChartsEffectScatter Kind = "echarts-effect-scatter"
 )
 
-var allKinds = []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart, KindInteractiveECharts, KindEChartsBar, KindEChartsLine}
+var allKinds = []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart, KindInteractiveECharts, KindEChartsBar, KindEChartsLine, KindEChartsScatter, KindEChartsEffectScatter}
 
 // AllKinds returns supported component kinds in stable order.
 func AllKinds() []Kind {

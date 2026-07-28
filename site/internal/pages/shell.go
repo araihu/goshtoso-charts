@@ -59,7 +59,8 @@ func shellConfig() componentdocshell.Config {
 func shellNavigation() componentdocshell.Navigation {
 	return componentdocshell.Navigation{
 		Items: []sidebar.Item{
-			{ID: "overview", Label: "Overview", Href: "/"},
+			{ID: "overview", Label: "Overview", Href: "/", Icon: sidebarOverviewIcon()},
+			{ID: "attributions", Label: "Attributions", Href: "/attributions", Icon: sidebarAttributionsIcon()},
 		},
 		SectionsTitle: "Documentation",
 		Sections: []sidebar.Section{
@@ -77,13 +78,15 @@ func shellNavigation() componentdocshell.Navigation {
 				Items: []sidebar.Item{
 					{ID: "echarts-bar", Label: "Bar", Href: "/components/echarts/bar"},
 					{ID: "echarts-line", Label: "Line", Href: "/components/echarts/line"},
+					{ID: "echarts-scatter", Label: "Scatter", Href: "/components/echarts/scatter"},
+					{ID: "echarts-effect-scatter", Label: "Effect scatter", Href: "/components/echarts/effect-scatter"},
 				},
 			},
 			{
 				Title: "Examples",
 				Items: []sidebar.Item{
 					{ID: "status-page", Label: "Status page", Href: "/examples/status-page"},
-					{ID: "go-echarts", Label: "go-echarts catalog", Href: "/examples/go-echarts"},
+					{ID: "go-echarts", Label: "Interactive catalog", Href: "/examples/go-echarts"},
 				},
 			},
 		},

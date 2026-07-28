@@ -28,6 +28,9 @@ func New() http.Handler {
 		}
 		render(writer, request, pages.OverviewPage(isFragment(request)))
 	})
+	mux.HandleFunc("GET /attributions", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.AttributionsPage(isFragment(request)))
+	})
 	mux.HandleFunc("GET /components/heartbeat", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.HeartbeatPage(isFragment(request)))
 	})
@@ -45,6 +48,12 @@ func New() http.Handler {
 	})
 	mux.HandleFunc("GET /components/echarts/line", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.EChartsLinePage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /components/echarts/scatter", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.EChartsScatterPage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /components/echarts/effect-scatter", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.EChartsEffectScatterPage(isFragment(request)))
 	})
 	mux.HandleFunc("GET /examples/status-page", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.StatusPageExample(isFragment(request)))

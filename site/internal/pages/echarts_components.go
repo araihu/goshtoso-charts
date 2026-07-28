@@ -27,6 +27,36 @@ func sampleEChartsLine() interactive.LineConfig {
 	}
 }
 
+func sampleEChartsScatter() interactive.ScatterConfig {
+	return interactive.ScatterConfig{
+		Label: "Latency by request volume", Caption: "Each point represents one service node.",
+		XAxisType: interactive.CartesianAxisValue,
+		Series: []interactive.ScatterSeries{{
+			Name: "Nodes",
+			Data: []opts.ScatterData{
+				{Name: "api-1", Value: [2]float64{120, 42}},
+				{Name: "api-2", Value: [2]float64{180, 61}},
+				{Name: "worker-1", Value: [2]float64{95, 35}},
+				{Name: "worker-2", Value: [2]float64{240, 78}},
+			},
+		}},
+		GlobalOptions: []charts.GlobalOpts{charts.WithTitleOpts(opts.Title{Title: "Load and latency"})},
+	}
+}
+
+func sampleEChartsEffectScatter() interactive.EffectScatterConfig {
+	return interactive.EffectScatterConfig{
+		Label: "Release impact", Caption: "Ripple highlights the highest-impact releases.",
+		XAxis: []string{"v1.8", "v1.9", "v2.0", "v2.1"},
+		Series: []interactive.EffectScatterSeries{{
+			Name:    "Impact",
+			Data:    []opts.EffectScatterData{{Value: 35}, {Value: 52}, {Value: 91}, {Value: 64}},
+			Options: []charts.SeriesOpts{charts.WithRippleEffectOpts(opts.RippleEffect{Scale: 6, BrushType: "stroke"})},
+		}},
+		GlobalOptions: []charts.GlobalOpts{charts.WithTitleOpts(opts.Title{Title: "Release impact"})},
+	}
+}
+
 func eChartsBarCode() string {
 	return `@echarts.Bar(echarts.BarConfig{
   Label: "Weekly deployments",
@@ -40,5 +70,28 @@ func eChartsLineCode() string {
   Label: "Weekly latency",
   XAxis: []string{"Mon", "Tue"},
   Series: []echarts.LineSeries{{Name: "Latency", Data: []opts.LineData{{Value: 42}, {Value: 47}}}},
+})`
+}
+
+func eChartsScatterCode() string {
+	return `@echarts.Scatter(echarts.ScatterConfig{
+  Label: "Latency by request volume",
+  XAxisType: echarts.CartesianAxisValue,
+  Series: []echarts.ScatterSeries{{Name: "Nodes", Data: []opts.ScatterData{
+    {Name: "api-1", Value: [2]float64{120, 42}},
+    {Name: "api-2", Value: [2]float64{180, 61}},
+  }}},
+})`
+}
+
+func eChartsEffectScatterCode() string {
+	return `@echarts.EffectScatter(echarts.EffectScatterConfig{
+  Label: "Release impact",
+  XAxis: []string{"v1.8", "v1.9", "v2.0"},
+  Series: []echarts.EffectScatterSeries{{
+    Name: "Impact",
+    Data: []opts.EffectScatterData{{Value: 35}, {Value: 52}, {Value: 91}},
+    Options: []charts.SeriesOpts{charts.WithRippleEffectOpts(opts.RippleEffect{Scale: 6})},
+  }},
 })`
 }

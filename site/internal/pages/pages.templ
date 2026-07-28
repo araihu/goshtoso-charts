@@ -98,9 +98,9 @@ templ EChartsBarPage(fragment bool) {
 templ eChartsBarContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "ECharts bar",
-		Description: "Reusable interactive bar component backed by go-echarts.",
+		Description: "Reusable interactive bar component for categorical comparisons.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Interactive categorical comparisons with go-echarts options.", "Primitive", "echarts.Bar", "Kind", "components.KindEChartsBar", "Configuration", "Label, Caption, XAxis, typed Series, size, global options, and series options.", "Accessibility", "Figure name comes from Label; Caption stays visible."),
+			AbovePreview: componentContract("Purpose", "Interactive categorical comparisons.", "Primitive", "echarts.Bar", "Kind", "components.KindEChartsBar", "Configuration", "Label, Caption, XAxis, typed Series, size, global options, and series options.", "Accessibility", "Figure name comes from Label; Caption stays visible."),
 			Preview: interactive.Bar(sampleEChartsBar()),
 			Code: eChartsBarCode(),
 		},
@@ -114,11 +114,43 @@ templ EChartsLinePage(fragment bool) {
 templ eChartsLineContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "ECharts line",
-		Description: "Reusable interactive line component backed by go-echarts.",
+		Description: "Reusable interactive line component for ordered trends.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Interactive ordered trends with go-echarts options.", "Primitive", "echarts.Line", "Kind", "components.KindEChartsLine", "Configuration", "Label, Caption, XAxis, typed Series, size, global options, and series options.", "Accessibility", "Figure name comes from Label; Caption stays visible."),
+			AbovePreview: componentContract("Purpose", "Interactive ordered trends.", "Primitive", "echarts.Line", "Kind", "components.KindEChartsLine", "Configuration", "Label, Caption, XAxis, typed Series, size, global options, and series options.", "Accessibility", "Figure name comes from Label; Caption stays visible."),
 			Preview: interactive.Line(sampleEChartsLine()),
 			Code: eChartsLineCode(),
+		},
+	})
+}
+
+templ EChartsScatterPage(fragment bool) {
+	@layout("ECharts scatter", "echarts-scatter", eChartsScatterContent(), fragment)
+}
+
+templ eChartsScatterContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "ECharts scatter",
+		Description: "Reusable interactive scatter component for relationships between two quantitative dimensions or values across categories.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Explore correlation, clusters, and outliers.", "Primitive", "echarts.Scatter", "Kind", "components.KindEChartsScatter", "Configuration", "Label, Caption, category or value axis mode, typed Series, size, global options, series options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Pair the canvas with a table or text summary when exact points matter."),
+			Preview: interactive.Scatter(sampleEChartsScatter()),
+			Code: eChartsScatterCode(),
+		},
+	})
+}
+
+templ EChartsEffectScatterPage(fragment bool) {
+	@layout("ECharts effect scatter", "echarts-effect-scatter", eChartsEffectScatterContent(), fragment)
+}
+
+templ eChartsEffectScatterContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "ECharts effect scatter",
+		Description: "Reusable interactive scatter component with a ripple effect for highlighting a small set of important points.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Call attention to exceptional events or high-impact points.", "Primitive", "echarts.EffectScatter", "Kind", "components.KindEChartsEffectScatter", "Configuration", "Label, Caption, category or value axis mode, typed Series, ripple and symbol options, size, global options, and chart style.", "Accessibility", "Animation is supplemental. Figure name comes from Label and Caption stays visible; preserve the same emphasis in adjacent text."),
+			Preview: interactive.EffectScatter(sampleEChartsEffectScatter()),
+			Code: eChartsEffectScatterCode(),
 		},
 	})
 }
