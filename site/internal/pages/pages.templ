@@ -173,6 +173,40 @@ templ eChartsRadarContent() {
 	})
 }
 
+templ EChartsHeatMapPage(fragment bool) {
+	@layout("ECharts heatmap", "echarts-heatmap", eChartsHeatMapContent(), fragment)
+}
+
+templ eChartsHeatMapContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "ECharts heatmap",
+		Description: "Reusable interactive heatmap component for comparing intensity across category grids or calendar dates within one stable component contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Reveal concentration, gaps, and patterns across two dimensions.", "Primitive", "echarts.HeatMap", "Kind", "components.KindEChartsHeatMap", "Configuration", "Label, Caption, Cartesian or Calendar coordinate variant, typed value range and Series, size, options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Provide an adjacent table or text summary when exact cell values matter."),
+			Preview: interactive.HeatMap(sampleEChartsHeatMap()),
+			Code: eChartsHeatMapCode(),
+		},
+		After: demoNote("Coordinate contract", "HeatMapCoordinateCartesian is the zero-value default. HeatMapCoordinateCalendar replaces category axes with an explicit inclusive date range while the constructor, config, Instance, and stable Kind remain the same."),
+	})
+}
+
+templ EChartsBoxPlotPage(fragment bool) {
+	@layout("ECharts box plot", "echarts-boxplot", eChartsBoxPlotContent(), fragment)
+}
+
+templ eChartsBoxPlotContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "ECharts box plot",
+		Description: "Reusable interactive box plot component for comparing validated five-number summaries across aligned categories.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare distribution centers, spreads, and ranges across categories.", "Primitive", "echarts.BoxPlot", "Kind", "components.KindEChartsBoxPlot", "Configuration", "Label, Caption, Categories, typed single or multiple Series, size, options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve the five-number summaries in adjacent content for exact comparison."),
+			Preview: interactive.BoxPlot(sampleEChartsBoxPlot()),
+			Code: eChartsBoxPlotCode(),
+		},
+		After: demoNote("Summary contract", "Each category accepts one finite, ordered summary: minimum, first quartile, median, third quartile, and maximum. Multiple series share the same categories."),
+	})
+}
+
 templ pieContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Pie chart",

@@ -51,3 +51,11 @@ does not serve consumer-owned identity assets. The Charts site therefore mounts
 the approved v11 SVGs itself at `/brand/` and supplies the logo surface, ink,
 and signal variables for Goshtoso's existing `.dark` state. This keeps the
 shell reusable and preserves the upstream SVG geometry unchanged.
+
+## 2026-07-28: heatmap category-axis validation gap
+
+In go-echarts v2.7.2, `charts.HeatMap.Validate` does not call
+`RectChart.Validate`, so category data supplied through `SetXAxis` is omitted
+from the rendered option. The HeatMap component writes the validated X and Y
+category data to `XAxisList[0].Data` and `YAxisList[0].Data` directly. The
+renderer-specific workaround is covered by `TestHeatMapRendersCartesianChart`.

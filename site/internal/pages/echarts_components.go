@@ -72,6 +72,40 @@ func sampleEChartsRadar() interactive.RadarConfig {
 	}
 }
 
+func sampleEChartsHeatMap() interactive.HeatMapConfig {
+	return interactive.HeatMapConfig{
+		Label: "Deployment activity", Caption: "Deployments by environment and time window.",
+		XAxis:      []string{"08:00", "10:00", "12:00", "14:00", "16:00"},
+		YAxis:      []string{"Development", "Staging", "Production"},
+		ValueRange: interactive.HeatMapValueRange{Min: 0, Max: 20},
+		Series: []interactive.HeatMapSeries{{
+			Name: "Deployments",
+			Data: []interactive.HeatMapData{
+				{X: 0, Y: 0, Value: 12}, {X: 1, Y: 0, Value: 8}, {X: 2, Y: 0, Value: 15},
+				{X: 1, Y: 1, Value: 6}, {X: 2, Y: 1, Value: 10}, {X: 3, Y: 1, Value: 7},
+				{X: 2, Y: 2, Value: 3}, {X: 3, Y: 2, Value: 5}, {X: 4, Y: 2, Value: 4},
+			},
+		}},
+		GlobalOptions: []charts.GlobalOpts{charts.WithTitleOpts(opts.Title{Title: "Deployment activity"})},
+	}
+}
+
+func sampleEChartsBoxPlot() interactive.BoxPlotConfig {
+	return interactive.BoxPlotConfig{
+		Label: "Request latency distribution", Caption: "Five-number latency summaries by environment.",
+		Categories: []string{"Development", "Staging", "Production"},
+		Series: []interactive.BoxPlotSeries{{
+			Name: "Latency (ms)",
+			Data: []interactive.BoxPlotData{
+				{Min: 18, Q1: 31, Median: 42, Q3: 58, Max: 94},
+				{Min: 22, Q1: 38, Median: 51, Q3: 73, Max: 116},
+				{Min: 25, Q1: 44, Median: 62, Q3: 86, Max: 138},
+			},
+		}},
+		GlobalOptions: []charts.GlobalOpts{charts.WithTitleOpts(opts.Title{Title: "Request latency"})},
+	}
+}
+
 func eChartsBarCode() string {
 	return `@echarts.Bar(echarts.BarConfig{
   Label: "Weekly deployments",
@@ -127,6 +161,36 @@ func eChartsRadarCode() string {
   Series: []echarts.RadarSeries{{
     Name: "Profile",
     Data: []echarts.RadarData{{Name: "Current", Values: []float64{99.8, 180, 124}}},
+  }},
+})`
+}
+
+func eChartsHeatMapCode() string {
+	return `@echarts.HeatMap(echarts.HeatMapConfig{
+  Label: "Deployment activity",
+  XAxis: []string{"08:00", "10:00", "12:00"},
+  YAxis: []string{"Development", "Production"},
+  ValueRange: echarts.HeatMapValueRange{Min: 0, Max: 20},
+  Series: []echarts.HeatMapSeries{{
+    Name: "Deployments",
+    Data: []echarts.HeatMapData{
+      {X: 0, Y: 0, Value: 12},
+      {X: 2, Y: 1, Value: 4},
+    },
+  }},
+})`
+}
+
+func eChartsBoxPlotCode() string {
+	return `@echarts.BoxPlot(echarts.BoxPlotConfig{
+  Label: "Request latency distribution",
+  Categories: []string{"Development", "Production"},
+  Series: []echarts.BoxPlotSeries{{
+    Name: "Latency (ms)",
+    Data: []echarts.BoxPlotData{
+      {Min: 18, Q1: 31, Median: 42, Q3: 58, Max: 94},
+      {Min: 25, Q1: 44, Median: 62, Q3: 86, Max: 138},
+    },
   }},
 })`
 }

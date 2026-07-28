@@ -79,6 +79,7 @@ func shellNavigation() componentdocshell.Navigation {
 					{ID: "echarts-bar", Label: "Bar", Href: "/components/echarts/bar"},
 					{ID: "echarts-line", Label: "Line", Href: "/components/echarts/line"},
 					{ID: "echarts-scatter", Label: "Scatter", Href: "/components/echarts/scatter"},
+					{ID: "echarts-heatmap", Label: "Heatmap", Href: "/components/echarts/heatmap"},
 				},
 			},
 			{
@@ -86,6 +87,7 @@ func shellNavigation() componentdocshell.Navigation {
 				Items: []sidebar.Item{
 					{ID: "echarts-pie", Label: "Pie", Href: "/components/echarts/pie"},
 					{ID: "echarts-radar", Label: "Radar", Href: "/components/echarts/radar"},
+					{ID: "echarts-boxplot", Label: "Box plot", Href: "/components/echarts/boxplot"},
 				},
 			},
 			{
