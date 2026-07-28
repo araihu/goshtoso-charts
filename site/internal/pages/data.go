@@ -25,6 +25,9 @@ const (
 	horizontalBarUpstreamPath     = "examples/1-Painter/horizontal_bar_chart-1-basic/main.go"
 	horizontalBarUpstreamRevision = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
 	horizontalBarUpstreamSHA256   = "735240dd8433bd2494ae019f272840a8ff2fcf5572166b78269e23cbff7111a0"
+	doughnutUpstreamPath          = "examples/1-Painter/doughnut_chart-1-basic/main.go"
+	doughnutUpstreamRevision      = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
+	doughnutUpstreamSHA256        = "b97bca2322e90e2f03ab49aa77f683d0c58e027846b939e5a61100602dad1ebf"
 )
 
 type deterministicLCG struct{ state uint64 }
@@ -131,6 +134,33 @@ func sampleObservationStates() pie.Config {
 		Export: &chartcontrol.ExportOptions{
 			Filename: "observation-states", Background: chartcontrol.ExportBackgroundTransparent,
 		},
+	}
+}
+
+func sampleDoughnutChart() pie.Config {
+	return pie.Config{
+		Label:              "Doughnut Chart",
+		Variant:            pie.VariantDoughnut,
+		InnerRadiusPercent: 60,
+		Title: pie.TitleOptions{
+			Text: "Doughnut Chart", Subtitle: "(Fake Data)",
+			Placement: pie.PlacementCenter, FontSize: 16, SubtitleFontSize: 10,
+		},
+		Legend: pie.LegendOptions{
+			Orientation: pie.LegendVertical, LeftPercent: 80,
+			VerticalPlacement: pie.VerticalPlacementBottom, FontSize: 10,
+		},
+		Padding: pie.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20},
+		Slices: []pie.Slice{
+			{Name: "Search Engine", Value: 1048},
+			{Name: "Direct", Value: 735},
+			{Name: "Email", Value: 580},
+			{Name: "Union Ads", Value: 484},
+			{Name: "Video Ads", Value: 300},
+		},
+		Width: 600, Height: 400,
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "doughnut-chart"},
 	}
 }
 
@@ -420,6 +450,31 @@ func pieCode() string {
     {Name: "Degraded", Value: 4},
     {Name: "Down", Value: 2},
   },
+})`
+}
+
+func doughnutCode() string {
+	return `@pie.Pie(pie.Config{
+  Label: "Doughnut Chart",
+  Variant: pie.VariantDoughnut,
+  InnerRadiusPercent: 60,
+  Title: pie.TitleOptions{
+    Text: "Doughnut Chart", Subtitle: "(Fake Data)",
+    Placement: pie.PlacementCenter, FontSize: 16, SubtitleFontSize: 10,
+  },
+  Legend: pie.LegendOptions{
+    Orientation: pie.LegendVertical, LeftPercent: 80,
+    VerticalPlacement: pie.VerticalPlacementBottom, FontSize: 10,
+  },
+  Padding: pie.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20},
+  Slices: []pie.Slice{
+    {Name: "Search Engine", Value: 1048},
+    {Name: "Direct", Value: 735},
+    {Name: "Email", Value: 580},
+    {Name: "Union Ads", Value: 484},
+    {Name: "Video Ads", Value: 300},
+  },
+  Width: 600, Height: 400,
 })`
 }
 

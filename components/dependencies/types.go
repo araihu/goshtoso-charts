@@ -10,6 +10,7 @@ type config struct {
 	core         scriptConfig
 	wordCloud    scriptConfig
 	liquid       scriptConfig
+	gl           scriptConfig
 	chinaMap     scriptConfig
 	guangdongMap scriptConfig
 	nonce        string
@@ -37,6 +38,7 @@ func WithCDN() Option {
 		cfg.core = scriptConfig{url: assets.RuntimeCDNURL, integrity: assets.RuntimeCDNIntegrity, crossorigin: "anonymous"}
 		cfg.wordCloud = scriptConfig{url: assets.WordCloudRuntimeCDNURL, integrity: assets.WordCloudRuntimeCDNIntegrity, crossorigin: "anonymous"}
 		cfg.liquid = scriptConfig{url: assets.LiquidRuntimeCDNURL, integrity: assets.LiquidRuntimeCDNIntegrity, crossorigin: "anonymous"}
+		cfg.gl = scriptConfig{url: assets.ThreeDRuntimeCDNURL, integrity: assets.ThreeDRuntimeCDNIntegrity, crossorigin: "anonymous"}
 		cfg.chinaMap = scriptConfig{url: assets.ChinaMapCDNURL, integrity: assets.ChinaMapCDNIntegrity, crossorigin: "anonymous"}
 		cfg.guangdongMap = scriptConfig{url: assets.GuangdongMapCDNURL, integrity: assets.GuangdongMapCDNIntegrity, crossorigin: "anonymous"}
 	})
@@ -70,6 +72,7 @@ func newConfig(options []Option) config {
 		core:         scriptConfig{url: assets.RuntimeURL},
 		wordCloud:    scriptConfig{url: assets.WordCloudRuntimeURL},
 		liquid:       scriptConfig{url: assets.LiquidRuntimeURL},
+		gl:           scriptConfig{url: assets.ThreeDRuntimeURL},
 		chinaMap:     scriptConfig{url: assets.ChinaMapURL},
 		guangdongMap: scriptConfig{url: assets.GuangdongMapURL},
 	}
@@ -82,7 +85,7 @@ func newConfig(options []Option) config {
 }
 
 func (cfg config) scripts() []scriptConfig {
-	return []scriptConfig{cfg.core, cfg.wordCloud, cfg.liquid, cfg.chinaMap, cfg.guangdongMap}
+	return []scriptConfig{cfg.core, cfg.wordCloud, cfg.liquid, cfg.gl, cfg.chinaMap, cfg.guangdongMap}
 }
 
 func (cfg config) attributes(script scriptConfig) templ.Attributes {

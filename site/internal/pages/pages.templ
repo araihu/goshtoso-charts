@@ -170,6 +170,30 @@ templ interactiveChartScatterContent() {
 	})
 }
 
+templ InteractiveScatter3DPage(fragment bool) {
+	@layout("Interactive scatter 3D", "interactive-scatter-3d", interactiveScatter3DContent(), fragment)
+}
+
+templ interactiveScatter3DContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive scatter 3D",
+		Description: "Reusable three-dimensional point chart with typed axes, visual ranges, symbols, caller paint, responsive sizing, and exact adjacent values.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Explore the spatial relationship among three finite quantitative dimensions.", "Primitive", "interactive.Scatter3D", "Kind", "components.KindInteractiveScatter3D", "Configuration", "Label, Caption, typed Point3D series, named three-axis options, visual range, symbol and paint options, size, renderer-neutral chart options, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Every exact coordinate remains in a collapsed adjacent table, including the dense 80-point treatment."),
+			Preview: interactiveScatter3DVariants(),
+			Code: interactiveScatter3DCode(),
+		},
+		After: demoNote("Three-dimensional contract", "All point coordinates and optional visual values are finite. Axis names are required when custom axes are supplied. Color and semantic class are mutually exclusive at each paint boundary; visual ranges cannot conflict with fixed series or point paint."),
+	})
+}
+
+templ interactiveScatter3DVariants() {
+	<div class="space-y-10" data-scatter3d-variants>
+		<div data-scatter3d-variant="basic">@sampleInteractiveScatter3DBasic()</div>
+		<div data-scatter3d-variant="item-style">@sampleInteractiveScatter3DStyled()</div>
+	</div>
+}
+
 templ InteractivePiePage(fragment bool) {
 	@layout("Interactive pie", "interactive-pie", interactiveChartPieContent(), fragment)
 }
@@ -526,13 +550,22 @@ templ interactiveChartFunnelContent() {
 templ pieContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Pie chart",
-		Description: "Categorical SSR SVG for compact part-to-whole summaries. Use it when the category count stays small and a total supports comparison.",
+		Description: "Categorical SSR SVG for compact part-to-whole summaries, with full pie and doughnut treatments on one typed component.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Summarize a small categorical status distribution as parts of a total.", "Primitive", "pie.Pie", "Kind", "components.KindPieChart", "Configuration", "Label, Caption, named Slices, optional Width, and Height.", "Accessibility", "Figure name comes from Label; Caption stays visible. Keep an adjacent table or text summary when exact values are needed."),
+			AbovePreview: componentContract("Purpose", "Summarize a small categorical distribution as parts of a total.", "Primitive", "pie.Pie", "Kind", "components.KindPieChart", "Configuration", "Label, Caption, named Slices, typed pie or doughnut Variant, validated inner radius, title, legend, padding, dimensions, root attributes, controls, export, and chart style.", "Accessibility", "Figure name comes from Label; Caption stays visible. An adjacent table always preserves exact values and shares."),
 			Preview: pie.Pie(sampleObservationStates()),
 			Code: pieCode(),
 		},
-		After: demoNote("Use case", "Use pie charts for bounded status breakdowns, not ordered time-series data. Aggregate domain data at the application view-model boundary."),
+		Sections: []componentpage.Example{
+			{
+				Title: "Doughnut treatment",
+				Description: "Open the center with a validated inner radius while preserving the same slice semantics, exact-value summary, theme tokens, controls, and exports.",
+				RootAttrs: templ.Attributes{"data-goshtoso-candidate": "pie-doughnut-b97bca2322e90e2f"},
+				Preview: pie.Pie(sampleDoughnutChart()),
+				Code: doughnutCode(),
+			},
+		},
+		After: demoNote("Treatment contract", "Pie is the zero-value treatment. Doughnut changes only center geometry and remains the same Pie component, stable Kind, route, and catalog entry."),
 	})
 }
 

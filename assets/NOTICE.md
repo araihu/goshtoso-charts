@@ -60,3 +60,19 @@ load after the core runtime and before chart initialization.
 - SHA-256 (`china.js`): `146a69f110aca347228447319216ad665fbf6a57d81c73ddc911c1167aa39249`
 - SHA-256 (`guangdong.js`): `ca870acf1f735d4b8fda33bb41c0a2804c320ee0885a772e428cfdc4d66f4757`
 - License: `https://github.com/go-echarts/go-echarts-assets/blob/41f247b1cbb649b029a2d3fffb04f469de372aa7/LICENSE`
+
+## Three-dimensional chart extension
+
+Goshtoso Charts embeds the official `echarts-gl` 2.0.9 npm distribution for
+three-dimensional interactive charts. Its package declares peer compatibility
+with `echarts ^5.1.2`, which includes the bundled ECharts 5.4.3 runtime.
+
+- Local path: `js/runtime/three-d/2.0.9/runtime.min.js`
+- Bundled license: `js/runtime/three-d/2.0.9/LICENSE`
+- Local/CDN SHA-256: `bfba1b87b8c3c06e5c7ed7741002586c747b00e4efdaa92077d15c2dc721bda0`
+- Local/CDN SHA-384 SRI: `sha384-f4gAUkb5Y6LE9n50CbiH1hCBCw7021OeJu0ZrgRpgW6G1CZjPR8cu33e8rCFLqCl`
+- npm tarball SHA-256: `319e0520d0b3fbebcb43a4cff1c19cab38806d1d24d42c8dc2e4349afec9953e`
+- npm tarball integrity: `sha512-oKeMdkkkpJGWOzjgZUsF41DOh6cMsyrGGXimbjK2l6Xeq/dBQu4ShG2w2Dzrs/1bD27b2pLTGSaUzouY191gzA==`
+- Published package: `https://www.npmjs.com/package/echarts-gl/v/2.0.9`
+- Package git head: `a3cb1c6bf0f64bed9c8ca144096689defb8e1ce3`
+- License: BSD-3-Clause

@@ -10,7 +10,42 @@ import (
 	"time"
 
 	"github.com/araihu/goshtoso-charts/components/interactive"
+	"github.com/araihu/goshtoso-charts/components/pie"
 )
+
+func TestDoughnutSampleMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if doughnutUpstreamPath != "examples/1-Painter/doughnut_chart-1-basic/main.go" ||
+		doughnutUpstreamRevision != "1fe31b06b8a82e00df877ff4417a75858547c1c2" ||
+		doughnutUpstreamSHA256 != "b97bca2322e90e2f03ab49aa77f683d0c58e027846b939e5a61100602dad1ebf" {
+		t.Fatalf("doughnut upstream source = %s@%s SHA-256 %s", doughnutUpstreamPath, doughnutUpstreamRevision, doughnutUpstreamSHA256)
+	}
+	cfg := sampleDoughnutChart()
+	if cfg.Label != "Doughnut Chart" || cfg.Title.Text != "Doughnut Chart" || cfg.Title.Subtitle != "(Fake Data)" {
+		t.Fatalf("doughnut titles = label %q title %#v", cfg.Label, cfg.Title)
+	}
+	if cfg.Width != 600 || cfg.Height != 400 || cfg.InnerRadiusPercent != 60 {
+		t.Fatalf("doughnut geometry = %dx%d inner %v", cfg.Width, cfg.Height, cfg.InnerRadiusPercent)
+	}
+	if cfg.Padding.Top != 20 || cfg.Padding.Right != 20 || cfg.Padding.Bottom != 20 || cfg.Padding.Left != 20 {
+		t.Fatalf("doughnut padding = %#v", cfg.Padding)
+	}
+	if cfg.Legend.LeftPercent != 80 || cfg.Legend.VerticalPlacement != pie.VerticalPlacementBottom ||
+		cfg.Legend.Orientation != pie.LegendVertical || cfg.Legend.FontSize != 10 {
+		t.Fatalf("doughnut legend = %#v", cfg.Legend)
+	}
+	names := make([]string, len(cfg.Slices))
+	values := make([]float64, len(cfg.Slices))
+	for index, slice := range cfg.Slices {
+		names[index], values[index] = slice.Name, slice.Value
+	}
+	if want := []string{"Search Engine", "Direct", "Email", "Union Ads", "Video Ads"}; !reflect.DeepEqual(names, want) {
+		t.Fatalf("doughnut names = %v, want %v", names, want)
+	}
+	if want := []float64{1048, 735, 580, 484, 300}; !reflect.DeepEqual(values, want) {
+		t.Fatalf("doughnut values = %v, want %v", values, want)
+	}
+}
 
 func TestHorizontalBarMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 	t.Parallel()

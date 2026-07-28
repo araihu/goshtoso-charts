@@ -89,6 +89,29 @@ func TestHandlerServesVersionedLiquidRuntime(t *testing.T) {
 	}
 }
 
+func TestHandlerServesPinnedThreeDRuntimeAndLicense(t *testing.T) {
+	t.Parallel()
+
+	for _, test := range []struct {
+		url, contains, sha256 string
+	}{
+		{assets.ThreeDRuntimeURL, "scatter3D", "bfba1b87b8c3c06e5c7ed7741002586c747b00e4efdaa92077d15c2dc721bda0"},
+		{assets.ThreeDLicenseURL, "BSD 3-Clause License", "55ea01207028f76d844678511f29fc800f8a1e67a8a0fe80470128677847ad32"},
+	} {
+		recorder := httptest.NewRecorder()
+		assets.Handler().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, test.url, nil))
+		if recorder.Code != http.StatusOK {
+			t.Errorf("GET %s status = %d, want %d", test.url, recorder.Code, http.StatusOK)
+		}
+		if !strings.Contains(recorder.Body.String(), test.contains) {
+			t.Errorf("GET %s missing %q", test.url, test.contains)
+		}
+		if got := fmt.Sprintf("%x", sha256.Sum256(recorder.Body.Bytes())); got != test.sha256 {
+			t.Errorf("GET %s SHA-256 = %s, want %s", test.url, got, test.sha256)
+		}
+	}
+}
+
 func TestHandlerServesLiquidRuntimeLicense(t *testing.T) {
 	t.Parallel()
 

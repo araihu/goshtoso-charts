@@ -44,6 +44,9 @@ type renderConfig struct {
 	// by the shared theme runtime.
 	GeoGeometryPaint string
 	GeoSeriesPaints  string
+	// Scatter3DPaints and Scatter3DColdToWarm are private paint metadata.
+	Scatter3DPaints     string
+	Scatter3DColdToWarm bool
 	// ScriptReplacements restore values that the private renderer cannot
 	// distinguish from omitted zero values.
 	ScriptReplacements []scriptReplacement

@@ -35,6 +35,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/interactive/bar", "Interactive bar"},
 		{"/components/interactive/line", "Interactive line"},
 		{"/components/interactive/scatter", "Interactive scatter"},
+		{"/components/interactive/scatter-3d", "Interactive scatter 3D"},
 		{"/components/interactive/pie", "Interactive pie"},
 		{"/components/interactive/radar", "Interactive radar"},
 		{"/components/interactive/heatmap", "Interactive heatmap"},
@@ -57,6 +58,45 @@ func TestDemoRoutesRender(t *testing.T) {
 		}
 		if !strings.Contains(recorder.Body.String(), test.want) {
 			t.Errorf("GET %s missing %q", test.path, test.want)
+		}
+	}
+}
+
+func TestPiePageIncludesDoughnutVariantAndCentralizedPinnedAttribution(t *testing.T) {
+	t.Parallel()
+	handler := New()
+	page := httptest.NewRecorder()
+	handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, "/components/pie", nil))
+	if page.Code != http.StatusOK {
+		t.Fatalf("GET /components/pie status = %d, want %d", page.Code, http.StatusOK)
+	}
+	body := page.Body.String()
+	for _, want := range []string{
+		"Doughnut treatment", "Doughnut Chart", "(Fake Data)",
+		`data-goshtoso-candidate="pie-doughnut-b97bca2322e90e2f"`,
+		"Search Engine", "1048", "Direct", "735", "Email", "580",
+		"Union Ads", "484", "Video Ads", "300",
+		`aria-label="Doughnut Chart exact slice values"`,
+		`data-goshtoso-chart-export-menu`, ">SVG<", ">PNG<",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("Pie page missing %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-analyze", "doughnut_chart-1-basic/main.go"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("Pie page repeats centralized attribution %q", unwanted)
+		}
+	}
+
+	attributions := httptest.NewRecorder()
+	handler.ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	for _, want := range []string{
+		"examples/1-Painter/doughnut_chart-1-basic/main.go",
+		"1fe31b06b8a82e00df877ff4417a75858547c1c2",
+	} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("central attributions missing pinned doughnut source %q", want)
 		}
 	}
 }
@@ -510,6 +550,41 @@ func TestWordCloudDocumentationPreservesOfficialVariantsWithoutEngineBranding(t 
 	}
 }
 
+func TestScatter3DDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/scatter-3d", nil))
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("GET scatter-3d status = %d", recorder.Code)
+	}
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Interactive scatter 3D", "interactive.Scatter3D", "components.KindInteractiveScatter3D",
+		"Interactive / 3D", "basic Scatter3D example", "user-defined item style",
+		"80 points across 1 series", "MY-X-AXIS", "MY-Y-AXIS", "MY-Z-AXIS",
+		"point1", "point2", "point3", "green", "blue", "red",
+		`data-scatter3d-variant="basic"`, `data-scatter3d-variant="item-style"`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("scatter-3d documentation missing %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-echarts", "Apache ECharts", "echarts-gl", "operations", "infrastructure"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("scatter-3d component page contains private or invented framing %q", unwanted)
+		}
+	}
+
+	recorder = httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	attributions := recorder.Body.String()
+	for _, want := range []string{"examples/scatter3d.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd", "Three-dimensional chart extension", "v2.0.9", "a3cb1c6bf0f6", "BSD-3-Clause"} {
+		if !strings.Contains(attributions, want) {
+			t.Errorf("central attributions missing Scatter3D evidence %q", want)
+		}
+	}
+}
+
 func TestMapDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()
@@ -934,6 +1009,12 @@ func TestInteractiveRendererRuntimeIsLocal(t *testing.T) {
 		t.Fatalf("GET modern runtime status/version = %d/%t", recorder.Code, strings.Contains(recorder.Body.String(), `version="5.4.3"`))
 	}
 
+	threeD := httptest.NewRecorder()
+	handler.ServeHTTP(threeD, httptest.NewRequest(http.MethodGet, chartassets.ThreeDRuntimeURL, nil))
+	if threeD.Code != http.StatusOK || !strings.Contains(threeD.Body.String(), "scatter3D") {
+		t.Fatalf("GET 3D runtime status/registration = %d/%t", threeD.Code, strings.Contains(threeD.Body.String(), "scatter3D"))
+	}
+
 	removed := httptest.NewRecorder()
 	handler.ServeHTTP(removed, httptest.NewRequest(http.MethodGet, "/charts/echarts/echarts@4.min.js", nil))
 	if removed.Code != http.StatusNotFound {
@@ -1018,7 +1099,7 @@ func TestComponentDocsNavigationHasSearchGroupsAndComponentContract(t *testing.T
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/line", nil))
 	body := recorder.Body.String()
-	for _, want := range []string{"Search docs...", "Static / Vector", "Interactive / Cartesian", "Interactive / Geographic", "Interactive / Relationships", "Examples", "component-doc-shell__sidebar", "components.KindLineChart", "Live availability", "Bar chart", "Pie chart", "Scatter chart", "Map", "Geo", "Tree", "Accessibility", "lg:grid-cols-2"} {
+	for _, want := range []string{"Search docs...", "Static / Vector", "Interactive / Cartesian", "Interactive / 3D", "Interactive / Geographic", "Interactive / Relationships", "Examples", "component-doc-shell__sidebar", "components.KindLineChart", "Live availability", "Bar chart", "Pie chart", "Scatter chart", "Scatter 3D", "Map", "Geo", "Tree", "Accessibility", "lg:grid-cols-2"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("component docs page missing %q", want)
 		}

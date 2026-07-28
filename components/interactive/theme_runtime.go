@@ -67,6 +67,10 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
     var repeat = function (items, value) {
       return (items && items.length ? items : []).map(function () { return value; });
     };
+    var scatter3DColdToWarmFallbacks = [
+      "#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8",
+      "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"
+    ];
     var resize = function (host) {
       if (!host.isConnected || !window.echarts) return;
       var chart = window.echarts.getInstanceByDom(host);
@@ -128,6 +132,9 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			try { geoGeometryPaint = JSON.parse(figure.getAttribute("data-goshtoso-charts-geo-geometry-paint") || "null"); } catch (_) {}
 			var geoSeriesPaints = [];
 			try { geoSeriesPaints = JSON.parse(figure.getAttribute("data-goshtoso-charts-geo-series-paints") || "[]"); } catch (_) {}
+			var scatter3DPaints = [];
+			try { scatter3DPaints = JSON.parse(figure.getAttribute("data-goshtoso-charts-scatter3d-paints") || "[]"); } catch (_) {}
+			var scatter3DColdToWarm = figure.getAttribute("data-goshtoso-charts-scatter3d-cold-to-warm") === "true";
 			var gaugeColors = gaugeScale && (gaugeScale.stops || []).map(function (stop) {
 				if (stop.token === "low") return scaleLow;
 				if (stop.token === "mid") return scaleMid;
@@ -247,6 +254,23 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 				return Object.assign({}, item, { itemStyle: Object.assign({}, item.itemStyle || {}, { color: pointColor }) });
 			});
 		}
+		if (series.type === "scatter3D") {
+			var scatter3DPaint = scatter3DPaints[index] || {};
+			var scatter3DSeriesColor = scatter3DPaint.class
+				? classColorOrFallback(figure, scatter3DPaint.class, palette[index % palette.length])
+				: (scatter3DPaint.color
+					? rendererColor(scatter3DPaint.color, palette[index % palette.length])
+					: palette[index % palette.length]);
+			themedItem.itemStyle = Object.assign({}, series.itemStyle || {}, { color: scatter3DSeriesColor });
+			themedItem.data = (series.data || []).map(function (item) {
+				if (!item || typeof item !== "object") return item;
+				var pointColor = item.sourceColor
+					? rendererColor(item.sourceColor, scatter3DSeriesColor)
+					: (item.className ? classColorOrFallback(figure, item.className, scatter3DSeriesColor) : "");
+				if (!pointColor) return item;
+				return Object.assign({}, item, { itemStyle: Object.assign({}, item.itemStyle || {}, { color: pointColor }) });
+			});
+		}
         if (series.type === "boxplot" && managesSeriesItem(index)) {
           themedItem.itemStyle = { color: palette[index % palette.length], borderColor: palette[index % palette.length] };
         }
@@ -288,7 +312,11 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			}).filter(Boolean);
       var themedVisualMaps = (current.visualMap || []).map(function () {
         var visualMap = { textStyle: { color: text } };
-        if (!explicitVisualMapColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] };
+        if (scatter3DColdToWarm) {
+          visualMap.inRange = { color: Array.from({ length: 10 }, function (_, index) {
+            return cssColor(figure, "--color-chart-scatter3d-" + (index + 1), scatter3DColdToWarmFallbacks[index]);
+          }) };
+        } else if (!explicitVisualMapColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] };
         return visualMap;
       });
 			var themedGeo = (current.geo || []).map(function (geo) {
@@ -306,6 +334,9 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
         legend: repeat(current.legend, { textStyle: { color: text } }),
         xAxis: repeat(current.xAxis, axis),
         yAxis: repeat(current.yAxis, axis),
+        xAxis3D: repeat(current.xAxis3D, axis),
+        yAxis3D: repeat(current.yAxis3D, axis),
+        zAxis3D: repeat(current.zAxis3D, axis),
         singleAxis: repeat(current.singleAxis, axis),
         radiusAxis: repeat(current.radiusAxis, axis),
         angleAxis: repeat(current.angleAxis, axis),

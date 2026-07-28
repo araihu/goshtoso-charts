@@ -131,6 +131,27 @@ templ Styles() {
 			--goshtoso-charts-series-7: var(--color-chart-series-7);
 			--goshtoso-charts-series-8: var(--color-chart-series-8);
 		}
+		.goshtoso-charts-scatter-3d {
+			--color-chart-scatter3d-1: #313695; --color-chart-scatter3d-2: #4575b4;
+			--color-chart-scatter3d-3: #74add1; --color-chart-scatter3d-4: #abd9e9;
+			--color-chart-scatter3d-5: #e0f3f8; --color-chart-scatter3d-6: #fee090;
+			--color-chart-scatter3d-7: #fdae61; --color-chart-scatter3d-8: #f46d43;
+			--color-chart-scatter3d-9: #d73027; --color-chart-scatter3d-10: #a50026;
+			width: min(100%, 76rem);
+			margin-inline: auto;
+		}
+		[data-theme="araihu"] .goshtoso-charts-scatter-3d {
+			--color-chart-scatter3d-1: color-mix(in srgb, var(--color-chart-scale-low) 92%, #313695 8%);
+			--color-chart-scatter3d-2: color-mix(in srgb, var(--color-chart-scale-low) 76%, var(--color-chart-scale-mid) 24%);
+			--color-chart-scatter3d-3: color-mix(in srgb, var(--color-chart-scale-low) 58%, var(--color-chart-scale-mid) 42%);
+			--color-chart-scatter3d-4: color-mix(in srgb, var(--color-chart-scale-low) 40%, var(--color-chart-scale-mid) 60%);
+			--color-chart-scatter3d-5: color-mix(in srgb, var(--color-chart-scale-low) 22%, var(--color-chart-scale-mid) 78%);
+			--color-chart-scatter3d-6: color-mix(in srgb, var(--color-chart-scale-mid) 78%, var(--color-chart-scale-high) 22%);
+			--color-chart-scatter3d-7: color-mix(in srgb, var(--color-chart-scale-mid) 60%, var(--color-chart-scale-high) 40%);
+			--color-chart-scatter3d-8: color-mix(in srgb, var(--color-chart-scale-mid) 42%, var(--color-chart-scale-high) 58%);
+			--color-chart-scatter3d-9: color-mix(in srgb, var(--color-chart-scale-mid) 24%, var(--color-chart-scale-high) 76%);
+			--color-chart-scatter3d-10: color-mix(in srgb, var(--color-chart-scale-high) 92%, #a50026 8%);
+		}
 		.dark .goshtoso-charts-palette {
 			--color-chart-surface: var(--color-surface-dark);
 			--color-chart-surface-alt: var(--color-surface-dark-alt, var(--color-surface-dark));

@@ -29,6 +29,14 @@ const (
 	LiquidRuntimeCDNURL = "https://cdn.jsdelivr.net/npm/echarts-liquidfill@3.1.0/dist/echarts-liquidfill.min.js"
 	// LiquidRuntimeCDNIntegrity authenticates bytes served by LiquidRuntimeCDNURL.
 	LiquidRuntimeCDNIntegrity = "sha384-+LS91q88WjMob2zpAaAPTyASiqV4HPo9zJHsEwjcukMZevj//sFrxBXdAHe1t2CL"
+	// ThreeDRuntimeURL is the versioned local three-dimensional chart extension path.
+	ThreeDRuntimeURL = Prefix + "js/runtime/three-d/2.0.9/runtime.min.js"
+	// ThreeDLicenseURL is the bundled BSD-3-Clause license for the extension.
+	ThreeDLicenseURL = Prefix + "js/runtime/three-d/2.0.9/LICENSE"
+	// ThreeDRuntimeCDNURL is the pinned opt-in CDN source for the extension.
+	ThreeDRuntimeCDNURL = "https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js"
+	// ThreeDRuntimeCDNIntegrity authenticates bytes served by ThreeDRuntimeCDNURL.
+	ThreeDRuntimeCDNIntegrity = "sha384-f4gAUkb5Y6LE9n50CbiH1hCBCw7021OeJu0ZrgRpgW6G1CZjPR8cu33e8rCFLqCl"
 	// ChinaMapURL is the versioned local resource for national geometry.
 	ChinaMapURL = Prefix + "js/maps/41f247b1cbb6/china.js"
 	// ChinaMapCDNURL is the commit-pinned opt-in CDN source for national geometry.
@@ -45,7 +53,7 @@ const (
 	ControlRuntimeURL = Prefix + "js/controls/1/controls.js"
 )
 
-//go:embed js/runtime/echarts/5.4.3/echarts.min.js js/runtime/word-cloud/2.1.0/runtime.min.js js/runtime/liquid/3.1.0/runtime.min.js js/runtime/liquid/3.1.0/LICENSE.md js/maps/41f247b1cbb6/*.js js/controls/1/controls.js
+//go:embed js/runtime/echarts/5.4.3/echarts.min.js js/runtime/word-cloud/2.1.0/runtime.min.js js/runtime/liquid/3.1.0/runtime.min.js js/runtime/liquid/3.1.0/LICENSE.md js/runtime/three-d/2.0.9/runtime.min.js js/runtime/three-d/2.0.9/LICENSE js/maps/41f247b1cbb6/*.js js/controls/1/controls.js
 var files embed.FS
 
 // Handler serves embedded assets at Prefix. Mount it directly at Prefix; the
