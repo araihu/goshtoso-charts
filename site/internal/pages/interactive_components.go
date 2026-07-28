@@ -466,6 +466,49 @@ func sampleThemeRiverStreams() []interactive.ThemeRiverStream {
 	return streams
 }
 
+func sampleInteractiveWordCloud(title string, shape interactive.WordCloudShape) interactive.Instance {
+	return interactive.WordCloud(interactive.WordCloudConfig{
+		Label: title, Caption: "Twenty weighted terms with exact values available below the canvas.",
+		Series: interactive.WordCloudSeries{
+			Name: "wordcloud", Words: sampleWordCloudWords(),
+			Options: interactive.WordCloudSeriesOptions{
+				Shape: shape, SizeRange: &interactive.WordCloudSizeRange{Min: 14, Max: 80},
+			},
+		},
+		Options: interactive.ChartOptions{
+			Title:    &interactive.TitleOptions{Text: title},
+			Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "item"},
+			Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Export:   &chartcontrol.ExportOptions{Filename: strings.ReplaceAll(strings.ToLower(title), " ", "-")},
+		},
+	})
+}
+
+func sampleWordCloudWords() []interactive.Word {
+	return []interactive.Word{
+		{Name: "Sam S Club", Value: 10000, Class: "retail"},
+		{Name: "Macys", Value: 6181, Class: "retail", Color: "#ff8a3d"},
+		{Name: "Amy Schumer", Value: 4386},
+		{Name: "Jurassic World", Value: 4055},
+		{Name: "Charter Communications", Value: 2467},
+		{Name: "Chick Fil A", Value: 2244},
+		{Name: "Planet Fitness", Value: 1898},
+		{Name: "Pitch Perfect", Value: 1484},
+		{Name: "Express", Value: 1689},
+		{Name: "Home", Value: 1112},
+		{Name: "Johnny Depp", Value: 985},
+		{Name: "Lena Dunham", Value: 847},
+		{Name: "Lewis Hamilton", Value: 582},
+		{Name: "KXAN", Value: 555},
+		{Name: "Mary Ellen Mark", Value: 550},
+		{Name: "Farrah Abraham", Value: 462},
+		{Name: "Rita Ora", Value: 366},
+		{Name: "Serena Williams", Value: 282},
+		{Name: "NCAA baseball tournament", Value: 273},
+		{Name: "Point Break", Value: 265},
+	}
+}
+
 func liveAvailabilityBar(label, caption string, states []int) interactive.BarConfig {
 	categories := availabilityCategories(len(states))
 	series := []interactive.BarSeries{
@@ -794,6 +837,23 @@ func interactiveThemeRiverCode() string {
   Options: interactive.ChartOptions{
     Title: &interactive.TitleOptions{Text: "ThemeRiver-SingleAxis-Time"},
     Tooltip: &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "axis"},
+  },
+})`
+}
+
+func interactiveWordCloudCode() string {
+	return `@interactive.WordCloud(interactive.WordCloudConfig{
+  Label: "star shape",
+  Series: interactive.WordCloudSeries{
+    Name: "wordcloud",
+    Words: []interactive.Word{
+      {Name: "Sam S Club", Value: 10000, Class: "retail"},
+      {Name: "Macys", Value: 6181, Color: "#ff8a3d"},
+    },
+    Options: interactive.WordCloudSeriesOptions{
+      Shape: interactive.WordCloudShapeStar,
+      SizeRange: &interactive.WordCloudSizeRange{Min: 14, Max: 80},
+    },
   },
 })`
 }

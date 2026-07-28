@@ -108,7 +108,10 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/interactive/theme-river", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.InteractiveThemeRiverPage(isFragment(request)))
 	})
-	for _, component := range []string{"bar", "line", "scatter", "pie", "radar", "heatmap", "boxplot", "gauge", "funnel", "graph", "sankey", "tree"} {
+	mux.HandleFunc("GET /components/interactive/word-cloud", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveWordCloudPage(isFragment(request)))
+	})
+	for _, component := range []string{"bar", "line", "scatter", "pie", "radar", "heatmap", "boxplot", "gauge", "funnel", "graph", "sankey", "tree", "word-cloud"} {
 		mux.HandleFunc("GET /components/echarts/"+component, func(writer http.ResponseWriter, request *http.Request) {
 			http.Redirect(writer, request, "/components/interactive/"+component, http.StatusPermanentRedirect)
 		})

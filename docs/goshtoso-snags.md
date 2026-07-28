@@ -177,3 +177,20 @@ sample's top-level directories into focusable roots. Browser checks confirmed
 root-to-directory and breadcrumb-back transitions retain the same chart
 instance. The focused depth intentionally presents the selected root while the
 bounded adjacent table remains the exact descendant-value source.
+
+## 2026-07-28: WordCloud adapter targets an older browser extension
+
+go-echarts v2.7.2 registers an ECharts 4 compatibility runtime and an older
+word-cloud extension, while Goshtoso Charts embeds ECharts 5.4.3. Its typed
+`WordCloudChart` also exposes only shape, size range, and rotation range; the
+supported rotation step, grid, draw-out-of-bound, layout animation, and layout
+fields are absent. The component therefore vendors the ECharts-5-compatible
+word-cloud extension v2.1.0 and restores validated renderer-neutral fields only
+inside the private serialized series.
+
+The adapter also injects a `Math.random` color callback. WordCloud replaces it
+with deterministic data order and the shared theme palette. Explicit caller
+colors take precedence over styled semantic classes, which take precedence
+over palette colors. Shared host observation continues to call `resize()` on
+the existing instance; flex, modal, theme, collapse, and fullscreen changes do
+not add a component-specific runtime or dispose/reinitialize the chart.

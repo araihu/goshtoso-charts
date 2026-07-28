@@ -56,6 +56,11 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			probe.remove();
 			return rendererColor(value, fallback);
 		};
+		var classColorOrFallback = function (figure, className, fallback) {
+			var inherited = getComputedStyle(figure).color;
+			var resolved = classColor(figure, className, fallback);
+			return resolved === rendererColor(inherited, fallback) ? fallback : resolved;
+		};
     var repeat = function (items, value) {
       return (items && items.length ? items : []).map(function () { return value; });
     };
@@ -160,6 +165,15 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 					? classColor(figure, item.className, seriesPathColor)
 					: rendererColor(item.lineStyle.color, seriesPathColor);
 				return Object.assign({}, item, { lineStyle: Object.assign({}, item.lineStyle || {}, { color: itemColor }) });
+			});
+		}
+		if (series.type === "wordCloud") {
+			themedItem.data = (series.data || []).map(function (item, itemIndex) {
+				if (!item || typeof item !== "object") return item;
+				var wordColor = item.sourceColor
+					? rendererColor(item.sourceColor, palette[itemIndex % palette.length])
+					: (item.className ? classColorOrFallback(figure, item.className, palette[itemIndex % palette.length]) : palette[itemIndex % palette.length]);
+				return Object.assign({}, item, { textStyle: Object.assign({}, item.textStyle || {}, { color: wordColor }) });
 			});
 		}
         if (series.type === "boxplot" && managesSeriesItem(index)) {

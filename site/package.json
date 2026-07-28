@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test:chart-controls": "node --test browser/chart_controls.test.cjs",
-    "test:table": "node --test browser/table.test.cjs"
+    "test:table": "node --test browser/table.test.cjs",
+    "test:word-cloud": "node --test browser/word_cloud.test.cjs"
   }
 }

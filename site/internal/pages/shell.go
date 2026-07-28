@@ -22,7 +22,7 @@ func shellPage(title string, active string, content templ.Component) componentdo
 		Active:        active,
 		Content:       content,
 		Head:          templ.Join(brand.Head(), dependencies.Dependencies()),
-		EnableTOC:     active == "getting-started" || active == "line" || active == "bar" || active == "pie" || active == "scatter" || active == "radar" || active == "candlestick" || active == "heatmap" || active == "table" || active == "interactive-bar" || active == "interactive-line" || active == "interactive-tree" || active == "interactive-sunburst" || active == "interactive-treemap" || active == "interactive-parallel" || active == "interactive-theme-river" || active == "live-availability",
+		EnableTOC:     active == "getting-started" || active == "line" || active == "bar" || active == "pie" || active == "scatter" || active == "radar" || active == "candlestick" || active == "heatmap" || active == "table" || active == "interactive-bar" || active == "interactive-line" || active == "interactive-tree" || active == "interactive-sunburst" || active == "interactive-treemap" || active == "interactive-parallel" || active == "interactive-theme-river" || active == "interactive-word-cloud" || active == "live-availability",
 	}
 }
 
@@ -84,6 +84,7 @@ func shellNavigation() componentdocshell.Navigation {
 					{ID: "interactive-funnel", Label: "Funnel", Href: "/components/interactive/funnel"},
 					{ID: "interactive-parallel", Label: "Parallel coordinates", Href: "/components/interactive/parallel"},
 					{ID: "interactive-theme-river", Label: "Theme river", Href: "/components/interactive/theme-river"},
+					{ID: "interactive-word-cloud", Label: "Word cloud", Href: "/components/interactive/word-cloud"},
 				},
 			},
 			{

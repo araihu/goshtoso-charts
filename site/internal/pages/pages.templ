@@ -290,6 +290,37 @@ templ InteractiveThemeRiverPage(fragment bool) {
 	@layout("Interactive theme river", "interactive-theme-river", interactiveThemeRiverContent(), fragment)
 }
 
+templ InteractiveWordCloudPage(fragment bool) {
+	@layout("Interactive word cloud", "interactive-word-cloud", interactiveWordCloudContent(), fragment)
+}
+
+templ interactiveWordCloudContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive word cloud",
+		Description: "Reusable weighted word layouts with typed silhouettes, deterministic data order, and renderer-neutral styling.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare relative prominence across a bounded set of named weighted terms.", "Primitive", "interactive.WordCloud", "Kind", "components.KindInteractiveWordCloud", "Configuration", "Label, Caption, typed Word and Series values, shape, size range, rotation, grid, draw-out-of-bound, layout animation, percentage layout, tooltip, controls, semantic classes or explicit colors, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Each variant includes a bounded exact word, value, and semantic-class list."),
+			Preview: wordCloudVariants(),
+			Code: interactiveWordCloudCode(),
+		},
+		After: demoNote("Variant contract", "Circle, cardioid, and star remain typed Shape options on one WordCloud component. The consumer-owned flex wrapper controls page layout; each chart owns only its responsive renderer surface."),
+	})
+}
+
+templ wordCloudVariants() {
+	<div class="flex flex-wrap gap-6" data-word-cloud-variants>
+		<div class="min-w-0 flex-[1_1_20rem]" data-word-cloud-variant="circle">
+			@sampleInteractiveWordCloud("basic WordCloud example", interactive.WordCloudShapeCircle)
+		</div>
+		<div class="min-w-0 flex-[1_1_20rem]" data-word-cloud-variant="cardioid">
+			@sampleInteractiveWordCloud("cardioid shape", interactive.WordCloudShapeCardioid)
+		</div>
+		<div class="min-w-0 flex-[1_1_20rem]" data-word-cloud-variant="star">
+			@sampleInteractiveWordCloud("star shape", interactive.WordCloudShapeStar)
+		</div>
+	</div>
+}
+
 templ interactiveThemeRiverContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive theme river",

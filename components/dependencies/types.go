@@ -7,10 +7,15 @@ import (
 
 type config struct {
 	initialized bool
+	core        scriptConfig
+	wordCloud   scriptConfig
+	nonce       string
+}
+
+type scriptConfig struct {
 	url         string
 	integrity   string
 	crossorigin string
-	nonce       string
 }
 
 // Option configures the runtime tag emitted by Dependencies.
@@ -26,9 +31,8 @@ func (option optionFunc) apply(cfg *config) { option(cfg) }
 // default unless this option is supplied explicitly.
 func WithCDN() Option {
 	return optionFunc(func(cfg *config) {
-		cfg.url = assets.RuntimeCDNURL
-		cfg.integrity = assets.RuntimeCDNIntegrity
-		cfg.crossorigin = "anonymous"
+		cfg.core = scriptConfig{url: assets.RuntimeCDNURL, integrity: assets.RuntimeCDNIntegrity, crossorigin: "anonymous"}
+		cfg.wordCloud = scriptConfig{url: assets.WordCloudRuntimeCDNURL, integrity: assets.WordCloudRuntimeCDNIntegrity, crossorigin: "anonymous"}
 	})
 }
 
@@ -39,9 +43,7 @@ func WithCDNURL(url, integrity string) Option {
 		if url == "" {
 			return
 		}
-		cfg.url = url
-		cfg.integrity = integrity
-		cfg.crossorigin = "anonymous"
+		cfg.core = scriptConfig{url: url, integrity: integrity, crossorigin: "anonymous"}
 	})
 }
 
@@ -52,14 +54,16 @@ func WithLocalURL(url string) Option {
 		if url == "" {
 			return
 		}
-		cfg.url = url
-		cfg.integrity = ""
-		cfg.crossorigin = ""
+		cfg.core = scriptConfig{url: url}
 	})
 }
 
 func newConfig(options []Option) config {
-	cfg := config{initialized: true, url: assets.RuntimeURL}
+	cfg := config{
+		initialized: true,
+		core:        scriptConfig{url: assets.RuntimeURL},
+		wordCloud:   scriptConfig{url: assets.WordCloudRuntimeURL},
+	}
 	for _, option := range options {
 		if option != nil {
 			option.apply(&cfg)
@@ -68,13 +72,17 @@ func newConfig(options []Option) config {
 	return cfg
 }
 
-func (cfg config) attributes() templ.Attributes {
+func (cfg config) scripts() []scriptConfig {
+	return []scriptConfig{cfg.core, cfg.wordCloud}
+}
+
+func (cfg config) attributes(script scriptConfig) templ.Attributes {
 	attributes := templ.Attributes{}
-	if cfg.integrity != "" {
-		attributes["integrity"] = cfg.integrity
+	if script.integrity != "" {
+		attributes["integrity"] = script.integrity
 	}
-	if cfg.crossorigin != "" {
-		attributes["crossorigin"] = cfg.crossorigin
+	if script.crossorigin != "" {
+		attributes["crossorigin"] = script.crossorigin
 	}
 	if cfg.nonce != "" {
 		attributes["nonce"] = cfg.nonce

@@ -312,6 +312,43 @@ func TestParallelDocumentationPreservesOfficialMultiSeriesExampleWithoutEngineBr
 	}
 }
 
+func TestWordCloudDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/word-cloud", nil))
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Interactive word cloud", "interactive.WordCloud", "components.KindInteractiveWordCloud",
+		"basic WordCloud example", "cardioid shape", "star shape", "Sam S Club", "Macys",
+		"NCAA baseball tournament", "Point Break", "Exact word values", "semantic classes or explicit colors",
+		`"sizeRange":[14,80]`, `"shape":"cardioid"`, `"shape":"star"`,
+		`aria-label="basic WordCloud example"`, `data-word-cloud-variants`, "Interactive / Statistical",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("word-cloud documentation missing upstream content %q", want)
+		}
+	}
+	if count := strings.Count(body, `scope="row">Sam S Club</th>`); count != 3 {
+		t.Errorf("word-cloud exact-list variant count = %d, want 3", count)
+	}
+	for _, unwanted := range []string{"go-echarts", "echarts-wordcloud", "Apache ECharts", "examples/wordcloud.go", "infrastructure", "operations"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("word-cloud component page contains private or invented framing %q", unwanted)
+		}
+	}
+
+	attributions := httptest.NewRecorder()
+	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	for _, want := range []string{"examples/wordcloud.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd", "echarts-wordcloud", "v2.1.0", "ISC"} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("central attributions missing word-cloud source evidence %q", want)
+		}
+	}
+}
+
 func TestSunburstDocumentationPreservesOfficialBasicExample(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()

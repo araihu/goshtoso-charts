@@ -67,9 +67,11 @@ const (
 	KindInteractiveParallel Kind = "interactive-parallel"
 	// KindInteractiveThemeRiver identifies a browser-rendered temporal stream graph.
 	KindInteractiveThemeRiver Kind = "interactive-theme-river"
+	// KindInteractiveWordCloud identifies a browser-rendered weighted word cloud.
+	KindInteractiveWordCloud Kind = "interactive-word-cloud"
 )
 
-var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindCandlestickChart, KindHeatMapChart, KindTable, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst, KindInteractiveTreemap, KindInteractiveParallel, KindInteractiveThemeRiver}
+var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindCandlestickChart, KindHeatMapChart, KindTable, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst, KindInteractiveTreemap, KindInteractiveParallel, KindInteractiveThemeRiver, KindInteractiveWordCloud}
 
 // AllKinds returns supported chart kinds in stable order. Document-level
 // dependency components are intentionally excluded.

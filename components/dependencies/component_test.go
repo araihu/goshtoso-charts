@@ -25,6 +25,12 @@ func TestDependenciesDefaultsToVendoredRuntime(t *testing.T) {
 	if strings.Contains(out, " defer") {
 		t.Fatalf("runtime must load before inline chart initializers\n%s", out)
 	}
+	if !strings.Contains(out, `src="`+assets.WordCloudRuntimeURL+`"`) {
+		t.Fatalf("Dependencies() missing local word-cloud runtime %q\n%s", assets.WordCloudRuntimeURL, out)
+	}
+	if strings.Index(out, assets.RuntimeURL) > strings.Index(out, assets.WordCloudRuntimeURL) {
+		t.Fatalf("word-cloud runtime loaded before core runtime\n%s", out)
+	}
 }
 
 func TestDependenciesCDNIsExplicitAndPinned(t *testing.T) {
@@ -34,6 +40,8 @@ func TestDependenciesCDNIsExplicitAndPinned(t *testing.T) {
 	for _, want := range []string{
 		`src="` + assets.RuntimeCDNURL + `"`,
 		`integrity="` + assets.RuntimeCDNIntegrity + `"`,
+		`src="` + assets.WordCloudRuntimeCDNURL + `"`,
+		`integrity="` + assets.WordCloudRuntimeCDNIntegrity + `"`,
 		`crossorigin="anonymous"`,
 	} {
 		if !strings.Contains(out, want) {
@@ -42,6 +50,9 @@ func TestDependenciesCDNIsExplicitAndPinned(t *testing.T) {
 	}
 	if strings.Contains(out, assets.RuntimeURL) {
 		t.Fatalf("CDN option retained local runtime URL\n%s", out)
+	}
+	if strings.Contains(out, assets.WordCloudRuntimeURL) {
+		t.Fatalf("CDN option retained local word-cloud runtime URL\n%s", out)
 	}
 }
 
@@ -56,6 +67,9 @@ func TestDependenciesAllowsApplicationOwnedLocalPath(t *testing.T) {
 	}
 	if strings.Contains(out, assets.RuntimeURL) {
 		t.Fatalf("custom local path retained default\n%s", out)
+	}
+	if !strings.Contains(out, `src="`+assets.WordCloudRuntimeURL+`"`) {
+		t.Fatalf("custom core path removed local word-cloud runtime\n%s", out)
 	}
 }
 
@@ -74,6 +88,9 @@ func TestDependenciesAllowsApplicationOwnedCDN(t *testing.T) {
 			t.Errorf("custom CDN dependency missing %q\n%s", want, out)
 		}
 	}
+	if !strings.Contains(out, `src="`+assets.WordCloudRuntimeURL+`"`) {
+		t.Fatalf("custom core CDN removed local word-cloud runtime\n%s", out)
+	}
 }
 
 func TestDependenciesPropagatesTemplNonce(t *testing.T) {
@@ -83,6 +100,9 @@ func TestDependenciesPropagatesTemplNonce(t *testing.T) {
 	out := render(t, ctx, dependencies.Dependencies())
 	if !strings.Contains(out, `nonce="chart-nonce"`) {
 		t.Fatalf("dependency script missing templ nonce\n%s", out)
+	}
+	if strings.Count(out, `nonce="chart-nonce"`) != 2 {
+		t.Fatalf("dependency scripts did not both receive templ nonce\n%s", out)
 	}
 }
 

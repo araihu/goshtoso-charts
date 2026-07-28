@@ -75,3 +75,27 @@ func TestThemeRiverDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 		}
 	}
 }
+
+func TestWordCloudDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	words := sampleWordCloudWords()
+	want := []struct {
+		name  string
+		value float64
+	}{
+		{"Sam S Club", 10000}, {"Macys", 6181}, {"Amy Schumer", 4386}, {"Jurassic World", 4055},
+		{"Charter Communications", 2467}, {"Chick Fil A", 2244}, {"Planet Fitness", 1898},
+		{"Pitch Perfect", 1484}, {"Express", 1689}, {"Home", 1112}, {"Johnny Depp", 985},
+		{"Lena Dunham", 847}, {"Lewis Hamilton", 582}, {"KXAN", 555}, {"Mary Ellen Mark", 550},
+		{"Farrah Abraham", 462}, {"Rita Ora", 366}, {"Serena Williams", 282},
+		{"NCAA baseball tournament", 273}, {"Point Break", 265},
+	}
+	if len(words) != len(want) {
+		t.Fatalf("word count = %d, want %d", len(words), len(want))
+	}
+	for index, word := range words {
+		if word.Name != want[index].name || word.Value != want[index].value {
+			t.Fatalf("word %d = (%q, %g), want (%q, %g)", index, word.Name, word.Value, want[index].name, want[index].value)
+		}
+	}
+}

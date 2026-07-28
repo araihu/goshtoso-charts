@@ -243,6 +243,27 @@ for custom paths, SRI, CSP, and load-order details.
 })
 ```
 
+Word clouds keep weighted words, silhouettes, sizing, rotation, layout, and
+semantic classes in a typed renderer-neutral config. Exact values remain in a
+bounded adjacent table.
+
+```templ
+@interactive.WordCloud(interactive.WordCloudConfig{
+	Label: "Weighted search terms",
+	Series: interactive.WordCloudSeries{
+		Name: "terms",
+		Words: []interactive.Word{
+			{Name: "Sam S Club", Value: 10000, Class: "retail"},
+			{Name: "Macys", Value: 6181, Color: "#ff8a3d"},
+		},
+		Options: interactive.WordCloudSeriesOptions{
+			Shape:     interactive.WordCloudShapeStar,
+			SizeRange: &interactive.WordCloudSizeRange{Min: 14, Max: 80},
+		},
+	},
+})
+```
+
 Use application-owned values only. Shared `ChartOptions`, `SeriesOptions`, and
 component-specific typed variants provide controlled customization without
 exposing the backing renderer.

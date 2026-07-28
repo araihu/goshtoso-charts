@@ -1,7 +1,9 @@
 # Interactive chart dependencies
 
 Static vector charts need no browser runtime. Interactive charts need the
-version-matched script emitted by `components/dependencies`.
+version-matched scripts emitted by `components/dependencies`. The dependency
+set includes the small word-cloud extension after the core runtime, so every
+public interactive component shares one document-level dependency contract.
 
 ## Recommended: embedded local runtime
 
@@ -49,9 +51,10 @@ Opt in only when third-party delivery is acceptable:
 @dependencies.Dependencies(dependencies.WithCDN())
 ```
 
-`WithCDN` uses a pinned 5.4.3 jsDelivr URL with SHA-384 Subresource Integrity
-and `crossorigin="anonymous"`. It does not silently fall back to local assets.
-Allow the CDN origin in `script-src` when enforcing CSP.
+`WithCDN` uses pinned 5.4.3 core and 2.1.0 word-cloud jsDelivr URLs with
+SHA-384 Subresource Integrity and `crossorigin="anonymous"`. It does not
+silently fall back to local assets. Allow the CDN origin in `script-src` when
+enforcing CSP.
 
 Applications that mirror assets may use `WithLocalURL`. Applications that own
 a different CDN may use `WithCDNURL(url, integrity)`; keep its runtime version

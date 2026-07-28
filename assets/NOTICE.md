@@ -14,3 +14,19 @@ The explicit CDN option uses the pinned jsDelivr npm URL declared in
 `assets.RuntimeCDNURL`. Its bytes differ from the embedded file only by CRLF
 line endings, so it has a distinct SRI value declared in
 `assets.RuntimeCDNIntegrity`.
+
+## Word-cloud extension
+
+Goshtoso Charts also embeds `echarts-wordcloud` 2.1.0 for interactive word
+clouds. Version 2.x supports the bundled ECharts 5.x runtime. The npm package
+declares the ISC license; its bundled `wordcloud2.js` code carries an MIT
+license notice.
+
+- Local path: `js/runtime/word-cloud/2.1.0/runtime.min.js`
+- Local SHA-256: `4bda7da093a269a48f3d5541ebe0a2843cfed56a284f3039caa551d854f3068b`
+- Local SHA-384 SRI: `sha384-LlxaHZfP53fZT+lrIPNI4Mpi7tiscM7orbp47yM6l26/RQMcaB9HbAkoldIpQ6Ws`
+- CDN SHA-256: `7b6f0d55971d9de5913120c7ce6342f3551efd00b4a1df8a50f08385bb25f155`
+- CDN SHA-384 SRI: `sha384-U1KEY0DDCF4Dq6Yx1J+EZ5Hnj8X5bMn52OAcJB8C4OiAWeU4iJhJ/Tv5KhTqu8zZ`
+- Release source: `https://github.com/ecomfe/echarts-wordcloud/tree/2.1.0`
+- Published package: `https://www.npmjs.com/package/echarts-wordcloud/v/2.1.0`
+- Bundled MIT notice: `https://github.com/ecomfe/echarts-wordcloud/blob/2.1.0/dist/echarts-wordcloud.min.js.LICENSE.txt`

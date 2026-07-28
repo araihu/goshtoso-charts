@@ -52,3 +52,20 @@ func TestHandlerServesVersionedChartControlRuntime(t *testing.T) {
 		}
 	}
 }
+
+func TestHandlerServesVersionedWordCloudRuntime(t *testing.T) {
+	t.Parallel()
+
+	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodGet, assets.WordCloudRuntimeURL, nil)
+	assets.Handler().ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("GET %s status = %d, want %d", assets.WordCloudRuntimeURL, recorder.Code, http.StatusOK)
+	}
+	for _, want := range []string{"wordCloud", "layoutAnimation", "drawOutOfBound"} {
+		if !strings.Contains(recorder.Body.String(), want) {
+			t.Errorf("word-cloud runtime missing %q", want)
+		}
+	}
+}
