@@ -22,6 +22,7 @@ type LineConfig struct {
 	Options       ChartOptions
 	SeriesOptions SeriesOptions
 	Style         charttheme.Style
+	Live          *LiveData
 }
 
 // LineSeries describes one named line series.
@@ -70,14 +71,23 @@ func Line(cfg LineConfig) Instance {
 	}
 
 	return newInstance(chartcomponents.KindInteractiveLine, renderConfig{
-		Label:   cfg.Label,
-		Caption: cfg.Caption,
-		Chart:   chart,
-		Style:   cfg.Style,
+		Label:              cfg.Label,
+		Caption:            cfg.Caption,
+		Chart:              chart,
+		Style:              cfg.Style,
+		Live:               cartesianLiveConfig(cfg.Live),
+		Animation:          cfg.Options.Animation,
+		AxisLabelIntervals: axisLabelIntervals(cfg.Options),
 	})
 }
 
 func validateLineConfig(cfg LineConfig) error {
+	if err := validateChartOptions(cfg.Options); err != nil {
+		return err
+	}
+	if err := validateLiveData(cfg.Live); err != nil {
+		return err
+	}
 	if len(cfg.XAxis) == 0 {
 		return fmt.Errorf("line chart x axis is required")
 	}

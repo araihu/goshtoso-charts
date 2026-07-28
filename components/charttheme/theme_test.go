@@ -34,6 +34,18 @@ func TestAutoUsesBoldLiteralFallback(t *testing.T) {
 	}
 }
 
+func TestStatusPaletteUsesSemanticOrderAndRootClass(t *testing.T) {
+	t.Parallel()
+	style := Style{Palette: PaletteStatus, Colors: []string{"#123456"}, Class: "custom-status-chart"}
+	colors := style.ResolvedColors()
+	if len(colors) != 8 || colors[0] != "#123456" || colors[1] != "#d97706" || colors[2] != "#dc2626" {
+		t.Fatalf("status colors = %#v", colors)
+	}
+	if got := style.RootClasses("chart"); got != "chart goshtoso-charts-palette goshtoso-charts-palette-status custom-status-chart" {
+		t.Fatalf("status classes = %q", got)
+	}
+}
+
 func TestStylesExposeLightAndDarkSemanticChartTokens(t *testing.T) {
 	t.Parallel()
 	var output bytes.Buffer
@@ -52,10 +64,30 @@ func TestStylesExposeLightAndDarkSemanticChartTokens(t *testing.T) {
 		`--color-chart-text: var(--color-on-surface)`,
 		`--color-chart-text-strong: var(--color-on-surface-strong`,
 		`--color-chart-text-muted: var(--color-on-surface-muted`,
+		`--color-chart-scale-low:`,
+		`--color-chart-scale-mid:`,
+		`--color-chart-scale-high:`,
+		`--color-chart-scale-low: var(--color-cyan-300, #67e8f9)`,
+		`--color-chart-scale-mid: var(--color-amber-400, #fbbf24)`,
+		`--color-chart-scale-high: var(--color-red-600, #dc2626)`,
+		`--color-chart-scale-low: var(--color-cyan-700, #0e7490)`,
+		`--color-chart-scale-high: var(--color-red-400, #f87171)`,
+		`.goshtoso-charts-palette-status`,
+		`--color-chart-series-1: color-mix(in srgb, var(--color-success, var(--color-green-600, #16a34a)) 80%`,
+		`--color-chart-series-2: color-mix(in srgb, var(--color-warning, var(--color-amber-600, #d97706)) 80%`,
+		`--color-chart-series-3: color-mix(in srgb, var(--color-danger, var(--color-red-600, #dc2626)) 80%`,
+		`.dark .goshtoso-charts-palette-status`,
+		`--color-chart-series-1: color-mix(in srgb, var(--color-success, var(--color-green-400, #4ade80)) 80%`,
 		`.dark .goshtoso-charts-palette`,
 		`--color-chart-surface: var(--color-surface-dark)`,
 		`--color-chart-text-strong: var(--color-on-surface-dark-strong`,
 		`--color-chart-text-muted: var(--color-on-surface-dark-muted`,
+		`[data-theme="araihu"] .goshtoso-charts-palette-auto`,
+		`--color-chart-scale-low: var(--color-sky-400`,
+		`--color-chart-scale-mid: var(--color-amber-500`,
+		`--color-chart-scale-high: var(--color-rose-600`,
+		`--color-chart-scale-high: var(--color-rose-400`,
+		`--color-chart-scale-mid: var(--color-amber-200`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("theme styles missing %q", want)

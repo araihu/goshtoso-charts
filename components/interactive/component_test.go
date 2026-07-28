@@ -28,15 +28,46 @@ func TestEChartRendersTrustedSnippet(t *testing.T) {
 	for _, want := range []string{
 		"goshtoso-charts-interactive", "Weekly signups", "echarts.init", "Interactive example.",
 		`data-goshtoso-charts-explicit-colors="false"`,
+		`data-goshtoso-charts-explicit-animation="default"`,
 		"data-goshtoso-charts-theme-runtime", `--color-chart-text-strong`,
 		`backgroundColor: surface`, `title: repeat`, `legend: repeat`, `xAxis: repeat`,
-		`yAxis: repeat`, `radar: repeat`, `visualMap: repeat`, `tooltip: repeat`,
+		`yAxis: repeat`, `radar: repeat`, `visualMap: themedVisualMaps`, `tooltip: repeat`,
 		`series: themedSeries`, `MutationObserver`, `attributeFilter: ["class", "data-theme"]`,
+		`subtree: false`, `animationDurationUpdate: 0`,
 		`--color-chart-series-`, `themed.color = seriesColors`,
+		`--color-chart-scale-low`, `--color-chart-scale-mid`, `--color-chart-scale-high`,
+		`getImageData`, `rendererColor`,
+		`series.type === "boxplot"`, `series.type === "gauge"`,
+		`themedVisualMaps`, `current.color`, `themeSeriesItems`,
 		`matchMedia("(prefers-color-scheme: dark)")`,
+		`matchMedia("(prefers-reduced-motion: reduce)")`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
+		}
+	}
+}
+
+func TestThemeRuntimeUsesIdentityPreservingImmediateSilentMerge(t *testing.T) {
+	t.Parallel()
+	for _, unwanted := range []string{
+		`chart.setOption(themed, false, true)`,
+		`subtree: true`,
+		`type: series.type`,
+	} {
+		if strings.Contains(themeRuntimeMarkup, unwanted) {
+			t.Errorf("theme runtime must not contain %q", unwanted)
+		}
+	}
+	for _, want := range []string{
+		`id: series.id`, `name: series.name`, `animationDurationUpdate: 0`,
+		`notMerge: false`, `lazyUpdate: false`, `silent: true`,
+		`explicitAnimation === "default"`, `themed.animation = false`,
+		`subtree: false`,
+		`if (!explicitColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] }`,
+	} {
+		if !strings.Contains(themeRuntimeMarkup, want) {
+			t.Errorf("immediate identity-preserving theme runtime missing %q", want)
 		}
 	}
 }

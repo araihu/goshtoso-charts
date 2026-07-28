@@ -1,68 +1,56 @@
 package pages
 
 import (
-	"github.com/araihu/goshtoso/components/badge"
-	"github.com/araihu/goshtoso/components/panel"
+	"github.com/araihu/goshtoso/components/codeblock"
 	"github.com/araihu/goshtoso-app-shells/componentpage"
 	"github.com/araihu/goshtoso-charts/components/bar"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
-	"github.com/araihu/goshtoso-charts/components/heartbeat"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
-	"github.com/araihu/goshtoso-charts/site/internal/brand"
 )
 
-templ OverviewPage(fragment bool) {
-	@layout("Overview", "overview", overviewContent(), fragment)
+templ GettingStartedPage(fragment bool) {
+	@layout("Getting Started", "getting-started", gettingStartedContent(), fragment)
 }
 
-templ overviewContent() {
-	<section class="max-w-3xl space-y-4">
-		<div class="flex flex-wrap items-end gap-x-3 gap-y-1" aria-label="Goshtoso Charts">
-			@brand.LandingLogo()
-			<p class="pb-1 text-sm font-semibold uppercase tracking-wide text-primary dark:text-primary-dark">Charts</p>
-		</div>
-		<h1 class="font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong">Charts for Goshtoso</h1>
-		<p class="max-w-2xl text-lg text-on-surface-muted dark:text-on-surface-dark-muted">Typed Go and templ chart components with static vector and interactive variants. Public APIs stay renderer-neutral and follow Goshtoso theme tokens.</p>
+templ gettingStartedContent() {
+	<div class="max-w-3xl space-y-12">
+	<section class="space-y-4">
+		<p class="text-sm font-semibold text-primary dark:text-primary-dark">Goshtoso Charts</p>
+		<h1 class="font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong">Getting Started</h1>
+		<p class="text-lg text-on-surface-muted dark:text-on-surface-dark-muted">Install the module, wire the local chart runtime once, then render typed static or interactive charts with renderer-neutral APIs.</p>
 	</section>
-	<div class="grid gap-4 md:grid-cols-2">
-		@panel.Panel(panel.Config{Header: overviewHeartbeatHeader()}) {
-			@heartbeat.Heartbeat(sampleHeartbeat())
-		}
-		@panel.Panel(panel.Config{Header: overviewLineHeader()}) {
-			@line.Line(sampleLatency())
-		}
-		@panel.Panel(panel.Config{Header: overviewBarHeader()}) {
-			@bar.Bar(sampleDeployments())
-		}
-		@panel.Panel(panel.Config{Header: overviewPieHeader()}) {
-			@pie.Pie(sampleObservationStates())
-		}
+	<section class="space-y-4" data-getting-started-step>
+		<h2 id="install-the-module" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">1. Install the module</h2>
+		<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Add Goshtoso Charts to an existing Go and templ application.</p>
+		@codeblock.CodeBlock(gettingStartedCodeBlock("bash", "bash", gettingStartedInstallCode))
+	</section>
+	<section class="space-y-4" data-getting-started-step>
+		<h2 id="mount-chart-assets" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">2. Mount chart assets</h2>
+		<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Interactive charts use a versioned runtime embedded in the module. Mount its handler at the exported prefix; the handler removes that prefix itself.</p>
+		@codeblock.CodeBlock(gettingStartedCodeBlock("go", "Go", gettingStartedAssetsCode))
+	</section>
+	<section class="space-y-4" data-getting-started-step>
+		<h2 id="include-chart-dependencies" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">3. Include chart dependencies</h2>
+		<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Render the dependency component once in the document head, before interactive chart initialization. Local vendored delivery is the default.</p>
+		@codeblock.CodeBlock(gettingStartedCodeBlock("templ", "templ", gettingStartedDependenciesCode))
+		<p class="text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Third-party delivery is explicit: use <code class="font-mono">dependencies.WithCDN()</code> only when the application accepts that network and CSP boundary.</p>
+	</section>
+	<section class="space-y-4" data-getting-started-step>
+		<h2 id="render-a-static-chart" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">4. Render a static chart</h2>
+		<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Static/vector components render on the server and need no browser chart runtime.</p>
+		@codeblock.CodeBlock(gettingStartedCodeBlock("templ", "templ", gettingStartedStaticCode))
+	</section>
+	<section class="space-y-4" data-getting-started-step>
+		<h2 id="render-an-interactive-chart" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">5. Render an interactive chart</h2>
+		<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Interactive components use the same typed component contract while keeping browser-renderer details private.</p>
+		@codeblock.CodeBlock(gettingStartedCodeBlock("templ", "templ", gettingStartedInteractiveCode))
+	</section>
+	<section class="space-y-4" data-getting-started-step>
+		<h2 id="explore-the-catalog" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">6. Explore the catalog</h2>
+		<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Browse categorized <a class="font-semibold text-primary underline dark:text-primary-dark" href="/components/line">static/vector</a>, <a class="font-semibold text-primary underline dark:text-primary-dark" href="/components/interactive/bar">interactive Cartesian</a>, and <a class="font-semibold text-primary underline dark:text-primary-dark" href="/components/interactive/graph">relationship</a> components. The <a class="font-semibold text-primary underline dark:text-primary-dark" href="/examples/live-availability">Live availability</a> example demonstrates renderer-neutral full-snapshot SSE updates.</p>
+	</section>
 	</div>
-	@demoNote("Component contract", "Each component has typed Config, concrete Instance, stable Kind, and templ.Component rendering. Consumers choose page composition; charts supply evidence surfaces.")
-}
-
-templ HeartbeatPage(fragment bool) {
-	@layout("Heartbeat", "heartbeat", heartbeatContent(), fragment)
-}
-
-templ heartbeatContent() {
-	@componentpage.Page(componentpage.Config{
-		Title: "Heartbeat",
-		Description: "Compact availability history. Use it for monitor health and status-page evidence; retain exact values in nearby copy or a detail table.",
-		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Compact ordered availability evidence for a monitor or public-status row.", "Primitive", "heartbeat.Heartbeat", "Kind", "components.KindHeartbeat", "Configuration", "Label, Caption, chronological Points, RootClass, and RootAttrs.", "Accessibility", "Figure name comes from Label; Caption remains visible; every point exposes timestamp, state, and optional latency in its SVG title. Empty points render an explicit no-data state."),
-			Preview: heartbeat.Heartbeat(sampleHeartbeat()),
-			Code: heartbeatCode(),
-		},
-		Sections: []componentpage.Example{{
-			Title: "No data",
-			Description: "Absence of probes is not uptime.",
-			Preview: heartbeat.Heartbeat(heartbeat.Config{Label: "API availability"}),
-			Code: noDataCode(),
-		}},
-		After: demoNote("State contract", "up, degraded, down, and unknown are distinct. Color supports scanning; figure label, SVG titles, and text summary supply meaning."),
-	})
 }
 
 templ LinePage(fragment bool) {
@@ -227,6 +215,40 @@ templ InteractiveFunnelPage(fragment bool) {
 	@layout("Interactive funnel", "interactive-funnel", interactiveChartFunnelContent(), fragment)
 }
 
+templ InteractiveGraphPage(fragment bool) {
+	@layout("Interactive graph", "interactive-graph", interactiveGraphContent(), fragment)
+}
+
+templ interactiveGraphContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive graph",
+		Description: "Reusable relationship graph for connected entities, categories, and weighted links under one renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Explore relationships, neighborhoods, and topology among named entities.", "Primitive", "interactive.Graph", "Kind", "components.KindInteractiveGraph", "Configuration", "Label, Caption, typed Nodes, Links, Categories, layout, roam, force options, size, chart options, series options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Pair the canvas with a textual relationship summary when exact topology matters."),
+			Preview: sampleInteractiveGraph(),
+			Code: interactiveGraphCode(),
+		},
+		After: demoNote("Layout contract", "Force is the zero-value default. Fixed-coordinate and circular layouts remain variants of the same Graph component."),
+	})
+}
+
+templ InteractiveSankeyPage(fragment bool) {
+	@layout("Interactive Sankey", "interactive-sankey", interactiveSankeyContent(), fragment)
+}
+
+templ interactiveSankeyContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive Sankey",
+		Description: "Reusable flow chart for weighted movement between named stages under one renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Show how quantities move, split, and converge across named stages.", "Primitive", "interactive.Sankey", "Kind", "components.KindInteractiveSankey", "Configuration", "Label, Caption, typed Series, Nodes, Links, orientation, alignment, node sizing, chart options, series options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve the weighted links in adjacent text or a table when exact flow values matter."),
+			Preview: sampleInteractiveSankey(),
+			Code: interactiveSankeyCode(),
+		},
+		After: demoNote("Flow contract", "Nodes are uniquely named within each series. Every weighted link references declared source and target nodes."),
+	})
+}
+
 templ interactiveChartFunnelContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive funnel",
@@ -262,54 +284,25 @@ templ lineContent() {
 			Preview: line.Line(sampleLatency()),
 			Code: lineCode(),
 		},
-		After: demoNote("Theme contract", "Line and heartbeat resolve Goshtoso semantic CSS tokens at display time. One SSR response follows every built-in theme and its dark mode; no browser chart renderer is involved."),
+		After: demoNote("Theme contract", "Static line charts resolve Goshtoso semantic CSS tokens at display time. One SSR response follows every built-in theme and its dark mode; no browser chart renderer is involved."),
 	})
 }
 
-templ StatusPageExample(fragment bool) {
-	@layout("Status page example", "status-page", statusPageContent(), fragment)
+templ LiveAvailabilityExample(fragment bool) {
+	@layout("Live availability", "live-availability", liveAvailabilityContent(), fragment)
 }
 
-templ statusPageContent() {
-	<section class="space-y-2">
-		<p class="text-sm font-semibold text-primary dark:text-primary-dark">Examples / Xisnove</p>
-		<h1 class="font-title text-3xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Status page example</h1>
-		<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">Chart package stays generic. Xisnove maps its monitor and retained-observation projections at view-model boundary.</p>
-	</section>
-	<section class="space-y-4" aria-label="Example monitor status">
-		@statusMonitor("Public API", badge.ToneSuccess, "Operational", heartbeat.Heartbeat(sampleHeartbeat()))
-		@statusMonitor("DNS resolution", badge.ToneWarning, "Degraded", heartbeat.Heartbeat(sampleDegradedHeartbeat()))
-		@statusMonitor("Webhook delivery", badge.ToneDanger, "Incident open", heartbeat.Heartbeat(sampleFailedHeartbeat()))
-	</section>
-}
-
-templ statusMonitor(name string, tone badge.Tone, state string, chart templ.Component) {
-	@panel.Panel(panel.Config{Header: statusHeader(name, tone, state)}) {
-		@chart
-	}
-}
-
-templ statusHeader(name string, tone badge.Tone, state string) {
-	<div class="flex flex-wrap items-center gap-2">
-		<h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">{ name }</h2>
-		@badge.Badge(badge.Config{Label: state, Tone: tone})
-	</div>
-}
-
-templ overviewHeartbeatHeader() {
-	<div><h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Availability</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Heartbeat primitive</p></div>
-}
-
-templ overviewLineHeader() {
-	<div><h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Latency</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Line primitive</p></div>
-}
-
-templ overviewBarHeader() {
-	<div><h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Deployments</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Bar primitive</p></div>
-}
-
-templ overviewPieHeader() {
-	<div><h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Observation states</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Pie primitive</p></div>
+templ liveAvailabilityContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Live availability",
+		Description: "An application example built from the generic interactive Bar component and renderer-neutral server-sent event snapshots.",
+		Primary: componentpage.Example{
+			AbovePreview: demoNote("Live-data contract", "Bar and Line accept an opt-in LiveData source. Each SSE event carries a complete CartesianSnapshot, so reconnects replace stale client state deterministically."),
+			Preview: interactive.Bar(sampleLiveAvailability()),
+			Code: liveAvailabilityCode(),
+		},
+		After: demoNote("Application semantics", "Availability states belong to this example, not the chart taxonomy. Narrow stacked bars express checks while text and legend preserve state meaning without relying on color alone."),
+	})
 }
 
 templ demoNote(title string, text string) {

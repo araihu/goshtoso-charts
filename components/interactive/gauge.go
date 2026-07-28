@@ -82,13 +82,17 @@ func Gauge(cfg GaugeConfig) Instance {
 	}
 	chart.SetGlobalOptions(globalOptions...)
 
-	for _, series := range cfg.Series {
+	themeSeriesItems := make([]int, 0, len(cfg.Series))
+	for seriesIndex, series := range cfg.Series {
 		data := make([]opts.GaugeData, len(series.Data))
 		for index, point := range series.Data {
 			data[index] = opts.GaugeData{Name: point.Name, Value: point.Value}
 		}
 		options := make([]charts.SeriesOpts, 0, 1+len(chartSeriesOptions(cfg.SeriesOptions))+len(chartSeriesOptions(series.Options)))
 		options = append(options, gaugeVariantOptions(cfg.Variant, minimum, maximum))
+		if cfg.SeriesOptions.ItemStyle == nil && series.Options.ItemStyle == nil {
+			themeSeriesItems = append(themeSeriesItems, seriesIndex)
+		}
 		options = append(options, mergeSeriesOptions(cfg.SeriesOptions, series.Options)...)
 		if series.Progress != nil || series.ShowPointer != nil {
 			progress, showPointer := series.Progress, series.ShowPointer
@@ -120,7 +124,7 @@ func Gauge(cfg GaugeConfig) Instance {
 	}
 
 	return newInstance(chartcomponents.KindInteractiveGauge, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, ThemeSeriesItems: themeSeriesItems,
 	})
 }
 

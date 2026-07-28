@@ -61,6 +61,7 @@ func TestGaugeRendersProgressVariantWithSameKind(t *testing.T) {
 	for _, want := range []string{
 		`"min":-40`, `"max":60`, `"progress":{"show":true,"width":18,"roundCap":true,"clip":true}`,
 		`"pointer":{"show":false}`, `"value":21.5`,
+		`data-goshtoso-charts-theme-series-items="0"`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

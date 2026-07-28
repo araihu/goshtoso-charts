@@ -10,13 +10,14 @@ import (
 func TestDocumentationSearchIndexesCategorizedNavigation(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()
-	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/heartbeat", nil))
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/line", nil))
 
 	body := recorder.Body.String()
 	for _, want := range []string{
 		`id="docs-search"`,
 		`role="combobox"`,
 		`data-docs-search-results`,
+		`data-search="getting started general getting-started"`,
 		`data-search="bar chart static / vector bar"`,
 		`data-search="bar interactive / cartesian interactive-bar"`,
 		`data-search="scatter interactive / cartesian interactive-scatter"`,
@@ -26,6 +27,9 @@ func TestDocumentationSearchIndexesCategorizedNavigation(t *testing.T) {
 		`data-search="box plot interactive / statistical interactive-boxplot"`,
 		`data-search="gauge interactive / statistical interactive-gauge"`,
 		`data-search="funnel interactive / statistical interactive-funnel"`,
+		`data-search="graph interactive / relationships interactive-graph"`,
+		`data-search="sankey interactive / relationships interactive-sankey"`,
+		`data-search="live availability examples live-availability"`,
 		`data-search="attributions general attributions"`,
 		`href="/attributions"`,
 		`href="/components/interactive/line"`,
@@ -35,6 +39,12 @@ func TestDocumentationSearchIndexesCategorizedNavigation(t *testing.T) {
 		if !strings.Contains(body, want) {
 			t.Errorf("documentation search missing %q", want)
 		}
+	}
+	if strings.Contains(body, `data-search="heartbeat static / vector heartbeat"`) {
+		t.Error("documentation search still indexes heartbeat as a component")
+	}
+	if strings.Contains(body, `data-search="status page examples status-page"`) || strings.Contains(body, `href="/examples/status-page"`) {
+		t.Error("documentation search still indexes the removed status page")
 	}
 }
 

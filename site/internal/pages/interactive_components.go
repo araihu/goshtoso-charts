@@ -1,6 +1,9 @@
 package pages
 
 import (
+	"fmt"
+
+	"github.com/araihu/goshtoso-charts/components/charttheme"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 )
 
@@ -79,9 +82,9 @@ func sampleInteractiveHeatMap() interactive.HeatMapConfig {
 		Series: []interactive.HeatMapSeries{{
 			Name: "Deployments",
 			Data: []interactive.HeatMapData{
-				{X: 0, Y: 0, Value: 12}, {X: 1, Y: 0, Value: 8}, {X: 2, Y: 0, Value: 15},
-				{X: 1, Y: 1, Value: 6}, {X: 2, Y: 1, Value: 10}, {X: 3, Y: 1, Value: 7},
-				{X: 2, Y: 2, Value: 3}, {X: 3, Y: 2, Value: 5}, {X: 4, Y: 2, Value: 4},
+				{X: 0, Y: 0, Value: 2}, {X: 1, Y: 0, Value: 10}, {X: 2, Y: 0, Value: 20},
+				{X: 1, Y: 1, Value: 5}, {X: 2, Y: 1, Value: 12}, {X: 3, Y: 1, Value: 18},
+				{X: 2, Y: 2, Value: 0}, {X: 3, Y: 2, Value: 8}, {X: 4, Y: 2, Value: 16},
 			},
 		}},
 		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Deployment activity"}},
@@ -129,6 +132,113 @@ func sampleInteractiveFunnel() interactive.FunnelConfig {
 		}},
 		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Release pipeline"}},
 	}
+}
+
+func sampleInteractiveGraph() interactive.Instance {
+	return interactive.Graph(interactive.GraphConfig{
+		Label: "Service dependency graph", Caption: "Dependencies between edge, API, data, and notification services.",
+		Categories: []interactive.Category{{Name: "Entry"}, {Name: "Service"}, {Name: "Data"}},
+		Nodes: []interactive.Node{
+			{Name: "Edge", Category: "Entry", Value: 8, Size: 44},
+			{Name: "API", Category: "Service", Value: 12, Size: 52},
+			{Name: "Worker", Category: "Service", Value: 7, Size: 38},
+			{Name: "Database", Category: "Data", Value: 10, Size: 46},
+			{Name: "Notifications", Category: "Service", Value: 5, Size: 34},
+		},
+		Links: []interactive.Link{
+			{Source: "Edge", Target: "API", Value: 12},
+			{Source: "API", Target: "Database", Value: 10},
+			{Source: "API", Target: "Worker", Value: 7},
+			{Source: "Worker", Target: "Notifications", Value: 5},
+		},
+		Roam:    interactive.GraphRoamEnabled,
+		Force:   &interactive.ForceOptions{Repulsion: 180, Gravity: 0.08, EdgeLength: 110},
+		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Service dependencies"}},
+	})
+}
+
+func sampleInteractiveSankey() interactive.Instance {
+	return interactive.Sankey(interactive.SankeyConfig{
+		Label: "Request flow", Caption: "Requests flowing from ingress through services to outcomes.",
+		Series: []interactive.SankeySeries{{
+			Name: "Requests",
+			Nodes: []interactive.SankeyNode{
+				{Name: "Ingress"}, {Name: "API"}, {Name: "Cache"}, {Name: "Database"}, {Name: "Success"}, {Name: "Error"},
+			},
+			Links: []interactive.SankeyLink{
+				{Source: "Ingress", Target: "API", Value: 100},
+				{Source: "API", Target: "Cache", Value: 48},
+				{Source: "API", Target: "Database", Value: 45},
+				{Source: "API", Target: "Error", Value: 7},
+				{Source: "Cache", Target: "Success", Value: 48},
+				{Source: "Database", Target: "Success", Value: 42},
+				{Source: "Database", Target: "Error", Value: 3},
+			},
+		}},
+		Layout:  interactive.SankeyLayout{NodeWidth: 18, NodeGap: 14},
+		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Request flow"}},
+	})
+}
+
+func liveAvailabilityBar(label, caption string, states []int) interactive.BarConfig {
+	categories := availabilityCategories(len(states))
+	series := []interactive.BarSeries{
+		{Name: "Healthy", Data: make([]interactive.BarData, len(states))},
+		{Name: "Degraded", Data: make([]interactive.BarData, len(states))},
+		{Name: "Down", Data: make([]interactive.BarData, len(states))},
+	}
+	for index, state := range states {
+		if state >= 0 && state < len(series) {
+			series[state].Data[index].Value = 1
+		}
+	}
+	config := interactive.BarConfig{
+		Label: label, Caption: caption, XAxis: categories, Series: series,
+		Height: "240px",
+		Style:  charttheme.Style{Palette: charttheme.PaletteStatus},
+		Options: interactive.ChartOptions{
+			Legend: &interactive.LegendOptions{Show: interactive.Bool(true)},
+			XAxis: &interactive.AxisOptions{
+				LabelInterval: interactive.Int(5), ShowFirstLabel: interactive.Bool(true), ShowLastLabel: interactive.Bool(true),
+			},
+			YAxis:     &interactive.AxisOptions{Min: interactive.Float(0), Max: interactive.Float(1), Show: interactive.Bool(false)},
+			Animation: interactive.Bool(false),
+		},
+		SeriesOptions: interactive.SeriesOptions{Stack: "availability", BarWidth: "70%", BarGap: "0%"},
+	}
+	config.Live = &interactive.LiveData{URL: "/examples/live-availability/events", Event: "chart"}
+	return config
+}
+
+func availabilityCategories(count int) []string {
+	categories := make([]string, count)
+	for index := range categories {
+		categories[index] = fmt.Sprintf("-%ds", (count-1-index)*2)
+	}
+	return categories
+}
+
+func availabilityStates(step int) []int {
+	states := make([]int, 36)
+	for index := range states {
+		switch phase := (step + index) % 24; {
+		case phase >= 8 && phase <= 10:
+			states[index] = 1
+		case phase >= 17 && phase <= 19:
+			states[index] = 2
+		default:
+			states[index] = 0
+		}
+	}
+	return states
+}
+
+func sampleLiveAvailability() interactive.BarConfig {
+	return liveAvailabilityBar(
+		"Live availability from server-sent events",
+		"Full snapshots stream through the renderer-neutral live-data contract.",
+		availabilityStates(0),
+	)
 }
 
 func interactiveChartBarCode() string {
@@ -241,6 +351,40 @@ func interactiveChartFunnelCode() string {
       {Name: "Tested", Value: 94},
       {Name: "Deployed", Value: 48},
     },
+  }},
+})`
+}
+
+func liveAvailabilityCode() string {
+	return `@interactive.Bar(interactive.BarConfig{
+  Label: "Live availability",
+  XAxis: rollingCategories, // 36 evenly spaced buckets.
+  Series: oneHotStateSeries, // Healthy, Degraded, Down; equal lengths.
+  SeriesOptions: interactive.SeriesOptions{
+    Stack: "availability", BarWidth: "70%", BarGap: "0%",
+  },
+	Options: interactive.ChartOptions{Animation: interactive.Bool(false)},
+  Live: &interactive.LiveData{URL: "/examples/live-availability/events", Event: "chart"},
+})`
+}
+
+func interactiveGraphCode() string {
+	return `@interactive.Graph(interactive.GraphConfig{
+  Label: "Service dependencies",
+  Nodes: []interactive.Node{{Name: "API"}, {Name: "Database"}},
+  Links: []interactive.Link{{Source: "API", Target: "Database", Value: 10}},
+  Layout: interactive.GraphLayoutForce,
+  Roam: interactive.GraphRoamEnabled,
+})`
+}
+
+func interactiveSankeyCode() string {
+	return `@interactive.Sankey(interactive.SankeyConfig{
+  Label: "Request flow",
+  Series: []interactive.SankeySeries{{
+    Name: "Requests",
+    Nodes: []interactive.SankeyNode{{Name: "Ingress"}, {Name: "Success"}},
+    Links: []interactive.SankeyLink{{Source: "Ingress", Target: "Success", Value: 90}},
   }},
 })`
 }

@@ -80,7 +80,7 @@ func Radar(cfg RadarConfig) Instance {
 	}
 
 	return newInstance(chartcomponents.KindInteractiveRadar, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation,
 	})
 }
 

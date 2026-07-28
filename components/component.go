@@ -17,8 +17,6 @@ type Component interface {
 }
 
 const (
-	// KindHeartbeat identifies an availability/history heartbeat chart.
-	KindHeartbeat Kind = "heartbeat"
 	// KindLineChart identifies a quantitative time-series line chart.
 	KindLineChart Kind = "line-chart"
 	// KindBarChart identifies a quantitative categorical bar chart.
@@ -45,9 +43,13 @@ const (
 	KindInteractiveFunnel Kind = "interactive-funnel"
 	// KindDependencies identifies the browser runtime dependency set.
 	KindDependencies Kind = "dependencies"
+	// KindInteractiveGraph identifies a browser-rendered relationship graph.
+	KindInteractiveGraph Kind = "interactive-graph"
+	// KindInteractiveSankey identifies a browser-rendered weighted flow chart.
+	KindInteractiveSankey Kind = "interactive-sankey"
 )
 
-var allKinds = []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel}
+var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey}
 
 // AllKinds returns supported chart kinds in stable order. Document-level
 // dependency components are intentionally excluded.

@@ -8,6 +8,8 @@ package pages
 import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
+import "github.com/araihu/goshtoso/components/badge"
+
 func AttributionsPage(fragment bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
@@ -58,35 +60,27 @@ func attributionsContent() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<section class=\"max-w-3xl space-y-3\"><p class=\"text-sm font-semibold text-primary dark:text-primary-dark\">Project</p><h1 class=\"font-title text-3xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Attributions</h1><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Goshtoso Charts builds on these direct rendering, component, and documentation libraries. Versions match the modules and pinned browser assets used by this site.</p></section><section class=\"grid gap-4 lg:grid-cols-2\" aria-label=\"Backing libraries\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-4xl space-y-12\"><section class=\"space-y-3\"><p class=\"text-sm font-semibold text-primary dark:text-primary-dark\">Project</p><h1 class=\"font-title text-3xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Attributions</h1><p class=\"max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted\">Goshtoso Charts builds on excellent open-source projects. Versions match the modules and bundled browser assets used by this documentation site; original license texts remain with their projects and redistributed assets.</p></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = attributionCard("Goshtoso", "UI components, theme tokens, and shared browser assets used by the chart documentation site.", "v0.0.13", "MIT", "https://github.com/araihu/goshtoso", "https://github.com/araihu/goshtoso/blob/v0.0.13/LICENSE").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = attributionGroup("Foundation dependencies", "Goshtoso components, documentation structure, and Go template generation.", foundationAttributions).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = attributionCard("Goshtoso App Shells", "Documentation shell, navigation, page structure, and responsive layout.", "commit 4c4aa5ae787e", "MIT", "https://github.com/araihu/goshtoso-app-shells", "https://github.com/araihu/goshtoso-app-shells/blob/4c4aa5ae787e/LICENSE").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = attributionGroup("Chart and rendering libraries", "Rendering implementations remain private behind typed, renderer-neutral component APIs.", chartAttributions).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = attributionCard("templ", "Type-safe Go templates used by chart components and documentation pages.", "v0.3.1020", "MIT", "https://github.com/a-h/templ", "https://github.com/a-h/templ/blob/v0.3.1020/LICENSE").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "<section class=\"space-y-4\" aria-labelledby=\"bundled-runtime-assets\"><div class=\"space-y-2\"><h2 id=\"bundled-runtime-assets\" class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Bundled runtime and assets</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">The interactive runtime is pinned and served locally by default; this site does not require a third-party runtime request.</p></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = attributionCard("go-analyze/charts", "Go-native SVG renderer backing the static vector line, bar, and pie components.", "v0.6.0", "MIT", "https://github.com/go-analyze/charts", "https://github.com/go-analyze/charts/blob/v0.6.0/LICENSE").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = attributionTable("Bundled runtime and assets", runtimeAttributions).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = attributionCard("go-echarts", "Private Go adapter used by the renderer-neutral interactive components.", "v2.7.2", "MIT", "https://github.com/go-echarts/go-echarts", "https://github.com/go-echarts/go-echarts/blob/v2.7.2/LICENSE").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = attributionCard("Apache ECharts", "Pinned local browser runtime used to render interactive charts; this site does not opt into CDN delivery.", "5.4.3", "Apache-2.0", "https://echarts.apache.org/", "https://github.com/apache/echarts/blob/5.4.3/LICENSE").Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</section><section class=\"max-w-3xl rounded-radius border border-outline bg-surface-alt p-4 text-sm text-on-surface-muted dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark-muted\"><h2 class=\"font-title text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Local runtime notice</h2><p class=\"mt-2\">The private interactive runtime is pinned in this repository. Its checksum and redistribution notes live in <code>assets/NOTICE.md</code>.</p></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<p class=\"text-sm text-on-surface-muted dark:text-on-surface-dark-muted\">Runtime checksum: <code class=\"break-all font-mono text-on-surface dark:text-on-surface-dark\">SHA-256 987554a0014ad7be585eccc91c4329d050b40c2c0ebd2e8ec84adca82c0eb843</code>. Redistribution details: <code class=\"font-mono text-on-surface dark:text-on-surface-dark\">assets/NOTICE.md</code>.</p></section></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -94,7 +88,7 @@ func attributionsContent() templ.Component {
 	})
 }
 
-func attributionCard(name string, role string, version string, license string, projectURL string, licenseURL string) templ.Component {
+func attributionGroup(title string, description string, items []attribution) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -115,85 +109,166 @@ func attributionCard(name string, role string, version string, license string, p
 			templ_7745c5c3_Var3 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "<article class=\"rounded-radius border border-outline bg-surface p-5 dark:border-outline-dark dark:bg-surface-dark\"><div class=\"flex flex-wrap items-baseline justify-between gap-2\"><h2 class=\"font-title text-xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\"><a class=\"underline decoration-outline underline-offset-4 hover:text-primary dark:decoration-outline-dark dark:hover:text-primary-dark\" href=\"")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<section class=\"space-y-4\"><div class=\"space-y-2\"><h2 class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var4 templ.SafeURL
-		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL(projectURL))
+		var templ_7745c5c3_Var4 string
+		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 31, Col: 168}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 32, Col: 108}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var4))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var5 string
-		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(name)
+		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(description)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 31, Col: 177}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 33, Col: 81}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</a></h2><span class=\"text-xs font-semibold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</p></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var6 string
-		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(version)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 33, Col: 126}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
+		templ_7745c5c3_Err = attributionTable(title, items).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</span></div><p class=\"mt-2 text-sm text-on-surface-muted dark:text-on-surface-dark-muted\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</section>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func attributionTable(label string, items []attribution) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var6 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var6 == nil {
+			templ_7745c5c3_Var6 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "<div class=\"overflow-x-auto rounded-radius border border-outline dark:border-outline-dark\"><table class=\"min-w-full w-full border-collapse text-left text-sm\" aria-label=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var7 string
-		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(role)
+		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 35, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 41, Col: 87}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 7, "</p><p class=\"mt-3 text-sm\"><a class=\"font-semibold text-primary underline dark:text-primary-dark\" href=\"")
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var8 templ.SafeURL
-		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL(licenseURL))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 36, Col: 125}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, "\"><thead class=\"bg-surface-alt text-on-surface-strong dark:bg-surface-dark-alt dark:text-on-surface-dark-strong\"><tr><th class=\"min-w-52 px-4 py-3 font-bold\" scope=\"col\">Project</th><th class=\"min-w-32 px-4 py-3 font-bold\" scope=\"col\">License</th><th class=\"min-w-52 px-4 py-3 font-bold\" scope=\"col\">Used for</th></tr></thead> <tbody class=\"divide-y divide-outline bg-surface text-on-surface dark:divide-outline-dark dark:bg-surface-dark dark:text-on-surface-dark\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 8, "\">")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		for _, item := range items {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 10, "<tr><td class=\"min-w-52 px-4 py-4 align-top\"><a class=\"font-semibold text-primary underline underline-offset-4 dark:text-primary-dark\" href=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var8 templ.SafeURL
+			templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL(item.ProjectURL))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 53, Col: 130}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var9 string
+			templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(item.Name)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 53, Col: 144}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "</a> <span class=\"mt-1 block text-xs text-on-surface-muted dark:text-on-surface-dark-muted\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(item.Version)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 54, Col: 108}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 13, "</span></td><td class=\"min-w-32 px-4 py-4 align-top\"><a class=\"inline-flex\" href=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var11 templ.SafeURL
+			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL(item.LicenseURL))
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 57, Col: 63}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 14, "\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = badge.Badge(badge.Config{Label: item.License, Tone: badge.TonePrimary, Appearance: badge.AppearanceSoft, Size: badge.SizeSM}).Render(ctx, templ_7745c5c3_Buffer)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "</a></td><td class=\"min-w-52 px-4 py-4 align-top text-on-surface-muted dark:text-on-surface-dark-muted\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var12 string
+			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(item.UsedFor)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 61, Col: 115}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 16, "</td></tr>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		var templ_7745c5c3_Var9 string
-		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(license)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/attributions.templ`, Line: 36, Col: 137}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 9, " license</a></p></article>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 17, "</tbody></table></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

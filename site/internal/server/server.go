@@ -25,13 +25,13 @@ func New() http.Handler {
 			http.NotFound(writer, request)
 			return
 		}
-		render(writer, request, pages.OverviewPage(isFragment(request)))
+		render(writer, request, pages.GettingStartedPage(isFragment(request)))
 	})
 	mux.HandleFunc("GET /attributions", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.AttributionsPage(isFragment(request)))
 	})
 	mux.HandleFunc("GET /components/heartbeat", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.HeartbeatPage(isFragment(request)))
+		http.Redirect(writer, request, "/examples/live-availability", http.StatusPermanentRedirect)
 	})
 	mux.HandleFunc("GET /components/line", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.LinePage(isFragment(request)))
@@ -72,7 +72,13 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/interactive/funnel", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.InteractiveFunnelPage(isFragment(request)))
 	})
-	for _, component := range []string{"bar", "line", "scatter", "pie", "radar", "heatmap", "boxplot", "gauge", "funnel"} {
+	mux.HandleFunc("GET /components/interactive/graph", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveGraphPage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /components/interactive/sankey", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveSankeyPage(isFragment(request)))
+	})
+	for _, component := range []string{"bar", "line", "scatter", "pie", "radar", "heatmap", "boxplot", "gauge", "funnel", "graph", "sankey"} {
 		mux.HandleFunc("GET /components/echarts/"+component, func(writer http.ResponseWriter, request *http.Request) {
 			http.Redirect(writer, request, "/components/interactive/"+component, http.StatusPermanentRedirect)
 		})
@@ -81,8 +87,12 @@ func New() http.Handler {
 		http.Redirect(writer, request, "/components/interactive/scatter", http.StatusPermanentRedirect)
 	})
 	mux.HandleFunc("GET /examples/status-page", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.StatusPageExample(isFragment(request)))
+		http.Redirect(writer, request, "/examples/live-availability", http.StatusPermanentRedirect)
 	})
+	mux.HandleFunc("GET /examples/live-availability", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.LiveAvailabilityExample(isFragment(request)))
+	})
+	mux.HandleFunc("GET /examples/live-availability/events", liveAvailabilityEvents)
 	return mux
 }
 

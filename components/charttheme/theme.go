@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// Palette selects a built-in categorical chart palette.
+// Palette selects a built-in chart palette.
 type Palette string
 
 const (
@@ -20,6 +20,8 @@ const (
 	PaletteNeutral Palette = "neutral"
 	// PalettePastel is the low-saturation fallback palette.
 	PalettePastel Palette = "pastel"
+	// PaletteStatus maps the first three series to positive, warning, and negative states.
+	PaletteStatus Palette = "status"
 )
 
 // Style controls chart palette and root classes.
@@ -38,6 +40,7 @@ var palettes = map[Palette][]string{
 	PaletteBold:    {"#2563eb", "#dc2626", "#16a34a", "#d97706", "#7c3aed", "#0891b2", "#db2777", "#65a30d"},
 	PaletteNeutral: {"#111827", "#374151", "#4b5563", "#6b7280", "#9ca3af", "#d1d5db", "#78716c", "#a8a29e"},
 	PalettePastel:  {"#93c5fd", "#fca5a5", "#86efac", "#fcd34d", "#c4b5fd", "#67e8f9", "#f9a8d4", "#bef264"},
+	PaletteStatus:  {"#16a34a", "#d97706", "#dc2626", "#2563eb", "#7c3aed", "#0891b2", "#db2777", "#65a30d"},
 }
 
 // ResolvedColors returns a copy of the initial literal palette. Explicit

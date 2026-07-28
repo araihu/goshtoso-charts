@@ -13,7 +13,9 @@ Required contract: Go request produces inline SVG with no browser chart runtime,
 | `gonum.org/v1/plot` v0.17.0 | Rejected for v1 | Mature scientific plotting and SVG backend, but adds plotting/font configuration complexity that is poorly matched to application-dashboard defaults. |
 | `github.com/wcharczuk/go-chart/v2` v2.1.2 | Rejected | SVG-capable, but upstream is archived; do not start a new public dependency on it. |
 
-`heartbeat` is intentionally handwritten SVG, not renderer output: it needs direct Goshtoso CSS semantic tokens and a compact status-history grammar. Use the renderer for quantitative primitives such as `line`.
+Availability history is an application example built from the generic Bar
+component rather than a chart type. The interactive example uses the public
+SSE snapshot contract; monitoring states remain outside the component taxonomy.
 
 The interactive boundary accepts only trusted, Go-owned option data. Renderer
 callbacks and raw JavaScript-bearing option fields are not exposed through the

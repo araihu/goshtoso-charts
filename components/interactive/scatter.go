@@ -92,7 +92,7 @@ func Scatter(cfg ScatterConfig) Instance {
 			}
 			chart.AddSeries(series.Name, data, scatterSeriesOptions(cfg, series)...)
 		}
-		return newInstance(chartcomponents.KindInteractiveScatter, renderConfig{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style})
+		return newInstance(chartcomponents.KindInteractiveScatter, renderConfig{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, AxisLabelIntervals: axisLabelIntervals(cfg.Options)})
 	}
 
 	chart := charts.NewScatter()
@@ -110,7 +110,7 @@ func Scatter(cfg ScatterConfig) Instance {
 		}
 		chart.AddSeries(series.Name, data, scatterSeriesOptions(cfg, series)...)
 	}
-	return newInstance(chartcomponents.KindInteractiveScatter, renderConfig{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style})
+	return newInstance(chartcomponents.KindInteractiveScatter, renderConfig{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, AxisLabelIntervals: axisLabelIntervals(cfg.Options)})
 }
 
 func scatterSeriesOptions(cfg ScatterConfig, series ScatterSeries) []charts.SeriesOpts {
@@ -131,6 +131,9 @@ func scatterValue(axisType CartesianAxisType, point ScatterData) any {
 }
 
 func validateScatterConfig(cfg ScatterConfig) error {
+	if err := validateChartOptions(cfg.Options); err != nil {
+		return err
+	}
 	if cfg.Variant != ScatterVariantStandard && cfg.Variant != ScatterVariantEffect {
 		return fmt.Errorf("scatter chart variant %q is not supported", cfg.Variant)
 	}

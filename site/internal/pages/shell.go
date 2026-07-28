@@ -22,7 +22,7 @@ func shellPage(title string, active string, content templ.Component) componentdo
 		Active:        active,
 		Content:       content,
 		Head:          templ.Join(brand.Head(), dependencies.Dependencies()),
-		EnableTOC:     active == "heartbeat" || active == "line" || active == "bar" || active == "pie" || active == "interactive-bar" || active == "interactive-line",
+		EnableTOC:     active == "getting-started" || active == "line" || active == "bar" || active == "pie" || active == "interactive-bar" || active == "interactive-line" || active == "live-availability",
 	}
 }
 
@@ -47,7 +47,7 @@ func shellConfig() componentdocshell.Config {
 func shellNavigation() componentdocshell.Navigation {
 	return componentdocshell.Navigation{
 		Items: []sidebar.Item{
-			{ID: "overview", Label: "Overview", Href: "/", Icon: sidebarOverviewIcon()},
+			{ID: "getting-started", Label: "Getting started", Href: "/", Icon: sidebarGettingStartedIcon()},
 			{ID: "attributions", Label: "Attributions", Href: "/attributions", Icon: sidebarAttributionsIcon()},
 		},
 		SectionsTitle: "Documentation",
@@ -55,7 +55,6 @@ func shellNavigation() componentdocshell.Navigation {
 			{
 				Title: "Static / Vector",
 				Items: []sidebar.Item{
-					{ID: "heartbeat", Label: "Heartbeat", Href: "/components/heartbeat"},
 					{ID: "line", Label: "Line chart", Href: "/components/line"},
 					{ID: "bar", Label: "Bar chart", Href: "/components/bar"},
 					{ID: "pie", Label: "Pie chart", Href: "/components/pie"},
@@ -81,9 +80,16 @@ func shellNavigation() componentdocshell.Navigation {
 				},
 			},
 			{
+				Title: "Interactive / Relationships",
+				Items: []sidebar.Item{
+					{ID: "interactive-graph", Label: "Graph", Href: "/components/interactive/graph"},
+					{ID: "interactive-sankey", Label: "Sankey", Href: "/components/interactive/sankey"},
+				},
+			},
+			{
 				Title: "Examples",
 				Items: []sidebar.Item{
-					{ID: "status-page", Label: "Status page", Href: "/examples/status-page"},
+					{ID: "live-availability", Label: "Live availability", Href: "/examples/live-availability"},
 				},
 			},
 		},

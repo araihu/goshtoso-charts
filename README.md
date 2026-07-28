@@ -52,41 +52,10 @@ Style: charttheme.Style{
 ```
 
 Application CSS may target `my-chart` and override any
-`--color-chart-series-*` token. Heartbeat keeps semantic status colors by
-default; its `Colors` order is up, degraded, down, unknown. Interactive canvas
+`--color-chart-series-*` token. Interactive canvas
 charts resolve these CSS tokens through the private runtime bridge and refresh
 when Goshtoso theme or dark-mode state changes. Explicit `Style.Colors` remain
 authoritative.
-
-## Heartbeat
-
-Heartbeat is the first monitoring primitive. It shows ordered availability observations, keeps status text in SVG titles, provides an accessible summary, and has a no-data state. It has no Xisnove dependency.
-
-It accepts up to 300 points. Aggregate or bucket denser monitoring streams at application boundary; never silently discard recent failures in presentation code.
-
-```templ
-package monitor
-
-import (
-	"time"
-
-	"github.com/araihu/goshtoso-charts/components/heartbeat"
-)
-
-templ Availability() {
-	@heartbeat.Heartbeat(heartbeat.Config{
-		Label:   "API availability over last three checks",
-		Caption: "Last three checks",
-		Points: []heartbeat.Point{
-			{At: time.Date(2026, time.July, 27, 12, 0, 0, 0, time.UTC), State: heartbeat.StateUp, Latency: 42 * time.Millisecond},
-			{At: time.Date(2026, time.July, 27, 12, 1, 0, 0, time.UTC), State: heartbeat.StateDegraded},
-			{At: time.Date(2026, time.July, 27, 12, 2, 0, 0, time.UTC), State: heartbeat.StateDown},
-		},
-	})
-}
-```
-
-For Xisnove, map retained daily uptime or raw probe-result rows into `heartbeat.Point` in Xisnove's view-model layer. Keep application/domain types out of this module.
 
 ## Line chart
 
@@ -196,9 +165,26 @@ Use application-owned values only. Shared `ChartOptions`, `SeriesOptions`, and
 component-specific typed variants provide controlled customization without
 exposing the backing renderer.
 
+### Live Cartesian data
+
+Interactive Bar and Line components can opt into an SSE source. Each named
+event carries a complete renderer-neutral `interactive.CartesianSnapshot`;
+full replacement makes reconnects deterministic and avoids exposing renderer
+update structures.
+
+```go
+config.Live = &interactive.LiveData{
+	URL:   "/metrics/events",
+	Event: "chart",
+}
+```
+
+The demo's live-availability page uses this primitive with narrow stacked bars.
+Availability remains application semantics and is not a separate chart type.
+
 ## Roadmap
 
-Foundation: `heartbeat`, `line`, `bar`/stacked bar, and `pie`. Next generic primitives: area and distribution/histogram. Add each only with a real monitor/status-page use case, stable kind, SSR output, no-data behavior, semantic-token palette, and focused tests.
+Foundation: static/vector `line`, `bar`/stacked bar, and `pie`, plus typed interactive components. Next generic primitives: area and distribution/histogram. Add each only with a real use case, stable kind, accessible evidence, semantic-token palette, and focused tests.
 
 See [chart-library evaluation](docs/chart-library-evaluation.md), [surface brief](docs/surface-brief.md), and [Xisnove heartbeat brief](docs/xisnove-heartbeat.md).
 

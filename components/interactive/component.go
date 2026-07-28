@@ -5,6 +5,8 @@ import (
 	"context"
 	"fmt"
 	"io"
+	"strconv"
+	"strings"
 
 	"github.com/a-h/templ"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
@@ -13,10 +15,33 @@ import (
 )
 
 type renderConfig struct {
-	Label   string
-	Caption string
-	Chart   render.Renderer
-	Style   charttheme.Style
+	Label     string
+	Caption   string
+	Chart     render.Renderer
+	Style     charttheme.Style
+	Live      *liveConfig
+	Animation *bool
+	// AxisLabelIntervals restore renderer-neutral integers after the private
+	// renderer serializes its string-only interval field.
+	AxisLabelIntervals []int
+	// ThemeSeriesItems lists series indexes whose renderer-specific item style
+	// is library-managed. Explicit caller item styles are never listed.
+	ThemeSeriesItems []int
+}
+
+func animationPreference(value *bool) string {
+	if value == nil {
+		return "default"
+	}
+	return strconv.FormatBool(*value)
+}
+
+func themeSeriesItems(indexes []int) string {
+	values := make([]string, len(indexes))
+	for index, value := range indexes {
+		values[index] = strconv.Itoa(value)
+	}
+	return strings.Join(values, ",")
 }
 
 // Instance is a renderable interactive chart figure.
@@ -50,6 +75,10 @@ func (instance Instance) Render(ctx context.Context, writer io.Writer) error {
 		return fmt.Errorf("interactive chart is required")
 	}
 	snippet := instance.cfg.Chart.RenderSnippet()
+	for _, interval := range instance.cfg.AxisLabelIntervals {
+		sentinel := strconv.Quote(axisLabelIntervalSentinel(interval))
+		snippet.Script = strings.ReplaceAll(snippet.Script, sentinel, strconv.Itoa(interval))
+	}
 	return interactiveTemplate(instance.cfg, templ.Raw(snippet.Element), templ.Raw(snippet.Script)).Render(ctx, writer)
 }
 

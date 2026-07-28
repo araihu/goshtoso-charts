@@ -63,7 +63,12 @@ func TestBoxPlotUsesFallbackPalette(t *testing.T) {
 	if err := instance.Render(context.Background(), &output); err != nil {
 		t.Fatalf("Render() error = %v", err)
 	}
-	for _, want := range []string{`"color":["#2563eb","#dc2626"`, "goshtoso-charts-palette-auto"} {
+	for _, want := range []string{
+		`"color":["#2563eb","#dc2626"`,
+		`"itemStyle":{"color":"#2563eb","borderColor":"#2563eb"}`,
+		`data-goshtoso-charts-theme-series-items="0"`,
+		"goshtoso-charts-palette-auto",
+	} {
 		if !strings.Contains(output.String(), want) {
 			t.Errorf("rendered markup missing %q", want)
 		}

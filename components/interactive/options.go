@@ -1,7 +1,9 @@
 package interactive
 
 import (
+	"fmt"
 	"math"
+	"strconv"
 
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
@@ -50,7 +52,13 @@ type AxisOptions struct {
 	Type          string
 	Min           *float64
 	Max           *float64
+	Show          *bool
 	ShowSplitLine *bool
+	// LabelInterval fixes category-label cadence. Zero shows every label; N shows one label after N skipped labels.
+	LabelInterval *int
+	// ShowFirstLabel and ShowLastLabel keep category-axis endpoint labels visible.
+	ShowFirstLabel *bool
+	ShowLastLabel  *bool
 }
 
 // SeriesOptions contains renderer-neutral presentation options shared by series.
@@ -130,7 +138,33 @@ func Bool(value bool) *bool { return &value }
 // Float returns a pointer for renderer-neutral optional numeric options.
 func Float(value float64) *float64 { return &value }
 
+// Int returns a pointer for renderer-neutral optional integer options.
+func Int(value int) *int { return &value }
+
 func finiteNumber(value float64) bool { return !math.IsNaN(value) && !math.IsInf(value, 0) }
+
+func validateChartOptions(options ChartOptions) error {
+	for name, axis := range map[string]*AxisOptions{"x": options.XAxis, "y": options.YAxis} {
+		if axis != nil && axis.LabelInterval != nil && *axis.LabelInterval < 0 {
+			return fmt.Errorf("%s axis label interval must be nonnegative", name)
+		}
+	}
+	return nil
+}
+
+func axisLabelIntervalSentinel(value int) string {
+	return "__goshtoso_charts_axis_label_interval_" + strconv.Itoa(value) + "__"
+}
+
+func axisLabelIntervals(options ChartOptions) []int {
+	result := make([]int, 0, 2)
+	for _, axis := range []*AxisOptions{options.XAxis, options.YAxis} {
+		if axis != nil && axis.LabelInterval != nil {
+			result = append(result, *axis.LabelInterval)
+		}
+	}
+	return result
+}
 
 func chartGlobalOptions(options ChartOptions) []charts.GlobalOpts {
 	result := make([]charts.GlobalOpts, 0, 6)
@@ -263,6 +297,9 @@ func rendererTooltip(value *TooltipOptions) opts.Tooltip {
 
 func rendererXAxis(value *AxisOptions) opts.XAxis {
 	result := opts.XAxis{Name: value.Name, Type: value.Type}
+	if value.Show != nil {
+		result.Show = opts.Bool(*value.Show)
+	}
 	if value.Min != nil {
 		result.Min = *value.Min
 	}
@@ -271,12 +308,29 @@ func rendererXAxis(value *AxisOptions) opts.XAxis {
 	}
 	if value.ShowSplitLine != nil {
 		result.SplitLine = &opts.SplitLine{Show: opts.Bool(*value.ShowSplitLine)}
+	}
+	if value.LabelInterval != nil {
+		result.AxisLabel = &opts.AxisLabel{Interval: axisLabelIntervalSentinel(*value.LabelInterval)}
+	}
+	if value.ShowFirstLabel != nil || value.ShowLastLabel != nil {
+		if result.AxisLabel == nil {
+			result.AxisLabel = &opts.AxisLabel{}
+		}
+		if value.ShowFirstLabel != nil {
+			result.AxisLabel.ShowMinLabel = opts.Bool(*value.ShowFirstLabel)
+		}
+		if value.ShowLastLabel != nil {
+			result.AxisLabel.ShowMaxLabel = opts.Bool(*value.ShowLastLabel)
+		}
 	}
 	return result
 }
 
 func rendererYAxis(value *AxisOptions) opts.YAxis {
 	result := opts.YAxis{Name: value.Name, Type: value.Type}
+	if value.Show != nil {
+		result.Show = opts.Bool(*value.Show)
+	}
 	if value.Min != nil {
 		result.Min = *value.Min
 	}
@@ -285,6 +339,20 @@ func rendererYAxis(value *AxisOptions) opts.YAxis {
 	}
 	if value.ShowSplitLine != nil {
 		result.SplitLine = &opts.SplitLine{Show: opts.Bool(*value.ShowSplitLine)}
+	}
+	if value.LabelInterval != nil {
+		result.AxisLabel = &opts.AxisLabel{Interval: axisLabelIntervalSentinel(*value.LabelInterval)}
+	}
+	if value.ShowFirstLabel != nil || value.ShowLastLabel != nil {
+		if result.AxisLabel == nil {
+			result.AxisLabel = &opts.AxisLabel{}
+		}
+		if value.ShowFirstLabel != nil {
+			result.AxisLabel.ShowMinLabel = opts.Bool(*value.ShowFirstLabel)
+		}
+		if value.ShowLastLabel != nil {
+			result.AxisLabel.ShowMaxLabel = opts.Bool(*value.ShowLastLabel)
+		}
 	}
 	return result
 }

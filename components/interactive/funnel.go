@@ -82,7 +82,7 @@ func Funnel(cfg FunnelConfig) Instance {
 	}
 
 	return newInstance(chartcomponents.KindInteractiveFunnel, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation,
 	})
 }
 

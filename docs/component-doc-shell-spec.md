@@ -42,8 +42,8 @@ persistence while retaining normal server-rendered links.
   title, main content, and out-of-band active navigation.
 - Mobile navigation closes after a successful fragment swap. Focus moves to the
   new page heading, sidebar scroll is retained, and main scroll resets.
-- No chart rendering moves into the browser. Heartbeat and line retain generic,
-  typed `Config`, `Instance`, and `Kind` SSR contracts.
+- Static/vector charts retain generic typed `Config`, `Instance`, and `Kind`
+  contracts. Interactive rendering remains behind renderer-neutral public APIs.
 
 ## Visual acceptance
 
