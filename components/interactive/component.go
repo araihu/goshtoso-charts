@@ -27,6 +27,14 @@ type renderConfig struct {
 	// ThemeSeriesItems lists series indexes whose renderer-specific item style
 	// is library-managed. Explicit caller item styles are never listed.
 	ThemeSeriesItems []int
+	// ScriptReplacements restore values that the private renderer cannot
+	// distinguish from omitted zero values.
+	ScriptReplacements []scriptReplacement
+}
+
+type scriptReplacement struct {
+	Old string
+	New string
 }
 
 func animationPreference(value *bool) string {
@@ -78,6 +86,9 @@ func (instance Instance) Render(ctx context.Context, writer io.Writer) error {
 	for _, interval := range instance.cfg.AxisLabelIntervals {
 		sentinel := strconv.Quote(axisLabelIntervalSentinel(interval))
 		snippet.Script = strings.ReplaceAll(snippet.Script, sentinel, strconv.Itoa(interval))
+	}
+	for _, replacement := range instance.cfg.ScriptReplacements {
+		snippet.Script = strings.ReplaceAll(snippet.Script, replacement.Old, replacement.New)
 	}
 	return interactiveTemplate(instance.cfg, templ.Raw(snippet.Element), templ.Raw(snippet.Script)).Render(ctx, writer)
 }

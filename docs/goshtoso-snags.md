@@ -66,3 +66,16 @@ go-echarts v2.7.2 exposes no dedicated funnel-series option for ordering. The
 Funnel component keeps ordering typed as `FunnelOrder` and applies the validated
 value through the exported `charts.SingleSeries.Sort` field. Rendering tests
 cover descending, ascending, and caller-data order.
+
+## 2026-07-28: tree zero depth and responsive width need explicit mapping
+
+go-echarts v2.7.2 omits `initialTreeDepth: 0` because its integer field uses
+`omitempty`, even though zero means roots-only and differs from an unspecified
+renderer default. The Tree component uses a private serialization sentinel and
+replaces it before emitting browser code. Its renderer also defaults the chart
+host to 900px, wider than the documentation preview at common desktop widths;
+the demo therefore sets the public, renderer-neutral `Width` to `100%`. This
+matches the official `go-echarts/examples` Tree sample, which uses a 100% chart
+inside the default centered page layout. Its flex layout targets wrapping
+multiple charts, while none deliberately supplies no page layout; neither
+belongs in this single-component wrapper.

@@ -37,6 +37,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/interactive/funnel", "Interactive funnel"},
 		{"/components/interactive/graph", "Interactive graph"},
 		{"/components/interactive/sankey", "Interactive Sankey"},
+		{"/components/interactive/tree", "Interactive tree"},
 		{"/examples/live-availability", "Live availability"},
 	} {
 		recorder := httptest.NewRecorder()
@@ -411,7 +412,7 @@ func TestComponentDocsNavigationHasSearchGroupsAndComponentContract(t *testing.T
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/line", nil))
 	body := recorder.Body.String()
-	for _, want := range []string{"Search docs...", "Static / Vector", "Interactive / Cartesian", "Interactive / Relationships", "Examples", "component-doc-shell__sidebar", "components.KindLineChart", "Live availability", "Bar chart", "Pie chart", "Scatter chart", "Accessibility", "lg:grid-cols-2"} {
+	for _, want := range []string{"Search docs...", "Static / Vector", "Interactive / Cartesian", "Interactive / Relationships", "Examples", "component-doc-shell__sidebar", "components.KindLineChart", "Live availability", "Bar chart", "Pie chart", "Scatter chart", "Tree", "Accessibility", "lg:grid-cols-2"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("component docs page missing %q", want)
 		}
@@ -421,6 +422,35 @@ func TestComponentDocsNavigationHasSearchGroupsAndComponentContract(t *testing.T
 	}
 	if strings.Contains(body, "sm:grid-cols-2") {
 		t.Error("component contract switches to two columns before fixed-sidebar content has room")
+	}
+}
+
+func TestInteractiveTreeDocsStayRendererNeutralAndExposeExactDataGuidance(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/tree", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Interactive tree", "interactive.Tree", "components.KindInteractiveTree",
+		"typed recursive Roots", "Layered is the zero-value layout",
+		"exact-data source", "Basic tree example",
+		"One root with three branches", "Node3", "Child3",
+		`aria-label="Basic tree example"`, `"collapsed":true`,
+		`style="width:100%;height:440px;"`,
+		`href="/components/interactive/tree"`,
+		"Interactive / Relationships",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("interactive tree docs missing %q", want)
+		}
+	}
+	for _, forbidden := range []string{"go-echarts", "Apache ECharts", "TreeChart", "opts.Tree"} {
+		if strings.Contains(body, forbidden) {
+			t.Errorf("interactive tree docs expose private renderer term %q", forbidden)
+		}
+	}
+	if strings.Contains(body, `style="width:900px;height:440px;"`) {
+		t.Error("interactive tree docs fell back to fixed renderer width")
 	}
 }
 

@@ -81,7 +81,10 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/interactive/sankey", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.InteractiveSankeyPage(isFragment(request)))
 	})
-	for _, component := range []string{"bar", "line", "scatter", "pie", "radar", "heatmap", "boxplot", "gauge", "funnel", "graph", "sankey"} {
+	mux.HandleFunc("GET /components/interactive/tree", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveTreePage(isFragment(request)))
+	})
+	for _, component := range []string{"bar", "line", "scatter", "pie", "radar", "heatmap", "boxplot", "gauge", "funnel", "graph", "sankey", "tree"} {
 		mux.HandleFunc("GET /components/echarts/"+component, func(writer http.ResponseWriter, request *http.Request) {
 			http.Redirect(writer, request, "/components/interactive/"+component, http.StatusPermanentRedirect)
 		})

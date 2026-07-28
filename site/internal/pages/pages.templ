@@ -254,6 +254,23 @@ templ interactiveSankeyContent() {
 	})
 }
 
+templ InteractiveTreePage(fragment bool) {
+	@layout("Interactive tree", "interactive-tree", interactiveTreeContent(), fragment)
+}
+
+templ interactiveTreeContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive tree",
+		Description: "Reusable hierarchy for parent-child relationships, layered or radial arrangement, and progressive disclosure under one renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Explore ownership, taxonomy, ancestry, or other recursive parent-child structures.", "Primitive", "interactive.Tree", "Kind", "components.KindInteractiveTree", "Configuration", "Label, Caption, typed recursive Roots, layout, orientation, initial depth, collapsed nodes, labels, roam, symbols, insets, size, chart options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve every node name, value, and parent-child path in adjacent text or a table when exact data matters."),
+			Preview: sampleInteractiveTree(),
+			Code: interactiveTreeCode(),
+		},
+		After: demoNote("Hierarchy contract", "Layered is the zero-value layout; radial remains a variant of the same Tree component. InitialDepth and per-node Collapsed state control initial disclosure. Keep an adjacent nested list or table as the exact-data source."),
+	})
+}
+
 templ interactiveChartFunnelContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive funnel",

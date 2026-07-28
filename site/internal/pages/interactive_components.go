@@ -180,6 +180,49 @@ func sampleInteractiveSankey() interactive.Instance {
 	})
 }
 
+func sampleInteractiveTree() interactive.Instance {
+	return interactive.Tree(interactive.TreeConfig{
+		Label:   "Basic tree example",
+		Caption: "One root with three branches. Node3 starts collapsed; expand it to reveal its children.",
+		Roots: []*interactive.TreeNode{{
+			Name: "Root",
+			Children: []*interactive.TreeNode{
+				{
+					Name:     "Node1",
+					Children: []*interactive.TreeNode{{Name: "Child1"}},
+				},
+				{
+					Name: "Node2",
+					Children: []*interactive.TreeNode{
+						{Name: "Child1"},
+						{Name: "Child2"},
+						{Name: "Child3"},
+					},
+				},
+				{
+					Name: "Node3", Collapsed: interactive.Bool(true),
+					Children: []*interactive.TreeNode{
+						{Name: "Child1"},
+						{Name: "Child2"},
+						{Name: "Child3"},
+					},
+				},
+			},
+		}},
+		Orientation:  interactive.TreeOrientationLeftToRight,
+		InitialDepth: interactive.Int(-1),
+		NodeLabel:    &interactive.LabelOptions{Show: interactive.Bool(true), Position: "top"},
+		LeafLabel:    &interactive.LabelOptions{Show: interactive.Bool(true), Position: "right"},
+		Insets:       interactive.TreeInsets{Left: "8%", Right: "40%", Top: "12%", Bottom: "12%"},
+		Width:        "100%",
+		Height:       "440px",
+		Options: interactive.ChartOptions{
+			Title:  &interactive.TitleOptions{Text: "Basic tree example"},
+			Legend: &interactive.LegendOptions{Show: interactive.Bool(false)},
+		},
+	})
+}
+
 func liveAvailabilityBar(label, caption string, states []int) interactive.BarConfig {
 	categories := availabilityCategories(len(states))
 	series := []interactive.BarSeries{
@@ -386,5 +429,31 @@ func interactiveSankeyCode() string {
     Nodes: []interactive.SankeyNode{{Name: "Ingress"}, {Name: "Success"}},
     Links: []interactive.SankeyLink{{Source: "Ingress", Target: "Success", Value: 90}},
   }},
+})`
+}
+
+func interactiveTreeCode() string {
+	return `@interactive.Tree(interactive.TreeConfig{
+  Label: "Basic tree example",
+  Caption: "One root with three branches; Node3 starts collapsed.",
+  Roots: []*interactive.TreeNode{{
+    Name: "Root",
+    Children: []*interactive.TreeNode{
+      {Name: "Node1", Children: []*interactive.TreeNode{{Name: "Child1"}}},
+      {Name: "Node2", Children: []*interactive.TreeNode{
+        {Name: "Child1"}, {Name: "Child2"}, {Name: "Child3"},
+      }},
+      {Name: "Node3", Collapsed: interactive.Bool(true), Children: []*interactive.TreeNode{
+        {Name: "Child1"}, {Name: "Child2"}, {Name: "Child3"},
+      }},
+    },
+  }},
+  Orientation: interactive.TreeOrientationLeftToRight,
+  InitialDepth: interactive.Int(-1),
+  NodeLabel: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "top"},
+  LeafLabel: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "right"},
+  Insets: interactive.TreeInsets{Left: "8%", Right: "40%", Top: "12%", Bottom: "12%"},
+  Width: "100%",
+  Height: "440px",
 })`
 }

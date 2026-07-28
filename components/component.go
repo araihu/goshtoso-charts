@@ -49,9 +49,11 @@ const (
 	KindInteractiveGraph Kind = "interactive-graph"
 	// KindInteractiveSankey identifies a browser-rendered weighted flow chart.
 	KindInteractiveSankey Kind = "interactive-sankey"
+	// KindInteractiveTree identifies a browser-rendered hierarchical tree.
+	KindInteractiveTree Kind = "interactive-tree"
 )
 
-var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey}
+var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree}
 
 // AllKinds returns supported chart kinds in stable order. Document-level
 // dependency components are intentionally excluded.
