@@ -94,3 +94,43 @@ func TestStylesExposeLightAndDarkSemanticChartTokens(t *testing.T) {
 		}
 	}
 }
+
+func TestStylesCenterInteractiveRendererHostWithoutSizingIt(t *testing.T) {
+	t.Parallel()
+	var output strings.Builder
+	if err := Styles().Render(context.Background(), &output); err != nil {
+		t.Fatalf("Styles().Render() error = %v", err)
+	}
+
+	markup := output.String()
+	containerRuleStart := strings.Index(markup, `.goshtoso-charts-interactive > .container`)
+	if containerRuleStart == -1 {
+		t.Fatal("shared interactive renderer container selector is missing")
+	}
+	containerRuleEnd := strings.Index(markup[containerRuleStart:], `}`)
+	if containerRuleEnd == -1 {
+		t.Fatal("shared interactive renderer container rule is incomplete")
+	}
+	containerRule := markup[containerRuleStart : containerRuleStart+containerRuleEnd]
+	if !strings.Contains(containerRule, `overflow-x: auto`) {
+		t.Fatalf("shared renderer container must contain narrow-screen overflow: %q", containerRule)
+	}
+
+	ruleStart := strings.Index(markup, `.goshtoso-charts-interactive > .container > .item`)
+	if ruleStart == -1 {
+		t.Fatal("shared interactive renderer-host selector is missing")
+	}
+	ruleEnd := strings.Index(markup[ruleStart:], `}`)
+	if ruleEnd == -1 {
+		t.Fatal("shared interactive renderer-host rule is incomplete")
+	}
+	rule := markup[ruleStart : ruleStart+ruleEnd]
+	if !strings.Contains(rule, `margin-inline: auto`) {
+		t.Fatalf("shared renderer-host rule does not center the host: %q", rule)
+	}
+	for _, forbidden := range []string{`width:`, `max-width:`, `min-width:`} {
+		if strings.Contains(rule, forbidden) {
+			t.Fatalf("shared renderer-host rule must preserve configured dimensions; found %q in %q", forbidden, rule)
+		}
+	}
+}

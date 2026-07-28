@@ -2,6 +2,12 @@ package charttheme
 
 templ Styles() {
 	<style>
+		.goshtoso-charts-interactive > .container {
+			overflow-x: auto;
+		}
+		.goshtoso-charts-interactive > .container > .item {
+			margin-inline: auto;
+		}
 		.goshtoso-charts-palette {
 			--color-chart-surface: var(--color-surface);
 			--color-chart-surface-alt: var(--color-surface-alt, var(--color-surface));
