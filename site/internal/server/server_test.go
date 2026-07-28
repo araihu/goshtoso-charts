@@ -748,10 +748,11 @@ func TestMapDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testi
 	body := recorder.Body.String()
 	for _, want := range []string{
 		"Interactive map", "interactive.Map", "components.KindInteractiveMap", "Interactive / Geographic",
-		"basic map example", "show label", "VisualMap", "Guangdong province", "Map-theme",
-		"北京", "上海", "广东", "辽宁", "山东", "山西", "陕西", "新疆", "内蒙古",
-		"深圳市", "广州市", "湛江市", "汕头市", "东莞市", "佛山市", "云浮市", "肇庆市", "梅州市",
-		"Exact region values", "semantic classes or explicit colors", `data-map-variants`, `"map":"广东"`,
+		"Brazil states", "State labels", "Brazil value scale", "Southeast focus", "Theme-aware Brazil",
+		"Rondônia", "Acre", "Amazonas", "Roraima", "Pará", "Amapá", "Tocantins", "Maranhão", "Piauí", "Ceará",
+		"Rio Grande do Norte", "Paraíba", "Pernambuco", "Alagoas", "Sergipe", "Bahia", "Minas Gerais", "Espírito Santo",
+		"Rio de Janeiro", "São Paulo", "Paraná", "Santa Catarina", "Rio Grande do Sul", "Mato Grosso do Sul", "Mato Grosso", "Goiás", "Distrito Federal",
+		"Exact region values", "semantic classes or explicit colors", `data-map-variants`, `"map":"brazil"`, "UF",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("map documentation missing upstream content %q", want)
@@ -768,7 +769,7 @@ func TestMapDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testi
 
 	attributions := httptest.NewRecorder()
 	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
-	for _, want := range []string{"examples/map.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd", "41f247b1cbb6", "national and Guangdong geometry"} {
+	for _, want := range []string{"examples/map.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd", "IBGE-MMD-2025", "Brazil-state and São Paulo-municipality geometry"} {
 		if !strings.Contains(attributions.Body.String(), want) {
 			t.Errorf("central attributions missing map source evidence %q", want)
 		}
@@ -785,13 +786,13 @@ func TestGeoDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testi
 	body := recorder.Body.String()
 	for _, want := range []string{
 		"Interactive geo", "interactive.Geo", "components.KindInteractiveGeo", "Interactive / Geographic",
-		"basic geo example", "Guangdong province", "Geo plots coordinate series", "Map remains the region-value choropleth",
-		"北京", "上海", "重庆", "武汉", "台湾", "香港", "汕头", "深圳", "广州",
-		"116.40", "39.90", "121.47", "31.23", "106.55", "29.56", "114.31", "30.52",
-		"121.30", "25.03", "114.17", "22.28", "116.69", "23.39", "114.07", "22.62", "113.23", "23.16",
+		"Brazil capitals", "São Paulo cities", "Geo plots coordinate series", "Map remains the region-value choropleth",
+		"Manaus", "Recife", "Brasília", "Rio de Janeiro", "São Paulo", "Porto Alegre", "Campinas", "Ribeirão Preto",
+		"-60.02", "-3.12", "-34.88", "-8.05", "-47.88", "-15.79", "-43.17", "-22.91",
+		"-46.63", "-23.55", "-51.23", "-30.03", "-47.06", "-47.81", "-21.18",
 		"Exact coordinate values", "semantic Color or Class paint", `data-geo-variants`,
 		`data-geo-variant="effect-scatter"`, `data-geo-variant="scatter"`,
-		`"type":"effectScatter"`, `"type":"scatter"`, `"map":"广东"`,
+		`"type":"effectScatter"`, `"type":"scatter"`, `"map":"brazil-sao-paulo"`,
 		`"period":4`, `"scale":6`, `"brushType":"stroke"`, `"calculable":true`, `"max":100`,
 	} {
 		if !strings.Contains(body, want) {
@@ -811,7 +812,7 @@ func TestGeoDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testi
 	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
 	for _, want := range []string{
 		"examples/geo.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd",
-		"fixed literals", "same [0,100) domain", "national and Guangdong geometry",
+		"fixed literals", "IBGE-MMD-2025", "Brazil-state and São Paulo-municipality geometry",
 	} {
 		if !strings.Contains(attributions.Body.String(), want) {
 			t.Errorf("central attributions missing geo source evidence %q", want)
@@ -1211,7 +1212,9 @@ func TestEveryCurrentChartPageUsesSharedControlsAndCapabilityGating(t *testing.T
 			body := recorder.Body.String()
 			for _, want := range []string{
 				`data-goshtoso-chart-control="collapse"`,
-				`data-goshtoso-chart-control="fullscreen"`,
+				`-fullscreen-action`,
+				`data-goshtoso-chart-primary`,
+				`data-goshtoso-chart-overflow`,
 				`data-goshtoso-chart-expand`, `role="dialog"`,
 				`src="` + chartassets.ControlRuntimeURL + `"`,
 			} {
@@ -1227,6 +1230,9 @@ func TestEveryCurrentChartPageUsesSharedControlsAndCapabilityGating(t *testing.T
 					if !strings.Contains(body, want) {
 						t.Errorf("GET %s dropdown missing %q", test.path, want)
 					}
+				}
+				if strings.Contains(body, `data-goshtoso-chart-control="fullscreen"`) {
+					t.Errorf("GET %s rendered an adjacent fullscreen peer", test.path)
 				}
 				if strings.Contains(body, `data-goshtoso-chart-export="`) {
 					t.Errorf("GET %s rendered direct export button for multi-format capability", test.path)

@@ -70,6 +70,17 @@ async function tablePage(viewport = { width: 1440, height: 900 }) {
   return page;
 }
 
+async function openExpand(wrapper) {
+  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+  if (await action.count()) await action.click();
+}
+
+async function enterFullscreen(wrapper) {
+  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  await wrapper.locator('[id$="-fullscreen-action"]').first().click();
+}
+
 async function download(page, label) {
   await page.evaluate(() => { globalThis.__tableBlobTypes.length = 0; });
   const pending = page.waitForEvent("download", { timeout: 10000 });
@@ -130,7 +141,7 @@ for (const width of [390, 1440]) {
             document.documentElement.classList.toggle("dark", dark);
           }, { selected: theme, dark: mode === "dark" });
           const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
-          assert.equal(await wrapper.getByRole("button").count(), 4);
+          assert.equal(await wrapper.getByRole("button").count(), width === 390 ? 2 : 3);
           assert.equal(await wrapper.locator("table").getAttribute("aria-label"), "People directory data");
           assert.deepEqual(await wrapper.locator("table thead th").allTextContents(), ["Name", "Age", "Address", "Tag", "Action"]);
           assert.equal(await wrapper.locator("table tbody tr").count(), 3);
@@ -164,7 +175,7 @@ for (const width of [390, 1440]) {
             await page.screenshot({ path: path.join(screenshotDirectory, `table-${width}-${theme}-${mode}.png`), fullPage: true });
           }
 
-          await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+          await openExpand(wrapper);
           const dialog = wrapper.getByRole("dialog", { name: "People directory" });
           await dialog.waitFor({ state: "visible" });
           await page.waitForTimeout(350);
@@ -263,12 +274,11 @@ test("Table supports explicit optional controls and SVG/opaque PNG exports", asy
   try {
     const wrappers = page.locator("[data-goshtoso-chart-wrapper]");
     assert.equal(await wrappers.nth(0).locator('[data-goshtoso-chart-control="collapse"]').count(), 1);
-    assert.equal(await wrappers.nth(0).locator('[data-goshtoso-chart-control="fullscreen"]').count(), 1);
+    assert.equal(await wrappers.nth(0).locator('[id$="-fullscreen-action"]').count(), 1);
     assert.equal(await wrappers.nth(1).locator('[data-goshtoso-chart-control="collapse"]').count(), 0);
-    assert.equal(await wrappers.nth(1).locator('[data-goshtoso-chart-control="fullscreen"]').count(), 0);
+    assert.equal(await wrappers.nth(1).locator('[id$="-fullscreen-action"]').count(), 0);
 
-    const fullscreen = wrappers.nth(0).getByRole("button", { name: /^Enter fullscreen / });
-    await fullscreen.click();
+    await enterFullscreen(wrappers.nth(0));
     await page.waitForFunction(() => document.fullscreenElement !== null);
     await page.evaluate(() => document.exitFullscreen());
     await page.waitForFunction(() => document.fullscreenElement === null);

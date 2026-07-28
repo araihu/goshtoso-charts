@@ -53,7 +53,7 @@ func TestThemeRiverRendersTypedAlignedStreamsAndExactValues(t *testing.T) {
 		`scope="col">Date</th>`, `scope="col">Stream</th>`, `scope="col">Value</th>`, `scope="col">Class</th>`,
 		`>2015/11/08</th>`, `>DQ</td>`, `>10</td>`, `>stream-dq</td>`,
 		`data-goshtoso-chart-expand`, `data-goshtoso-chart-control="collapse"`,
-		`data-goshtoso-chart-control="fullscreen"`, `data-goshtoso-chart-export="png"`,
+		`-fullscreen-action`, `data-goshtoso-chart-export="png"`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

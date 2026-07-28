@@ -1,5 +1,19 @@
 # Goshtoso integration snags
 
+## 2026-07-28: responsive action overflow is not a generic primitive
+
+Goshtoso v0.0.13 `Toolbar` wraps search, filter, and action regions but exposes
+no action priority, fit measurement, or overflow-menu contract. `Dropdown`
+provides the accessible icon-only trigger and menu behavior, but labeled
+triggers cannot also accept `TriggerIcon`; chart Expand therefore uses the
+Dropdown's visible label plus a chart-owned token-colored icon treatment.
+
+Goshtoso Charts composes only its known actions: Expand stays primary,
+Fullscreen joins its menu, and constrained Collapse/export actions flatten into
+one Dropdown without nested menus. Generic responsive action-toolbar overflow
+belongs in base Goshtoso; chart-specific action priority and capability-derived
+format choices belong here. No cross-repository change was made.
+
 ## 2026-07-28: dual-axis SVG classes and browser color spaces need private resolution
 
 The static renderer accepts per-axis colors but has no semantic-class hook that
@@ -301,3 +315,35 @@ contract's expected X-axis error, making the root test gate nondeterministic.
 Validation now visits X, Y, then Z through an ordered slice. Rendering and the
 renderer-neutral public API are unchanged; the focused invalid-config test
 passes repeatedly.
+
+## 2026-07-28: geographic simplification needs visual review and explicit legend control
+
+An initially evaluated municipality-derived Brazil outline passed identity and
+hash checks but produced visible sliver artifacts after dissolve and
+simplification. Browser screenshots exposed the defect, so Map and Geo now use
+IBGE's official 2025 state and municipality Shapefiles directly, with pinned
+input and output hashes, CC BY 4.0 attribution, keep-shapes simplification, and
+deterministic bounds checks. Further visual review found two private adapter
+defaults: an unused legend collided with the title at 320px and 390px, and map
+legend symbols appeared as one dot at every state centroid even with that legend
+hidden. Both components suppress the legend, Map suppresses its symbols in the
+private theme bridge, and rendered-text checks prove the labels variant still
+draws all 27 official UF codes without long-name collisions. The adjacent exact
+table retains every Portuguese state name and UF pairing. The public API remains one renderer-neutral
+Map and one renderer-neutral Geo component.
+
+## 2026-07-28: controls v3 integration exposed stale browser selectors
+
+Final pair integration initially passed the focused controls suite but failed
+57 of 176 full browser tests. Eight older component-specific files still
+expected four adjacent buttons or clicked the modal component's intentionally
+hidden Expand button. Controls v3 instead presents one primary Expand action,
+places Fullscreen in that primary menu, and moves Collapse and export actions
+into responsive overflow.
+
+The affected tests now exercise the public control composition: open the
+primary action and choose Expand or Fullscreen when present, use overflow for a
+hidden Collapse or export action, and expect two visible buttons at narrow
+widths versus three at wide widths. Renderer, data, theme, and geometry
+assertions were unchanged. The complete random-port browser gate then passed
+176 of 176 tests at concurrency one.

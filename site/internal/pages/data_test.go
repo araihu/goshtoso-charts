@@ -247,19 +247,21 @@ func TestInteractiveMapDatasetsAndVariantsMatchPinnedUpstreamExample(t *testing.
 	if interactiveMapUpstreamSHA256 != "3b59b5cb7ed392f3fa436d51fd420704ab2e82e439c95b226d35d12b913cf9da" {
 		t.Fatalf("map upstream SHA-256 = %s", interactiveMapUpstreamSHA256)
 	}
-	wantBase := []string{"北京", "上海", "广东", "辽宁", "山东", "山西", "陕西", "新疆", "内蒙古"}
-	wantGuangdong := []string{"深圳市", "广州市", "湛江市", "汕头市", "东莞市", "佛山市", "云浮市", "肇庆市", "梅州市"}
-	for name, test := range map[string]struct {
-		regions []interactive.MapRegion
-		want    []string
-	}{"base": {interactiveMapBaseRegions, wantBase}, "Guangdong": {interactiveMapGuangdongRegions, wantGuangdong}} {
-		if len(test.regions) != len(test.want) {
-			t.Fatalf("%s region count = %d, want %d", name, len(test.regions), len(test.want))
-		}
-		for index, region := range test.regions {
-			if region.Name != test.want[index] || region.Value < 0 || region.Value >= 150 {
-				t.Errorf("%s region %d = (%q, %g), want name %q and upstream [0,150) value domain", name, index, region.Name, region.Value, test.want[index])
-			}
+	if interactiveMapGeometryRevision != "IBGE-MMD-2025" || interactiveMapGeometrySHA256 != "1b3719c82f6e2278a3e6ea8b7fc2e195460ee6a7de1546d0a8e05e6d0174bb3d" {
+		t.Fatalf("map geometry source = %s / %s", interactiveMapGeometryRevision, interactiveMapGeometrySHA256)
+	}
+	want := []struct{ name, code string }{
+		{"Rondônia", "RO"}, {"Acre", "AC"}, {"Amazonas", "AM"}, {"Roraima", "RR"}, {"Pará", "PA"}, {"Amapá", "AP"}, {"Tocantins", "TO"},
+		{"Maranhão", "MA"}, {"Piauí", "PI"}, {"Ceará", "CE"}, {"Rio Grande do Norte", "RN"}, {"Paraíba", "PB"}, {"Pernambuco", "PE"}, {"Alagoas", "AL"}, {"Sergipe", "SE"}, {"Bahia", "BA"},
+		{"Minas Gerais", "MG"}, {"Espírito Santo", "ES"}, {"Rio de Janeiro", "RJ"}, {"São Paulo", "SP"}, {"Paraná", "PR"}, {"Santa Catarina", "SC"}, {"Rio Grande do Sul", "RS"},
+		{"Mato Grosso do Sul", "MS"}, {"Mato Grosso", "MT"}, {"Goiás", "GO"}, {"Distrito Federal", "DF"},
+	}
+	if len(interactiveMapBrazilRegions) != len(want) {
+		t.Fatalf("Brazil region count = %d, want %d", len(interactiveMapBrazilRegions), len(want))
+	}
+	for index, region := range interactiveMapBrazilRegions {
+		if region.Name != want[index].name || region.Code != want[index].code || region.Value < 0 || region.Value >= 150 {
+			t.Errorf("Brazil region %d = %#v, want %s/%s and upstream [0,150) value domain", index, region, want[index].name, want[index].code)
 		}
 	}
 	variants := sampleInteractiveMaps()
@@ -282,26 +284,29 @@ func TestInteractiveGeoDatasetsAndVariantsMatchPinnedUpstreamExample(t *testing.
 	if interactiveGeoUpstreamSHA256 != "3a6dbe86c34e5ea478b1dea5430c10cac9f7c4905264e12fc37654f0f5d4550a" {
 		t.Fatalf("geo upstream SHA-256 = %s", interactiveGeoUpstreamSHA256)
 	}
+	if interactiveGeoGeometryRevision != "IBGE-MMD-2025" || interactiveGeoBrazilSHA256 != interactiveMapGeometrySHA256 || interactiveGeoSaoPauloSHA256 != "657dee960c4c4d991f5b0e6d59681152d5e2b9c48091e5094085a666c97ff317" {
+		t.Fatalf("geo geometry pins = %s / %s / %s", interactiveGeoGeometryRevision, interactiveGeoBrazilSHA256, interactiveGeoSaoPauloSHA256)
+	}
 	wantNational := []interactive.GeoPoint{
-		{Name: "北京", Longitude: 116.40, Latitude: 39.90, Value: 81},
-		{Name: "上海", Longitude: 121.47, Latitude: 31.23, Value: 27},
-		{Name: "重庆", Longitude: 106.55, Latitude: 29.56, Value: 47},
-		{Name: "武汉", Longitude: 114.31, Latitude: 30.52, Value: 59},
-		{Name: "台湾", Longitude: 121.30, Latitude: 25.03, Value: 18},
-		{Name: "香港", Longitude: 114.17, Latitude: 22.28, Value: 63},
+		{Name: "Manaus", Longitude: -60.02, Latitude: -3.12, Value: 81},
+		{Name: "Recife", Longitude: -34.88, Latitude: -8.05, Value: 27},
+		{Name: "Brasília", Longitude: -47.88, Latitude: -15.79, Value: 47},
+		{Name: "Rio de Janeiro", Longitude: -43.17, Latitude: -22.91, Value: 59},
+		{Name: "São Paulo", Longitude: -46.63, Latitude: -23.55, Value: 18},
+		{Name: "Porto Alegre", Longitude: -51.23, Latitude: -30.03, Value: 63},
 	}
-	wantGuangdong := []interactive.GeoPoint{
-		{Name: "汕头", Longitude: 116.69, Latitude: 23.39, Value: 12},
-		{Name: "深圳", Longitude: 114.07, Latitude: 22.62, Value: 76},
-		{Name: "广州", Longitude: 113.23, Latitude: 23.16, Value: 41},
+	wantSaoPaulo := []interactive.GeoPoint{
+		{Name: "São Paulo", Longitude: -46.63, Latitude: -23.55, Value: 12},
+		{Name: "Campinas", Longitude: -47.06, Latitude: -22.91, Value: 76},
+		{Name: "Ribeirão Preto", Longitude: -47.81, Latitude: -21.18, Value: 41},
 	}
-	if !reflect.DeepEqual(interactiveGeoNationalPoints, wantNational) {
-		t.Fatalf("national points = %#v", interactiveGeoNationalPoints)
+	if !reflect.DeepEqual(interactiveGeoBrazilPoints, wantNational) {
+		t.Fatalf("Brazil points = %#v", interactiveGeoBrazilPoints)
 	}
-	if !reflect.DeepEqual(interactiveGeoGuangdongPoints, wantGuangdong) {
-		t.Fatalf("Guangdong points = %#v", interactiveGeoGuangdongPoints)
+	if !reflect.DeepEqual(interactiveGeoSaoPauloPoints, wantSaoPaulo) {
+		t.Fatalf("São Paulo points = %#v", interactiveGeoSaoPauloPoints)
 	}
-	for _, points := range [][]interactive.GeoPoint{interactiveGeoNationalPoints, interactiveGeoGuangdongPoints} {
+	for _, points := range [][]interactive.GeoPoint{interactiveGeoBrazilPoints, interactiveGeoSaoPauloPoints} {
 		for _, point := range points {
 			if point.Value < 0 || point.Value >= 100 {
 				t.Errorf("fixed literal value %q=%g outside upstream [0,100) domain", point.Name, point.Value)

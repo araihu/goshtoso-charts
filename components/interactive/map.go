@@ -17,10 +17,8 @@ const maxMapDetailRows = 100
 type MapGeometry string
 
 const (
-	// MapGeometryChina contains national and provincial boundaries. It is the default.
-	MapGeometryChina MapGeometry = ""
-	// MapGeometryGuangdong contains Guangdong prefecture-level boundaries.
-	MapGeometryGuangdong MapGeometry = "guangdong"
+	// MapGeometryBrazil contains all 26 states and the Federal District. It is the default.
+	MapGeometryBrazil MapGeometry = ""
 )
 
 // MapVariant selects a documented map behavior while retaining one component identity.
@@ -48,6 +46,7 @@ type MapScale struct {
 // semantics; Color optionally overrides its theme or scale color.
 type MapRegion struct {
 	Name  string
+	Code  string
 	Value float64
 	Class string
 	Color string
@@ -79,6 +78,7 @@ type MapConfig struct {
 
 type rendererMapRegion struct {
 	Name        string          `json:"name"`
+	Code        string          `json:"code"`
 	Value       float64         `json:"value"`
 	ClassName   string          `json:"className,omitempty"`
 	SourceColor string          `json:"sourceColor,omitempty"`
@@ -91,10 +91,6 @@ func Map(cfg MapConfig) Instance {
 		return newInvalidInstance(chartcomponents.KindInteractiveMap, err)
 	}
 
-	geometry := cfg.Geometry
-	if cfg.Variant == MapVariantRegional && geometry == MapGeometryChina {
-		geometry = MapGeometryGuangdong
-	}
 	style := cfg.Style
 	style.Class = strings.TrimSpace("goshtoso-charts-map " + style.Class)
 	width, height := cfg.Width, cfg.Height
@@ -106,10 +102,11 @@ func Map(cfg MapConfig) Instance {
 	}
 
 	chart := charts.NewMap()
-	chart.RegisterMapType(rendererMapName(geometry))
+	chart.RegisterMapType(rendererMapName(cfg.Geometry))
 	global := []charts.GlobalOpts{
 		charts.WithInitializationOpts(opts.Initialization{Width: width, Height: height}),
 		charts.WithColorsOpts(opts.Colors(style.ResolvedColors())),
+		charts.WithLegendOpts(opts.Legend{Show: opts.Bool(false)}),
 	}
 	global = append(global, chartGlobalOptions(cfg.Options)...)
 	if scale := resolvedMapScale(cfg); scale != nil {
@@ -123,12 +120,12 @@ func Map(cfg MapConfig) Instance {
 	}
 	seriesOptions := make([]charts.SeriesOpts, 0, 1)
 	if showLabels != nil {
-		seriesOptions = append(seriesOptions, charts.WithLabelOpts(opts.Label{Show: opts.Bool(*showLabels)}))
+		seriesOptions = append(seriesOptions, charts.WithLabelOpts(opts.Label{Show: opts.Bool(*showLabels), Formatter: opts.FuncOpts("function(params){return params.data.code;}"), FontSize: 11}))
 	}
 	chart.AddSeries(cfg.Series.Name, make([]opts.MapData, len(cfg.Series.Regions)), seriesOptions...)
 	rendered := make([]rendererMapRegion, len(cfg.Series.Regions))
 	for index, region := range cfg.Series.Regions {
-		rendered[index] = rendererMapRegion{Name: region.Name, Value: region.Value, ClassName: region.Class, SourceColor: region.Color}
+		rendered[index] = rendererMapRegion{Name: region.Name, Code: region.Code, Value: region.Value, ClassName: region.Class, SourceColor: region.Color}
 		if region.Color != "" {
 			rendered[index].ItemStyle = &opts.ItemStyle{Color: region.Color}
 		}
@@ -144,10 +141,7 @@ func Map(cfg MapConfig) Instance {
 }
 
 func rendererMapName(geometry MapGeometry) string {
-	if geometry == MapGeometryGuangdong {
-		return "广东"
-	}
-	return "china"
+	return "brazil"
 }
 
 func resolvedMapScale(cfg MapConfig) *MapScale {
@@ -191,7 +185,7 @@ func validateMapConfig(cfg MapConfig) error {
 	if len(cfg.Series.Regions) == 0 {
 		return fmt.Errorf("map chart regions are required")
 	}
-	if cfg.Geometry != MapGeometryChina && cfg.Geometry != MapGeometryGuangdong {
+	if cfg.Geometry != MapGeometryBrazil {
 		return fmt.Errorf("map chart geometry %q is not supported", cfg.Geometry)
 	}
 	validVariants := map[MapVariant]bool{MapVariantBasic: true, MapVariantLabels: true, MapVariantScale: true, MapVariantRegional: true, MapVariantTheme: true}
@@ -224,9 +218,19 @@ func validateMapConfig(cfg MapConfig) error {
 			return fmt.Errorf("map chart region %q is duplicated", name)
 		}
 		names[name] = true
+		wantCode, known := brazilStateCodes[name]
+		if !known {
+			return fmt.Errorf("map chart region %q is not in Brazil geometry", name)
+		}
+		if region.Code != wantCode {
+			return fmt.Errorf("map chart region %q code is %q, want %q", name, region.Code, wantCode)
+		}
 		if !finiteNumber(region.Value) {
 			return fmt.Errorf("map chart region %q value must be finite", name)
 		}
+	}
+	if len(names) != len(brazilStateCodes) {
+		return fmt.Errorf("map chart Brazil geometry requires all 26 states and the Federal District; got %d of %d regions", len(names), len(brazilStateCodes))
 	}
 	if scale := cfg.Scale; scale != nil {
 		if !finiteNumber(scale.Min) || !finiteNumber(scale.Max) {
@@ -247,7 +251,7 @@ func validateMapConfig(cfg MapConfig) error {
 	return validateChartOptions(cfg.Options)
 }
 
-type mapValueRow struct{ Region, Value, Class string }
+type mapValueRow struct{ Region, Code, Value, Class string }
 type mapValueRows struct {
 	Rows    []mapValueRow
 	Omitted int
@@ -259,7 +263,14 @@ func mapDetailRows(regions []MapRegion, limit int) mapValueRows {
 		if len(rows) == limit {
 			return mapValueRows{Rows: rows, Omitted: len(regions) - len(rows)}
 		}
-		rows = append(rows, mapValueRow{Region: region.Name, Value: fmt.Sprintf("%g", region.Value), Class: region.Class})
+		rows = append(rows, mapValueRow{Region: region.Name, Code: region.Code, Value: fmt.Sprintf("%g", region.Value), Class: region.Class})
 	}
 	return mapValueRows{Rows: rows}
+}
+
+var brazilStateCodes = map[string]string{
+	"Rondônia": "RO", "Acre": "AC", "Amazonas": "AM", "Roraima": "RR", "Pará": "PA", "Amapá": "AP", "Tocantins": "TO",
+	"Maranhão": "MA", "Piauí": "PI", "Ceará": "CE", "Rio Grande do Norte": "RN", "Paraíba": "PB", "Pernambuco": "PE", "Alagoas": "AL", "Sergipe": "SE", "Bahia": "BA",
+	"Minas Gerais": "MG", "Espírito Santo": "ES", "Rio de Janeiro": "RJ", "São Paulo": "SP", "Paraná": "PR", "Santa Catarina": "SC", "Rio Grande do Sul": "RS",
+	"Mato Grosso do Sul": "MS", "Mato Grosso": "MT", "Goiás": "GO", "Distrito Federal": "DF",
 }

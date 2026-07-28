@@ -59,7 +59,7 @@ func TestTreeRendersConfiguredHierarchy(t *testing.T) {
 		`"text":"Ownership"`, `"color":["#654321","#ff8a3d"`,
 		`"#abcdef"`, `"#123456"`,
 		"goshtoso-charts-palette-araihu overflow-x-auto",
-		`data-goshtoso-chart-control="fullscreen"`, `data-goshtoso-chart-control="collapse"`,
+		`-fullscreen-action`, `data-goshtoso-chart-control="collapse"`,
 		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`,
 	} {
 		if !strings.Contains(markup, want) {

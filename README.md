@@ -200,6 +200,10 @@ Zero proven formats render no Export control; one renders a direct button; more
 than one renders a Goshtoso Dropdown. Unsupported explicit formats fail
 rendering instead of creating dead controls. Expand, collapse, and fullscreen
 preserve chart DOM, interaction state, and live SSE instances.
+When Expand and Fullscreen are both enabled, one primary Expand Dropdown offers
+both choices. At constrained wrapper widths, Collapse and export formats move
+into one icon-only overflow Dropdown while Expand remains visible; export
+formats are flattened so menus never nest.
 See the [capability matrix, layout contract, and pending integration checks](docs/chart-controls.md).
 
 ## Candlestick
@@ -322,34 +326,31 @@ config.Live = &interactive.LiveData{
 }
 ```
 
-Maps use one component for national and regional resources. Region names and
-values remain typed, caller colors or semantic classes stay programmatic, and
-exact values remain available beside the canvas.
+Maps use one component for Brazil's 26 states and Federal District. Region
+names, UF codes, and values remain typed; caller colors or semantic classes
+stay programmatic; exact values remain available beside the canvas.
 
 ```templ
 @interactive.Map(interactive.MapConfig{
-	Label:    "Guangdong province",
-	Geometry: interactive.MapGeometryGuangdong,
-	Variant:  interactive.MapVariantRegional,
+	Label:    "Brazil states",
+	Geometry: interactive.MapGeometryBrazil,
+	Variant:  interactive.MapVariantScale,
 	Series: interactive.MapSeries{
-		Name: "map",
-		Regions: []interactive.MapRegion{
-			{Name: "深圳市", Value: 128, Class: "major-city"},
-			{Name: "广州市", Value: 117, Color: "#ff8a3d"},
-		},
+		Name: "Brazil state values",
+		Regions: brazilStateValues, // all 26 states plus DF
 	},
 })
 ```
 
 Geo stays distinct from Map: it plots typed longitude/latitude/value points
-over the same pinned national or Guangdong geometry. Scatter and effect-scatter
+over pinned Brazil-state or São Paulo-municipality geometry. Scatter and effect-scatter
 behavior remain series kinds on one component; visual ranges use theme
 cold-to-warm tokens unless callers provide explicit colors.
 
 ```templ
 @interactive.Geo(interactive.GeoConfig{
-	Label:    "Guangdong province",
-	Geometry: interactive.GeoGeometryGuangdong,
+	Label:    "São Paulo cities",
+	Geometry: interactive.GeoGeometrySaoPaulo,
 	VisualRange: &interactive.GeoVisualRange{
 		Min: 0, Max: 100, Calculable: interactive.Bool(true),
 	},
@@ -357,9 +358,9 @@ cold-to-warm tokens unless callers provide explicit colors.
 		Name: "geo",
 		Kind: interactive.GeoSeriesScatter,
 		Points: []interactive.GeoPoint{
-			{Name: "汕头", Longitude: 116.69, Latitude: 23.39, Value: 12},
-			{Name: "深圳", Longitude: 114.07, Latitude: 22.62, Value: 76},
-			{Name: "广州", Longitude: 113.23, Latitude: 23.16, Value: 41},
+			{Name: "São Paulo", Longitude: -46.63, Latitude: -23.55, Value: 12},
+			{Name: "Campinas", Longitude: -47.06, Latitude: -22.91, Value: 76},
+			{Name: "Ribeirão Preto", Longitude: -47.81, Latitude: -21.18, Value: 41},
 		},
 	}},
 })

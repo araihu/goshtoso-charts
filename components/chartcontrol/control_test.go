@@ -27,8 +27,11 @@ func TestDefaultWrapperEnablesExpandAndCapabilityDerivedExport(t *testing.T) {
 	})
 	for _, want := range []string{
 		`class="goshtoso-charts-control-wrapper"`, `data-goshtoso-chart-expand`,
+		`data-goshtoso-chart-primary`,
 		`role="dialog"`, `aria-modal="true"`, `x-trap.inert.noscroll`,
-		`data-goshtoso-chart-export-menu`, `Export`, `>SVG</button>`, `>PNG</button>`,
+		`data-goshtoso-chart-export-menu`, `data-goshtoso-chart-overflow`,
+		`More Latency chart actions`, `Export`, `>SVG</button>`, `>PNG</button>`,
+		`Export SVG</button>`, `Export PNG</button>`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("default wrapper missing %q", want)
@@ -38,6 +41,31 @@ func TestDefaultWrapperEnablesExpandAndCapabilityDerivedExport(t *testing.T) {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("default wrapper unexpectedly contains %q", unwanted)
 		}
+	}
+}
+
+func TestExpandAndFullscreenShareOnePrimaryDropdown(t *testing.T) {
+	t.Parallel()
+	markup := render(t, chartcontrol.WrapperConfig{
+		Label:      "Latency",
+		Controls:   chartcontrol.Options{Fullscreen: true},
+		Capability: chartcontrol.ExportCapabilityInteractiveRaster,
+	})
+	for _, want := range []string{
+		`class="goshtoso-charts-primary-expand"`,
+		`id="latency-chart-expand-menu"`,
+		`id="latency-chart-expand-action"`,
+		`id="latency-chart-expand-fullscreen-action"`,
+		`class="goshtoso-charts-expand-control goshtoso-charts-combined-expand-modal"`,
+		`window.__goshtosoChartsControls.expandFromMenu($el)`,
+		`window.__goshtosoChartsControls.toggleFullscreen($el)`,
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("combined primary action missing %q", want)
+		}
+	}
+	if strings.Contains(markup, `data-goshtoso-chart-control="fullscreen"`) {
+		t.Fatal("combined Expand menu rendered an adjacent fullscreen peer")
 	}
 }
 
@@ -81,6 +109,31 @@ func TestFullscreenAndCollapsibleAreIndependent(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestResponsiveOverflowFlattensSecondaryActionsAndExportFormats(t *testing.T) {
+	t.Parallel()
+	markup := render(t, chartcontrol.WrapperConfig{
+		Label:      "Latency",
+		Controls:   chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Capability: chartcontrol.ExportCapabilityStaticSVG,
+	})
+	for _, want := range []string{
+		`data-goshtoso-chart-secondary-actions`,
+		`data-goshtoso-chart-overflow`,
+		`id="latency-chart-expand-collapse-action"`,
+		`>Collapse</button>`,
+		`>Export SVG</button>`,
+		`>Export PNG</button>`,
+		`aria-label="More Latency chart actions"`,
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("responsive overflow missing %q", want)
+		}
+	}
+	if strings.Count(markup, `id="latency-chart-expand-fullscreen-action"`) != 1 {
+		t.Fatal("fullscreen action was duplicated outside the primary Expand dropdown")
 	}
 }
 

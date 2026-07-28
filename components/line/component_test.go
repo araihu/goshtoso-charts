@@ -142,7 +142,7 @@ func TestLineSupportsSharedControlsAndExport(t *testing.T) {
 	}
 	markup := output.String()
 	for _, want := range []string{
-		`data-goshtoso-chart-control="fullscreen"`,
+		`-fullscreen-action`,
 		`data-goshtoso-chart-control="collapse"`,
 		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`,
 		`>SVG</button>`, `>PNG</button>`,

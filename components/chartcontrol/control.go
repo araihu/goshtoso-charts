@@ -216,3 +216,60 @@ func exportItems(formats []ExportFormat) []dropdown.Item {
 	}
 	return items
 }
+
+func expandItems(cfg WrapperConfig) []dropdown.Item {
+	return []dropdown.Item{
+		{
+			ID:    expandID(cfg) + "-action",
+			Label: "Expand",
+			Icon:  expandIcon(),
+			OnClick: `window.__goshtosoChartsControls.expandFromMenu($el); ` +
+				`isOpen = false; openedWithKeyboard = false`,
+		},
+		{
+			ID:    expandID(cfg) + "-fullscreen-action",
+			Label: "Fullscreen",
+			Icon:  fullscreenIcon(),
+			OnClick: `window.__goshtosoChartsControls.toggleFullscreen($el); ` +
+				`isOpen = false; openedWithKeyboard = false`,
+		},
+	}
+}
+
+func secondaryActionsEnabled(cfg WrapperConfig, formats []ExportFormat) bool {
+	return cfg.Controls.Collapsible || (!expandEnabled(cfg.Controls) && cfg.Controls.Fullscreen) || len(formats) > 0
+}
+
+func overflowItems(cfg WrapperConfig, formats []ExportFormat) []dropdown.Item {
+	items := make([]dropdown.Item, 0, 2+len(formats))
+	if cfg.Controls.Collapsible {
+		items = append(items, dropdown.Item{
+			ID:    expandID(cfg) + "-collapse-action",
+			Label: "Collapse",
+			Icon:  collapseIcon(),
+			OnClick: `window.__goshtosoChartsControls.toggleCollapse($el); ` +
+				`isOpen = false; openedWithKeyboard = false`,
+		})
+	}
+	if !expandEnabled(cfg.Controls) && cfg.Controls.Fullscreen {
+		items = append(items, dropdown.Item{
+			ID:    expandID(cfg) + "-fullscreen-action",
+			Label: "Fullscreen",
+			Icon:  fullscreenIcon(),
+			OnClick: `window.__goshtosoChartsControls.toggleFullscreen($el); ` +
+				`isOpen = false; openedWithKeyboard = false`,
+		})
+	}
+	for _, format := range formats {
+		items = append(items, dropdown.Item{
+			ID:    expandID(cfg) + "-export-" + string(format) + "-action",
+			Label: "Export " + exportFormatLabel(format),
+			Icon:  downloadIcon(),
+			OnClick: fmt.Sprintf(
+				`window.__goshtosoChartsControls.exportFromMenu($el, %q); isOpen = false; openedWithKeyboard = false`,
+				format,
+			),
+		})
+	}
+	return items
+}

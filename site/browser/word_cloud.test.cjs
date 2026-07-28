@@ -80,6 +80,32 @@ function wrapperFor(page, variant = "circle") {
   return page.locator(`[data-word-cloud-variant="${variant}"] [data-goshtoso-chart-wrapper]`).first();
 }
 
+async function openExpand(wrapper) {
+  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+  if (await action.count()) await action.click();
+}
+
+async function toggleCollapse(wrapper) {
+  const direct = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
+  if (await direct.isVisible()) {
+    await direct.click();
+    return;
+  }
+  await wrapper.getByRole("button", { name: /More .* chart actions/ }).click();
+  await wrapper.locator('[id$="-collapse-action"]').first().click();
+}
+
+async function clickPNG(wrapper, label) {
+  const direct = wrapper.getByRole("button", { name: `Download ${label} as PNG` });
+  if (await direct.count() && await direct.isVisible()) {
+    await direct.click();
+    return;
+  }
+  await wrapper.getByRole("button", { name: /More .* chart actions/ }).click();
+  await wrapper.locator('[id$="-export-png-action"]').first().click();
+}
+
 async function measure(wrapper) {
   return wrapper.evaluate((element) => {
     const host = element.querySelector("[_echarts_instance_]");
@@ -139,7 +165,7 @@ test("flex-parent and modal size changes reuse one observed host and chart insta
     );
     assert.deepEqual(await wrapper.evaluate((element) => ({ viewport: innerWidth, resizeEvents: element.__windowResizeEvents })), { viewport: initial.viewport, resizeEvents: 0 });
 
-    await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+    await openExpand(wrapper);
     const dialog = wrapper.getByRole("dialog", { name: "basic WordCloud example" });
     await dialog.waitFor({ state: "visible" });
     await page.waitForFunction(() => {
@@ -164,15 +190,14 @@ test("flex-parent and modal size changes reuse one observed host and chart insta
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden" });
 
-    const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
-    await collapse.click();
-    await collapse.click();
+    await toggleCollapse(wrapper);
+    await toggleCollapse(wrapper);
     await page.waitForTimeout(350);
     state = await measure(wrapper);
     assert.equal(state.sameInstance, true);
 
     const pending = page.waitForEvent("download");
-    await wrapper.getByRole("button", { name: "Download basic WordCloud example as PNG" }).click();
+    await clickPNG(wrapper, "basic WordCloud example");
     const artifact = await pending;
     const bytes = await fs.readFile(await artifact.path());
     assert.equal(artifact.suggestedFilename(), "basic-wordcloud-example.png");

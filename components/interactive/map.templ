@@ -9,6 +9,7 @@ templ mapExactValues(values mapValueRows) {
 			<table class="min-w-full border-collapse text-left">
 				<thead><tr>
 					<th class="px-3 py-2" scope="col">Region</th>
+					<th class="px-3 py-2" scope="col">UF</th>
 					<th class="px-3 py-2" scope="col">Value</th>
 					<th class="px-3 py-2" scope="col">Class</th>
 				</tr></thead>
@@ -16,6 +17,7 @@ templ mapExactValues(values mapValueRows) {
 					for _, row := range values.Rows {
 						<tr class="border-t border-outline dark:border-outline-dark">
 							<th class="px-3 py-2 font-semibold" scope="row">{ row.Region }</th>
+							<td class="px-3 py-2 font-mono">{ row.Code }</td>
 							<td class="px-3 py-2 tabular-nums">{ row.Value }</td>
 							<td class="px-3 py-2">{ row.Class }</td>
 						</tr>

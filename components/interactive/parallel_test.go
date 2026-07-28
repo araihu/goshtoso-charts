@@ -64,7 +64,7 @@ func TestParallelRendersTypedDimensionsSeriesLayoutAndExactValues(t *testing.T) 
 		`"name":"Day 1","value":[1,"Moderate"],"className":"moderate"`,
 		`"name":"Day 2","value":[2,"Good"],"lineStyle":{"color":"#abcdef"}`,
 		`"text":"Multi Series"`, `"show":true`, `data-goshtoso-charts-theme-runtime`,
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`, `data-goshtoso-chart-control="fullscreen"`, `data-goshtoso-chart-control="collapse"`,
+		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`, `-fullscreen-action`, `data-goshtoso-chart-control="collapse"`,
 		`>Exact observations and values</summary>`, `scope="col">Series</th>`, `scope="col">Observation</th>`,
 		`scope="col">Date</th>`, `scope="col">Level</th>`, `scope="col">Semantic class</th>`,
 		`>Beijing</th>`, `>Day 1</td>`, `>Moderate</td>`, `>city-north moderate</td>`,

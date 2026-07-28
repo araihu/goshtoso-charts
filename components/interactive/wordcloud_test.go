@@ -57,7 +57,7 @@ func TestWordCloudRendersTypedWordsOptionsAndExactValues(t *testing.T) {
 		`Twenty weighted search terms.`, `>Exact word values</summary>`, `scope="col">Word</th>`,
 		`scope="col">Value</th>`, `scope="col">Class</th>`, `>Sam S Club</th>`, `>10000</td>`, `>retail-anchor</td>`,
 		`data-goshtoso-chart-expand`, `data-goshtoso-chart-control="collapse"`,
-		`data-goshtoso-chart-control="fullscreen"`, `data-goshtoso-chart-export="png"`,
+		`-fullscreen-action`, `data-goshtoso-chart-export="png"`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

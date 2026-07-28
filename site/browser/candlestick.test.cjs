@@ -64,6 +64,17 @@ async function candlestickPage(viewport = { width: 1440, height: 900 }) {
   return page;
 }
 
+async function openExpand(wrapper) {
+  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+  if (await action.count()) await action.click();
+}
+
+async function enterFullscreen(wrapper) {
+  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  await wrapper.locator('[id$="-fullscreen-action"]').first().click();
+}
+
 async function selectTheme(page, theme, dark) {
   await page.evaluate(({ selectedTheme, selectedDark }) => {
     const root = document.documentElement;
@@ -193,7 +204,7 @@ test("flex-parent resize, theme, and modal preserve one chart instance with exac
     assert.equal(await wrapper.evaluate((element) =>
       window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]")) === element.__candlestickInstance), true);
 
-    await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+    await openExpand(wrapper);
     const dialog = wrapper.getByRole("dialog", { name: "Candlestick example" });
     await dialog.waitFor({ state: "visible" });
     await page.waitForTimeout(350);
@@ -231,8 +242,7 @@ test("flex-parent resize, theme, and modal preserve one chart instance with exac
     assert.equal(await wrapper.evaluate((element) =>
       window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]")) === element.__candlestickInstance), true);
 
-    const fullscreen = wrapper.locator('[data-goshtoso-chart-control="fullscreen"]');
-    await fullscreen.click();
+    await enterFullscreen(wrapper);
     await page.waitForFunction(() => document.fullscreenElement !== null);
     await page.waitForTimeout(350);
     const fullscreenState = await wrapper.evaluate((element) => {

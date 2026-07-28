@@ -91,6 +91,12 @@ async function areaPage(viewport = { width: 1440, height: 900 }) {
   };
 }
 
+async function openExpand(wrapper) {
+  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+  if (await action.count()) await action.click();
+}
+
 function luminance(rgb) {
   return rgb.map((channel) => {
     channel /= 255;
@@ -128,7 +134,7 @@ test("area Line routes, search, assets, title, and exact adjacent values stay he
     "/components/line",
     "/attributions",
     "/search/assets/search.js",
-    "/charts/assets/js/controls/1/controls.js",
+    "/charts/assets/js/controls/3/controls.js",
     "/assets/styles.css",
   ]) {
     const response = await fetch(`${baseURL}${route}`);
@@ -205,7 +211,7 @@ for (const width of [390, 1440]) {
           assert.ok(state.svgWidth <= state.viewportClient + 1);
           assert.ok(Math.abs(state.svgWidth / state.svgHeight - 1.5) < 0.02);
 
-          await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+          await openExpand(wrapper);
           const dialog = wrapper.getByRole("dialog", { name: "Line" });
           await dialog.waitFor({ state: "visible" });
           await page.waitForTimeout(350);

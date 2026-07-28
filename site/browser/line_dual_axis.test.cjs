@@ -88,6 +88,12 @@ async function linePage(viewport = { width: 1440, height: 900 }) {
   };
 }
 
+async function openExpand(wrapper) {
+  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+  if (await action.count()) await action.click();
+}
+
 function rgb(value) {
   return (String(value).match(/[\d.]+/g) || []).slice(0, 3).map(Number);
 }
@@ -138,7 +144,7 @@ test("test-owned candidate routes, search, and assets are exact and healthy", as
     "/components/line",
     "/attributions",
     "/search/assets/search.js",
-    "/charts/assets/js/controls/1/controls.js",
+    "/charts/assets/js/controls/3/controls.js",
     "/assets/styles.css",
   ]) {
     const response = await fetch(`${baseURL}${route}`);
@@ -244,7 +250,7 @@ for (const width of [390, 1440]) {
             document.documentElement.dataset.theme = selected;
             document.documentElement.classList.toggle("dark", dark);
           }, { selected: theme, dark: mode === "dark" });
-          assert.equal(await wrapper.getByRole("button").count(), 4);
+          assert.equal(await wrapper.getByRole("button").count(), width === 390 ? 2 : 3);
           const state = await figure.evaluate((root) => {
             const svg = root.querySelector("svg");
             const viewport = root.querySelector(".goshtoso-charts-line__viewport");
@@ -287,7 +293,7 @@ for (const width of [390, 1440]) {
           assert.ok(contrast(state.rightSeries, state.surface) >= 2, JSON.stringify(state));
 
           await wrapper.evaluate((element) => { element.__lineContent = element.querySelector("[data-goshtoso-chart-content]"); });
-          await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+          await openExpand(wrapper);
           const dialog = wrapper.getByRole("dialog", { name: "Dual Axis Line" });
           await dialog.waitFor({ state: "visible" });
           await page.waitForTimeout(350);

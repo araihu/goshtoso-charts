@@ -37,15 +37,15 @@ func TestGeoRendersTypedCoordinatesRippleThemeAndExactValues(t *testing.T) {
 	for _, want := range []string{
 		`class="goshtoso-charts-interactive goshtoso-charts-palette goshtoso-charts-palette-araihu goshtoso-charts-geo caller-class"`,
 		`role="img"`, `aria-label="basic geo example"`, `id="coordinate-values"`, `data-purpose="geography"`,
-		`style="width:100%;height:500px;"`, `"type":"effectScatter"`, `"coordinateSystem":"geo"`, `"map":"china"`,
+		`style="width:100%;height:500px;"`, `"type":"effectScatter"`, `"coordinateSystem":"geo"`, `"map":"brazil"`,
 		`"period":4`, `"scale":6`, `"brushType":"stroke"`, `"show":true`, `"symbolSize":18`,
-		`{"name":"北京","value":[116.4,39.9,81],"className":"capital-point"}`,
+		`{"name":"Manaus","value":[-60.02,-3.12,81],"className":"capital-point"}`,
 		`data-goshtoso-charts-geo-geometry-paint="{&#34;class&#34;:&#34;land-area&#34;}"`,
 		`data-goshtoso-charts-geo-series-paints="[{&#34;color&#34;:&#34;#123456&#34;}]"`,
 		`National coordinate values.`, `>Exact coordinate values</summary>`, `scope="col">Longitude</th>`,
-		`scope="row">北京</th>`, `>116.40</td>`, `>39.90</td>`, `>81</td>`, `>capital-point</td>`,
+		`scope="row">Manaus</th>`, `>-60.02</td>`, `>-3.12</td>`, `>81</td>`, `>capital-point</td>`,
 		`data-goshtoso-chart-expand`, `data-goshtoso-chart-control="collapse"`,
-		`data-goshtoso-chart-control="fullscreen"`, `data-goshtoso-chart-export="png"`,
+		`-fullscreen-action`, `data-goshtoso-chart-export="png"`,
 		`var resizeObserver = window.ResizeObserver ? new ResizeObserver`,
 	} {
 		if !strings.Contains(markup, want) {
@@ -59,24 +59,24 @@ func TestGeoRendersTypedCoordinatesRippleThemeAndExactValues(t *testing.T) {
 	}
 }
 
-func TestGeoRendersGuangdongScatterWithThemeVisualRange(t *testing.T) {
+func TestGeoRendersSaoPauloScatterWithThemeVisualRange(t *testing.T) {
 	t.Parallel()
 	cfg := GeoConfig{
-		Label: "Guangdong province", Geometry: GeoGeometryGuangdong,
+		Label: "São Paulo cities", Geometry: GeoGeometrySaoPaulo,
 		VisualRange: &GeoVisualRange{Min: 0, Max: 100, Calculable: Bool(true)},
 		Series: []GeoSeries{{
 			Name: "geo", Kind: GeoSeriesScatter,
 			Points: []GeoPoint{
-				{Name: "汕头", Longitude: 116.69, Latitude: 23.39, Value: 12},
-				{Name: "深圳", Longitude: 114.07, Latitude: 22.62, Value: 76, Color: "#abcdef"},
-				{Name: "广州", Longitude: 113.23, Latitude: 23.16, Value: 41},
+				{Name: "São Paulo", Longitude: -46.63, Latitude: -23.55, Value: 12},
+				{Name: "Campinas", Longitude: -47.06, Latitude: -22.91, Value: 76, Color: "#abcdef"},
+				{Name: "Ribeirão Preto", Longitude: -47.81, Latitude: -21.18, Value: 41},
 			},
 		}},
 	}
 	markup := renderGeo(t, Geo(cfg))
 	for _, want := range []string{
-		`"type":"scatter"`, `"map":"广东"`, `"calculable":true`, `"max":100`,
-		`"value":[116.69,23.39,12]`, `"value":[114.07,22.62,76]`, `"value":[113.23,23.16,41]`,
+		`"type":"scatter"`, `"map":"brazil-sao-paulo"`, `"calculable":true`, `"max":100`,
+		`"value":[-46.63,-23.55,12]`, `"value":[-47.06,-22.91,76]`, `"value":[-47.81,-21.18,41]`,
 		`"sourceColor":"#abcdef","itemStyle":{"color":"#abcdef"}`,
 		`data-goshtoso-charts-explicit-visual-map-colors="false"`,
 		`if (!explicitVisualMapColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] }`,
@@ -155,10 +155,11 @@ func TestGeoRejectsInvalidDataAndOptions(t *testing.T) {
 		"invalid series kind":  {func(cfg *GeoConfig) { cfg.Series[0].Kind = "heat" }, `geo chart series "geo" kind "heat" is not supported`},
 		"missing points":       {func(cfg *GeoConfig) { cfg.Series[0].Points = nil }, `geo chart series "geo" points are required`},
 		"missing point name":   {func(cfg *GeoConfig) { cfg.Series[0].Points[0].Name = "" }, `geo chart series "geo" point 0 name is required`},
-		"duplicate point":      {func(cfg *GeoConfig) { cfg.Series[0].Points = append(cfg.Series[0].Points, cfg.Series[0].Points[0]) }, `geo chart series "geo" point "北京" is duplicated`},
-		"invalid longitude":    {func(cfg *GeoConfig) { cfg.Series[0].Points[0].Longitude = 181 }, `geo chart point "北京" longitude must be finite and within [-180, 180]`},
-		"invalid latitude":     {func(cfg *GeoConfig) { cfg.Series[0].Points[0].Latitude = math.NaN() }, `geo chart point "北京" latitude must be finite and within [-90, 90]`},
-		"nonfinite value":      {func(cfg *GeoConfig) { cfg.Series[0].Points[0].Value = math.Inf(1) }, `geo chart point "北京" value must be finite`},
+		"duplicate point":      {func(cfg *GeoConfig) { cfg.Series[0].Points = append(cfg.Series[0].Points, cfg.Series[0].Points[0]) }, `geo chart series "geo" point "Manaus" is duplicated`},
+		"invalid longitude":    {func(cfg *GeoConfig) { cfg.Series[0].Points[0].Longitude = 181 }, `geo chart point "Manaus" longitude must be finite and within [-180, 180]`},
+		"invalid latitude":     {func(cfg *GeoConfig) { cfg.Series[0].Points[0].Latitude = math.NaN() }, `geo chart point "Manaus" latitude must be finite and within [-90, 90]`},
+		"outside geometry":     {func(cfg *GeoConfig) { cfg.Series[0].Points[0].Longitude = -20 }, `geo chart point "Manaus" is outside selected geometry bounds`},
+		"nonfinite value":      {func(cfg *GeoConfig) { cfg.Series[0].Points[0].Value = math.Inf(1) }, `geo chart point "Manaus" value must be finite`},
 		"ripple on scatter":    {func(cfg *GeoConfig) { cfg.Series[0].Kind = GeoSeriesScatter }, `geo chart series "geo" ripple requires effect scatter`},
 		"zero ripple period":   {func(cfg *GeoConfig) { cfg.Series[0].Ripple.Period = 0 }, `geo chart series "geo" ripple period must be positive and finite`},
 		"zero ripple scale":    {func(cfg *GeoConfig) { cfg.Series[0].Ripple.Scale = 0 }, `geo chart series "geo" ripple scale must be positive and finite`},
@@ -170,7 +171,7 @@ func TestGeoRejectsInvalidDataAndOptions(t *testing.T) {
 		"series option clash": {func(cfg *GeoConfig) {
 			cfg.Series[0].Class, cfg.Series[0].Options.ItemStyle = "cities", &ItemStyle{Color: "red"}
 		}, `geo chart series "geo" paint and item-style color are mutually exclusive`},
-		"point paint clash": {func(cfg *GeoConfig) { cfg.Series[0].Points[0].Color, cfg.Series[0].Points[0].Class = "red", "capital" }, `geo chart point "北京" color and class are mutually exclusive`},
+		"point paint clash": {func(cfg *GeoConfig) { cfg.Series[0].Points[0].Color, cfg.Series[0].Points[0].Class = "red", "capital" }, `geo chart point "Manaus" color and class are mutually exclusive`},
 		"invalid tooltip":   {func(cfg *GeoConfig) { cfg.Options.Tooltip = &TooltipOptions{Trigger: "axis"} }, `geo chart tooltip trigger "axis" is not supported`},
 		"legend":            {func(cfg *GeoConfig) { cfg.Options.Legend = &LegendOptions{} }, "geo chart legend is not supported"},
 		"Cartesian axis":    {func(cfg *GeoConfig) { cfg.Options.XAxis = &AxisOptions{} }, "geo chart Cartesian axes are not supported"},
@@ -198,8 +199,8 @@ func validGeoConfig() GeoConfig {
 		Series: []GeoSeries{{
 			Name: "geo", Kind: GeoSeriesEffectScatter,
 			Points: []GeoPoint{
-				{Name: "北京", Longitude: 116.40, Latitude: 39.90, Value: 81},
-				{Name: "上海", Longitude: 121.47, Latitude: 31.23, Value: 27},
+				{Name: "Manaus", Longitude: -60.02, Latitude: -3.12, Value: 81},
+				{Name: "Recife", Longitude: -34.88, Latitude: -8.05, Value: 27},
 			},
 			Ripple: &RippleOptions{Period: 4, Scale: 6, BrushType: "stroke"},
 		}},

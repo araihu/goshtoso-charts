@@ -54,7 +54,7 @@ func TestTableRendersUpstreamShapeAccessibleFallbackAndSharedControls(t *testing
 		"Three contacts and available actions.", "Accessible data table", `aria-label="People directory data"`,
 		"var(--color-chart-surface", "var(--color-chart-surface-alt", "var(--color-chart-text",
 		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`, `>SVG</button>`, `>PNG</button>`,
-		`data-goshtoso-chart-control="collapse"`, `data-goshtoso-chart-control="fullscreen"`,
+		`data-goshtoso-chart-control="collapse"`, `-fullscreen-action`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

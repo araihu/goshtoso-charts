@@ -317,6 +317,7 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			themedItem.label = { color: liquidPaint(liquidLabel, strong) };
 		}
 		if (series.type === "map") {
+			themedItem.showLegendSymbol = false;
 			themedItem.itemStyle = Object.assign({}, series.itemStyle || {}, { areaColor: surfaceAlt, borderColor: outline });
 			themedItem.data = (series.data || []).map(function (item, itemIndex) {
 				if (!item || typeof item !== "object") return item;

@@ -79,6 +79,22 @@ function liquidWrapper(page, variant = "basic") {
   return page.locator(`[data-gauge-liquid-variant="${variant}"] [data-goshtoso-chart-wrapper]`).first();
 }
 
+async function openExpand(wrapper) {
+  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+  if (await action.count()) await action.click();
+}
+
+async function clickPNG(wrapper, label) {
+  const direct = wrapper.getByRole("button", { name: `Download ${label} as PNG` });
+  if (await direct.count() && await direct.isVisible()) {
+    await direct.click();
+    return;
+  }
+  await wrapper.getByRole("button", { name: /More .* chart actions/ }).click();
+  await wrapper.locator('[id$="-export-png-action"]').first().click();
+}
+
 async function liquidState(wrapper) {
   return wrapper.evaluate((element) => {
     const host = element.querySelector("[_echarts_instance_]");
@@ -202,7 +218,7 @@ test("flex, theme, modal, and PNG reuse one liquid instance", async () => {
     state = await liquidState(wrapper);
     assert.equal(state.sameInstance, true);
 
-    await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+    await openExpand(wrapper);
     const dialog = wrapper.getByRole("dialog", { name: "basic liquid example" });
     await dialog.waitFor({ state: "visible" });
     await page.waitForFunction(() => {
@@ -225,7 +241,7 @@ test("flex, theme, modal, and PNG reuse one liquid instance", async () => {
     await dialog.waitFor({ state: "hidden" });
 
     const pending = page.waitForEvent("download");
-    await wrapper.getByRole("button", { name: "Download basic liquid example as PNG" }).click();
+    await clickPNG(wrapper, "basic liquid example");
     const artifact = await pending;
     const bytes = await fs.readFile(await artifact.path());
     assert.equal(artifact.suggestedFilename(), "basic-liquid-example.png");
@@ -255,7 +271,7 @@ test("WordCloud remains registered, themed, and exportable after liquid runtime"
     assert.deepEqual({ type: state.type, names: state.names }, { type: "wordCloud", names: ["Sam S Club", "Macys"] });
     assert.equal(new Set(state.colors).size, 2);
     const pending = page.waitForEvent("download");
-    await wrapper.getByRole("button", { name: "Download basic WordCloud example as PNG" }).click();
+    await clickPNG(wrapper, "basic WordCloud example");
     const artifact = await pending;
     const bytes = await fs.readFile(await artifact.path());
     assert.deepEqual([...bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);

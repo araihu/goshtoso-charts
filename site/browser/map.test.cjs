@@ -76,6 +76,22 @@ function wrapperFor(page, variant = "") {
   return page.locator(`[data-map-variant="${variant}"] [data-goshtoso-chart-wrapper]`).first();
 }
 
+async function openExpand(wrapper) {
+  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+  if (await action.count()) await action.click();
+}
+
+async function clickPNG(wrapper, label) {
+  const direct = wrapper.getByRole("button", { name: `Download ${label} as PNG` });
+  if (await direct.count() && await direct.isVisible()) {
+    await direct.click();
+    return;
+  }
+  await wrapper.getByRole("button", { name: /More .* chart actions/ }).click();
+  await wrapper.locator('[id$="-export-png-action"]').first().click();
+}
+
 async function measure(wrapper) {
   return wrapper.evaluate((element) => {
     const host = element.querySelector("[_echarts_instance_]");
@@ -92,8 +108,12 @@ async function measure(wrapper) {
       canvasHeight: Math.round(canvas.getBoundingClientRect().height),
       names: option.series[0].data.map((region) => region.name),
       values: option.series[0].data.map((region) => region.value),
+	  regionColors: option.series[0].data.map((region) => region.itemStyle?.color || ""),
       areaColor: option.series[0].itemStyle.areaColor,
       scaleColors: option.visualMap?.[0]?.inRange?.color || [],
+      labelShow: option.series[0].label?.show || false,
+      showLegendSymbol: option.series[0].showLegendSymbol,
+      renderedTexts: instance.getZr().storage.getDisplayList().filter((item) => item.type === "tspan").map((item) => item.style?.text || ""),
     };
   });
 }
@@ -102,19 +122,28 @@ test("local resources register both geometries before five map variants initiali
   const page = await pageAt({ width: 1440, height: 900 });
   try {
     const state = await page.evaluate(() => ({
-      china: Boolean(window.echarts.getMap("china")),
-      guangdong: Boolean(window.echarts.getMap("广东")),
+	      brazil: Boolean(window.echarts.getMap("brazil")),
+	      saoPaulo: Boolean(window.echarts.getMap("brazil-sao-paulo")),
       localResources: performance.getEntriesByType("resource").map((entry) => entry.name).filter((name) => name.includes("/charts/assets/js/maps/")),
     }));
-    assert.equal(state.china, true);
-    assert.equal(state.guangdong, true);
+	    assert.equal(state.brazil, true);
+	    assert.equal(state.saoPaulo, true);
     assert.equal(state.localResources.length, 2);
-    assert.ok(state.localResources.every((url) => url.includes("/js/maps/41f247b1cbb6/")));
-    const basic = await measure(wrapperFor(page));
-    assert.deepEqual(basic.names, ["北京", "上海", "广东", "辽宁", "山东", "山西", "陕西", "新疆", "内蒙古"]);
-    assert.deepEqual(basic.values, [101, 72, 134, 53, 96, 42, 68, 29, 81]);
-    const regional = await measure(wrapperFor(page, "regional"));
-    assert.deepEqual(regional.names, ["深圳市", "广州市", "湛江市", "汕头市", "东莞市", "佛山市", "云浮市", "肇庆市", "梅州市"]);
+	    assert.ok(state.localResources.every((url) => url.includes("/js/maps/ibge-mmd-2025/")));
+	    const basic = await measure(wrapperFor(page));
+	    assert.deepEqual(basic.names, ["Rondônia", "Acre", "Amazonas", "Roraima", "Pará", "Amapá", "Tocantins", "Maranhão", "Piauí", "Ceará", "Rio Grande do Norte", "Paraíba", "Pernambuco", "Alagoas", "Sergipe", "Bahia", "Minas Gerais", "Espírito Santo", "Rio de Janeiro", "São Paulo", "Paraná", "Santa Catarina", "Rio Grande do Sul", "Mato Grosso do Sul", "Mato Grosso", "Goiás", "Distrito Federal"]);
+	    assert.deepEqual(basic.values, [42, 28, 81, 19, 96, 24, 37, 73, 48, 102, 55, 61, 118, 52, 35, 134, 126, 58, 121, 146, 109, 87, 112, 46, 64, 92, 76]);
+	    assert.equal(basic.showLegendSymbol, false);
+	    const regional = await measure(wrapperFor(page, "regional"));
+	    assert.deepEqual(regional.names, basic.names);
+	    assert.match(regional.regionColors[18], /220|dc2626/i);
+	    assert.notEqual(regional.regionColors[19], "");
+	    const labels = await measure(wrapperFor(page, "labels"));
+	    assert.equal(labels.labelShow, true);
+	    assert.deepEqual(labels.names, basic.names);
+	    for (const code of ["RO", "AC", "AM", "RR", "PA", "AP", "TO", "MA", "PI", "CE", "RN", "PB", "PE", "AL", "SE", "BA", "MG", "ES", "RJ", "SP", "PR", "SC", "RS", "MS", "MT", "GO", "DF"]) {
+	      assert.ok(labels.renderedTexts.includes(code), `missing rendered UF label ${code}`);
+	    }
   } finally {
     await page.close();
   }
@@ -149,8 +178,8 @@ test("flex and centered modal resize one observed map instance and PNG export st
     assert.deepEqual({ same: state.sameInstance, chart: state.chartWidth, canvas: state.canvasWidth }, { same: true, chart: flexWidth, canvas: flexWidth });
 	await page.locator('[data-map-variant=""]').evaluate((element) => { element.removeAttribute("style"); });
 
-    await wrapper.locator("[data-goshtoso-chart-expand] > div > button").click();
-    const dialog = wrapper.getByRole("dialog", { name: "basic map example" });
+    await openExpand(wrapper);
+    const dialog = wrapper.getByRole("dialog", { name: "Brazil states" });
     await dialog.waitFor({ state: "visible" });
 	await page.waitForTimeout(350);
     await page.waitForFunction((flexWidth) => {
@@ -177,10 +206,10 @@ test("flex and centered modal resize one observed map instance and PNG export st
     await dialog.waitFor({ state: "hidden" });
 
     const pending = page.waitForEvent("download");
-    await wrapper.getByRole("button", { name: "Download basic map example as PNG" }).click();
+    await clickPNG(wrapper, "Brazil states");
     const artifact = await pending;
     const bytes = await fs.readFile(await artifact.path());
-    assert.equal(artifact.suggestedFilename(), "basic-map-example.png");
+	    assert.equal(artifact.suggestedFilename(), "brazil-states.png");
     assert.equal(await page.evaluate(() => globalThis.__chartBlobTypes.at(-1)), "image/png");
     assert.deepEqual([...bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
     const metadata = await sharp(bytes).metadata();
@@ -192,9 +221,9 @@ test("flex and centered modal resize one observed map instance and PNG export st
   }
 });
 
-test("390 and 1440 layouts stay centered, contained, and theme-responsive", async () => {
+test("320, 390, 768, and 1440 layouts stay centered, contained, and theme-responsive", async () => {
   const themed = new Map();
-  for (const width of [390, 1440]) {
+	  for (const width of [320, 390, 768, 1440]) {
     for (const theme of ["goshtoso", "araihu"]) {
       for (const dark of [false, true]) {
         const page = await pageAt({ width, height: 900 });
@@ -206,6 +235,9 @@ test("390 and 1440 layouts stay centered, contained, and theme-responsive", asyn
           await page.waitForTimeout(450);
           const wrapper = wrapperFor(page, "scale");
           const state = await measure(wrapper);
+          assert.ok(state.hostWidth > 0, `nonzero map width at ${width}`);
+	      assert.equal(state.scaleColors.length, 3);
+	      assert.notEqual(state.scaleColors[0], state.scaleColors[2]);
           assert.deepEqual({ chart: state.chartWidth, canvas: state.canvasWidth }, { chart: state.hostWidth, canvas: state.hostWidth });
           assert.deepEqual({ chart: state.chartHeight, canvas: state.canvasHeight }, { chart: state.hostHeight, canvas: state.hostHeight });
           assert.deepEqual(await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth })), { client: width, scroll: width });
@@ -225,17 +257,48 @@ test("390 and 1440 layouts stay centered, contained, and theme-responsive", asyn
   assert.equal(new Set(themed.values()).size, 4, JSON.stringify([...themed]));
 });
 
-test("explicit CDN scripts are pinned, integrity-checked, and register both geometries", async () => {
+test("320, 390, 768, and 1440 modals keep the same map instance centered and contained", async () => {
+  for (const width of [320, 390, 768, 1440]) {
+    const page = await pageAt({ width, height: 900 });
+    try {
+      const wrapper = wrapperFor(page);
+      await wrapper.evaluate((element) => {
+        const host = element.querySelector("[_echarts_instance_]");
+        element.__mapInstance = window.echarts.getInstanceByDom(host);
+      });
+      await openExpand(wrapper);
+      const dialog = wrapper.getByRole("dialog", { name: "Brazil states" });
+      await dialog.waitFor({ state: "visible" });
+      await page.waitForTimeout(450);
+      const state = await measure(wrapper);
+      assert.equal(state.sameInstance, true, `same instance at ${width}`);
+      assert.ok(state.hostWidth > 0, `nonzero modal map width at ${width}`);
+      assert.equal(state.chartWidth, state.hostWidth, `chart width at ${width}`);
+      const panel = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((element) => {
+        const rect = element.getBoundingClientRect();
+        return {
+          centered: Math.abs((rect.left + rect.right) / 2 - innerWidth / 2) < 4,
+          contained: rect.left >= 0 && rect.right <= innerWidth + 1 && rect.top >= 0 && rect.bottom <= innerHeight + 1,
+        };
+      });
+      assert.deepEqual(panel, { centered: true, contained: true }, `modal at ${width}`);
+    } finally {
+      await page.close();
+    }
+  }
+});
+
+test("explicit CDN runtime keeps pinned Brazil geometries on application-owned local paths", async () => {
   const page = await browser.newPage();
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
   try {
     await page.setContent(`<!doctype html><html><head>
       <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js" integrity="sha384-BQKzmHvQLMCAnL3UtDBA1Al5tFjsCz1wrMlIUA1wkzo14DYkRWjywW+p9pCj0cwd" crossorigin="anonymous"></script>
-      <script src="https://cdn.jsdelivr.net/gh/go-echarts/go-echarts-assets@41f247b1cbb649b029a2d3fffb04f469de372aa7/assets/maps/china.js" integrity="sha384-qwEZxzbtfuBsHahOge6aHnLsYt6NBGcOFoTctegFtOU3h/mWm8PYtRbJ19Xa6B5I" crossorigin="anonymous"></script>
-      <script src="https://cdn.jsdelivr.net/gh/go-echarts/go-echarts-assets@41f247b1cbb649b029a2d3fffb04f469de372aa7/assets/maps/guangdong.js" integrity="sha384-Q7MOpZeBbcPxI3hKHud73/Z1PjvChsn12B3IN6NqOj08KXRF1IU2D7LvaY16uV4w" crossorigin="anonymous"></script>
-    </head><body></body></html>`, { waitUntil: "networkidle" });
-    assert.deepEqual(await page.evaluate(() => ({ china: Boolean(window.echarts?.getMap("china")), guangdong: Boolean(window.echarts?.getMap("广东")) })), { china: true, guangdong: true });
+	      <script src="${baseURL}/charts/assets/js/maps/ibge-mmd-2025/brazil.js"></script>
+	      <script src="${baseURL}/charts/assets/js/maps/ibge-mmd-2025/sao-paulo.js"></script>
+	    </head><body></body></html>`, { waitUntil: "networkidle" });
+	    assert.deepEqual(await page.evaluate(() => ({ brazil: Boolean(window.echarts?.getMap("brazil")), saoPaulo: Boolean(window.echarts?.getMap("brazil-sao-paulo")) })), { brazil: true, saoPaulo: true });
     assert.deepEqual(errors, []);
   } finally {
     await page.close();

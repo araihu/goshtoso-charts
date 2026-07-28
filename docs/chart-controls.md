@@ -3,6 +3,9 @@
 `components/chartcontrol` supplies one renderer-neutral wrapper used by every
 current static/vector and interactive chart. Expand and capability-derived
 Export default on. `Fullscreen` and `Collapsible` remain independent opt-ins.
+When Expand and Fullscreen are both enabled, one visible primary Goshtoso
+Dropdown named Expand offers Expand and Fullscreen choices instead of adjacent
+peer controls. Expand retains its enlargement icon and remains the primary verb.
 Expand relocates the existing chart content into a large Goshtoso Modal and
 restores it on close; it never clones or rerenders chart DOM. Collapse uses the
 native `hidden` state without replacing chart nodes. Fullscreen uses the browser
@@ -15,6 +18,24 @@ render one Goshtoso Dropdown with only the proven items. Current static charts
 therefore show SVG and PNG in a dropdown; current interactive charts show one
 direct PNG button. `ExportOptions` retains filename, background, and pixel-ratio
 customization; `Disabled` is the explicit opt-out.
+
+Secondary actions stay visible beside Expand while the local wrapper is wider
+than 32rem. At constrained widths they flatten into one icon-only, end-aligned
+Goshtoso Dropdown: Collapse remains one menu action and each proven export
+format becomes one action. This avoids nesting the multi-format Export Dropdown
+inside another menu. The same zero/one/many export policy remains intact at the
+wide presentation boundary. Collapse is hidden in modal, native-fullscreen, and
+fallback-fullscreen states.
+
+Goshtoso v0.0.13 source and published docs were checked before implementation.
+`components/toolbar` wraps responsive regions but does not measure or prioritize
+actions and has no overflow menu. `components/dropdown` supplies the required
+icon-only trigger, action items, icons, end alignment, keyboard navigation,
+focus trap, outside-click, and Escape behavior. Generic priority-aware action
+overflow belongs in base Goshtoso; chart action priority and capability-derived
+export flattening remain chart-specific here. No cross-repository change was
+made. Controls runtime v3 owns this composition; immutable v1 and v2 paths stay
+served for compatibility.
 
 ## Verified export matrix
 
@@ -30,6 +51,14 @@ surface; temporarily mutating that live option would risk visible state.
 
 Primary source checks:
 
+- [Goshtoso Toolbar](https://goshtoso.araihu.com/components/toolbar) documents
+  responsive wrapping only; it exposes no priority or overflow contract.
+- [Goshtoso Dropdown](https://goshtoso.araihu.com/components/dropdown) documents
+  icon-only triggers, item icons, action handlers, end alignment, and keyboard
+  behavior used by both Expand and secondary overflow menus.
+- [Goshtoso component model](https://goshtoso.araihu.com/docs/component-model)
+  keeps component-specific config types and concrete renderable primitives;
+  the chart wrapper adds no generic library API.
 - [Apache ECharts `getDataURL` and `getConnectedDataURL`](https://github.com/apache/echarts/blob/e647e7746279397170a1e654e5567cac73b79f9b/src/core/echarts.ts#L911-L1052)
   list `png`, `jpeg`, and `svg`, use SVG output only for an SVG painter, and
   otherwise rasterize through canvas.
@@ -63,7 +92,7 @@ container. Host, modal, fullscreen, explicit control, and window changes settle
 over consecutive frames before the private runtime resizes the existing
 instance with zero-duration resize animation. Removed figures unobserve both
 targets; repeated registration is idempotent.
-Map and Geo reuse the same pinned national and Guangdong geometry delivery.
+Map and Geo reuse pinned local Brazil-state and São Paulo-municipality geometry delivery.
 Map owns named region values; Geo owns longitude/latitude coordinate series.
 
 ## Pair-integration coverage

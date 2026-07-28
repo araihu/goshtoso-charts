@@ -50,16 +50,30 @@ embedded distribution is therefore attributed under BSD-3-Clause.
 
 ## Geographic resources
 
-Goshtoso Charts embeds national and Guangdong geometry registration scripts
-from the map-resource repository at one immutable revision. These resources
-load after the core runtime and before chart initialization.
+Goshtoso Charts embeds Brazil-state and São Paulo-municipality geometry
+registration scripts derived mechanically from the official IBGE Malha
+Municipal Digital 2025 Shapefiles. IBGE Nota Metodológica 01/2026 makes the
+publication available under CC BY 4.0. Processing used mapshaper 0.6.113 to
+clean, simplify while keeping shapes, remove national detached fragments below
+0.1 km², reduce coordinate precision to four decimals, and convert to GeoJSON;
+the runtime assets retain official IBGE names, UF codes, and geography identifiers.
 
-- Local paths: `js/maps/41f247b1cbb6/china.js`, `js/maps/41f247b1cbb6/guangdong.js`
-- Revision: `41f247b1cbb649b029a2d3fffb04f469de372aa7`
-- Source: `https://github.com/go-echarts/go-echarts-assets/tree/41f247b1cbb649b029a2d3fffb04f469de372aa7/assets/maps`
-- SHA-256 (`china.js`): `146a69f110aca347228447319216ad665fbf6a57d81c73ddc911c1167aa39249`
-- SHA-256 (`guangdong.js`): `ca870acf1f735d4b8fda33bb41c0a2804c320ee0885a772e428cfdc4d66f4757`
-- License: `https://github.com/go-echarts/go-echarts-assets/blob/41f247b1cbb649b029a2d3fffb04f469de372aa7/LICENSE`
+- Local paths: `js/maps/ibge-mmd-2025/brazil.js`, `js/maps/ibge-mmd-2025/sao-paulo.js`
+- Bundled reuse notice: `js/maps/ibge-mmd-2025/LICENSE.md`
+- Revision: IBGE Malha Municipal Digital 2025; Nota Metodológica 01/2026
+- Publication page: `https://www.ibge.gov.br/geociencias/organizacao-do-territorio/estrutura-territorial/15761-areas-dos-municipios.html?lang=pt-BR`
+- Legal note: `https://biblioteca.ibge.gov.br/visualizacao/livros/liv102268.pdf`
+- Legal-note SHA-256: `bc88c44624c8852b4796b72b525f9092cd770415403c1a3486a8d48bcefc9e89`
+- National source: `https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2025/Brasil/BR_UF_2025.zip`
+- National source SHA-256: `cdbbf05f79153802cbfa74d0c29814cd76a9c0b925aea910c9f04dffc28e6167`
+- São Paulo source: `https://geoftp.ibge.gov.br/organizacao_do_territorio/malhas_territoriais/malhas_municipais/municipio_2025/UFs/SP/SP_Municipios_2025.zip`
+- São Paulo source SHA-256: `3ea8041f69e10e68045ff1275616f01673d94019d8105a00212354b80a067c3c`
+- Derived SHA-256 (`brazil.js`): `1b3719c82f6e2278a3e6ea8b7fc2e195460ee6a7de1546d0a8e05e6d0174bb3d`
+- Derived SHA-256 (`sao-paulo.js`): `657dee960c4c4d991f5b0e6d59681152d5e2b9c48091e5094085a666c97ff317`
+- License: CC-BY-4.0, `https://creativecommons.org/licenses/by/4.0/`
+- CDN policy: upstream publishes GeoJSON, not executable registration scripts;
+  these two pinned local assets remain local even when `WithCDN` moves supported
+  runtime packages to their pinned CDN distributions.
 
 ## Three-dimensional chart extension
 

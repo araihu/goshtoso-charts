@@ -40,7 +40,7 @@ func TestDependenciesDefaultsToVendoredRuntime(t *testing.T) {
 	if !strings.Contains(out, `src="`+assets.ThreeDRuntimeURL+`"`) {
 		t.Fatalf("Dependencies() missing local 3D runtime %q\n%s", assets.ThreeDRuntimeURL, out)
 	}
-	for _, url := range []string{assets.ChinaMapURL, assets.GuangdongMapURL} {
+	for _, url := range []string{assets.BrazilMapURL, assets.SaoPauloMapURL} {
 		if !strings.Contains(out, `src="`+url+`"`) {
 			t.Errorf("Dependencies() missing local map resource %q", url)
 		}
@@ -49,8 +49,8 @@ func TestDependenciesDefaultsToVendoredRuntime(t *testing.T) {
 		}
 	}
 	if strings.Index(out, assets.LiquidRuntimeURL) > strings.Index(out, assets.ThreeDRuntimeURL) ||
-		strings.Index(out, assets.ThreeDRuntimeURL) > strings.Index(out, assets.ChinaMapURL) ||
-		strings.Index(out, assets.ChinaMapURL) > strings.Index(out, assets.GuangdongMapURL) {
+		strings.Index(out, assets.ThreeDRuntimeURL) > strings.Index(out, assets.BrazilMapURL) ||
+		strings.Index(out, assets.BrazilMapURL) > strings.Index(out, assets.SaoPauloMapURL) {
 		t.Fatalf("extension and map resources are not in stable dependency order\n%s", out)
 	}
 }
@@ -68,10 +68,8 @@ func TestDependenciesCDNIsExplicitAndPinned(t *testing.T) {
 		`integrity="` + assets.LiquidRuntimeCDNIntegrity + `"`,
 		`src="` + assets.ThreeDRuntimeCDNURL + `"`,
 		`integrity="` + assets.ThreeDRuntimeCDNIntegrity + `"`,
-		`src="` + assets.ChinaMapCDNURL + `"`,
-		`integrity="` + assets.ChinaMapCDNIntegrity + `"`,
-		`src="` + assets.GuangdongMapCDNURL + `"`,
-		`integrity="` + assets.GuangdongMapCDNIntegrity + `"`,
+		`src="` + assets.BrazilMapURL + `"`,
+		`src="` + assets.SaoPauloMapURL + `"`,
 		`crossorigin="anonymous"`,
 	} {
 		if !strings.Contains(out, want) {
@@ -90,9 +88,9 @@ func TestDependenciesCDNIsExplicitAndPinned(t *testing.T) {
 	if !(strings.Index(out, assets.RuntimeCDNURL) < strings.Index(out, assets.WordCloudRuntimeCDNURL) &&
 		strings.Index(out, assets.WordCloudRuntimeCDNURL) < strings.Index(out, assets.LiquidRuntimeCDNURL) &&
 		strings.Index(out, assets.LiquidRuntimeCDNURL) < strings.Index(out, assets.ThreeDRuntimeCDNURL) &&
-		strings.Index(out, assets.ThreeDRuntimeCDNURL) < strings.Index(out, assets.ChinaMapCDNURL) &&
-		strings.Index(out, assets.ChinaMapCDNURL) < strings.Index(out, assets.GuangdongMapCDNURL)) {
-		t.Fatalf("CDN dependencies not ordered core, word-cloud, liquid, 3D, china map, guangdong map\n%s", out)
+		strings.Index(out, assets.ThreeDRuntimeCDNURL) < strings.Index(out, assets.BrazilMapURL) &&
+		strings.Index(out, assets.BrazilMapURL) < strings.Index(out, assets.SaoPauloMapURL)) {
+		t.Fatalf("CDN dependencies not ordered core, word-cloud, liquid, 3D, Brazil map, São Paulo map\n%s", out)
 	}
 }
 

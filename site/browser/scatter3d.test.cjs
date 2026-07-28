@@ -111,7 +111,7 @@ test("local extension order, deterministic 80 points, source styles, and 3D canv
   const page = await pageAt({ width: 1440, height: 900 });
   try {
     const resources = await page.evaluate(() => [...document.scripts].map((script) => script.src).filter(Boolean));
-    const names = ["echarts/5.4.3", "word-cloud/2.1.0", "liquid/3.1.0", "three-d/2.0.9", "maps/41f247b1cbb6"];
+    const names = ["echarts/5.4.3", "word-cloud/2.1.0", "liquid/3.1.0", "three-d/2.0.9", "maps/ibge-mmd-2025"];
     const indexes = names.map((name) => resources.findIndex((url) => url.includes(name)));
     assert.ok(indexes.every((index) => index >= 0), JSON.stringify({ resources, indexes }));
     assert.ok(indexes[0] < indexes[1] && indexes[1] < indexes[2] && indexes[2] < indexes[3] && indexes[3] < indexes[4], JSON.stringify(indexes));

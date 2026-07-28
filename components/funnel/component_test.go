@@ -55,7 +55,7 @@ func TestFunnelRendersAccessibleUpstreamShapeAndSharedControls(t *testing.T) {
 		"Exact stage values", "Share of first stage", `aria-label="Basic funnel exact stage values"`, "stage-show", "#365314",
 		"var(--color-chart-series-2)", "var(--color-chart-text-strong)", "var(--font-paragraph), sans-serif",
 		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`, `>SVG</button>`, `>PNG</button>`,
-		`data-goshtoso-chart-control="collapse"`, `data-goshtoso-chart-control="fullscreen"`,
+		`data-goshtoso-chart-control="collapse"`, `-fullscreen-action`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

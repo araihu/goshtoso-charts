@@ -66,7 +66,7 @@ func TestCandlestickRendersTypedOHLCOptionsAndAccessibleTable(t *testing.T) {
 		`>2018/1/24</th>`, `>2320.26</td>`, `>Rise</td>`, `>price-rise</td>`,
 		`>2018/1/25</th>`, `>2291.3</td>`, `>Fall</td>`, `>price-fall</td>`,
 		`data-goshtoso-chart-expand`, `data-goshtoso-chart-control="collapse"`,
-		`data-goshtoso-chart-control="fullscreen"`, `data-goshtoso-chart-export="png"`,
+		`-fullscreen-action`, `data-goshtoso-chart-export="png"`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

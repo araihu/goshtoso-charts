@@ -53,7 +53,7 @@ func TestHeatMapRendersUpstreamGeometryAccessibleDataAndWrapper(t *testing.T) {
 		"goshtoso-charts-heatmap__viewport", "min-width: 36rem", "goshtoso-charts-palette-araihu mx-auto",
 		"goshtoso-charts-expanded .goshtoso-charts-heatmap__viewport", "aspect-ratio: 3 / 2",
 		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`, `>SVG</button>`, `>PNG</button>`,
-		`data-goshtoso-chart-control="collapse"`, `data-goshtoso-chart-control="fullscreen"`,
+		`data-goshtoso-chart-control="collapse"`, `-fullscreen-action`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

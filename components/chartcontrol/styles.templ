@@ -17,8 +17,44 @@ templ Styles() {
 			align-items: center;
 			gap: 0.375rem;
 		}
-		.goshtoso-charts-controls > * {
+		.goshtoso-charts-controls {
+			flex-wrap: nowrap;
+			min-width: 0;
+		}
+		.goshtoso-charts-controls > *,
+		.goshtoso-charts-secondary-actions > * {
 			flex: 0 0 auto;
+		}
+		.goshtoso-charts-secondary-actions {
+			display: flex;
+			align-items: center;
+			gap: 0.5rem;
+		}
+		.goshtoso-charts-overflow-actions {
+			display: none;
+		}
+		.goshtoso-charts-primary-expand > div > button::before,
+		.goshtoso-charts-expand-control[data-goshtoso-chart-primary] > div > button::before {
+			content: "";
+			display: block;
+			width: 1rem;
+			height: 1rem;
+			flex: 0 0 auto;
+			background-color: currentColor;
+			-webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='1.75'%3E%3Cpath d='M7 4H4v3M13 4h3v3M7 16H4v-3M13 16h3v-3M4 7l4-4M16 7l-4-4M4 13l4 4M16 13l-4 4'/%3E%3C/svg%3E") center / contain no-repeat;
+			mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none' stroke='black' stroke-width='1.75'%3E%3Cpath d='M7 4H4v3M13 4h3v3M7 16H4v-3M13 16h3v-3M4 7l4-4M16 7l-4-4M4 13l4 4M16 13l-4 4'/%3E%3C/svg%3E") center / contain no-repeat;
+		}
+		.goshtoso-charts-primary-expand > div > button {
+			gap: 0.375rem;
+		}
+		.goshtoso-charts-combined-expand-modal {
+			position: absolute;
+			width: 0;
+			height: 0;
+			overflow: visible;
+		}
+		.goshtoso-charts-expand-control.goshtoso-charts-combined-expand-modal > div > button {
+			display: none;
 		}
 		.goshtoso-charts-expand-control > div > button {
 			display: inline-flex;
@@ -136,6 +172,12 @@ templ Styles() {
 			width: 100% !important;
 			height: 100% !important;
 			min-height: 18rem;
+		}
+		.goshtoso-charts-controls-constrained .goshtoso-charts-secondary-actions {
+			display: none;
+		}
+		.goshtoso-charts-controls-constrained .goshtoso-charts-overflow-actions {
+			display: block;
 		}
 	</style>
 }

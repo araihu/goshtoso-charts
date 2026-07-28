@@ -54,10 +54,10 @@ Opt in only when third-party delivery is acceptable:
 ```
 
 `WithCDN` uses pinned 5.4.3 core, 2.1.0 word-cloud, 3.1.0 liquid-gauge, and
-commit `41f247b1cbb649b029a2d3fffb04f469de372aa7` geometry jsDelivr URLs with
-SHA-384 Subresource Integrity and `crossorigin="anonymous"`. It does not
-silently fall back to local assets. Allow the CDN origin in `script-src` when
-enforcing CSP.
+2.0.9 three-dimensional runtime URLs with SHA-384 Subresource Integrity and
+`crossorigin="anonymous"`. Brazil geometry remains on its pinned embedded paths:
+IBGE publishes source geography rather than safe executable registration artifacts.
+Allow the CDN origin in `script-src` when enforcing CSP.
 
 Applications that mirror assets may use `WithLocalURL`. Applications that own
 a different CDN may use `WithCDNURL(url, integrity)`; keep its runtime version
@@ -68,5 +68,5 @@ package, and dependency documentation. Public chart configs remain
 renderer-neutral.
 
 Map and Geo geometry resources load after core, word-cloud, and liquid-gauge scripts. Local
-paths, immutable versions or source revisions, SHA-256 values, licenses, CDN
-URLs, and SRI values live in `assets/NOTICE.md` and `assets/assets.go`.
+paths, immutable source revisions, SHA-256 values, licenses, and the deliberate
+CDN exception live in `assets/NOTICE.md` and `assets/assets.go`.

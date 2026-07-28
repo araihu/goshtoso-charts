@@ -57,7 +57,7 @@ test("Pie browser server is exact candidate worktree build on a test-owned non-8
     "/components/pie",
     "/attributions",
     "/search/assets/search.js",
-    "/charts/assets/js/controls/2/controls.js",
+    "/charts/assets/js/controls/3/controls.js",
   ]) {
     const response = await fetch(`${baseURL}${route}`);
     assert.equal(response.status, 200, route);
@@ -97,6 +97,12 @@ async function piePage(viewport = { width: 1440, height: 900 }) {
   await figure.waitFor();
   await page.waitForFunction(() => Boolean(window.__goshtosoChartsControls));
   return { page, failed, wrapper: figure.locator("xpath=ancestor::*[@data-goshtoso-chart-wrapper][1]") };
+}
+
+async function openExpand(wrapper) {
+  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+  if (await action.count()) await action.click();
 }
 
 function rgb(value) {
@@ -157,7 +163,9 @@ for (const width of [390, 1440]) {
             document.documentElement.dataset.theme = selected;
             document.documentElement.classList.toggle("dark", dark);
           }, { selected: theme, dark: mode === "dark" });
-          assert.equal(await wrapper.getByRole("button").count(), 4);
+          const expectedButtons = await wrapper.evaluate((element) =>
+            element.classList.contains("goshtoso-charts-controls-constrained") ? 2 : 3);
+          assert.equal(await wrapper.getByRole("button").count(), expectedButtons);
           assert.deepEqual(await wrapper.locator("table tbody th").allTextContents(), [
             "Search Engine", "Direct", "Email", "Union Ads", "Video Ads",
           ]);
@@ -214,7 +222,7 @@ for (const width of [390, 1440]) {
           }
 
           await wrapper.evaluate((element) => { element.__pieContent = element.querySelector("[data-goshtoso-chart-content]"); });
-          await wrapper.locator("[data-goshtoso-chart-expand] > div > button").click();
+          await openExpand(wrapper);
           const dialog = wrapper.getByRole("dialog", { name: "Doughnut Chart" });
           await dialog.waitFor({ state: "visible" });
           await page.waitForTimeout(350);

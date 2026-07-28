@@ -82,6 +82,12 @@ async function chartPage(viewport = { width: 1440, height: 900 }) {
   return { page, failures, figure, wrapper: figure.locator("xpath=ancestor::*[@data-goshtoso-chart-wrapper][1]") };
 }
 
+async function openExpand(wrapper) {
+  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+  if (await action.count()) await action.click();
+}
+
 function rgb(value) {
   return (String(value).match(/[\d.]+/g) || []).slice(0, 3).map(Number);
 }
@@ -132,7 +138,7 @@ test("test-owned candidate route, search, and assets are exact and healthy", asy
     "/components/candlestick",
     "/attributions",
     "/search/assets/search.js",
-    "/charts/assets/js/controls/2/controls.js",
+    "/charts/assets/js/controls/3/controls.js",
     "/assets/styles.css",
   ]) {
     const response = await fetch(`${baseURL}${route}`);
@@ -238,7 +244,7 @@ for (const width of [390, 1440]) {
           for (const color of [state.upper, state.middle, state.lower]) {
             assert.ok(contrast(color, state.surface) >= 3, `${theme}/${dark} ${color} on ${state.surface}`);
           }
-          await wrapper.getByRole("button", { name: "Expand" }).click();
+          await openExpand(wrapper);
           const dialog = wrapper.getByRole("dialog", { name: "Candlestick Chart with Bollinger Bands" });
           await dialog.waitFor({ state: "visible" });
           await page.waitForTimeout(350);

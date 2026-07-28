@@ -70,6 +70,12 @@ async function funnelPage(viewport = { width: 1440, height: 900 }) {
   return page;
 }
 
+async function openExpand(wrapper) {
+  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+  if (await action.count()) await action.click();
+}
+
 async function download(page, label) {
   await page.evaluate(() => { globalThis.__funnelBlobTypes.length = 0; });
   const pending = page.waitForEvent("download", { timeout: 10000 });
@@ -119,7 +125,7 @@ for (const width of [390, 1440]) {
             document.documentElement.classList.toggle("dark", dark);
           }, { selected: theme, dark: mode === "dark" });
           const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
-          assert.equal(await wrapper.getByRole("button").count(), 4);
+          assert.equal(await wrapper.getByRole("button").count(), width === 390 ? 2 : 3);
           assert.equal(await wrapper.locator("figure").getAttribute("aria-label"), "Basic funnel");
           assert.equal(await wrapper.locator("table").getAttribute("aria-label"), "Basic funnel exact stage values");
           assert.deepEqual(await wrapper.locator("table tbody th").allTextContents(), ["Show", "Click", "Visit", "Inquiry", "Order", "Pay", "Cancel"]);
@@ -153,7 +159,7 @@ for (const width of [390, 1440]) {
           if (screenshotDirectory) await page.screenshot({ path: path.join(screenshotDirectory, `funnel-${width}-${theme}-${mode}.png`), fullPage: true });
 
           await wrapper.evaluate((element) => { element.__funnelContent = element.querySelector("[data-goshtoso-chart-content]"); });
-          await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+          await openExpand(wrapper);
           const dialog = wrapper.getByRole("dialog", { name: "Basic funnel" });
           await dialog.waitFor({ state: "visible" });
           await page.waitForTimeout(350);

@@ -117,7 +117,7 @@ test("both treatments preserve exact plotted order, CSV, local assets, route, an
   const page = await pageAt({ width: 1440, height: 900 });
   try {
     const resources = await page.evaluate(() => [...document.scripts].map((script) => script.src).filter(Boolean));
-    const names = ["echarts/5.4.3", "word-cloud/2.1.0", "liquid/3.1.0", "three-d/2.0.9", "maps/41f247b1cbb6"];
+    const names = ["echarts/5.4.3", "word-cloud/2.1.0", "liquid/3.1.0", "three-d/2.0.9", "maps/ibge-mmd-2025"];
     const indexes = names.map((name) => resources.findIndex((url) => url.includes(name)));
     assert.ok(indexes.every((index) => index >= 0), JSON.stringify({ resources, indexes }));
     assert.ok(indexes.every((value, index) => index === 0 || indexes[index - 1] < value), JSON.stringify(indexes));
@@ -172,7 +172,7 @@ test("both treatments preserve exact plotted order, CSV, local assets, route, an
     for (const route of ["/components/interactive/scatter-3d", "/components/interactive/bar-3d", "/components/interactive/surface-3d"]) {
       assert.equal((await page.request.get(`${baseURL}${route}`)).status(), 200);
     }
-    for (const asset of ["/charts/assets/js/controls/2/controls.js", "/charts/assets/js/runtime/three-d/2.0.9/runtime.min.js", "/charts/assets/js/runtime/echarts/5.4.3/echarts.min.js"]) {
+    for (const asset of ["/charts/assets/js/controls/3/controls.js", "/charts/assets/js/runtime/three-d/2.0.9/runtime.min.js", "/charts/assets/js/runtime/echarts/5.4.3/echarts.min.js"]) {
       assert.equal((await page.request.get(`${baseURL}${asset}`)).status(), 200);
     }
   } finally {

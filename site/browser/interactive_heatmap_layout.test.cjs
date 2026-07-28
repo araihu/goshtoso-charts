@@ -78,6 +78,12 @@ async function heatmapPage(width) {
   };
 }
 
+async function openExpand(wrapper) {
+  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+  if (await action.count()) await action.click();
+}
+
 async function measure(figure) {
   return figure.evaluate((element) => {
     const host = element.querySelector("[_echarts_instance_]");
@@ -152,7 +158,7 @@ test("test-owned random-port Heatmap route and shared assets stay healthy", asyn
     "/components/interactive/heatmap",
     "/attributions",
     "/search/assets/search.js",
-    "/charts/assets/js/controls/1/controls.js",
+    "/charts/assets/js/controls/3/controls.js",
     "/assets/styles.css",
   ]) {
     const response = await fetch(`${baseURL}${route}`);
@@ -181,7 +187,7 @@ for (const { width, theme, mode } of combinations) {
       const normal = await measure(figure);
       assertLayout(normal, `${width}px ${theme} ${mode} page`);
 
-      await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+      await openExpand(wrapper);
       const dialog = wrapper.getByRole("dialog", { name: "Deployment activity" });
       await dialog.waitFor({ state: "visible" });
       await page.waitForTimeout(350);
@@ -208,7 +214,7 @@ for (const { width, theme, mode } of combinations) {
 test("Heatmap PNG snapshot dimensions match the rendered large-modal instance", async () => {
   const { page, figure, wrapper } = await heatmapPage(1440);
   try {
-    await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+    await openExpand(wrapper);
     await wrapper.getByRole("dialog", { name: "Deployment activity" }).waitFor({ state: "visible" });
     await page.waitForTimeout(350);
     const rendered = await measure(figure);

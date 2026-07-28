@@ -20,10 +20,10 @@ const maxGeoDetailRows = 100
 type GeoGeometry string
 
 const (
-	// GeoGeometryChina contains national and provincial boundaries. It is the default.
-	GeoGeometryChina GeoGeometry = ""
-	// GeoGeometryGuangdong contains Guangdong prefecture-level boundaries.
-	GeoGeometryGuangdong GeoGeometry = "guangdong"
+	// GeoGeometryBrazil contains all 26 states and the Federal District. It is the default.
+	GeoGeometryBrazil GeoGeometry = ""
+	// GeoGeometrySaoPaulo contains São Paulo municipality boundaries.
+	GeoGeometrySaoPaulo GeoGeometry = "sao-paulo"
 )
 
 // GeoSeriesKind selects coordinate-point behavior without changing component identity.
@@ -127,6 +127,7 @@ func Geo(cfg GeoConfig) Instance {
 	global := []charts.GlobalOpts{
 		charts.WithInitializationOpts(opts.Initialization{Width: width, Height: height}),
 		charts.WithColorsOpts(opts.Colors(style.ResolvedColors())),
+		charts.WithLegendOpts(opts.Legend{Show: opts.Bool(false)}),
 		charts.WithGeoComponentOpts(opts.GeoComponent{
 			Map:       rendererGeoName(cfg.Geometry),
 			ItemStyle: rendererGeoGeometryItemStyle(cfg.GeometryPaint),
@@ -174,10 +175,10 @@ func Geo(cfg GeoConfig) Instance {
 }
 
 func rendererGeoName(geometry GeoGeometry) string {
-	if geometry == GeoGeometryGuangdong {
-		return "广东"
+	if geometry == GeoGeometrySaoPaulo {
+		return "brazil-sao-paulo"
 	}
-	return "china"
+	return "brazil"
 }
 
 func rendererGeoSeriesKind(kind GeoSeriesKind) string {
@@ -213,7 +214,7 @@ func validateGeoConfig(cfg GeoConfig) error {
 	if strings.TrimSpace(cfg.Label) == "" {
 		return fmt.Errorf("geo chart label is required")
 	}
-	if cfg.Geometry != GeoGeometryChina && cfg.Geometry != GeoGeometryGuangdong {
+	if cfg.Geometry != GeoGeometryBrazil && cfg.Geometry != GeoGeometrySaoPaulo {
 		return fmt.Errorf("geo chart geometry %q is not supported", cfg.Geometry)
 	}
 	if cfg.Options.Legend != nil {
@@ -286,6 +287,9 @@ func validateGeoConfig(cfg GeoConfig) error {
 			if !finiteNumber(point.Latitude) || point.Latitude < -90 || point.Latitude > 90 {
 				return fmt.Errorf("geo chart point %q latitude must be finite and within [-90, 90]", pointName)
 			}
+			if !geoPointWithinGeometry(cfg.Geometry, point.Longitude, point.Latitude) {
+				return fmt.Errorf("geo chart point %q is outside selected geometry bounds", pointName)
+			}
 			if !finiteNumber(point.Value) {
 				return fmt.Errorf("geo chart point %q value must be finite", pointName)
 			}
@@ -311,6 +315,13 @@ func validateGeoConfig(cfg GeoConfig) error {
 		}
 	}
 	return validateChartOptions(cfg.Options)
+}
+
+func geoPointWithinGeometry(geometry GeoGeometry, longitude, latitude float64) bool {
+	if geometry == GeoGeometrySaoPaulo {
+		return longitude >= -53.2 && longitude <= -44.0 && latitude >= -25.4 && latitude <= -19.7
+	}
+	return longitude >= -74.1 && longitude <= -34.7 && latitude >= -33.8 && latitude <= 5.3
 }
 
 func validateGeoPaint(name, color, class string) error {

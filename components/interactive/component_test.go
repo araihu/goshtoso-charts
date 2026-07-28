@@ -31,7 +31,7 @@ func TestInteractiveSupportsSharedControlsAndPNGExport(t *testing.T) {
 	}
 	markup := output.String()
 	for _, want := range []string{
-		`data-goshtoso-chart-control="fullscreen"`,
+		`-fullscreen-action`,
 		`data-goshtoso-chart-control="collapse"`,
 		`data-goshtoso-chart-expand`,
 		`data-goshtoso-chart-export="png"`,
@@ -125,7 +125,7 @@ func TestThemeRuntimeUsesIdentityPreservingImmediateSilentMerge(t *testing.T) {
 		`resizeObserver.observe(target)`,
 		`requestAnimationFrame(function ()`,
 		`if (!explicitVisualMapColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] }`,
-		`series.type === "map"`, `item.sourceColor`, `item.className`,
+		`series.type === "map"`, `themedItem.showLegendSymbol = false`, `item.sourceColor`, `item.className`,
 		`gaugeScale.stops.map`, `observeTarget`,
 		`if (value === inherited) return rendererColor(fallback, fallback)`,
 		`series.type === "tree" || series.type === "sunburst" || series.type === "treemap"`,
