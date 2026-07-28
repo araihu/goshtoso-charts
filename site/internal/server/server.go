@@ -51,6 +51,9 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/candlestick", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.CandlestickPage(isFragment(request)))
 	})
+	mux.HandleFunc("GET /components/funnel", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.FunnelPage(isFragment(request)))
+	})
 	mux.HandleFunc("GET /components/heatmap", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.HeatMapPage(isFragment(request)))
 	})

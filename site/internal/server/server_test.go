@@ -28,6 +28,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/scatter", "Scatter chart"},
 		{"/components/radar", "Radar chart"},
 		{"/components/candlestick", "Candlestick"},
+		{"/components/funnel", "Funnel chart"},
 		{"/components/heatmap", "Heat map"},
 		{"/components/table", "Table"},
 		{"/components/violin", "Violin chart"},
@@ -139,6 +140,34 @@ func TestTableDocumentationPreservesOfficialExampleWithoutEngineBranding(t *test
 	for _, want := range []string{"examples/1-Painter/table-1/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2"} {
 		if !strings.Contains(attributions.Body.String(), want) {
 			t.Errorf("central attributions missing pinned table source %q", want)
+		}
+	}
+}
+
+func TestFunnelDocumentationPreservesPinnedOfficialExampleWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/funnel", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Basic funnel", "Funnel", "Show", "Click", "Visit", "Inquiry", "Order", "Pay", "Cancel",
+		"100", "80", "60", "40", "20", "10", "2", "Exact stage values", "Share of first stage",
+		"funnel.Funnel", "components.KindFunnelChart", "typed Stages", "Color and Class", "SVG", "PNG",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("funnel documentation missing upstream or contract content %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-analyze", "examples/1-Painter/funnel_chart-1-basic/main.go", "infrastructure", "operations", "raw map"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("funnel component page contains non-neutral content %q", unwanted)
+		}
+	}
+	attributions := httptest.NewRecorder()
+	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	for _, want := range []string{"examples/1-Painter/funnel_chart-1-basic/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2"} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("central attributions missing pinned funnel source %q", want)
 		}
 	}
 }
@@ -267,7 +296,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		"go-analyze/charts", "v0.6.0", "go-echarts", "v2.7.2", "Apache ECharts", "v5.4.3",
 		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 		"examples/1-Painter/radar_chart-1-basic/main.go",
-		"examples/1-Painter/candlestick_chart-1-basic/main.go", "examples/1-Painter/heat_map-1-basic/main.go", "examples/parallel.go",
+		"examples/1-Painter/candlestick_chart-1-basic/main.go", "examples/1-Painter/funnel_chart-1-basic/main.go", "examples/1-Painter/heat_map-1-basic/main.go", "examples/parallel.go",
 		"examples/1-Painter/table-1/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2",
 		`href="https://github.com/araihu/goshtoso"`, `href="https://github.com/go-echarts/go-echarts"`,
 		`href="https://echarts.apache.org/"`, `href="https://github.com/apache/echarts/blob/5.4.3/LICENSE"`,
@@ -292,7 +321,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		t.Error("attributions page claims removed optional extensions are still pinned")
 	}
 
-	for _, path := range []string{"/components/scatter", "/components/radar", "/components/candlestick", "/components/heatmap", "/components/table", "/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter", "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap", "/components/interactive/boxplot", "/components/interactive/gauge", "/components/interactive/funnel", "/components/interactive/graph", "/components/interactive/sankey", "/components/interactive/sunburst", "/components/interactive/parallel"} {
+	for _, path := range []string{"/components/scatter", "/components/radar", "/components/candlestick", "/components/funnel", "/components/heatmap", "/components/table", "/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter", "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap", "/components/interactive/boxplot", "/components/interactive/gauge", "/components/interactive/funnel", "/components/interactive/graph", "/components/interactive/sankey", "/components/interactive/sunburst", "/components/interactive/parallel"} {
 		page := httptest.NewRecorder()
 		handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, path, nil))
 		for _, unwanted := range []string{"backed by go-echarts", "with go-echarts options", ">go-echarts catalog<", "go-analyze"} {

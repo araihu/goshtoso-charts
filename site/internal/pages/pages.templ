@@ -5,6 +5,7 @@ import (
 	"github.com/araihu/goshtoso-app-shells/componentpage"
 	"github.com/araihu/goshtoso-charts/components/bar"
 	"github.com/araihu/goshtoso-charts/components/candlestick"
+	"github.com/araihu/goshtoso-charts/components/funnel"
 	"github.com/araihu/goshtoso-charts/components/heatmap"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	"github.com/araihu/goshtoso-charts/components/line"
@@ -94,6 +95,10 @@ templ RadarPage(fragment bool) {
 
 templ CandlestickPage(fragment bool) {
 	@layout("Candlestick", "candlestick", candlestickContent(), fragment)
+}
+
+templ FunnelPage(fragment bool) {
+	@layout("Funnel chart", "funnel", funnelContent(), fragment)
 }
 
 templ TablePage(fragment bool) {
@@ -465,6 +470,19 @@ templ candlestickContent() {
 			Code: candlestickCode(),
 		},
 		After: demoNote("OHLC contract", "Each finite datum satisfies Low <= Open/Close <= High. Close greater than or equal to open is stated as Increase; a lower close is stated as Decrease, so meaning never depends on color alone."),
+	})
+}
+
+templ funnelContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Funnel chart",
+		Description: "SSR SVG for ordered stages whose non-increasing values narrow from the first stage to the last.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Show progressive reduction through a small ordered sequence without browser rendering.", "Primitive", "funnel.Funnel", "Kind", "components.KindFunnelChart", "Configuration", "Label, Caption, Title, typed Stages with caller Color and Class, typed label and legend options, chart and legend Padding, Width, Height, root attributes, palette, and shared controls/export options.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent disclosure preserves every exact stage value and its share of the first stage."),
+			Preview: funnel.Funnel(sampleBasicFunnel()),
+			Code: funnelCode(),
+		},
+		After: demoNote("Funnel contract", "Stages keep caller order, use unique non-empty labels, and carry finite non-negative values that never increase. Label variants and legend layout remain options on one component."),
 	})
 }
 

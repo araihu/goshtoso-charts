@@ -10,6 +10,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/candlestick"
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
+	"github.com/araihu/goshtoso-charts/components/funnel"
 	"github.com/araihu/goshtoso-charts/components/heatmap"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
@@ -146,6 +147,26 @@ func sampleBasicCandlestick() candlestick.Config {
 		},
 		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "basic-candlestick-chart"},
+	}
+}
+
+func sampleBasicFunnel() funnel.Config {
+	return funnel.Config{
+		Label:   "Basic funnel",
+		Caption: "Seven ordered stages, with every exact value available below the chart.",
+		Title:   "Funnel",
+		Stages: []funnel.Stage{
+			{Label: "Show", Value: 100},
+			{Label: "Click", Value: 80},
+			{Label: "Visit", Value: 60},
+			{Label: "Inquiry", Value: 40},
+			{Label: "Order", Value: 20},
+			{Label: "Pay", Value: 10},
+			{Label: "Cancel", Value: 2},
+		},
+		Options:  funnel.Options{Legend: funnel.Legend{Padding: funnel.Padding{Left: 100}}},
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "basic-funnel"},
 	}
 }
 
@@ -423,6 +444,25 @@ func candlestickCode() string {
     {Label: "Day 5", Open: 108, High: 113, Low: 105, Close: 109},
     {Label: "Day 6", Open: 109, High: 116, Low: 106, Close: 114},
     {Label: "Day 7", Open: 114, High: 121, Low: 111, Close: 119},
+  },
+})`
+}
+
+func funnelCode() string {
+	return `@funnel.Funnel(funnel.Config{
+  Label: "Basic funnel",
+  Title: "Funnel",
+  Stages: []funnel.Stage{
+    {Label: "Show", Value: 100},
+    {Label: "Click", Value: 80},
+    {Label: "Visit", Value: 60},
+    {Label: "Inquiry", Value: 40},
+    {Label: "Order", Value: 20},
+    {Label: "Pay", Value: 10},
+    {Label: "Cancel", Value: 2},
+  },
+  Options: funnel.Options{
+    Legend: funnel.Legend{Padding: funnel.Padding{Left: 100}},
   },
 })`
 }

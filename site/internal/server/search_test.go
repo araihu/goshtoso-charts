@@ -21,6 +21,7 @@ func TestDocumentationSearchIndexesCategorizedNavigation(t *testing.T) {
 		`data-search="bar chart static / vector bar"`,
 		`data-search="radar chart static / vector radar"`,
 		`data-search="candlestick static / vector candlestick"`,
+		`data-search="funnel chart static / vector funnel"`,
 		`data-search="heat map static / vector heatmap"`,
 		`data-search="table static / vector table"`,
 		`data-search="bar interactive / cartesian interactive-bar"`,

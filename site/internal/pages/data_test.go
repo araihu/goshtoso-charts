@@ -35,6 +35,24 @@ func TestViolinSamplesAreDeterministicAndPreserveUpstreamGenerator(t *testing.T)
 	}
 }
 
+func TestBasicFunnelDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	cfg := sampleBasicFunnel()
+	wantLabels := []string{"Show", "Click", "Visit", "Inquiry", "Order", "Pay", "Cancel"}
+	wantValues := []float64{100, 80, 60, 40, 20, 10, 2}
+	if cfg.Title != "Funnel" || cfg.Width != 0 || cfg.Height != 0 || cfg.Options.Legend.Padding.Left != 100 {
+		t.Fatalf("title/dimensions/legend geometry drifted: %#v", cfg)
+	}
+	if len(cfg.Stages) != len(wantLabels) {
+		t.Fatalf("stage count = %d, want %d", len(cfg.Stages), len(wantLabels))
+	}
+	for index, stage := range cfg.Stages {
+		if stage.Label != wantLabels[index] || stage.Value != wantValues[index] {
+			t.Fatalf("stage %d = (%q, %g), want (%q, %g)", index, stage.Label, stage.Value, wantLabels[index], wantValues[index])
+		}
+	}
+}
+
 func TestDenseScatterValuesAreDeterministicAndPreserveUpstreamDistribution(t *testing.T) {
 	t.Parallel()
 	first := denseScatterValues(rand.New(rand.NewSource(20260728)), 3, 1000, 10)

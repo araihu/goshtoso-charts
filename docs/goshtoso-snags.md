@@ -194,3 +194,12 @@ colors take precedence over styled semantic classes, which take precedence
 over palette colors. Shared host observation continues to call `resize()` on
 the existing instance; flex, modal, theme, collapse, and fullscreen changes do
 not add a component-specific runtime or dispose/reinitialize the chart.
+
+## 2026-07-28: isolated browser gates use canonical installed dependencies
+
+Codex worktrees do not inherit the ignored `site/node_modules` directory from
+the canonical checkout. The site pins Playwright and Sharp exactly in
+`package.json` but intentionally has no `package-lock.json`, so `npm ci` is not
+a valid gate. Run browser tests with `NODE_PATH` pointed at the canonical
+checkout's installed `site/node_modules`, or use an ignored symlink. Do not
+generate or commit a lockfile as part of a component lane.
