@@ -30,6 +30,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/candlestick", "Candlestick"},
 		{"/components/heatmap", "Heat map"},
 		{"/components/table", "Table"},
+		{"/components/violin", "Violin chart"},
 		{"/components/interactive/bar", "Interactive bar"},
 		{"/components/interactive/line", "Interactive line"},
 		{"/components/interactive/scatter", "Interactive scatter"},
@@ -55,6 +56,35 @@ func TestDemoRoutesRender(t *testing.T) {
 		}
 		if !strings.Contains(recorder.Body.String(), test.want) {
 			t.Errorf("GET %s missing %q", test.path, test.want)
+		}
+	}
+}
+
+func TestViolinDocumentationPreservesUpstreamSamplesWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/violin", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Violin chart", "Distribution Shapes", "Normal", "Right Skewed", "Bimodal", "Tight",
+		"200", "80 Gaussian density bands", "1200 x 800", "Mean", "Median", "Q1", "Q3",
+		"violin.Violin", "components.KindViolinChart", "Distribution", "MarkLines", "Quantiles",
+		"Exact sample statistics", "Expand", "SVG", "PNG",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("violin documentation missing upstream or contract content %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-analyze", "violin_chart-2-samples/main.go", "infrastructure", "operations", "raw map"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("violin component page contains non-neutral content %q", unwanted)
+		}
+	}
+	attributions := httptest.NewRecorder()
+	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	for _, want := range []string{"examples/1-Painter/violin_chart-2-samples/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2"} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("central attribution missing %q", want)
 		}
 	}
 }

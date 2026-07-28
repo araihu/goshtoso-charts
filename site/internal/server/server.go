@@ -57,6 +57,9 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/table", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.TablePage(isFragment(request)))
 	})
+	mux.HandleFunc("GET /components/violin", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.ViolinPage(isFragment(request)))
+	})
 	mux.HandleFunc("GET /components/interactive/bar", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.InteractiveBarPage(isFragment(request)))
 	})

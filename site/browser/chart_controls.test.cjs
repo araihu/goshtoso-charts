@@ -912,6 +912,85 @@ test("Candlestick shared controls export exact 600x400 opaque SVG and PNG artifa
   }
 });
 
+test("Violin exports self-contained 1200x800 SVG and opaque PNG artifacts", async () => {
+  const page = await pageAt("/components/violin");
+  try {
+    const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    assert.equal(await wrapper.locator("tbody tr").count(), 8);
+    assert.equal(await wrapper.getByText("Normal", { exact: true }).count() >= 1, true);
+    const svg = await download(page, "Download Distribution shapes from deterministic samples as SVG");
+    assert.equal(svg.filename, "distribution-shapes-from-deterministic-samples.svg");
+    assert.equal(svg.types.at(-1), "image/svg+xml;charset=utf-8");
+    const markup = svg.bytes.toString("utf8");
+    assert.match(markup, /^<svg\b/);
+    assert.match(markup, /width="1200"/);
+    assert.match(markup, /height="800"/);
+    assert.match(markup, /preserveAspectRatio="xMidYMid meet"/);
+    assert.doesNotMatch(markup, /var\(|<script|(?:href|src)="https?:\/\//);
+
+    const png = await download(page, "Download Distribution shapes from deterministic samples as PNG");
+    assert.equal(png.filename, "distribution-shapes-from-deterministic-samples.png");
+    assert.equal(png.types.at(-1), "image/png");
+    assert.deepEqual([...png.bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    const metadata = await sharp(png.bytes).metadata();
+    assert.deepEqual({ width: metadata.width, height: metadata.height }, { width: 1200, height: 800 });
+    const pixels = await sharp(png.bytes).ensureAlpha().raw().toBuffer();
+    for (let index = 3; index < pixels.length; index += 4) assert.equal(pixels[index], 255);
+  } finally {
+    await page.close();
+  }
+});
+
+for (const width of [390, 1440]) {
+  for (const theme of ["goshtoso", "araihu"]) {
+    for (const mode of ["light", "dark"]) {
+      test(`Violin ${width}px ${theme} ${mode} contains page and scales expanded SVG`, async () => {
+        const page = await pageAt("/components/violin", { width, height: 900 });
+        const errors = [];
+        page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+        page.on("pageerror", (error) => errors.push(error.message));
+        try {
+          await page.evaluate(({ selected, dark }) => {
+            document.documentElement.dataset.theme = selected;
+            document.documentElement.classList.toggle("dark", dark);
+          }, { selected: theme, dark: mode === "dark" });
+          const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+          const pageWidth = await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
+          assert.equal(pageWidth.scroll, pageWidth.client);
+          const initial = await wrapper.locator(".goshtoso-charts-violin__viewport svg").evaluate((svg) => {
+            const rect = svg.getBoundingClientRect();
+            return { width: rect.width, height: rect.height, ratio: rect.width / rect.height };
+          });
+          assert.ok(initial.width <= width);
+          assert.ok(Math.abs(initial.ratio - 1.5) < 0.01);
+
+          await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+          const dialog = wrapper.getByRole("dialog", { name: "Distribution shapes from deterministic samples" });
+          await dialog.waitFor({ state: "visible" });
+          await page.waitForTimeout(350);
+          const geometry = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((panel) => {
+            const body = panel.children[1].getBoundingClientRect();
+            const svg = panel.querySelector(".goshtoso-charts-violin__viewport svg").getBoundingClientRect();
+            const panelRect = panel.getBoundingClientRect();
+            const root = panel.querySelector(".goshtoso-charts-violin__viewport svg");
+            return { body, svg, panel: panelRect.toJSON(), viewBoxRatio: root.viewBox.baseVal.width / root.viewBox.baseVal.height, preserveAspectRatio: root.getAttribute("preserveAspectRatio") };
+          });
+          assert.ok(Math.abs((geometry.panel.left + geometry.panel.right) / 2 - width / 2) < 4);
+          assert.ok(geometry.svg.left >= geometry.body.left - 1 && geometry.svg.right <= geometry.body.right + 1);
+          assert.ok(geometry.svg.top >= geometry.body.top - 1 && geometry.svg.bottom <= geometry.body.bottom + 1);
+          assert.ok(Math.abs(geometry.viewBoxRatio - 1.5) < 0.01);
+          assert.equal(geometry.preserveAspectRatio, "xMidYMid meet");
+          assert.deepEqual(errors, []);
+          await page.keyboard.press("Escape");
+          await dialog.waitFor({ state: "hidden" });
+        } finally {
+          await page.close();
+        }
+      });
+    }
+  }
+}
+
 for (const mode of ["light", "dark"]) {
   test(`static SVG and PNG exports contain resolved ${mode} artifacts`, async () => {
     const page = await pageAt("/components/line");

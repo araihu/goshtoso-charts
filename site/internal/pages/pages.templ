@@ -12,6 +12,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/radar"
 	"github.com/araihu/goshtoso-charts/components/scatter"
 	charttable "github.com/araihu/goshtoso-charts/components/table"
+	"github.com/araihu/goshtoso-charts/components/violin"
 )
 
 templ GettingStartedPage(fragment bool) {
@@ -101,6 +102,10 @@ templ TablePage(fragment bool) {
 
 templ HeatMapPage(fragment bool) {
 	@layout("Heat map", "heatmap", heatMapContent(), fragment)
+}
+
+templ ViolinPage(fragment bool) {
+	@layout("Violin chart", "violin", violinContent(), fragment)
 }
 
 templ InteractiveBarPage(fragment bool) {
@@ -502,6 +507,19 @@ templ tableContent() {
 			},
 		},
 		After: demoNote("Table contract", "Every row supplies exactly one string value per named column. Span controls relative width, alignment is typed, and cell meaning remains available in the adjacent semantic table without depending on color."),
+	})
+}
+
+templ violinContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Violin chart",
+		Description: "SSR SVG for comparing complete distribution shapes, centers, spread, skew, and multimodality from exact named samples.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare probability-density shapes across named sample populations without browser rendering.", "Primitive", "violin.Violin", "Kind", "components.KindViolinChart", "Configuration", "Label, Caption, Title, typed named sample Series, deterministic density point count, bandwidth and normalization, typed mean and median mark lines, typed quantile summaries, axis, padding, dimensions, semantic classes, explicit colors, root attributes, chart style, and shared controls/export.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent exact statistical summary preserves sample count, minimum, quartiles, median, mean, and maximum without relying on shape or color."),
+			Preview: violin.Violin(sampleDistributionShapes()),
+			Code: violinCode(),
+		},
+		After: demoNote("Distribution contract", "This deterministic four-distribution sample preserves 200 observations per series, 80 Gaussian density bands, 1200 x 800 dimensions, right-side labels, and mean markers. Median markers and quartile summaries remain typed variants on the same component."),
 	})
 }
 

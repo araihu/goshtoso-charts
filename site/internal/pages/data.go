@@ -2,6 +2,7 @@ package pages
 
 import (
 	"fmt"
+	"math"
 	"math/rand"
 	"strings"
 
@@ -15,8 +16,24 @@ import (
 	"github.com/araihu/goshtoso-charts/components/radar"
 	"github.com/araihu/goshtoso-charts/components/scatter"
 	charttable "github.com/araihu/goshtoso-charts/components/table"
+	"github.com/araihu/goshtoso-charts/components/violin"
 	"github.com/araihu/goshtoso/components/codeblock"
 )
+
+type deterministicLCG struct{ state uint64 }
+
+func (generator *deterministicLCG) next() float64 {
+	generator.state = generator.state*6364136223846793005 + 1442695040888963407
+	return float64(generator.state>>33) / float64(1<<31)
+}
+
+func (generator *deterministicLCG) normal(mean, standardDeviation float64) float64 {
+	first, second := generator.next(), generator.next()
+	if first < 1e-10 {
+		first = 1e-10
+	}
+	return mean + standardDeviation*math.Sqrt(-2*math.Log(first))*math.Cos(2*math.Pi*second)
+}
 
 func gettingStartedCodeBlock(language, label, code string) codeblock.Config {
 	return codeblock.Config{Language: language, Label: label, Code: code}
@@ -222,6 +239,41 @@ func sampleBasicHeatMapOverride() heatmap.Config {
 		{At: 1, Color: "#e11d48", Class: "scale-warm"},
 	}}
 	return cfg
+}
+
+func sampleDistributionShapes() violin.Config {
+	const sampleCount = 200
+	generator := &deterministicLCG{state: 42}
+	series := []violin.Series{
+		{Name: "Normal", Samples: make([]float64, sampleCount)},
+		{Name: "Right Skewed", Samples: make([]float64, sampleCount)},
+		{Name: "Bimodal", Samples: make([]float64, sampleCount)},
+		{Name: "Tight", Samples: make([]float64, sampleCount)},
+	}
+	for index := 0; index < sampleCount; index++ {
+		series[0].Samples[index] = generator.normal(50, 10)
+		series[1].Samples[index] = 30 + math.Exp(generator.normal(0, 1))*10
+		if generator.next() < .45 {
+			series[2].Samples[index] = generator.normal(35, 6)
+		} else {
+			series[2].Samples[index] = generator.normal(65, 6)
+		}
+		series[3].Samples[index] = generator.normal(50, 3)
+	}
+	for index := range series {
+		series[index].Marks = violin.MarkLines{Mean: true, Median: true}
+		series[index].Statistics = violin.Statistics{Quantiles: []float64{.25, .75}}
+		series[index].Class = "distribution-" + []string{"normal", "right-skewed", "bimodal", "tight"}[index]
+	}
+	return violin.Config{
+		Label:   "Distribution shapes from deterministic samples",
+		Caption: "Four 200-sample distributions; lines mark each mean and median, with quartiles in the adjacent summary.",
+		Title:   "Distribution Shapes",
+		Series:  series,
+		Density: violin.Distribution{Points: 80},
+		Padding: violin.Padding{Top: 5, Right: 5, Bottom: 50, Left: 5},
+		Width:   1200, Height: 800,
+	}
 }
 
 func sampleDenseScatter() scatter.Config {
@@ -443,4 +495,21 @@ cfg.Gradient = heatmap.Gradient{
   },
 }
 @heatmap.HeatMap(cfg)`
+}
+
+func violinCode() string {
+	return `@violin.Violin(violin.Config{
+  Label: "Distribution shapes from deterministic samples",
+  Caption: "Four 200-sample distributions with exact adjacent statistics.",
+  Title: "Distribution Shapes",
+  Series: []violin.Series{
+    {Name: "Normal", Samples: normalSamples, Marks: violin.MarkLines{Mean: true, Median: true}, Statistics: violin.Statistics{Quantiles: []float64{.25, .75}}},
+    {Name: "Right Skewed", Samples: rightSkewedSamples, Marks: violin.MarkLines{Mean: true, Median: true}, Statistics: violin.Statistics{Quantiles: []float64{.25, .75}}},
+    {Name: "Bimodal", Samples: bimodalSamples, Marks: violin.MarkLines{Mean: true, Median: true}, Statistics: violin.Statistics{Quantiles: []float64{.25, .75}}},
+    {Name: "Tight", Samples: tightSamples, Marks: violin.MarkLines{Mean: true, Median: true}, Statistics: violin.Statistics{Quantiles: []float64{.25, .75}}},
+  },
+  Density: violin.Distribution{Points: 80},
+  Padding: violin.Padding{Top: 5, Right: 5, Bottom: 50, Left: 5},
+  Width: 1200, Height: 800,
+})`
 }

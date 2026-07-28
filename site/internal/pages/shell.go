@@ -22,7 +22,7 @@ func shellPage(title string, active string, content templ.Component) componentdo
 		Active:        active,
 		Content:       content,
 		Head:          templ.Join(brand.Head(), dependencies.Dependencies()),
-		EnableTOC:     active == "getting-started" || active == "line" || active == "bar" || active == "pie" || active == "scatter" || active == "radar" || active == "candlestick" || active == "heatmap" || active == "table" || active == "interactive-bar" || active == "interactive-line" || active == "interactive-tree" || active == "interactive-sunburst" || active == "interactive-treemap" || active == "interactive-parallel" || active == "interactive-theme-river" || active == "interactive-word-cloud" || active == "live-availability",
+		EnableTOC:     active == "getting-started" || active == "line" || active == "bar" || active == "pie" || active == "scatter" || active == "radar" || active == "candlestick" || active == "heatmap" || active == "table" || active == "violin" || active == "interactive-bar" || active == "interactive-line" || active == "interactive-tree" || active == "interactive-sunburst" || active == "interactive-treemap" || active == "interactive-parallel" || active == "interactive-theme-river" || active == "interactive-word-cloud" || active == "live-availability",
 	}
 }
 
@@ -63,6 +63,7 @@ func shellNavigation() componentdocshell.Navigation {
 					{ID: "candlestick", Label: "Candlestick", Href: "/components/candlestick"},
 					{ID: "heatmap", Label: "Heat map", Href: "/components/heatmap"},
 					{ID: "table", Label: "Table", Href: "/components/table"},
+					{ID: "violin", Label: "Violin chart", Href: "/components/violin"},
 				},
 			},
 			{

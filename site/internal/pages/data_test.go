@@ -1,11 +1,39 @@
 package pages
 
 import (
+	"math"
 	"math/rand"
 	"reflect"
 	"testing"
 	"time"
 )
+
+func TestViolinSamplesAreDeterministicAndPreserveUpstreamGenerator(t *testing.T) {
+	t.Parallel()
+	first, second := sampleDistributionShapes(), sampleDistributionShapes()
+	if !reflect.DeepEqual(first.Series, second.Series) {
+		t.Fatal("fixed LCG seed did not reproduce violin samples")
+	}
+	if first.Title != "Distribution Shapes" || first.Width != 1200 || first.Height != 800 || first.Density.Points != 80 {
+		t.Fatalf("sample config = title %q, %dx%d, %d points", first.Title, first.Width, first.Height, first.Density.Points)
+	}
+	wantNames := []string{"Normal", "Right Skewed", "Bimodal", "Tight"}
+	wantFirst := []float64{51.632672269835695, 34.032704172611375, 81.03976781672685, 44.259116252823056}
+	if len(first.Series) != len(wantNames) {
+		t.Fatalf("series count = %d", len(first.Series))
+	}
+	for index, series := range first.Series {
+		if series.Name != wantNames[index] || len(series.Samples) != 200 {
+			t.Fatalf("series %d = %q with %d samples", index, series.Name, len(series.Samples))
+		}
+		if math.Abs(series.Samples[0]-wantFirst[index]) > 1e-12 {
+			t.Errorf("series %q first sample = %.15f, want %.15f", series.Name, series.Samples[0], wantFirst[index])
+		}
+		if !series.Marks.Mean || !series.Marks.Median || !reflect.DeepEqual(series.Statistics.Quantiles, []float64{.25, .75}) {
+			t.Errorf("series %q statistics = marks %#v, summary %#v", series.Name, series.Marks, series.Statistics)
+		}
+	}
+}
 
 func TestDenseScatterValuesAreDeterministicAndPreserveUpstreamDistribution(t *testing.T) {
 	t.Parallel()
