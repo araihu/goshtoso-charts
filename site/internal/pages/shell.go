@@ -13,6 +13,19 @@ func tocID(title string) string {
 	return strings.ToLower(strings.ReplaceAll(title, " ", "-"))
 }
 
+func eChartsLayoutClass(layout string) string {
+	switch layout {
+	case "center":
+		return "mx-auto grid max-w-5xl gap-4"
+	case "flex":
+		return "flex flex-wrap gap-4"
+	case "none":
+		return "space-y-4"
+	default:
+		return "space-y-4"
+	}
+}
+
 func shellPage(title string, active string, content templ.Component) componentdocshell.Page {
 	return componentdocshell.Page{
 		Title:         title,

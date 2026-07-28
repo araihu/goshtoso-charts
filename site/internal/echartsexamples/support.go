@@ -29,9 +29,9 @@ var SupportExamples = []Example{
 	{Slug: "theme-wonderland", Title: "Wonderland theme", Group: "Support", Source: supportExamplesSource + "themes.go", Build: func() render.Renderer { return barWithTheme(types.ThemeWonderland) }},
 	{Slug: "renderer-custom-template", Title: "Custom renderer template", Group: "Support", Source: supportExamplesSource + "renderer.go", Build: func() render.Renderer { return rendererDescriptor("Custom renderer template") }},
 	{Slug: "renderer-snippets", Title: "Renderer snippets", Group: "Support", Source: supportExamplesSource + "renderer.go", Build: func() render.Renderer { return rendererDescriptor("Renderer snippets") }},
-	{Slug: "page-center-layout", Title: "Page center layout", Group: "Support", Source: supportExamplesSource + "page_center_layout.go", Build: func() render.Renderer { return pageLayoutDescriptor("center") }},
-	{Slug: "page-flex-layout", Title: "Page flex layout", Group: "Support", Source: supportExamplesSource + "page_flex_layout.go", Build: func() render.Renderer { return pageLayoutDescriptor("flex") }},
-	{Slug: "page-none-layout", Title: "Page no layout", Group: "Support", Source: supportExamplesSource + "page_none_layout.go", Build: func() render.Renderer { return pageLayoutDescriptor("none") }},
+	{Slug: "page-center-layout", Title: "Page center layout", Group: "Support", Source: supportExamplesSource + "page_center_layout.go", Build: func() render.Renderer { return pageLayoutDescriptor("center") }, Layout: "center"},
+	{Slug: "page-flex-layout", Title: "Page flex layout", Group: "Support", Source: supportExamplesSource + "page_flex_layout.go", Build: func() render.Renderer { return pageLayoutDescriptor("flex") }, Layout: "flex"},
+	{Slug: "page-none-layout", Title: "Page no layout", Group: "Support", Source: supportExamplesSource + "page_none_layout.go", Build: func() render.Renderer { return pageLayoutDescriptor("none") }, Layout: "none"},
 }
 
 func barWithTheme(theme string) *charts.Bar {
@@ -57,4 +57,10 @@ func pageLayoutDescriptor(layout string) *charts.Bar {
 	bar := titledBar("Page " + layout + " layout")
 	bar.SetGlobalOptions(charts.WithTitleOpts(opts.Title{Title: "Page " + layout + " layout", Subtitle: "Static descriptor; Goshtoso owns page layout"}))
 	return bar
+}
+
+// LayoutCharts ports the upstream genPages chart set. Goshtoso owns document
+// layout, while each chart remains the original go-echarts chart variation.
+func LayoutCharts() []render.Renderer {
+	return []render.Renderer{lineBase(), pieRadius(), barXYName(), barColor(), klineDataZoomInside(), parallelComponent(), barGap(), radarBase(), bar3DAutoRotate(), gaugeBase(), heatMapBase(), barMarkPoints(), scatterShowLabel(), liquidDiamond(), barOverlap(), mapShowLabel()}
 }

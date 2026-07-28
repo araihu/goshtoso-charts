@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/araihu/goshtoso-charts/site/internal/echartsexamples"
 )
 
 func TestDemoRoutesRender(t *testing.T) {
@@ -30,6 +32,36 @@ func TestDemoRoutesRender(t *testing.T) {
 		}
 		if !strings.Contains(recorder.Body.String(), test.want) {
 			t.Errorf("GET %s missing %q", test.path, test.want)
+		}
+	}
+}
+
+func TestEveryPortedEChartsRouteRenders(t *testing.T) {
+	t.Parallel()
+	handler := New()
+	for _, example := range echartsexamples.All() {
+		recorder := httptest.NewRecorder()
+		handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/examples/go-echarts/"+example.Slug, nil))
+		if recorder.Code != http.StatusOK {
+			t.Errorf("GET %s status = %d, want 200", example.Slug, recorder.Code)
+			continue
+		}
+		body := recorder.Body.String()
+		for _, want := range []string{example.Title, "echarts.init", "/charts/echarts/echarts@4.min.js"} {
+			if !strings.Contains(body, want) {
+				t.Errorf("GET %s missing %q", example.Slug, want)
+			}
+		}
+	}
+}
+
+func TestPageLayoutPortsRenderUpstreamChartSet(t *testing.T) {
+	t.Parallel()
+	for _, slug := range []string{"page-center-layout", "page-flex-layout", "page-none-layout"} {
+		recorder := httptest.NewRecorder()
+		New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/examples/go-echarts/"+slug, nil))
+		if count := strings.Count(recorder.Body.String(), "echarts.init"); count != 16 {
+			t.Errorf("GET %s renders %d charts, want 16", slug, count)
 		}
 	}
 }

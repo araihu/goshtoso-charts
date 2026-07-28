@@ -11,6 +11,8 @@ type Example struct {
 	Group  string
 	Source string
 	Build  func() render.Renderer
+	// Layout preserves the upstream components.Page layout sample when set.
+	Layout string
 }
 
 // All returns every currently ported upstream example in stable catalog order.
