@@ -19,6 +19,7 @@ func TestDocumentationSearchIndexesCategorizedNavigation(t *testing.T) {
 		`data-docs-search-results`,
 		`data-search="getting started general getting-started"`,
 		`data-search="bar chart static / vector bar"`,
+		`data-search="radar chart static / vector radar"`,
 		`data-search="bar interactive / cartesian interactive-bar"`,
 		`data-search="scatter interactive / cartesian interactive-scatter"`,
 		`data-search="pie interactive / statistical interactive-pie"`,

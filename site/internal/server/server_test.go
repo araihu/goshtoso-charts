@@ -26,6 +26,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/bar", "Bar chart"},
 		{"/components/pie", "Pie chart"},
 		{"/components/scatter", "Scatter chart"},
+		{"/components/radar", "Radar chart"},
 		{"/components/interactive/bar", "Interactive bar"},
 		{"/components/interactive/line", "Interactive line"},
 		{"/components/interactive/scatter", "Interactive scatter"},
@@ -47,6 +48,28 @@ func TestDemoRoutesRender(t *testing.T) {
 		}
 		if !strings.Contains(recorder.Body.String(), test.want) {
 			t.Errorf("GET %s missing %q", test.path, test.want)
+		}
+	}
+}
+
+func TestRadarDocumentationPreservesUpstreamBasicExampleWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/radar", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Basic radar chart", "Allocated Budget", "Actual Spending", "Sales", "Administration",
+		"Information Technology", "Customer Support", "Development", "Marketing",
+		"4200", "3000", "20000", "35000", "50000", "18000",
+		"5000", "14000", "28000", "26000", "42000", "21000",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("radar documentation missing upstream example content %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-analyze", "examples/1-Painter/radar_chart-1-basic/main.go", "infrastructure", "operations"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("radar component page contains non-neutral content %q", unwanted)
 		}
 	}
 }
@@ -98,6 +121,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		"Goshtoso", "v0.0.13", "Goshtoso App Shells", "commit 4c4aa5ae787e", "templ", "v0.3.1020",
 		"go-analyze/charts", "v0.6.0", "go-echarts", "v2.7.2", "Apache ECharts", "v5.4.3",
 		"examples/1-Painter/scatter_chart-1-basic/main.go",
+		"examples/1-Painter/radar_chart-1-basic/main.go",
 		`href="https://github.com/araihu/goshtoso"`, `href="https://github.com/go-echarts/go-echarts"`,
 		`href="https://echarts.apache.org/"`, `href="https://github.com/apache/echarts/blob/5.4.3/LICENSE"`,
 		`bg-primary/10`, "MIT", "Apache-2.0",
@@ -121,7 +145,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		t.Error("attributions page claims removed optional extensions are still pinned")
 	}
 
-	for _, path := range []string{"/components/scatter", "/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter", "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap", "/components/interactive/boxplot", "/components/interactive/gauge", "/components/interactive/funnel", "/components/interactive/graph", "/components/interactive/sankey"} {
+	for _, path := range []string{"/components/scatter", "/components/radar", "/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter", "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap", "/components/interactive/boxplot", "/components/interactive/gauge", "/components/interactive/funnel", "/components/interactive/graph", "/components/interactive/sankey"} {
 		page := httptest.NewRecorder()
 		handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, path, nil))
 		for _, unwanted := range []string{"backed by go-echarts", "with go-echarts options", ">go-echarts catalog<", "go-analyze"} {

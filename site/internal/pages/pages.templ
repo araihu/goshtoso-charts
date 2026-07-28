@@ -7,6 +7,7 @@ import (
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
+	"github.com/araihu/goshtoso-charts/components/radar"
 	"github.com/araihu/goshtoso-charts/components/scatter"
 )
 
@@ -81,6 +82,10 @@ templ PiePage(fragment bool) {
 
 templ ScatterPage(fragment bool) {
 	@layout("Scatter chart", "scatter", scatterContent(), fragment)
+}
+
+templ RadarPage(fragment bool) {
+	@layout("Radar chart", "radar", radarContent(), fragment)
 }
 
 templ InteractiveBarPage(fragment bool) {
@@ -307,6 +312,27 @@ templ scatterContent() {
 			Code: scatterCode(),
 		},
 		After: demoNote("Category contract", "This preview adapts the upstream examples/1-Painter/scatter_chart-1-basic/main.go dataset. Categories define equally spaced keys in caller order; the upstream null is represented by omitting that typed point. Symbol and Size remain presentation options on this component."),
+	})
+}
+
+templ radarContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Radar chart",
+		Description: "SSR SVG for comparing a small number of profiles across shared bounded dimensions.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare named profiles across the same bounded dimensions without browser rendering.", "Primitive", "radar.Radar", "Kind", "components.KindRadarChart", "Configuration", "Label, Caption, named Indicators with maxima, named aligned Series, typed radius and value-label options, Width, Height, root class and attributes, and chart palette with explicit colors.", "Accessibility", "Figure name comes from Label; Caption stays visible. An adjacent disclosure preserves indicator maxima and every exact series value."),
+			Preview: radar.Radar(sampleBasicRadar()),
+			Code: radarCode(),
+		},
+		Sections: []componentpage.Example{
+			{
+				Title: "Explicit presentation overrides",
+				Description: "Caller colors, root classes, radius, and vertex labels remain typed options on the same component.",
+				Preview: radar.Radar(sampleBasicRadarOverride()),
+				Code: radarOverrideCode(),
+			},
+		},
+		After: demoNote("Radar contract", "Indicators define caller order and positive maxima. Every named series supplies one finite, non-negative value per indicator and may not exceed that indicator maximum."),
 	})
 }
 

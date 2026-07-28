@@ -2,8 +2,10 @@ package pages
 
 import (
 	"github.com/araihu/goshtoso-charts/components/bar"
+	"github.com/araihu/goshtoso-charts/components/charttheme"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
+	"github.com/araihu/goshtoso-charts/components/radar"
 	"github.com/araihu/goshtoso-charts/components/scatter"
 	"github.com/araihu/goshtoso/components/codeblock"
 )
@@ -95,6 +97,37 @@ func sampleBasicScatter() scatter.Config {
 	}
 }
 
+func sampleBasicRadar() radar.Config {
+	return radar.Config{
+		Label:   "Basic radar chart",
+		Caption: "Allocated budget and actual spending across six shared dimensions.",
+		Indicators: []radar.Indicator{
+			{Name: "Sales", Max: 6500},
+			{Name: "Administration", Max: 16000},
+			{Name: "Information Technology", Max: 30000},
+			{Name: "Customer Support", Max: 38000},
+			{Name: "Development", Max: 52000},
+			{Name: "Marketing", Max: 25000},
+		},
+		Series: []radar.Series{
+			{Name: "Allocated Budget", Values: []float64{4200, 3000, 20000, 35000, 50000, 18000}},
+			{Name: "Actual Spending", Values: []float64{5000, 14000, 28000, 26000, 42000, 21000}},
+		},
+	}
+}
+
+func sampleBasicRadarOverride() radar.Config {
+	cfg := sampleBasicRadar()
+	cfg.Label = "Basic radar chart with caller overrides"
+	cfg.Style = charttheme.Style{
+		Palette: charttheme.PaletteAraiHu,
+		Colors:  []string{"#365314", "#c2410c"},
+		Class:   "radar-explicit-override",
+	}
+	cfg.Options = radar.Options{RadiusPercent: 44, ValueLabels: radar.ValueLabelsShown}
+	return cfg
+}
+
 func scatterPoints(categories []string, values []float64) []scatter.Point {
 	points := make([]scatter.Point, len(categories))
 	for index := range categories {
@@ -160,4 +193,36 @@ func scatterCode() string {
     // Video Ads, Direct, and Search Engine retain the same upstream values.
   },
 })`
+}
+
+func radarCode() string {
+	return `@radar.Radar(radar.Config{
+  Label: "Basic radar chart",
+  Indicators: []radar.Indicator{
+    {Name: "Sales", Max: 6500},
+    {Name: "Administration", Max: 16000},
+    {Name: "Information Technology", Max: 30000},
+    {Name: "Customer Support", Max: 38000},
+    {Name: "Development", Max: 52000},
+    {Name: "Marketing", Max: 25000},
+  },
+  Series: []radar.Series{
+    {Name: "Allocated Budget", Values: []float64{4200, 3000, 20000, 35000, 50000, 18000}},
+    {Name: "Actual Spending", Values: []float64{5000, 14000, 28000, 26000, 42000, 21000}},
+  },
+})`
+}
+
+func radarOverrideCode() string {
+	return `cfg := sampleBasicRadar()
+cfg.Options = radar.Options{
+  RadiusPercent: 44,
+  ValueLabels: radar.ValueLabelsShown,
+}
+cfg.Style = charttheme.Style{
+  Palette: charttheme.PaletteAraiHu,
+  Colors: []string{"#365314", "#c2410c"},
+  Class: "my-radar",
+}
+@radar.Radar(cfg)`
 }
