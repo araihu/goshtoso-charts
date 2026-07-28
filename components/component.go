@@ -45,6 +45,8 @@ const (
 	KindInteractiveScatter Kind = "interactive-scatter"
 	// KindInteractiveScatter3D identifies a browser-rendered three-dimensional scatter chart.
 	KindInteractiveScatter3D Kind = "interactive-scatter-3d"
+	// KindInteractiveBar3D identifies a browser-rendered three-dimensional categorical bar chart.
+	KindInteractiveBar3D Kind = "interactive-bar-3d"
 	// KindInteractivePie identifies a browser-rendered pie chart.
 	KindInteractivePie Kind = "interactive-pie"
 	// KindInteractiveRadar identifies a browser-rendered radar chart.
@@ -83,7 +85,7 @@ const (
 	KindInteractiveGeo Kind = "interactive-geo"
 )
 
-var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindCandlestickChart, KindHeatMapChart, KindFunnelChart, KindTable, KindViolinChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractiveScatter3D, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst, KindInteractiveTreemap, KindInteractiveParallel, KindInteractiveThemeRiver, KindInteractiveCandlestick, KindInteractiveWordCloud, KindInteractiveMap, KindInteractiveGeo}
+var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindCandlestickChart, KindHeatMapChart, KindFunnelChart, KindTable, KindViolinChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractiveScatter3D, KindInteractiveBar3D, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst, KindInteractiveTreemap, KindInteractiveParallel, KindInteractiveThemeRiver, KindInteractiveCandlestick, KindInteractiveWordCloud, KindInteractiveMap, KindInteractiveGeo}
 
 // AllKinds returns supported chart kinds in stable order. Document-level
 // dependency components are intentionally excluded.

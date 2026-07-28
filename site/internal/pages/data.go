@@ -6,6 +6,7 @@ import (
 	"math/rand"
 	"strings"
 
+	"github.com/a-h/templ"
 	"github.com/araihu/goshtoso-charts/components/bar"
 	"github.com/araihu/goshtoso-charts/components/candlestick"
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
@@ -203,6 +204,68 @@ func sampleBasicCandlestick() candlestick.Config {
 		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "basic-candlestick-chart"},
 	}
+}
+
+const (
+	staticCandlestickBollingerUpstreamPath     = "examples/1-Painter/candlestick_chart-3-bollinger_bands/main.go"
+	staticCandlestickBollingerUpstreamRevision = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
+	staticCandlestickBollingerUpstreamSHA256   = "cc3b347d5faea1a15ca22554dcc46a35beed74e49da56701659a1a7d1f000202"
+)
+
+func sampleCandlestickBollingerBands() candlestick.Config {
+	return candlestick.Config{
+		Label:      "Candlestick Chart with Bollinger Bands",
+		Caption:    "Close-price Bollinger upper, simple moving average middle, and Bollinger lower lines use a centered five-period window.",
+		Title:      "Candlestick Chart with Bollinger Bands",
+		SeriesName: "Price",
+		Data: []candlestick.Datum{
+			{Label: "1", Open: 100, High: 110, Low: 95, Close: 105},
+			{Label: "2", Open: 105, High: 115, Low: 100, Close: 112},
+			{Label: "3", Open: 112, High: 118, Low: 108, Close: 115},
+			{Label: "4", Open: 115, High: 125, Low: 110, Close: 120},
+			{Label: "5", Open: 120, High: 130, Low: 115, Close: 125},
+			{Label: "6", Open: 125, High: 135, Low: 120, Close: 130},
+			{Label: "7", Open: 130, High: 140, Low: 125, Close: 135},
+			{Label: "8", Open: 135, High: 145, Low: 130, Close: 140},
+			{Label: "9", Open: 140, High: 150, Low: 135, Close: 145},
+			{Label: "10", Open: 145, High: 155, Low: 140, Close: 150},
+			{Label: "11", Open: 150, High: 160, Low: 145, Close: 148},
+			{Label: "12", Open: 148, High: 153, Low: 143, Close: 146},
+			{Label: "13", Open: 146, High: 151, Low: 141, Close: 144},
+			{Label: "14", Open: 144, High: 149, Low: 139, Close: 142},
+			{Label: "15", Open: 142, High: 147, Low: 137, Close: 140},
+			{Label: "16", Open: 140, High: 145, Low: 135, Close: 138},
+			{Label: "17", Open: 138, High: 143, Low: 133, Close: 136},
+			{Label: "18", Open: 136, High: 141, Low: 131, Close: 134},
+			{Label: "19", Open: 134, High: 139, Low: 129, Close: 132},
+			{Label: "20", Open: 132, High: 137, Low: 127, Close: 130},
+		},
+		TrendLines: []candlestick.TrendLine{
+			{Type: candlestick.TrendTypeBollingerUpper, Period: 5},
+			{Type: candlestick.TrendTypeSimpleMovingAverage, Period: 5},
+			{Type: candlestick.TrendTypeBollingerLower, Period: 5},
+		},
+		Options: candlestick.Options{
+			TitleFontSize: 18,
+			YUnit:         1,
+			Padding:       candlestick.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20},
+		},
+		Width: 800, Height: 600,
+		RootAttrs: templ.Attributes{"data-goshtoso-candidate": "candlestick-bollinger-fc218c7fedf84c7a"},
+		Controls:  chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:    &chartcontrol.ExportOptions{Filename: "candlestick-bollinger-bands"},
+	}
+}
+
+func sampleCandlestickPresentationOverrides() candlestick.Config {
+	cfg := sampleCandlestickBollingerBands()
+	cfg.Label = "Candlestick caller presentation overrides"
+	cfg.Options.Increasing.Color = "#14532d"
+	cfg.Options.Decreasing.Class = "caller-decreasing-candles"
+	cfg.TrendLines[0].Color = "#1d4ed8"
+	cfg.TrendLines[1].Class = "caller-middle-band"
+	cfg.Export = &chartcontrol.ExportOptions{Filename: "candlestick-presentation-overrides"}
+	return cfg
 }
 
 func sampleBasicFunnel() funnel.Config {
@@ -541,6 +604,57 @@ func candlestickCode() string {
     {Label: "Day 7", Open: 114, High: 121, Low: 111, Close: 119},
   },
 })`
+}
+
+func candlestickBollingerCode() string {
+	return `@candlestick.Candlestick(candlestick.Config{
+  Label: "Candlestick Chart with Bollinger Bands",
+  Title: "Candlestick Chart with Bollinger Bands",
+  SeriesName: "Price",
+  Data: []candlestick.Datum{
+    {Label: "1", Open: 100, High: 110, Low: 95, Close: 105},
+    {Label: "2", Open: 105, High: 115, Low: 100, Close: 112},
+    {Label: "3", Open: 112, High: 118, Low: 108, Close: 115},
+    {Label: "4", Open: 115, High: 125, Low: 110, Close: 120},
+    {Label: "5", Open: 120, High: 130, Low: 115, Close: 125},
+    {Label: "6", Open: 125, High: 135, Low: 120, Close: 130},
+    {Label: "7", Open: 130, High: 140, Low: 125, Close: 135},
+    {Label: "8", Open: 135, High: 145, Low: 130, Close: 140},
+    {Label: "9", Open: 140, High: 150, Low: 135, Close: 145},
+    {Label: "10", Open: 145, High: 155, Low: 140, Close: 150},
+    {Label: "11", Open: 150, High: 160, Low: 145, Close: 148},
+    {Label: "12", Open: 148, High: 153, Low: 143, Close: 146},
+    {Label: "13", Open: 146, High: 151, Low: 141, Close: 144},
+    {Label: "14", Open: 144, High: 149, Low: 139, Close: 142},
+    {Label: "15", Open: 142, High: 147, Low: 137, Close: 140},
+    {Label: "16", Open: 140, High: 145, Low: 135, Close: 138},
+    {Label: "17", Open: 138, High: 143, Low: 133, Close: 136},
+    {Label: "18", Open: 136, High: 141, Low: 131, Close: 134},
+    {Label: "19", Open: 134, High: 139, Low: 129, Close: 132},
+    {Label: "20", Open: 132, High: 137, Low: 127, Close: 130},
+  },
+  TrendLines: []candlestick.TrendLine{
+    {Type: candlestick.TrendTypeBollingerUpper, Period: 5},
+    {Type: candlestick.TrendTypeSimpleMovingAverage, Period: 5},
+    {Type: candlestick.TrendTypeBollingerLower, Period: 5},
+  },
+  Options: candlestick.Options{
+    TitleFontSize: 18,
+    YUnit: 1,
+    Padding: candlestick.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20},
+  },
+  Width: 800,
+  Height: 600,
+})`
+}
+
+func candlestickPresentationCode() string {
+	return `cfg := sampleCandlestickBollingerBands()
+cfg.Options.Increasing.Color = "#14532d"
+cfg.Options.Decreasing.Class = "caller-decreasing-candles"
+cfg.TrendLines[0].Color = "#1d4ed8"
+cfg.TrendLines[1].Class = "caller-middle-band"
+@candlestick.Candlestick(cfg)`
 }
 
 func funnelCode() string {

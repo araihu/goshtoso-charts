@@ -75,6 +75,9 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/interactive/scatter-3d", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.InteractiveScatter3DPage(isFragment(request)))
 	})
+	mux.HandleFunc("GET /components/interactive/bar-3d", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveBar3DPage(isFragment(request)))
+	})
 	mux.HandleFunc("GET /components/interactive/effect-scatter", func(writer http.ResponseWriter, request *http.Request) {
 		http.Redirect(writer, request, "/components/interactive/scatter", http.StatusPermanentRedirect)
 	})

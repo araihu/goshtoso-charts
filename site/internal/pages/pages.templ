@@ -194,6 +194,32 @@ templ interactiveScatter3DVariants() {
 	</div>
 }
 
+templ InteractiveBar3DPage(fragment bool) {
+	@layout("Interactive bar 3D", "interactive-bar-3d", interactiveBar3DContent(), fragment)
+}
+
+templ interactiveBar3DContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive bar 3D",
+		Description: "Reusable three-dimensional categorical bars with typed axes, cells, visual ranges, grid size, view rotation, shading, caller paint, responsive sizing, and exact adjacent values.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare values across two ordered categorical dimensions while preserving magnitude as bar height.", "Primitive", "interactive.Bar3D", "Kind", "components.KindInteractiveBar3D", "Configuration", "Label, Caption, typed categorical axes, Bar3D cells and series, visual range and palette, grid size, view rotation and speed, shading, caller Color or Class, renderer-neutral chart and series options, size, root attributes, controls, export, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Every variant includes an adjacent disclosure with all 168 exact cells, category labels, source-swapped indexes, values, and semantic classes."),
+			Preview: interactiveBar3DVariants(),
+			Code: interactiveBar3DCode(),
+		},
+		After: demoNote("Variant contract", "Base, auto rotation, faster rotation, and Lambert shading remain typed options on one Bar3D component, route, Instance, and stable Kind. Category indexes must remain in range; visual mapping cannot conflict with fixed series or cell paint."),
+	})
+}
+
+templ interactiveBar3DVariants() {
+	<div class="space-y-10" data-bar3d-variants>
+		<div data-bar3d-variant="base">@sampleInteractiveBar3D("basic bar3d example", interactive.Bar3DGridSize{Width: 200, Depth: 80}, nil, interactive.Bar3DShadingDefault)</div>
+		<div data-bar3d-variant="auto-rotate">@sampleInteractiveBar3D("auto rotating", interactive.Bar3DGridSize{Width: 160, Depth: 80}, &interactive.Bar3DView{AutoRotate: interactive.Bool(true)}, interactive.Bar3DShadingDefault)</div>
+		<div data-bar3d-variant="faster">@sampleInteractiveBar3D("rotating faster", interactive.Bar3DGridSize{Width: 160, Depth: 80}, &interactive.Bar3DView{AutoRotate: interactive.Bool(true), AutoRotateSpeed: 200}, interactive.Bar3DShadingDefault)</div>
+		<div data-bar3d-variant="lambert">@sampleInteractiveBar3D("Bar3D-shading(lambert)", interactive.Bar3DGridSize{Width: 200, Depth: 80}, nil, interactive.Bar3DShadingLambert)</div>
+	</div>
+}
+
 templ InteractivePiePage(fragment bool) {
 	@layout("Interactive pie", "interactive-pie", interactiveChartPieContent(), fragment)
 }
@@ -608,9 +634,23 @@ templ candlestickContent() {
 		Title: "Candlestick",
 		Description: "SSR SVG for ordered open-high-low-close observations, using conventional increase and decrease treatments.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Compare open, high, low, and close values across ordered categories or times without browser rendering.", "Primitive", "candlestick.Candlestick", "Kind", "components.KindCandlestickChart", "Configuration", "Label, Caption, renderer-neutral Title and Axis labels, SeriesName, typed OHLC Data, Width, Height, root class and attributes, and chart palette.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent disclosure states direction in text and preserves every exact OHLC value."),
+			AbovePreview: componentContract("Purpose", "Compare open, high, low, and close values across ordered categories or times without browser rendering.", "Primitive", "candlestick.Candlestick", "Kind", "components.KindCandlestickChart", "Configuration", "Label, Caption, renderer-neutral Title and Axis labels, SeriesName, typed OHLC Data, close TrendLines, presentation Options, Width, Height, root class and attributes, chart palette, and shared controls/export.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent disclosure states direction in text and preserves every exact OHLC and computed trend value."),
 			Preview: candlestick.Candlestick(sampleBasicCandlestick()),
 			Code: candlestickCode(),
+		},
+		Sections: []componentpage.Example{
+			{
+				Title: "Bollinger Bands",
+				Description: "Twenty OHLC observations with period-five upper, middle, and lower close-price trends. Distinct accessible theme tokens adapt across Goshtoso and AraiHu light and dark modes.",
+				Preview: candlestick.Candlestick(sampleCandlestickBollingerBands()),
+				Code: candlestickBollingerCode(),
+			},
+			{
+				Title: "Presentation overrides",
+				Description: "Caller colors or classes may style candle directions and individual trend lines; each mark accepts one override mechanism at a time.",
+				Preview: candlestick.Candlestick(sampleCandlestickPresentationOverrides()),
+				Code: candlestickPresentationCode(),
+			},
 		},
 		After: demoNote("OHLC contract", "Each finite datum satisfies Low <= Open/Close <= High. Close greater than or equal to open is stated as Increase; a lower close is stated as Decrease, so meaning never depends on color alone."),
 	})

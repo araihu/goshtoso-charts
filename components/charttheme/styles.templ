@@ -56,6 +56,31 @@ templ Styles() {
 		.goshtoso-charts-candlestick__viewport > svg {
 			min-width: 37.5rem;
 		}
+		.goshtoso-charts-expanded .goshtoso-charts-candlestick {
+			display: flex;
+			width: 100%;
+			height: 100%;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-candlestick__viewport {
+			display: flex;
+			width: 100%;
+			height: 100%;
+			min-height: 0;
+			flex: 1 1 auto;
+			align-items: center;
+			justify-content: center;
+			overflow: hidden;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-candlestick__viewport > svg {
+			width: min(100%, calc((100vh - 13rem) * 4 / 3));
+			height: auto;
+			min-width: 0;
+			max-height: 100%;
+			aspect-ratio: 4 / 3;
+		}
 		.goshtoso-charts-table__viewport > svg {
 			display: block;
 			width: 100%;
@@ -115,6 +140,9 @@ templ Styles() {
 			--color-chart-scale-high: var(--color-red-600, #dc2626);
 			--color-chart-increasing: var(--color-green-700, #15803d);
 			--color-chart-decreasing: var(--color-red-700, #b91c1c);
+			--color-chart-bollinger-upper: var(--color-blue-700, #1d4ed8);
+			--color-chart-bollinger-middle: var(--color-amber-700, #b45309);
+			--color-chart-bollinger-lower: var(--color-violet-700, #6d28d9);
 			--goshtoso-charts-surface: var(--color-chart-surface);
 			--goshtoso-charts-surface-alt: var(--color-chart-surface-alt);
 			--goshtoso-charts-outline: var(--color-chart-outline);
@@ -131,7 +159,8 @@ templ Styles() {
 			--goshtoso-charts-series-7: var(--color-chart-series-7);
 			--goshtoso-charts-series-8: var(--color-chart-series-8);
 		}
-		.goshtoso-charts-scatter-3d {
+		.goshtoso-charts-scatter-3d,
+		.goshtoso-charts-bar-3d {
 			--color-chart-scatter3d-1: #313695; --color-chart-scatter3d-2: #4575b4;
 			--color-chart-scatter3d-3: #74add1; --color-chart-scatter3d-4: #abd9e9;
 			--color-chart-scatter3d-5: #e0f3f8; --color-chart-scatter3d-6: #fee090;
@@ -140,7 +169,8 @@ templ Styles() {
 			width: min(100%, 76rem);
 			margin-inline: auto;
 		}
-		[data-theme="araihu"] .goshtoso-charts-scatter-3d {
+		[data-theme="araihu"] .goshtoso-charts-scatter-3d,
+		[data-theme="araihu"] .goshtoso-charts-bar-3d {
 			--color-chart-scatter3d-1: color-mix(in srgb, var(--color-chart-scale-low) 92%, #313695 8%);
 			--color-chart-scatter3d-2: color-mix(in srgb, var(--color-chart-scale-low) 76%, var(--color-chart-scale-mid) 24%);
 			--color-chart-scatter3d-3: color-mix(in srgb, var(--color-chart-scale-low) 58%, var(--color-chart-scale-mid) 42%);
@@ -165,6 +195,9 @@ templ Styles() {
 			--color-chart-scale-high: var(--color-red-400, #f87171);
 			--color-chart-increasing: var(--color-green-300, #86efac);
 			--color-chart-decreasing: var(--color-red-300, #fca5a5);
+			--color-chart-bollinger-upper: var(--color-blue-300, #93c5fd);
+			--color-chart-bollinger-middle: var(--color-amber-300, #fcd34d);
+			--color-chart-bollinger-lower: var(--color-violet-300, #c4b5fd);
 		}
 		.dark .goshtoso-charts-palette-auto,
 		.dark .goshtoso-charts-palette-bold {
@@ -211,11 +244,17 @@ templ Styles() {
 			--color-chart-series-5: var(--color-violet-500, #9b5de5); --color-chart-series-6: var(--color-amber-300, #ffd166);
 			--color-chart-series-7: var(--color-pink-400, #f15bb5); --color-chart-series-8: var(--color-teal-500, #00b8a9);
 			--color-chart-scale-low: var(--color-sky-400, #38bdf8); --color-chart-scale-mid: var(--color-amber-500, #f59e0b); --color-chart-scale-high: var(--color-rose-600, #e11d48);
+			--color-chart-bollinger-upper: var(--color-sky-700, #0369a1);
+			--color-chart-bollinger-middle: var(--color-orange-700, #c2410c);
+			--color-chart-bollinger-lower: var(--color-rose-700, #be123c);
 		}
 		.dark .goshtoso-charts-palette-araihu,
 		.dark[data-theme="araihu"] .goshtoso-charts-palette-auto {
 			--color-chart-series-1: var(--color-lime-400, #c7ff4a);
 			--color-chart-scale-low: var(--color-cyan-700, #0e7490); --color-chart-scale-mid: var(--color-amber-400, #fbbf24); --color-chart-scale-high: var(--color-rose-400, #fb7185);
+			--color-chart-bollinger-upper: var(--color-sky-300, #7dd3fc);
+			--color-chart-bollinger-middle: var(--color-orange-300, #fdba74);
+			--color-chart-bollinger-lower: var(--color-rose-300, #fda4af);
 		}
 	</style>
 }

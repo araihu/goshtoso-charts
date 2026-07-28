@@ -36,6 +36,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/interactive/line", "Interactive line"},
 		{"/components/interactive/scatter", "Interactive scatter"},
 		{"/components/interactive/scatter-3d", "Interactive scatter 3D"},
+		{"/components/interactive/bar-3d", "Interactive bar 3D"},
 		{"/components/interactive/pie", "Interactive pie"},
 		{"/components/interactive/radar", "Interactive radar"},
 		{"/components/interactive/heatmap", "Interactive heatmap"},
@@ -581,6 +582,41 @@ func TestScatter3DDocumentationPreservesOfficialVariantsWithoutEngineBranding(t 
 	for _, want := range []string{"examples/scatter3d.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd", "Three-dimensional chart extension", "v2.0.9", "a3cb1c6bf0f6", "BSD-3-Clause"} {
 		if !strings.Contains(attributions, want) {
 			t.Errorf("central attributions missing Scatter3D evidence %q", want)
+		}
+	}
+}
+
+func TestBar3DDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/bar-3d", nil))
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("GET bar-3d status = %d", recorder.Code)
+	}
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Interactive bar 3D", "interactive.Bar3D", "components.KindInteractiveBar3D", "Interactive / 3D",
+		"basic bar3d example", "auto rotating", "rotating faster", "Bar3D-shading(lambert)",
+		"168 cells across 1 series", "Saturday", "Friday", "Thursday", "Wednesday", "Tuesday", "Monday", "Sunday",
+		"12a", "11a", "12p", "11p", "Bar3DPaletteColdToWarm", "Bar3DGridSize", "Bar3DShadingLambert",
+		`data-bar3d-variant="base"`, `data-bar3d-variant="auto-rotate"`, `data-bar3d-variant="faster"`, `data-bar3d-variant="lambert"`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("bar-3d documentation missing %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-echarts", "Apache ECharts", "echarts-gl", "operations", "infrastructure"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("bar-3d component page contains private or invented framing %q", unwanted)
+		}
+	}
+
+	recorder = httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	attributions := recorder.Body.String()
+	for _, want := range []string{"examples/bar3d.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd", "Three-dimensional chart extension", "v2.0.9", "a3cb1c6bf0f6", "BSD-3-Clause"} {
+		if !strings.Contains(attributions, want) {
+			t.Errorf("central attributions missing Bar3D evidence %q", want)
 		}
 	}
 }

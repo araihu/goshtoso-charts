@@ -3,7 +3,10 @@ package candlestick
 import (
 	"context"
 	"fmt"
+	"html"
 	"io"
+	"math"
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -47,7 +50,7 @@ func renderSVG(cfg Config) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("encode candlestick chart SVG: %w", err)
 	}
-	return tokenizedSVG(string(data)), nil
+	return decorateSVG(tokenizedSVG(string(data)), cfg), nil
 }
 
 func candlestickOptions(cfg Config) chart.CandlestickChartOption {
@@ -60,13 +63,57 @@ func candlestickOptions(cfg Config) chart.CandlestickChartOption {
 	options := chart.NewCandlestickOptionWithData(data)
 	options.Theme = tokenPalette()
 	options.Title.Text = cfg.Title
+	if cfg.Options.TitleFontSize > 0 {
+		options.Title.FontStyle = chart.NewFontStyleWithSize(cfg.Options.TitleFontSize)
+	}
 	options.XAxis.Labels = labels
 	options.XAxis.Title = cfg.XAxis.Title
 	options.YAxis[0].Title = cfg.YAxis.Title
+	options.YAxis[0].Unit = cfg.Options.YUnit
 	options.Legend.SeriesNames = []string{cfg.SeriesName}
-	options.Legend.Show = chart.Ptr(true)
+	options.Legend.Show = chart.Ptr(!cfg.Options.LegendHidden)
 	options.SeriesList[0].Name = cfg.SeriesName
+	options.SeriesList[0].CloseTrendLine = chartTrendLines(cfg.TrendLines)
+	if cfg.Options.Padding != (Padding{}) {
+		options.Padding = chart.NewBox(cfg.Options.Padding.Left, cfg.Options.Padding.Top, cfg.Options.Padding.Right, cfg.Options.Padding.Bottom)
+	}
 	return options
+}
+
+func chartTrendLines(trends []TrendLine) []chart.SeriesTrendLine {
+	result := make([]chart.SeriesTrendLine, len(trends))
+	for index, trend := range trends {
+		result[index] = chart.SeriesTrendLine{
+			Type:      chartTrendType(trend.Type),
+			Period:    trend.Period,
+			LineColor: trendSentinelColor(trend.Type),
+		}
+	}
+	return result
+}
+
+func chartTrendType(trendType TrendType) chart.SeriesTrendType {
+	switch trendType {
+	case TrendTypeBollingerUpper:
+		return chart.SeriesTrendTypeBollingerUpper
+	case TrendTypeSimpleMovingAverage:
+		return chart.SeriesTrendTypeSMA
+	case TrendTypeBollingerLower:
+		return chart.SeriesTrendTypeBollingerLower
+	default:
+		return chart.SeriesTrendType(trendType)
+	}
+}
+
+func trendSentinelColor(trendType TrendType) chart.Color {
+	value := uint8(5)
+	switch trendType {
+	case TrendTypeSimpleMovingAverage:
+		value = 6
+	case TrendTypeBollingerLower:
+		value = 7
+	}
+	return chart.Color{R: value, G: value, B: value, A: 255}
 }
 
 func tokenPalette() chart.ColorPalette {
@@ -97,7 +144,133 @@ func tokenizedSVG(svg string) string {
 	).Replace(svg)
 }
 
+var styledPath = regexp.MustCompile(`<path ([^>]*?)style="([^"]*)"/>`)
+
+func decorateSVG(svg string, cfg Config) string {
+	for _, trend := range cfg.TrendLines {
+		sentinel := trendSentinelCSS(trend.Type)
+		color := trendThemeColor(trend.Type)
+		if strings.TrimSpace(trend.Color) != "" {
+			color = trend.Color
+		}
+		svg = replaceStyledPaths(svg, sentinel, color, trend.Class)
+	}
+	svg = applyCandleStyle(svg, "var(--color-chart-increasing)", cfg.Options.Increasing)
+	svg = applyCandleStyle(svg, "var(--color-chart-decreasing)", cfg.Options.Decreasing)
+	return svg
+}
+
+func replaceStyledPaths(svg, sentinel, color, class string) string {
+	return styledPath.ReplaceAllStringFunc(svg, func(path string) string {
+		if !strings.Contains(path, sentinel) {
+			return path
+		}
+		path = strings.ReplaceAll(path, sentinel, html.EscapeString(color))
+		if class = strings.TrimSpace(class); class != "" {
+			path = strings.Replace(path, "<path ", `<path class="`+html.EscapeString(class)+`" `, 1)
+		}
+		return path
+	})
+}
+
+func applyCandleStyle(svg, token string, style CandleStyle) string {
+	color := token
+	if strings.TrimSpace(style.Color) != "" {
+		color = style.Color
+	}
+	return replaceStyledPaths(svg, token, color, style.Class)
+}
+
+func trendSentinelCSS(trendType TrendType) string {
+	value := 5
+	switch trendType {
+	case TrendTypeSimpleMovingAverage:
+		value = 6
+	case TrendTypeBollingerLower:
+		value = 7
+	}
+	return fmt.Sprintf("rgb(%d,%d,%d)", value, value, value)
+}
+
+func trendThemeColor(trendType TrendType) string {
+	switch trendType {
+	case TrendTypeBollingerUpper:
+		return "var(--color-chart-bollinger-upper)"
+	case TrendTypeSimpleMovingAverage:
+		return "var(--color-chart-bollinger-middle)"
+	case TrendTypeBollingerLower:
+		return "var(--color-chart-bollinger-lower)"
+	default:
+		return "var(--color-chart-series-1)"
+	}
+}
+
+type trendValue struct {
+	Type  TrendType
+	Value float64
+}
+
+func computedTrendValues(cfg Config) [][]trendValue {
+	closeValues := make([]float64, len(cfg.Data))
+	for index, datum := range cfg.Data {
+		closeValues[index] = datum.Close
+	}
+	rows := make([][]trendValue, len(cfg.Data))
+	for _, trend := range cfg.TrendLines {
+		values := centeredTrend(closeValues, trend)
+		for index, value := range values {
+			rows[index] = append(rows[index], trendValue{Type: trend.Type, Value: value})
+		}
+	}
+	return rows
+}
+
+func centeredTrend(values []float64, trend TrendLine) []float64 {
+	result := make([]float64, len(values))
+	halfWindow := trend.Period / 2
+	for index := range values {
+		start := max(0, index-halfWindow)
+		end := min(len(values)-1, index+halfWindow)
+		count := end - start + 1
+		var sum float64
+		for sample := start; sample <= end; sample++ {
+			sum += values[sample]
+		}
+		mean := sum / float64(count)
+		if trend.Type == TrendTypeSimpleMovingAverage {
+			result[index] = mean
+			continue
+		}
+		var variance float64
+		for sample := start; sample <= end; sample++ {
+			delta := values[sample] - mean
+			variance += delta * delta
+		}
+		offset := 2 * math.Sqrt(variance/float64(count))
+		if trend.Type == TrendTypeBollingerLower {
+			offset = -offset
+		}
+		result[index] = mean + offset
+	}
+	return result
+}
+
 func formatValue(value float64) string { return strconv.FormatFloat(value, 'f', -1, 64) }
+func formatTrendValue(value float64) string {
+	return strconv.FormatFloat(value, 'f', 6, 64)
+}
+func trendLabel(trendType TrendType) string {
+	switch trendType {
+	case TrendTypeBollingerUpper:
+		return "Bollinger upper"
+	case TrendTypeSimpleMovingAverage:
+		return "SMA middle"
+	case TrendTypeBollingerLower:
+		return "Bollinger lower"
+	default:
+		return string(trendType)
+	}
+}
 func direction(datum Datum) string {
 	if datum.Close >= datum.Open {
 		return "Increase"
@@ -109,6 +282,20 @@ func directionClass(datum Datum) string {
 		return "goshtoso-charts-candlestick__direction--increasing"
 	}
 	return "goshtoso-charts-candlestick__direction--decreasing"
+}
+
+func rowDirectionClass(cfg Config, datum Datum) string {
+	class := directionClass(datum)
+	if datum.Close >= datum.Open {
+		if cfg.Options.Increasing.Color == "" {
+			class += " " + strings.TrimSpace(cfg.Options.Increasing.Class)
+		}
+		return strings.TrimSpace(class)
+	}
+	if cfg.Options.Decreasing.Color == "" {
+		class += " " + strings.TrimSpace(cfg.Options.Decreasing.Class)
+	}
+	return strings.TrimSpace(class)
 }
 
 var _ chartcomponents.Component = Instance{}

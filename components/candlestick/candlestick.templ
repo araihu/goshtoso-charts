@@ -19,14 +19,20 @@ templ candlestickTemplate(cfg Config, chart templ.Component) {
 					<th class="px-3 py-2" scope="col">Period</th><th class="px-3 py-2" scope="col">Direction</th>
 					<th class="px-3 py-2" scope="col">Open</th><th class="px-3 py-2" scope="col">High</th>
 					<th class="px-3 py-2" scope="col">Low</th><th class="px-3 py-2" scope="col">Close</th>
+					for _, trend := range cfg.TrendLines {
+						<th class="px-3 py-2" scope="col">{ trendLabel(trend.Type) }</th>
+					}
 				</tr></thead>
 				<tbody>
-					for _, datum := range cfg.Data {
+					for index, datum := range cfg.Data {
 						<tr class="border-t border-outline dark:border-outline-dark">
 							<th class="px-3 py-2 font-semibold" scope="row">{ datum.Label }</th>
-							<td class="px-3 py-2 font-semibold"><span class={ directionClass(datum) } aria-hidden="true">●</span> { direction(datum) }</td>
+							<td class="px-3 py-2 font-semibold"><span class={ rowDirectionClass(cfg, datum) } aria-hidden="true">●</span> { direction(datum) }</td>
 							<td class="px-3 py-2 tabular-nums">{ formatValue(datum.Open) }</td><td class="px-3 py-2 tabular-nums">{ formatValue(datum.High) }</td>
 							<td class="px-3 py-2 tabular-nums">{ formatValue(datum.Low) }</td><td class="px-3 py-2 tabular-nums">{ formatValue(datum.Close) }</td>
+							for _, trend := range computedTrendValues(cfg)[index] {
+								<td class="px-3 py-2 tabular-nums">{ formatTrendValue(trend.Value) }</td>
+							}
 						</tr>
 					}
 				</tbody>

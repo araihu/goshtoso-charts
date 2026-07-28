@@ -151,6 +151,21 @@ nested-site check therefore cannot both accept one generated path spelling.
 The clean gate checks each root component template with `templ generate -check
 -f`, then runs `GOWORK=off templ generate -check` from `site`.
 
+## 2026-07-28: templ is pinned but not declared as a Go tool
+
+The modules require `github.com/a-h/templ` v0.3.1020, but neither module has a
+Go `tool` directive. `go tool templ generate` therefore fails with
+`go: no such tool "templ"` even when the matching binary exists in `GOPATH/bin`.
+Use the pinned `templ` binary directly for root and nested-site generation.
+
+## 2026-07-28: modal geometry settles after its scale transition
+
+Goshtoso Modal reports its full computed width and height immediately after
+opening while its bounding rectangle remains at the transition's intermediate
+scale. Browser geometry gates must wait for the 200 ms transition plus its
+100 ms delay before asserting large-panel ratios. Renderer instance and
+ResizeObserver convergence checks remain independent of that visual delay.
+
 ## 2026-07-28: Modal has no component-content slot
 
 Goshtoso v0.0.13 `modal.Config` accepts `Body` text but no `templ.Component`

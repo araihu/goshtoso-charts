@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/araihu/goshtoso-charts/components/candlestick"
 	"github.com/araihu/goshtoso-charts/components/interactive"
 	"github.com/araihu/goshtoso-charts/components/pie"
 )
@@ -115,6 +116,41 @@ func TestBasicFunnelDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 	for index, stage := range cfg.Stages {
 		if stage.Label != wantLabels[index] || stage.Value != wantValues[index] {
 			t.Fatalf("stage %d = (%q, %g), want (%q, %g)", index, stage.Label, stage.Value, wantLabels[index], wantValues[index])
+		}
+	}
+}
+
+func TestStaticCandlestickBollingerDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if staticCandlestickBollingerUpstreamPath != "examples/1-Painter/candlestick_chart-3-bollinger_bands/main.go" ||
+		staticCandlestickBollingerUpstreamRevision != "1fe31b06b8a82e00df877ff4417a75858547c1c2" ||
+		staticCandlestickBollingerUpstreamSHA256 != "cc3b347d5faea1a15ca22554dcc46a35beed74e49da56701659a1a7d1f000202" {
+		t.Fatalf("Bollinger upstream source = %s@%s (%s)", staticCandlestickBollingerUpstreamPath, staticCandlestickBollingerUpstreamRevision, staticCandlestickBollingerUpstreamSHA256)
+	}
+	cfg := sampleCandlestickBollingerBands()
+	if cfg.Title != "Candlestick Chart with Bollinger Bands" || cfg.Width != 800 || cfg.Height != 600 ||
+		cfg.Options.TitleFontSize != 18 || cfg.Options.YUnit != 1 ||
+		cfg.Options.Padding != (candlestick.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20}) {
+		t.Fatalf("Bollinger presentation drifted: %#v", cfg)
+	}
+	if len(cfg.Data) != 20 || len(cfg.TrendLines) != 3 {
+		t.Fatalf("Bollinger shape = %d data / %d trends", len(cfg.Data), len(cfg.TrendLines))
+	}
+	hash := sha256.New()
+	for _, datum := range cfg.Data {
+		fmt.Fprintf(hash, "%s|%g|%g|%g|%g\n", datum.Label, datum.Open, datum.High, datum.Low, datum.Close)
+	}
+	if got := fmt.Sprintf("%x", hash.Sum(nil)); got != "fc218c7fedf84c7ac739016015e2508439a9a31d2c68a46fa1bfa84dc0e8f1ef" {
+		t.Fatalf("normalized pinned Bollinger OHLC SHA-256 = %s", got)
+	}
+	wantTypes := []candlestick.TrendType{
+		candlestick.TrendTypeBollingerUpper,
+		candlestick.TrendTypeSimpleMovingAverage,
+		candlestick.TrendTypeBollingerLower,
+	}
+	for index, trend := range cfg.TrendLines {
+		if trend.Type != wantTypes[index] || trend.Period != 5 {
+			t.Fatalf("Bollinger trend %d = %#v", index, trend)
 		}
 	}
 }
