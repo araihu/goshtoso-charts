@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/a-h/templ"
+	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
 
 const maxPoints = 300
@@ -48,6 +49,8 @@ type Config struct {
 	RootClass string
 	// RootAttrs appends HTML attributes to the figure.
 	RootAttrs templ.Attributes
+	// Style selects state colors and appends chart-specific root classes.
+	Style charttheme.Style
 }
 
 func (cfg Config) validate() error {
@@ -86,7 +89,7 @@ func (state State) valid() bool {
 func (cfg Config) rootClasses() string {
 	base := "block w-full"
 	if class := strings.TrimSpace(cfg.RootClass); class != "" {
-		return base + " " + class
+		base += " " + class
 	}
-	return base
+	return cfg.Style.RootClasses(base)
 }

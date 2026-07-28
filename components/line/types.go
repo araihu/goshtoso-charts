@@ -1,7 +1,11 @@
 // Package line renders accessible server-side SVG line charts.
 package line
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/araihu/goshtoso-charts/components/charttheme"
+)
 
 // Series is one labeled sequence of values. Values must align with Config.Labels.
 type Series struct {
@@ -21,6 +25,7 @@ type Config struct {
 	Series  []Series
 	Width   int
 	Height  int
+	Style   charttheme.Style
 }
 
 func (cfg Config) validate() error {

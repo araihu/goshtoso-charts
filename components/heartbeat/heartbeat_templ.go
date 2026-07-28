@@ -9,6 +9,7 @@ import "github.com/a-h/templ"
 import templruntime "github.com/a-h/templ/runtime"
 
 import "fmt"
+import "github.com/araihu/goshtoso-charts/components/charttheme"
 
 func heartbeatTemplate(cfg Config, points []renderPoint, summary string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
@@ -31,6 +32,10 @@ func heartbeatTemplate(cfg Config, points []renderPoint, summary string) templ.C
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = charttheme.Styles().Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
 		var templ_7745c5c3_Var2 = []any{cfg.rootClasses()}
 		templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var2...)
 		if templ_7745c5c3_Err != nil {
@@ -56,7 +61,7 @@ func heartbeatTemplate(cfg Config, points []renderPoint, summary string) templ.C
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/heartbeat/heartbeat.templ`, Line: 6, Col: 70}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/heartbeat/heartbeat.templ`, Line: 8, Col: 70}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
@@ -92,7 +97,7 @@ func heartbeatTemplate(cfg Config, points []renderPoint, summary string) templ.C
 				var templ_7745c5c3_Var5 string
 				templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(point.Title)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/heartbeat/heartbeat.templ`, Line: 13, Col: 26}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/heartbeat/heartbeat.templ`, Line: 15, Col: 26}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 				if templ_7745c5c3_Err != nil {
@@ -105,7 +110,7 @@ func heartbeatTemplate(cfg Config, points []renderPoint, summary string) templ.C
 				var templ_7745c5c3_Var6 string
 				templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(point.X))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/heartbeat/heartbeat.templ`, Line: 14, Col: 35}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/heartbeat/heartbeat.templ`, Line: 16, Col: 35}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 				if templ_7745c5c3_Err != nil {
@@ -118,7 +123,7 @@ func heartbeatTemplate(cfg Config, points []renderPoint, summary string) templ.C
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(fmt.Sprint(point.Width))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/heartbeat/heartbeat.templ`, Line: 14, Col: 75}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/heartbeat/heartbeat.templ`, Line: 16, Col: 75}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 				if templ_7745c5c3_Err != nil {
@@ -131,7 +136,7 @@ func heartbeatTemplate(cfg Config, points []renderPoint, summary string) templ.C
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(point.Fill)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/heartbeat/heartbeat.templ`, Line: 14, Col: 114}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/heartbeat/heartbeat.templ`, Line: 16, Col: 114}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 				if templ_7745c5c3_Err != nil {
@@ -154,7 +159,7 @@ func heartbeatTemplate(cfg Config, points []renderPoint, summary string) templ.C
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(summary)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/heartbeat/heartbeat.templ`, Line: 19, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/heartbeat/heartbeat.templ`, Line: 21, Col: 86}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {

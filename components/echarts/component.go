@@ -8,6 +8,7 @@ import (
 
 	"github.com/a-h/templ"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/charttheme"
 	"github.com/go-echarts/go-echarts/v2/render"
 )
 
@@ -19,6 +20,7 @@ type Config struct {
 	Label   string
 	Caption string
 	Chart   render.Renderer
+	Style   charttheme.Style
 }
 
 // Instance is a renderable interactive go-echarts figure.

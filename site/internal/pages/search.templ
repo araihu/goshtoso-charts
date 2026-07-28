@@ -1,0 +1,47 @@
+package pages
+
+templ docsSearch(entries []searchEntry) {
+	<div class="relative shrink-0 px-4 py-3" data-docs-search>
+		<label class="sr-only" for="docs-search">Search documentation</label>
+		<div class="relative">
+			<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" stroke="currentColor" fill="none" stroke-width="2" class="absolute left-2.5 top-1/2 size-4 -translate-y-1/2 text-on-surface-muted dark:text-on-surface-dark-muted" aria-hidden="true">
+				<path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z"></path>
+			</svg>
+			<input
+				id="docs-search"
+				type="search"
+				class="w-full rounded-radius border border-outline bg-surface py-1.5 pl-9 pr-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-outline-dark dark:bg-surface-dark/50 dark:focus-visible:outline-primary-dark"
+				name="docs-search"
+				placeholder="Search docs..."
+				autocomplete="off"
+				role="combobox"
+				aria-autocomplete="list"
+				aria-controls="docs-search-results"
+				aria-expanded="false"
+			/>
+		</div>
+		<div id="docs-search-results" class="absolute left-4 right-4 z-50 mt-1 max-h-80 overflow-y-auto rounded-radius border border-outline bg-surface p-1 shadow-lg dark:border-outline-dark dark:bg-surface-dark" role="listbox" data-docs-search-results hidden>
+			<p class="px-3 py-2 text-sm text-on-surface-muted dark:text-on-surface-dark-muted" data-docs-search-empty hidden>No documentation found.</p>
+			for _, entry := range entries {
+				<a
+					href={ templ.URL(entry.Href) }
+					hx-get={ entry.Href }
+					hx-target="#main-content"
+					hx-push-url="true"
+					class="block rounded-sm px-3 py-2 text-sm hover:bg-surface-alt focus:bg-surface-alt focus:outline-none dark:hover:bg-surface-dark-alt dark:focus:bg-surface-dark-alt"
+					role="option"
+					tabindex="-1"
+					data-docs-search-item
+					data-search={ entry.Terms }
+				>
+					<span class="block font-medium text-on-surface-strong dark:text-on-surface-dark-strong">{ entry.Label }</span>
+					<span class="block text-xs text-on-surface-muted dark:text-on-surface-dark-muted">{ entry.Category }</span>
+				</a>
+			}
+		</div>
+	</div>
+}
+
+templ docsSearchRuntime() {
+	<script src="/search/assets/search.js"></script>
+}

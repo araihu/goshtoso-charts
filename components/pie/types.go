@@ -1,7 +1,11 @@
 // Package pie renders accessible server-side SVG pie charts.
 package pie
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/araihu/goshtoso-charts/components/charttheme"
+)
 
 // Slice is one named proportional value in a pie chart.
 type Slice struct {
@@ -19,6 +23,7 @@ type Config struct {
 	Slices  []Slice
 	Width   int
 	Height  int
+	Style   charttheme.Style
 }
 
 func (cfg Config) validate() error {

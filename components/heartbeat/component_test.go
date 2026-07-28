@@ -8,6 +8,7 @@ import (
 	"time"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
 
 func TestHeartbeatRendersSemanticStatusHistory(t *testing.T) {
@@ -32,6 +33,25 @@ func TestHeartbeatRendersSemanticStatusHistory(t *testing.T) {
 	for _, want := range []string{"<svg", "var(--color-success)", "var(--color-warning)", "var(--color-danger)", "2026-07-27T12:00:00Z: up (42ms)", "3 checks: 1 up, 1 degraded, 1 down, 0 unknown."} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q:\n%s", want, markup)
+		}
+	}
+}
+
+func TestHeartbeatAllowsExplicitStateColors(t *testing.T) {
+	t.Parallel()
+	base := time.Date(2026, time.July, 27, 12, 0, 0, 0, time.UTC)
+	var output bytes.Buffer
+	err := Heartbeat(Config{
+		Label:  "Custom states",
+		Points: []Point{{At: base, State: StateUp}, {At: base.Add(time.Minute), State: StateDown}},
+		Style:  charttheme.Style{Colors: []string{"#112233", "", "#abcdef"}, Class: "rounded-lg"},
+	}).Render(context.Background(), &output)
+	if err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	for _, want := range []string{"#112233", "#abcdef", "rounded-lg"} {
+		if !strings.Contains(output.String(), want) {
+			t.Errorf("markup missing %q", want)
 		}
 	}
 }

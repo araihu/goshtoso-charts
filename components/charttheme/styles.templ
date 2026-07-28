@@ -1,0 +1,58 @@
+package charttheme
+
+templ Styles() {
+	<style>
+		.goshtoso-charts-palette {
+			--goshtoso-charts-surface: var(--color-surface);
+			--goshtoso-charts-outline: var(--color-outline);
+			--goshtoso-charts-grid: color-mix(in srgb, var(--color-outline) 65%, var(--color-surface) 35%);
+			--goshtoso-charts-text: var(--color-on-surface);
+			--goshtoso-charts-series-1: #2563eb;
+			--goshtoso-charts-series-2: #dc2626;
+			--goshtoso-charts-series-3: #16a34a;
+			--goshtoso-charts-series-4: #d97706;
+			--goshtoso-charts-series-5: #7c3aed;
+			--goshtoso-charts-series-6: #0891b2;
+			--goshtoso-charts-series-7: #db2777;
+			--goshtoso-charts-series-8: #65a30d;
+		}
+		.dark .goshtoso-charts-palette {
+			--goshtoso-charts-surface: var(--color-surface-dark);
+			--goshtoso-charts-outline: var(--color-outline-dark);
+			--goshtoso-charts-grid: color-mix(in srgb, var(--color-outline-dark) 65%, var(--color-surface-dark) 35%);
+			--goshtoso-charts-text: var(--color-on-surface-dark);
+		}
+		.dark .goshtoso-charts-palette-auto,
+		.dark .goshtoso-charts-palette-bold {
+			--goshtoso-charts-series-1: #60a5fa; --goshtoso-charts-series-2: #f87171;
+			--goshtoso-charts-series-3: #4ade80; --goshtoso-charts-series-4: #fbbf24;
+			--goshtoso-charts-series-5: #a78bfa; --goshtoso-charts-series-6: #22d3ee;
+			--goshtoso-charts-series-7: #f472b6; --goshtoso-charts-series-8: #a3e635;
+		}
+		.goshtoso-charts-palette-neutral {
+			--goshtoso-charts-series-1: #111827; --goshtoso-charts-series-2: #374151;
+			--goshtoso-charts-series-3: #4b5563; --goshtoso-charts-series-4: #6b7280;
+			--goshtoso-charts-series-5: #9ca3af; --goshtoso-charts-series-6: #d1d5db;
+			--goshtoso-charts-series-7: #78716c; --goshtoso-charts-series-8: #a8a29e;
+		}
+		.dark .goshtoso-charts-palette-neutral {
+			--goshtoso-charts-series-1: #f9fafb; --goshtoso-charts-series-2: #e5e7eb;
+			--goshtoso-charts-series-3: #d1d5db; --goshtoso-charts-series-4: #9ca3af;
+			--goshtoso-charts-series-5: #6b7280; --goshtoso-charts-series-6: #4b5563;
+			--goshtoso-charts-series-7: #d6d3d1; --goshtoso-charts-series-8: #a8a29e;
+		}
+		.goshtoso-charts-palette-pastel {
+			--goshtoso-charts-series-1: #93c5fd; --goshtoso-charts-series-2: #fca5a5;
+			--goshtoso-charts-series-3: #86efac; --goshtoso-charts-series-4: #fcd34d;
+			--goshtoso-charts-series-5: #c4b5fd; --goshtoso-charts-series-6: #67e8f9;
+			--goshtoso-charts-series-7: #f9a8d4; --goshtoso-charts-series-8: #bef264;
+		}
+		.goshtoso-charts-palette-araihu,
+		[data-theme="araihu"] .goshtoso-charts-palette-auto {
+			--goshtoso-charts-series-1: #c7ff4a; --goshtoso-charts-series-2: #ff8a3d;
+			--goshtoso-charts-series-3: #ef476f; --goshtoso-charts-series-4: #4cc9f0;
+			--goshtoso-charts-series-5: #9b5de5; --goshtoso-charts-series-6: #ffd166;
+			--goshtoso-charts-series-7: #f15bb5; --goshtoso-charts-series-8: #00b8a9;
+		}
+	</style>
+}

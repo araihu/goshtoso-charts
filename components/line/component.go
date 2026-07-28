@@ -3,11 +3,13 @@ package line
 import (
 	"context"
 	"fmt"
+	"html"
 	"io"
 	"strings"
 
 	"github.com/a-h/templ"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/charttheme"
 	chart "github.com/go-analyze/charts"
 )
 
@@ -66,7 +68,7 @@ func renderSVG(cfg Config) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("encode line chart SVG: %w", err)
 	}
-	return tokenizedSVG(string(data)), nil
+	return tokenizedSVG(string(data), cfg.Style), nil
 }
 
 // tokenPalette uses unique placeholder colors that become Goshtoso CSS tokens
@@ -93,21 +95,25 @@ func tokenPalette() chart.ColorPalette {
 			{R: 8, G: 8, B: 8, A: 255},
 			{R: 9, G: 9, B: 9, A: 255},
 			{R: 10, G: 10, B: 10, A: 255},
+			{R: 11, G: 11, B: 11, A: 255},
+			{R: 12, G: 12, B: 12, A: 255},
 		})
 }
 
-func tokenizedSVG(svg string) string {
+func tokenizedSVG(svg string, style charttheme.Style) string {
 	replacer := strings.NewReplacer(
 		"rgb(1,1,1)", "var(--goshtoso-charts-surface)",
 		"rgb(2,2,2)", "var(--goshtoso-charts-outline)",
 		"rgb(3,3,3)", "var(--goshtoso-charts-grid)",
 		"rgb(4,4,4)", "var(--goshtoso-charts-text)",
-		"rgb(5,5,5)", "var(--goshtoso-charts-primary)",
-		"rgb(6,6,6)", "var(--goshtoso-charts-success)",
-		"rgb(7,7,7)", "var(--goshtoso-charts-secondary)",
-		"rgb(8,8,8)", "var(--goshtoso-charts-info)",
-		"rgb(9,9,9)", "var(--goshtoso-charts-warning)",
-		"rgb(10,10,10)", "var(--goshtoso-charts-danger)",
+		"rgb(5,5,5)", html.EscapeString(style.SeriesColor(0)),
+		"rgb(6,6,6)", html.EscapeString(style.SeriesColor(1)),
+		"rgb(7,7,7)", html.EscapeString(style.SeriesColor(2)),
+		"rgb(8,8,8)", html.EscapeString(style.SeriesColor(3)),
+		"rgb(9,9,9)", html.EscapeString(style.SeriesColor(4)),
+		"rgb(10,10,10)", html.EscapeString(style.SeriesColor(5)),
+		"rgb(11,11,11)", html.EscapeString(style.SeriesColor(6)),
+		"rgb(12,12,12)", html.EscapeString(style.SeriesColor(7)),
 		"'Roboto Medium',sans-serif", "var(--font-paragraph), sans-serif",
 	)
 	return replacer.Replace(svg)

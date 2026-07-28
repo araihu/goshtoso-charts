@@ -7,6 +7,7 @@ import (
 	"time"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
 
 const chartWidth = 600
@@ -31,7 +32,7 @@ func (instance Instance) Render(ctx context.Context, writer io.Writer) error {
 	if err := instance.cfg.validate(); err != nil {
 		return err
 	}
-	return heartbeatTemplate(instance.cfg, makeRenderPoints(instance.cfg.Points), instance.summary()).Render(ctx, writer)
+	return heartbeatTemplate(instance.cfg, makeRenderPoints(instance.cfg.Points, instance.cfg.Style), instance.summary()).Render(ctx, writer)
 }
 
 type renderPoint struct {
@@ -41,7 +42,7 @@ type renderPoint struct {
 	Title string
 }
 
-func makeRenderPoints(points []Point) []renderPoint {
+func makeRenderPoints(points []Point, style charttheme.Style) []renderPoint {
 	if len(points) == 0 {
 		return nil
 	}
@@ -53,24 +54,31 @@ func makeRenderPoints(points []Point) []renderPoint {
 		result = append(result, renderPoint{
 			X:     index * (width + gap),
 			Width: width,
-			Fill:  point.fill(),
+			Fill:  point.fill(style),
 			Title: point.title(),
 		})
 	}
 	return result
 }
 
-func (point Point) fill() string {
+func (point Point) fill(style charttheme.Style) string {
 	switch point.State {
 	case StateUp:
-		return "var(--color-success)"
+		return stateColor(style, 0, "var(--color-success)")
 	case StateDegraded:
-		return "var(--color-warning)"
+		return stateColor(style, 1, "var(--color-warning)")
 	case StateDown:
-		return "var(--color-danger)"
+		return stateColor(style, 2, "var(--color-danger)")
 	default:
-		return "var(--color-outline)"
+		return stateColor(style, 3, "var(--color-outline)")
 	}
+}
+
+func stateColor(style charttheme.Style, index int, fallback string) string {
+	if index < len(style.Colors) && style.Colors[index] != "" {
+		return style.Colors[index]
+	}
+	return fallback
 }
 
 func (point Point) title() string {

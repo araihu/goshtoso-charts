@@ -1,8 +1,10 @@
 package heartbeat
 
 import "fmt"
+import "github.com/araihu/goshtoso-charts/components/charttheme"
 
 templ heartbeatTemplate(cfg Config, points []renderPoint, summary string) {
+	@charttheme.Styles()
 	<figure class={ cfg.rootClasses() } role="img" aria-label={ cfg.Label } { cfg.RootAttrs... }>
 		if len(points) == 0 {
 			<div class="rounded-radius border border-dashed border-outline px-4 py-3 text-sm text-on-surface dark:border-outline-dark dark:text-on-surface-dark">No monitoring data in this period.</div>

@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/charttheme"
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
 )
@@ -34,6 +35,7 @@ func TestBarRendersConfiguredChart(t *testing.T) {
 		SeriesOptions: []charts.SeriesOpts{
 			charts.WithLabelOpts(opts.Label{Show: opts.Bool(true)}),
 		},
+		Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
 	})
 
 	if instance.Kind() != chartcomponents.KindEChartsBar {
@@ -53,6 +55,8 @@ func TestBarRendersConfiguredChart(t *testing.T) {
 		`"stack":"revenue"`,
 		`"show":true`,
 		`"text":"Revenue"`,
+		`"color":["#123456","#ff8a3d"`,
+		"goshtoso-charts-palette-araihu min-h-80",
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

@@ -1,29 +1,10 @@
 package pie
 
+import "github.com/araihu/goshtoso-charts/components/charttheme"
+
 templ pieTemplate(cfg Config, chart templ.Component) {
-	<style>
-		.goshtoso-charts-pie {
-			--goshtoso-charts-surface: var(--color-surface);
-			--goshtoso-charts-outline: var(--color-outline);
-			--goshtoso-charts-grid: color-mix(in srgb, var(--color-outline) 65%, var(--color-surface) 35%);
-			--goshtoso-charts-text: var(--color-on-surface);
-			--goshtoso-charts-primary: var(--color-primary);
-			--goshtoso-charts-success: var(--color-success);
-			--goshtoso-charts-secondary: var(--color-secondary);
-			--goshtoso-charts-info: var(--color-info);
-			--goshtoso-charts-warning: var(--color-warning);
-			--goshtoso-charts-danger: var(--color-danger);
-		}
-		.dark .goshtoso-charts-pie {
-			--goshtoso-charts-surface: var(--color-surface-dark);
-			--goshtoso-charts-outline: var(--color-outline-dark);
-			--goshtoso-charts-grid: color-mix(in srgb, var(--color-outline-dark) 65%, var(--color-surface-dark) 35%);
-			--goshtoso-charts-text: var(--color-on-surface-dark);
-			--goshtoso-charts-primary: var(--color-primary-dark);
-			--goshtoso-charts-secondary: var(--color-secondary-dark);
-		}
-	</style>
-	<figure class="goshtoso-charts-pie" role="img" aria-label={ cfg.Label }>
+	@charttheme.Styles()
+	<figure class={ cfg.Style.RootClasses("goshtoso-charts-pie") } role="img" aria-label={ cfg.Label }>
 		@chart
 		if cfg.Caption != "" {
 			<figcaption class="mt-2 text-sm text-on-surface dark:text-on-surface-dark">{ cfg.Caption }</figcaption>

@@ -19,7 +19,41 @@ go get github.com/araihu/goshtoso-charts
 
 Every chart follows Goshtoso component shape: a typed `Config`, concrete `Instance`, stable `Kind()`, and `templ.Component` rendering. Extension-owned kinds live in `github.com/araihu/goshtoso-charts/components`; they deliberately do not modify Goshtoso's core kind registry.
 
-Charts use Goshtoso semantic CSS tokens (`--color-success`, `--color-warning`, `--color-danger`, and neutral outline) so all Goshtoso themes remain in control.
+Chart surfaces use Goshtoso tokens. Categorical series use chart-specific tokens
+(`--goshtoso-charts-series-1` through `--goshtoso-charts-series-8`) so a theme's
+small semantic palette does not make unrelated series look equivalent.
+
+## Chart palettes
+
+Default `charttheme.PaletteAuto` detects AraiHu in SSR markup and adds a warm,
+contrasting palette around its lime accent. Themes without chart CSS receive the
+high-contrast Bold fallback. Neutral and Pastel fallbacks are also built in.
+
+```go
+import "github.com/araihu/goshtoso-charts/components/charttheme"
+
+style := charttheme.Style{
+	Palette: charttheme.PalettePastel,
+	Class:   "rounded-lg ring-1", // Tailwind utilities or an application class
+}
+```
+
+Pass `Style: style` to SSR or typed interactive configs. Explicit ordered colors
+have highest priority:
+
+```go
+Style: charttheme.Style{
+	Palette: charttheme.PaletteAraiHu,
+	Colors:  []string{"#2563eb", "oklch(70% 0.19 25)"},
+	Class:   "my-chart",
+},
+```
+
+Application CSS may target `my-chart` and override any
+`--goshtoso-charts-series-*` token. Heartbeat keeps semantic status colors by
+default; its `Colors` order is up, degraded, down, unknown. Interactive canvas
+charts cannot reliably consume CSS custom properties, so Auto uses Bold there;
+choose `PaletteAraiHu` when an interactive chart must match AraiHu explicitly.
 
 ## Heartbeat
 
@@ -76,7 +110,9 @@ templ SignupTrend() {
 }
 ```
 
-Line charts render their SVG geometry on the server but resolve their surface, outline, text, and series colors from Goshtoso semantic CSS tokens at display time. They therefore follow every built-in Goshtoso theme and `.dark` mode without a browser chart renderer or a fresh response.
+Line charts render SVG geometry on the server, then resolve surfaces from
+Goshtoso tokens and series from chart tokens at display time. They follow theme
+and `.dark` surface changes without browser rendering or a fresh response.
 
 ## Bar chart
 

@@ -9,6 +9,7 @@ import (
 	"github.com/araihu/goshtoso-charts/site/internal/echartsassets"
 	"github.com/araihu/goshtoso-charts/site/internal/echartsexamples"
 	"github.com/araihu/goshtoso-charts/site/internal/pages"
+	"github.com/araihu/goshtoso-charts/site/internal/searchassets"
 	"github.com/araihu/goshtoso/assets"
 )
 
@@ -19,6 +20,7 @@ func New() http.Handler {
 	mux.Handle("GET /brand/", http.StripPrefix("/brand/", brand.Handler()))
 	mux.Handle("GET /charts/echarts/", http.StripPrefix("/charts/echarts/", echartsassets.Handler()))
 	mux.Handle("GET /componentdocshell/assets/", shellassets.Handler())
+	mux.Handle("GET /search/assets/", http.StripPrefix("/search/assets/", searchassets.Handler()))
 	mux.HandleFunc("GET /", func(writer http.ResponseWriter, request *http.Request) {
 		if request.URL.Path != "/" {
 			http.NotFound(writer, request)

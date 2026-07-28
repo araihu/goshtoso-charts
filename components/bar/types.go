@@ -1,7 +1,11 @@
 // Package bar renders accessible server-side SVG bar charts.
 package bar
 
-import "fmt"
+import (
+	"fmt"
+
+	"github.com/araihu/goshtoso-charts/components/charttheme"
+)
 
 // Series is one named sequence of values aligned with Config.Labels.
 type Series struct {
@@ -18,6 +22,7 @@ type Config struct {
 	Stacked bool
 	Width   int
 	Height  int
+	Style   charttheme.Style
 }
 
 func (cfg Config) validate() error {

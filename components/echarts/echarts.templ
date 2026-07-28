@@ -1,7 +1,10 @@
 package echarts
 
+import "github.com/araihu/goshtoso-charts/components/charttheme"
+
 templ echartTemplate(cfg Config, element templ.Component, script templ.Component) {
-	<figure class="goshtoso-charts-echarts" role="img" aria-label={ cfg.Label }>
+	@charttheme.Styles()
+	<figure class={ cfg.Style.RootClasses("goshtoso-charts-echarts") } role="img" aria-label={ cfg.Label }>
 		@element
 		@script
 		if cfg.Caption != "" {

@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/charttheme"
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
 )
@@ -21,6 +22,7 @@ type LineConfig struct {
 	Height        string
 	GlobalOptions []charts.GlobalOpts
 	SeriesOptions []charts.SeriesOpts
+	Style         charttheme.Style
 }
 
 // LineSeries describes one named line series.
@@ -37,7 +39,11 @@ func Line(cfg LineConfig) Instance {
 	}
 
 	chart := charts.NewLine()
-	globalOptions := cfg.GlobalOptions
+	globalOptions := []charts.GlobalOpts{charts.WithColorsOpts(opts.Colors(cfg.Style.ResolvedColors()))}
+	globalOptions = append(globalOptions, cfg.GlobalOptions...)
+	if len(cfg.Style.Colors) > 0 {
+		globalOptions = append(globalOptions, charts.WithColorsOpts(opts.Colors(cfg.Style.ResolvedColors())))
+	}
 	if cfg.Width != "" || cfg.Height != "" {
 		globalOptions = append([]charts.GlobalOpts{
 			charts.WithInitializationOpts(opts.Initialization{
@@ -59,6 +65,7 @@ func Line(cfg LineConfig) Instance {
 		Label:   cfg.Label,
 		Caption: cfg.Caption,
 		Chart:   chart,
+		Style:   cfg.Style,
 	})
 }
 
