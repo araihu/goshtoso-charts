@@ -67,6 +67,29 @@ func TestScatterRendersValueAxisCoordinates(t *testing.T) {
 	}
 }
 
+func TestScatterRendersEffectVariantWithSameKind(t *testing.T) {
+	t.Parallel()
+	instance := Scatter(ScatterConfig{
+		Label: "Release impact", Variant: ScatterVariantEffect,
+		XAxis:  []string{"v1", "v2"},
+		Series: []ScatterSeries{{Name: "Impact", Data: []opts.ScatterData{{Value: 35}, {Value: 91}}}},
+		Ripple: &opts.RippleEffect{Period: 4, Scale: 8, BrushType: "stroke"},
+	})
+	if instance.Kind() != chartcomponents.KindEChartsScatter {
+		t.Fatalf("Kind() = %q, want unified scatter kind", instance.Kind())
+	}
+	var output bytes.Buffer
+	if err := instance.Render(context.Background(), &output); err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	markup := output.String()
+	for _, want := range []string{`"type":"effectScatter"`, `"period":4`, `"scale":8`, `"brushType":"stroke"`} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("effect variant markup missing %q", want)
+		}
+	}
+}
+
 func TestScatterRejectsInvalidDataContract(t *testing.T) {
 	t.Parallel()
 	tests := map[string]struct {
@@ -81,6 +104,8 @@ func TestScatterRejectsInvalidDataContract(t *testing.T) {
 		"missing data":             {cfg: ScatterConfig{XAxis: []string{"A"}, Series: []ScatterSeries{{Name: "Events"}}}, wantError: `scatter chart series "Events" data is required`},
 		"misaligned categories":    {cfg: ScatterConfig{XAxis: []string{"A", "B"}, Series: []ScatterSeries{{Name: "Events", Data: []opts.ScatterData{{Value: 1}}}}}, wantError: `scatter chart series "Events" has 1 data points for 2 x-axis categories`},
 		"invalid coordinate":       {cfg: ScatterConfig{XAxisType: CartesianAxisValue, Series: []ScatterSeries{{Name: "Events", Data: []opts.ScatterData{{Value: []float64{1}}}}}}, wantError: `scatter chart series "Events" data point 0 must contain a numeric [x, y] coordinate`},
+		"unsupported variant":      {cfg: ScatterConfig{Variant: "pulse"}, wantError: `scatter chart variant "pulse" is not supported`},
+		"ripple without effect":    {cfg: ScatterConfig{Ripple: &opts.RippleEffect{}}, wantError: "scatter chart ripple requires the effect variant"},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {

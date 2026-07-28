@@ -9,6 +9,16 @@ import (
 	"github.com/go-echarts/go-echarts/v2/opts"
 )
 
+// ScatterVariant selects the scatter renderer without changing the component contract.
+type ScatterVariant string
+
+const (
+	// ScatterVariantStandard renders ordinary scatter points. It is the default.
+	ScatterVariantStandard ScatterVariant = ""
+	// ScatterVariantEffect adds an animated ripple around points.
+	ScatterVariantEffect ScatterVariant = "effect"
+)
+
 // ScatterConfig describes an accessible, browser-rendered scatter chart.
 //
 // Category axes use XAxis and one scalar value per category. Value axes leave
@@ -18,6 +28,7 @@ import (
 type ScatterConfig struct {
 	Label         string
 	Caption       string
+	Variant       ScatterVariant
 	XAxisType     CartesianAxisType
 	XAxis         []string
 	Series        []ScatterSeries
@@ -25,7 +36,9 @@ type ScatterConfig struct {
 	Height        string
 	GlobalOptions []charts.GlobalOpts
 	SeriesOptions []charts.SeriesOpts
-	Style         charttheme.Style
+	// Ripple configures the effect variant for every series. Per-series Options run after it.
+	Ripple *opts.RippleEffect
+	Style  charttheme.Style
 }
 
 // ScatterSeries describes one named scatter series.
@@ -41,7 +54,6 @@ func Scatter(cfg ScatterConfig) Instance {
 		return newInvalidInstance(chartcomponents.KindEChartsScatter, err)
 	}
 
-	chart := charts.NewScatter()
 	globalOptions := []charts.GlobalOpts{
 		charts.WithColorsOpts(opts.Colors(cfg.Style.ResolvedColors())),
 		charts.WithXAxisOpts(opts.XAxis{Type: string(resolvedCartesianAxisType(cfg.XAxisType))}),
@@ -56,23 +68,53 @@ func Scatter(cfg ScatterConfig) Instance {
 			charts.WithInitializationOpts(opts.Initialization{Width: cfg.Width, Height: cfg.Height}),
 		}, globalOptions...)
 	}
+	if cfg.Variant == ScatterVariantEffect {
+		chart := charts.NewEffectScatter()
+		chart.SetGlobalOptions(globalOptions...)
+		if resolvedCartesianAxisType(cfg.XAxisType) == CartesianAxisCategory {
+			chart.SetXAxis(cfg.XAxis)
+		}
+		for _, series := range cfg.Series {
+			data := make([]opts.EffectScatterData, len(series.Data))
+			for index, point := range series.Data {
+				data[index] = opts.EffectScatterData{Name: point.Name, Value: point.Value}
+			}
+			chart.AddSeries(series.Name, data, scatterSeriesOptions(cfg, series)...)
+		}
+		return newInstance(chartcomponents.KindEChartsScatter, Config{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style})
+	}
+
+	chart := charts.NewScatter()
 	chart.SetGlobalOptions(globalOptions...)
 	if resolvedCartesianAxisType(cfg.XAxisType) == CartesianAxisCategory {
 		chart.SetXAxis(cfg.XAxis)
 	}
 	for _, series := range cfg.Series {
-		options := make([]charts.SeriesOpts, 0, len(cfg.SeriesOptions)+len(series.Options))
-		options = append(options, cfg.SeriesOptions...)
-		options = append(options, series.Options...)
-		chart.AddSeries(series.Name, series.Data, options...)
+		chart.AddSeries(series.Name, series.Data, scatterSeriesOptions(cfg, series)...)
 	}
+	return newInstance(chartcomponents.KindEChartsScatter, Config{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style})
+}
 
-	return newInstance(chartcomponents.KindEChartsScatter, Config{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style,
-	})
+func scatterSeriesOptions(cfg ScatterConfig, series ScatterSeries) []charts.SeriesOpts {
+	capacity := len(cfg.SeriesOptions) + len(series.Options)
+	if cfg.Ripple != nil {
+		capacity++
+	}
+	options := make([]charts.SeriesOpts, 0, capacity)
+	options = append(options, cfg.SeriesOptions...)
+	if cfg.Ripple != nil {
+		options = append(options, charts.WithRippleEffectOpts(*cfg.Ripple))
+	}
+	return append(options, series.Options...)
 }
 
 func validateScatterConfig(cfg ScatterConfig) error {
+	if cfg.Variant != ScatterVariantStandard && cfg.Variant != ScatterVariantEffect {
+		return fmt.Errorf("scatter chart variant %q is not supported", cfg.Variant)
+	}
+	if cfg.Ripple != nil && cfg.Variant != ScatterVariantEffect {
+		return fmt.Errorf("scatter chart ripple requires the effect variant")
+	}
 	axisType := resolvedCartesianAxisType(cfg.XAxisType)
 	if axisType != CartesianAxisCategory && axisType != CartesianAxisValue {
 		return fmt.Errorf("scatter chart x axis type %q is not supported", cfg.XAxisType)

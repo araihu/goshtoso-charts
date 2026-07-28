@@ -25,7 +25,8 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/echarts/bar", "ECharts bar"},
 		{"/components/echarts/line", "ECharts line"},
 		{"/components/echarts/scatter", "ECharts scatter"},
-		{"/components/echarts/effect-scatter", "ECharts effect scatter"},
+		{"/components/echarts/pie", "ECharts pie"},
+		{"/components/echarts/radar", "ECharts radar"},
 		{"/examples/status-page", "Status page example"},
 		{"/examples/go-echarts", "go-echarts catalog"},
 		{"/examples/go-echarts/bar-basic", "Basic bar"},
@@ -56,7 +57,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		}
 	}
 
-	for _, path := range []string{"/components/echarts/bar", "/components/echarts/line", "/components/echarts/scatter", "/components/echarts/effect-scatter"} {
+	for _, path := range []string{"/components/echarts/bar", "/components/echarts/line", "/components/echarts/scatter", "/components/echarts/pie", "/components/echarts/radar"} {
 		page := httptest.NewRecorder()
 		handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, path, nil))
 		for _, unwanted := range []string{"backed by go-echarts", "with go-echarts options", ">go-echarts catalog<"} {
@@ -64,6 +65,18 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 				t.Errorf("GET %s repeats centralized attribution %q", path, unwanted)
 			}
 		}
+	}
+}
+
+func TestEffectScatterDocumentationRedirectsToUnifiedScatter(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/echarts/effect-scatter", nil))
+	if recorder.Code != http.StatusPermanentRedirect {
+		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusPermanentRedirect)
+	}
+	if location := recorder.Header().Get("Location"); location != "/components/echarts/scatter" {
+		t.Fatalf("Location = %q, want unified scatter route", location)
 	}
 }
 

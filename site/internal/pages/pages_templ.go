@@ -565,12 +565,13 @@ func eChartsScatterContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "ECharts scatter",
-			Description: "Reusable interactive scatter component for relationships between two quantitative dimensions or values across categories.",
+			Description: "Reusable interactive scatter component for quantitative relationships or categorical points. The effect variant adds ripple emphasis without changing component identity.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Explore correlation, clusters, and outliers.", "Primitive", "echarts.Scatter", "Kind", "components.KindEChartsScatter", "Configuration", "Label, Caption, category or value axis mode, typed Series, size, global options, series options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Pair the canvas with a table or text summary when exact points matter."),
+				AbovePreview: componentContract("Purpose", "Explore correlation, clusters, and outliers; optionally call attention to exceptional points.", "Primitive", "echarts.Scatter", "Kind", "components.KindEChartsScatter", "Configuration", "Label, Caption, standard or effect Variant, optional Ripple, category or value axis mode, typed Series, size, options, and chart style.", "Accessibility", "Animation is supplemental. Figure name comes from Label and Caption stays visible; pair the canvas with a table or text summary when exact points matter."),
 				Preview:      interactive.Scatter(sampleEChartsScatter()),
 				Code:         eChartsScatterCode(),
 			},
+			After: demoNote("Variant contract", "ScatterVariantStandard is the zero-value default. ScatterVariantEffect adds ripple rendering while the constructor, config, Instance, and stable Kind remain the same."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -579,7 +580,7 @@ func eChartsScatterContent() templ.Component {
 	})
 }
 
-func EChartsEffectScatterPage(fragment bool) templ.Component {
+func EChartsPiePage(fragment bool) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -600,7 +601,7 @@ func EChartsEffectScatterPage(fragment bool) templ.Component {
 			templ_7745c5c3_Var19 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = layout("ECharts effect scatter", "echarts-effect-scatter", eChartsEffectScatterContent(), fragment).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout("ECharts pie", "echarts-pie", eChartsPieContent(), fragment).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -608,7 +609,7 @@ func EChartsEffectScatterPage(fragment bool) templ.Component {
 	})
 }
 
-func eChartsEffectScatterContent() templ.Component {
+func eChartsPieContent() templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -630,12 +631,79 @@ func eChartsEffectScatterContent() templ.Component {
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
-			Title:       "ECharts effect scatter",
-			Description: "Reusable interactive scatter component with a ripple effect for highlighting a small set of important points.",
+			Title:       "ECharts pie",
+			Description: "Reusable interactive pie component for compact part-to-whole views, including donut and rose treatments within one stable component contract.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Call attention to exceptional events or high-impact points.", "Primitive", "echarts.EffectScatter", "Kind", "components.KindEChartsEffectScatter", "Configuration", "Label, Caption, category or value axis mode, typed Series, ripple and symbol options, size, global options, and chart style.", "Accessibility", "Animation is supplemental. Figure name comes from Label and Caption stays visible; preserve the same emphasis in adjacent text."),
-				Preview:      interactive.EffectScatter(sampleEChartsEffectScatter()),
-				Code:         eChartsEffectScatterCode(),
+				AbovePreview: componentContract("Purpose", "Summarize a small named distribution as parts of a total.", "Primitive", "echarts.Pie", "Kind", "components.KindEChartsPie", "Configuration", "Label, Caption, typed Series and sectors, radii, rose mode, pad angle, size, options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Pair the canvas with exact values in text or a table."),
+				Preview:      interactive.Pie(sampleEChartsPie()),
+				Code:         eChartsPieCode(),
+			},
+			After: demoNote("Rendered defaults", "A zero outer radius renders at 75%. A zero inner radius renders a full pie; set both radii for a donut. Rose mode remains off unless selected."),
+		}).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func EChartsRadarPage(fragment bool) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var21 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var21 == nil {
+			templ_7745c5c3_Var21 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = layout("ECharts radar", "echarts-radar", eChartsRadarContent(), fragment).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func eChartsRadarContent() templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var22 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var22 == nil {
+			templ_7745c5c3_Var22 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
+			Title:       "ECharts radar",
+			Description: "Reusable interactive radar component for comparing aligned multidimensional profiles against explicit indicator maxima.",
+			Primary: componentpage.Example{
+				AbovePreview: componentContract("Purpose", "Compare a small number of profiles across the same bounded dimensions.", "Primitive", "echarts.Radar", "Kind", "components.KindEChartsRadar", "Configuration", "Label, Caption, typed Indicators, aligned named vectors, size, global and series options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve indicator names and exact values in adjacent content."),
+				Preview:      interactive.Radar(sampleEChartsRadar()),
+				Code:         eChartsRadarCode(),
 			},
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
@@ -661,9 +729,9 @@ func pieContent() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var21 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var21 == nil {
-			templ_7745c5c3_Var21 = templ.NopComponent
+		templ_7745c5c3_Var23 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var23 == nil {
+			templ_7745c5c3_Var23 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
@@ -699,9 +767,9 @@ func lineContent() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var22 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var22 == nil {
-			templ_7745c5c3_Var22 = templ.NopComponent
+		templ_7745c5c3_Var24 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var24 == nil {
+			templ_7745c5c3_Var24 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
@@ -737,9 +805,9 @@ func StatusPageExample(fragment bool) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var23 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var23 == nil {
-			templ_7745c5c3_Var23 = templ.NopComponent
+		templ_7745c5c3_Var25 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var25 == nil {
+			templ_7745c5c3_Var25 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = layout("Status page example", "status-page", statusPageContent(), fragment).Render(ctx, templ_7745c5c3_Buffer)
@@ -766,9 +834,9 @@ func EChartsCatalogPage(examples []echartsexamples.Example, fragment bool) templ
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var24 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var24 == nil {
-			templ_7745c5c3_Var24 = templ.NopComponent
+		templ_7745c5c3_Var26 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var26 == nil {
+			templ_7745c5c3_Var26 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = layout("go-echarts catalog", "go-echarts", eChartsCatalogContent(examples), fragment).Render(ctx, templ_7745c5c3_Buffer)
@@ -795,9 +863,9 @@ func eChartsCatalogContent(examples []echartsexamples.Example) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var25 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var25 == nil {
-			templ_7745c5c3_Var25 = templ.NopComponent
+		templ_7745c5c3_Var27 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var27 == nil {
+			templ_7745c5c3_Var27 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<section class=\"space-y-2\"><p class=\"text-sm font-semibold text-primary dark:text-primary-dark\">Interactive examples</p><h1 class=\"font-title text-3xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">go-echarts catalog</h1><p class=\"max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted\">Direct ports of upstream examples. Interactive charts use pinned local ECharts assets; SSR primitives remain available separately.</p></section><section class=\"grid gap-3 md:grid-cols-2\" aria-label=\"go-echarts examples\">")
@@ -809,12 +877,12 @@ func eChartsCatalogContent(examples []echartsexamples.Example) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var26 templ.SafeURL
-			templ_7745c5c3_Var26, templ_7745c5c3_Err = templ.JoinURLErrs("/examples/go-echarts/" + example.Slug)
+			var templ_7745c5c3_Var28 templ.SafeURL
+			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinURLErrs("/examples/go-echarts/" + example.Slug)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 200, Col: 222}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 218, Col: 222}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var26))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -822,12 +890,12 @@ func eChartsCatalogContent(examples []echartsexamples.Example) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var27 string
-			templ_7745c5c3_Var27, templ_7745c5c3_Err = templ.JoinStringErrs(example.Group)
+			var templ_7745c5c3_Var29 string
+			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(example.Group)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 201, Col: 112}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 219, Col: 112}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var27))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -835,12 +903,12 @@ func eChartsCatalogContent(examples []echartsexamples.Example) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var28 string
-			templ_7745c5c3_Var28, templ_7745c5c3_Err = templ.JoinStringErrs(example.Title)
+			var templ_7745c5c3_Var30 string
+			templ_7745c5c3_Var30, templ_7745c5c3_Err = templ.JoinStringErrs(example.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 202, Col: 112}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 220, Col: 112}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var28))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var30))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -848,12 +916,12 @@ func eChartsCatalogContent(examples []echartsexamples.Example) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var29 string
-			templ_7745c5c3_Var29, templ_7745c5c3_Err = templ.JoinStringErrs(example.Source)
+			var templ_7745c5c3_Var31 string
+			templ_7745c5c3_Var31, templ_7745c5c3_Err = templ.JoinStringErrs(example.Source)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 203, Col: 98}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 221, Col: 98}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var29))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var31))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -886,9 +954,9 @@ func EChartsExamplePage(example echartsexamples.Example, fragment bool) templ.Co
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var30 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var30 == nil {
-			templ_7745c5c3_Var30 = templ.NopComponent
+		templ_7745c5c3_Var32 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var32 == nil {
+			templ_7745c5c3_Var32 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = layout(example.Title, "go-echarts", eChartsExampleContent(example), fragment).Render(ctx, templ_7745c5c3_Buffer)
@@ -915,21 +983,21 @@ func eChartsExampleContent(example echartsexamples.Example) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var31 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var31 == nil {
-			templ_7745c5c3_Var31 = templ.NopComponent
+		templ_7745c5c3_Var33 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var33 == nil {
+			templ_7745c5c3_Var33 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<section class=\"space-y-2\"><p class=\"text-sm font-semibold text-primary dark:text-primary-dark\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var32 string
-		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.JoinStringErrs(example.Group)
+		var templ_7745c5c3_Var34 string
+		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinStringErrs(example.Group)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 215, Col: 86}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 233, Col: 86}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var32))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -937,12 +1005,12 @@ func eChartsExampleContent(example echartsexamples.Example) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var33 string
-		templ_7745c5c3_Var33, templ_7745c5c3_Err = templ.JoinStringErrs(example.Title)
+		var templ_7745c5c3_Var35 string
+		templ_7745c5c3_Var35, templ_7745c5c3_Err = templ.JoinStringErrs(example.Title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 216, Col: 115}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 234, Col: 115}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var33))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var35))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -950,12 +1018,12 @@ func eChartsExampleContent(example echartsexamples.Example) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var34 templ.SafeURL
-		templ_7745c5c3_Var34, templ_7745c5c3_Err = templ.JoinURLErrs(example.Source)
+		var templ_7745c5c3_Var36 templ.SafeURL
+		templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.JoinURLErrs(example.Source)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 217, Col: 88}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 235, Col: 88}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var34))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var36))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -964,8 +1032,8 @@ func eChartsExampleContent(example echartsexamples.Example) templ.Component {
 			return templ_7745c5c3_Err
 		}
 		if example.Layout != "" {
-			var templ_7745c5c3_Var35 = []any{eChartsLayoutClass(example.Layout)}
-			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var35...)
+			var templ_7745c5c3_Var37 = []any{eChartsLayoutClass(example.Layout)}
+			templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var37...)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -973,12 +1041,12 @@ func eChartsExampleContent(example echartsexamples.Example) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var36 string
-			templ_7745c5c3_Var36, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var35).String())
+			var templ_7745c5c3_Var38 string
+			templ_7745c5c3_Var38, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var37).String())
 			if templ_7745c5c3_Err != nil {
 				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 1, Col: 0}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var36)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var38)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -986,12 +1054,12 @@ func eChartsExampleContent(example echartsexamples.Example) templ.Component {
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var37 string
-			templ_7745c5c3_Var37, templ_7745c5c3_Err = templ.ResolveAttributeValue(example.Title)
+			var templ_7745c5c3_Var39 string
+			templ_7745c5c3_Var39, templ_7745c5c3_Err = templ.ResolveAttributeValue(example.Title)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 220, Col: 82}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 238, Col: 82}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var37)
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var39)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -1039,9 +1107,9 @@ func statusPageContent() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var38 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var38 == nil {
-			templ_7745c5c3_Var38 = templ.NopComponent
+		templ_7745c5c3_Var40 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var40 == nil {
+			templ_7745c5c3_Var40 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "<section class=\"space-y-2\"><p class=\"text-sm font-semibold text-primary dark:text-primary-dark\">Examples / Xisnove</p><h1 class=\"font-title text-3xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Status page example</h1><p class=\"max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted\">Chart package stays generic. Xisnove maps its monitor and retained-observation projections at view-model boundary.</p></section><section class=\"space-y-4\" aria-label=\"Example monitor status\">")
@@ -1084,12 +1152,12 @@ func statusMonitor(name string, tone badge.Tone, state string, chart templ.Compo
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var39 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var39 == nil {
-			templ_7745c5c3_Var39 = templ.NopComponent
+		templ_7745c5c3_Var41 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var41 == nil {
+			templ_7745c5c3_Var41 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Var40 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_Var42 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
 			if !templ_7745c5c3_IsBuffer {
@@ -1107,7 +1175,7 @@ func statusMonitor(name string, tone badge.Tone, state string, chart templ.Compo
 			}
 			return nil
 		})
-		templ_7745c5c3_Err = panel.Panel(panel.Config{Header: statusHeader(name, tone, state)}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var40), templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = panel.Panel(panel.Config{Header: statusHeader(name, tone, state)}).Render(templ.WithChildren(ctx, templ_7745c5c3_Var42), templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1131,21 +1199,21 @@ func statusHeader(name string, tone badge.Tone, state string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var41 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var41 == nil {
-			templ_7745c5c3_Var41 = templ.NopComponent
+		templ_7745c5c3_Var43 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var43 == nil {
+			templ_7745c5c3_Var43 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "<div class=\"flex flex-wrap items-center gap-2\"><h2 class=\"text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var42 string
-		templ_7745c5c3_Var42, templ_7745c5c3_Err = templ.JoinStringErrs(name)
+		var templ_7745c5c3_Var44 string
+		templ_7745c5c3_Var44, templ_7745c5c3_Err = templ.JoinStringErrs(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 252, Col: 94}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 270, Col: 94}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var42))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var44))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1181,9 +1249,9 @@ func overviewHeartbeatHeader() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var43 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var43 == nil {
-			templ_7745c5c3_Var43 = templ.NopComponent
+		templ_7745c5c3_Var45 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var45 == nil {
+			templ_7745c5c3_Var45 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "<div><h2 class=\"text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Availability</h2><p class=\"mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted\">Heartbeat primitive</p></div>")
@@ -1210,9 +1278,9 @@ func overviewLineHeader() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var44 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var44 == nil {
-			templ_7745c5c3_Var44 = templ.NopComponent
+		templ_7745c5c3_Var46 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var46 == nil {
+			templ_7745c5c3_Var46 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<div><h2 class=\"text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Latency</h2><p class=\"mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted\">Line primitive</p></div>")
@@ -1239,9 +1307,9 @@ func overviewBarHeader() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var45 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var45 == nil {
-			templ_7745c5c3_Var45 = templ.NopComponent
+		templ_7745c5c3_Var47 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var47 == nil {
+			templ_7745c5c3_Var47 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "<div><h2 class=\"text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Deployments</h2><p class=\"mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted\">Bar primitive</p></div>")
@@ -1268,9 +1336,9 @@ func overviewPieHeader() templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var46 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var46 == nil {
-			templ_7745c5c3_Var46 = templ.NopComponent
+		templ_7745c5c3_Var48 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var48 == nil {
+			templ_7745c5c3_Var48 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<div><h2 class=\"text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Observation states</h2><p class=\"mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted\">Pie primitive</p></div>")
@@ -1297,21 +1365,21 @@ func demoNote(title string, text string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var47 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var47 == nil {
-			templ_7745c5c3_Var47 = templ.NopComponent
+		templ_7745c5c3_Var49 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var49 == nil {
+			templ_7745c5c3_Var49 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "<section class=\"rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt\"><h2 id=\"")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var48 string
-		templ_7745c5c3_Var48, templ_7745c5c3_Err = templ.ResolveAttributeValue(tocID(title))
+		var templ_7745c5c3_Var50 string
+		templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.ResolveAttributeValue(tocID(title))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 274, Col: 145}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 292, Col: 145}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var48)
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var50)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1319,12 +1387,12 @@ func demoNote(title string, text string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var49 string
-		templ_7745c5c3_Var49, templ_7745c5c3_Err = templ.JoinStringErrs(title)
+		var templ_7745c5c3_Var51 string
+		templ_7745c5c3_Var51, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 274, Col: 256}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 292, Col: 256}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var49))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var51))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1332,12 +1400,12 @@ func demoNote(title string, text string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var50 string
-		templ_7745c5c3_Var50, templ_7745c5c3_Err = templ.JoinStringErrs(text)
+		var templ_7745c5c3_Var52 string
+		templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 274, Col: 347}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 292, Col: 347}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var50))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1365,21 +1433,21 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var51 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var51 == nil {
-			templ_7745c5c3_Var51 = templ.NopComponent
+		templ_7745c5c3_Var53 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var53 == nil {
+			templ_7745c5c3_Var53 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<section class=\"rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt\" aria-label=\"Component contract\"><dl class=\"grid gap-4 lg:grid-cols-2\"><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var52 string
-		templ_7745c5c3_Var52, templ_7745c5c3_Err = templ.JoinStringErrs(purposeLabel)
+		var templ_7745c5c3_Var54 string
+		templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(purposeLabel)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 280, Col: 130}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 298, Col: 130}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var52))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1387,12 +1455,12 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var53 string
-		templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.JoinStringErrs(purpose)
+		var templ_7745c5c3_Var55 string
+		templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(purpose)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 280, Col: 213}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 298, Col: 213}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var53))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1400,12 +1468,12 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var54 string
-		templ_7745c5c3_Var54, templ_7745c5c3_Err = templ.JoinStringErrs(primitiveLabel)
+		var templ_7745c5c3_Var56 string
+		templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(primitiveLabel)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 281, Col: 132}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 299, Col: 132}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var54))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1413,12 +1481,12 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var55 string
-		templ_7745c5c3_Var55, templ_7745c5c3_Err = templ.JoinStringErrs(primitive)
+		var templ_7745c5c3_Var57 string
+		templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(primitive)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 281, Col: 239}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 299, Col: 239}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var55))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1426,12 +1494,12 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var56 string
-		templ_7745c5c3_Var56, templ_7745c5c3_Err = templ.JoinStringErrs(kindLabel)
+		var templ_7745c5c3_Var58 string
+		templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinStringErrs(kindLabel)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 282, Col: 127}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 300, Col: 127}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var56))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1439,12 +1507,12 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var57 string
-		templ_7745c5c3_Var57, templ_7745c5c3_Err = templ.JoinStringErrs(kind)
+		var templ_7745c5c3_Var59 string
+		templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(kind)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 282, Col: 229}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 300, Col: 229}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var57))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1452,12 +1520,12 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var58 string
-		templ_7745c5c3_Var58, templ_7745c5c3_Err = templ.JoinStringErrs(configLabel)
+		var templ_7745c5c3_Var60 string
+		templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinStringErrs(configLabel)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 283, Col: 129}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 301, Col: 129}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var58))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var60))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1465,12 +1533,12 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var59 string
-		templ_7745c5c3_Var59, templ_7745c5c3_Err = templ.JoinStringErrs(config)
+		var templ_7745c5c3_Var61 string
+		templ_7745c5c3_Var61, templ_7745c5c3_Err = templ.JoinStringErrs(config)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 283, Col: 211}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 301, Col: 211}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var59))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var61))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1478,12 +1546,12 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var60 string
-		templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.JoinStringErrs(accessibilityLabel)
+		var templ_7745c5c3_Var62 string
+		templ_7745c5c3_Var62, templ_7745c5c3_Err = templ.JoinStringErrs(accessibilityLabel)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 284, Col: 158}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 302, Col: 158}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var60))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var62))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1491,12 +1559,12 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var61 string
-		templ_7745c5c3_Var61, templ_7745c5c3_Err = templ.JoinStringErrs(accessibility)
+		var templ_7745c5c3_Var63 string
+		templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.JoinStringErrs(accessibility)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 284, Col: 247}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 302, Col: 247}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var61))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var63))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -29,31 +29,46 @@ func sampleEChartsLine() interactive.LineConfig {
 
 func sampleEChartsScatter() interactive.ScatterConfig {
 	return interactive.ScatterConfig{
-		Label: "Latency by request volume", Caption: "Each point represents one service node.",
-		XAxisType: interactive.CartesianAxisValue,
+		Label: "Release impact", Caption: "Ripple highlights the highest-impact releases.",
+		Variant: interactive.ScatterVariantEffect,
+		XAxis:   []string{"v1.8", "v1.9", "v2.0", "v2.1"},
 		Series: []interactive.ScatterSeries{{
-			Name: "Nodes",
-			Data: []opts.ScatterData{
-				{Name: "api-1", Value: [2]float64{120, 42}},
-				{Name: "api-2", Value: [2]float64{180, 61}},
-				{Name: "worker-1", Value: [2]float64{95, 35}},
-				{Name: "worker-2", Value: [2]float64{240, 78}},
-			},
+			Name: "Impact",
+			Data: []opts.ScatterData{{Value: 35}, {Value: 52}, {Value: 91}, {Value: 64}},
 		}},
-		GlobalOptions: []charts.GlobalOpts{charts.WithTitleOpts(opts.Title{Title: "Load and latency"})},
+		Ripple:        &opts.RippleEffect{Scale: 6, BrushType: "stroke"},
+		GlobalOptions: []charts.GlobalOpts{charts.WithTitleOpts(opts.Title{Title: "Release impact"})},
 	}
 }
 
-func sampleEChartsEffectScatter() interactive.EffectScatterConfig {
-	return interactive.EffectScatterConfig{
-		Label: "Release impact", Caption: "Ripple highlights the highest-impact releases.",
-		XAxis: []string{"v1.8", "v1.9", "v2.0", "v2.1"},
-		Series: []interactive.EffectScatterSeries{{
-			Name:    "Impact",
-			Data:    []opts.EffectScatterData{{Value: 35}, {Value: 52}, {Value: 91}, {Value: 64}},
-			Options: []charts.SeriesOpts{charts.WithRippleEffectOpts(opts.RippleEffect{Scale: 6, BrushType: "stroke"})},
+func sampleEChartsPie() interactive.PieConfig {
+	return interactive.PieConfig{
+		Label: "Incident states", Caption: "Current incidents grouped by state.",
+		Series: []interactive.PieSeries{{
+			Name: "Incidents", InnerRadius: 32, OuterRadius: 72,
+			Data: []interactive.PieData{{Name: "Open", Value: 12}, {Name: "Investigating", Value: 7}, {Name: "Resolved", Value: 28}},
 		}},
-		GlobalOptions: []charts.GlobalOpts{charts.WithTitleOpts(opts.Title{Title: "Release impact"})},
+		GlobalOptions: []charts.GlobalOpts{charts.WithTitleOpts(opts.Title{Title: "Incident states"})},
+	}
+}
+
+func sampleEChartsRadar() interactive.RadarConfig {
+	return interactive.RadarConfig{
+		Label: "Service health profile", Caption: "Current measurements compared with the target.",
+		Indicators: []interactive.RadarIndicator{
+			{Name: "Availability", Max: 100},
+			{Name: "Latency", Max: 500},
+			{Name: "Capacity", Max: 200},
+			{Name: "Recovery", Max: 60},
+		},
+		Series: []interactive.RadarSeries{{
+			Name: "Profile",
+			Data: []interactive.RadarData{
+				{Name: "Current", Values: []float64{99.8, 180, 124, 34}},
+				{Name: "Target", Values: []float64{100, 100, 165, 20}},
+			},
+		}},
+		GlobalOptions: []charts.GlobalOpts{charts.WithTitleOpts(opts.Title{Title: "Service health"})},
 	}
 }
 
@@ -75,23 +90,43 @@ func eChartsLineCode() string {
 
 func eChartsScatterCode() string {
 	return `@echarts.Scatter(echarts.ScatterConfig{
-  Label: "Latency by request volume",
-  XAxisType: echarts.CartesianAxisValue,
-  Series: []echarts.ScatterSeries{{Name: "Nodes", Data: []opts.ScatterData{
-    {Name: "api-1", Value: [2]float64{120, 42}},
-    {Name: "api-2", Value: [2]float64{180, 61}},
-  }}},
+  Label: "Release impact",
+	  Variant: echarts.ScatterVariantEffect,
+  XAxis: []string{"v1.8", "v1.9", "v2.0"},
+	  Series: []echarts.ScatterSeries{{
+    Name: "Impact",
+	    Data: []opts.ScatterData{{Value: 35}, {Value: 52}, {Value: 91}},
+  }},
+	  Ripple: &opts.RippleEffect{Scale: 6, BrushType: "stroke"},
 })`
 }
 
-func eChartsEffectScatterCode() string {
-	return `@echarts.EffectScatter(echarts.EffectScatterConfig{
-  Label: "Release impact",
-  XAxis: []string{"v1.8", "v1.9", "v2.0"},
-  Series: []echarts.EffectScatterSeries{{
-    Name: "Impact",
-    Data: []opts.EffectScatterData{{Value: 35}, {Value: 52}, {Value: 91}},
-    Options: []charts.SeriesOpts{charts.WithRippleEffectOpts(opts.RippleEffect{Scale: 6})},
+func eChartsPieCode() string {
+	return `@echarts.Pie(echarts.PieConfig{
+  Label: "Incident states",
+  Series: []echarts.PieSeries{{
+    Name: "Incidents",
+    InnerRadius: 32,
+    OuterRadius: 72,
+    Data: []echarts.PieData{
+      {Name: "Open", Value: 12},
+      {Name: "Resolved", Value: 28},
+    },
+  }},
+})`
+}
+
+func eChartsRadarCode() string {
+	return `@echarts.Radar(echarts.RadarConfig{
+  Label: "Service health profile",
+  Indicators: []echarts.RadarIndicator{
+    {Name: "Availability", Max: 100},
+    {Name: "Latency", Max: 500},
+    {Name: "Capacity", Max: 200},
+  },
+  Series: []echarts.RadarSeries{{
+    Name: "Profile",
+    Data: []echarts.RadarData{{Name: "Current", Values: []float64{99.8, 180, 124}}},
   }},
 })`
 }

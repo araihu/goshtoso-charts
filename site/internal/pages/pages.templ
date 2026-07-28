@@ -130,27 +130,45 @@ templ EChartsScatterPage(fragment bool) {
 templ eChartsScatterContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "ECharts scatter",
-		Description: "Reusable interactive scatter component for relationships between two quantitative dimensions or values across categories.",
+		Description: "Reusable interactive scatter component for quantitative relationships or categorical points. The effect variant adds ripple emphasis without changing component identity.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Explore correlation, clusters, and outliers.", "Primitive", "echarts.Scatter", "Kind", "components.KindEChartsScatter", "Configuration", "Label, Caption, category or value axis mode, typed Series, size, global options, series options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Pair the canvas with a table or text summary when exact points matter."),
+			AbovePreview: componentContract("Purpose", "Explore correlation, clusters, and outliers; optionally call attention to exceptional points.", "Primitive", "echarts.Scatter", "Kind", "components.KindEChartsScatter", "Configuration", "Label, Caption, standard or effect Variant, optional Ripple, category or value axis mode, typed Series, size, options, and chart style.", "Accessibility", "Animation is supplemental. Figure name comes from Label and Caption stays visible; pair the canvas with a table or text summary when exact points matter."),
 			Preview: interactive.Scatter(sampleEChartsScatter()),
 			Code: eChartsScatterCode(),
 		},
+		After: demoNote("Variant contract", "ScatterVariantStandard is the zero-value default. ScatterVariantEffect adds ripple rendering while the constructor, config, Instance, and stable Kind remain the same."),
 	})
 }
 
-templ EChartsEffectScatterPage(fragment bool) {
-	@layout("ECharts effect scatter", "echarts-effect-scatter", eChartsEffectScatterContent(), fragment)
+templ EChartsPiePage(fragment bool) {
+	@layout("ECharts pie", "echarts-pie", eChartsPieContent(), fragment)
 }
 
-templ eChartsEffectScatterContent() {
+templ eChartsPieContent() {
 	@componentpage.Page(componentpage.Config{
-		Title: "ECharts effect scatter",
-		Description: "Reusable interactive scatter component with a ripple effect for highlighting a small set of important points.",
+		Title: "ECharts pie",
+		Description: "Reusable interactive pie component for compact part-to-whole views, including donut and rose treatments within one stable component contract.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Call attention to exceptional events or high-impact points.", "Primitive", "echarts.EffectScatter", "Kind", "components.KindEChartsEffectScatter", "Configuration", "Label, Caption, category or value axis mode, typed Series, ripple and symbol options, size, global options, and chart style.", "Accessibility", "Animation is supplemental. Figure name comes from Label and Caption stays visible; preserve the same emphasis in adjacent text."),
-			Preview: interactive.EffectScatter(sampleEChartsEffectScatter()),
-			Code: eChartsEffectScatterCode(),
+			AbovePreview: componentContract("Purpose", "Summarize a small named distribution as parts of a total.", "Primitive", "echarts.Pie", "Kind", "components.KindEChartsPie", "Configuration", "Label, Caption, typed Series and sectors, radii, rose mode, pad angle, size, options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Pair the canvas with exact values in text or a table."),
+			Preview: interactive.Pie(sampleEChartsPie()),
+			Code: eChartsPieCode(),
+		},
+		After: demoNote("Rendered defaults", "A zero outer radius renders at 75%. A zero inner radius renders a full pie; set both radii for a donut. Rose mode remains off unless selected."),
+	})
+}
+
+templ EChartsRadarPage(fragment bool) {
+	@layout("ECharts radar", "echarts-radar", eChartsRadarContent(), fragment)
+}
+
+templ eChartsRadarContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "ECharts radar",
+		Description: "Reusable interactive radar component for comparing aligned multidimensional profiles against explicit indicator maxima.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare a small number of profiles across the same bounded dimensions.", "Primitive", "echarts.Radar", "Kind", "components.KindEChartsRadar", "Configuration", "Label, Caption, typed Indicators, aligned named vectors, size, global and series options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve indicator names and exact values in adjacent content."),
+			Preview: interactive.Radar(sampleEChartsRadar()),
+			Code: eChartsRadarCode(),
 		},
 	})
 }

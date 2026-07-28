@@ -53,7 +53,13 @@ func New() http.Handler {
 		render(writer, request, pages.EChartsScatterPage(isFragment(request)))
 	})
 	mux.HandleFunc("GET /components/echarts/effect-scatter", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.EChartsEffectScatterPage(isFragment(request)))
+		http.Redirect(writer, request, "/components/echarts/scatter", http.StatusPermanentRedirect)
+	})
+	mux.HandleFunc("GET /components/echarts/pie", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.EChartsPiePage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /components/echarts/radar", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.EChartsRadarPage(isFragment(request)))
 	})
 	mux.HandleFunc("GET /examples/status-page", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.StatusPageExample(isFragment(request)))
