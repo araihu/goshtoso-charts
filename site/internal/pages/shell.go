@@ -13,28 +13,15 @@ func tocID(title string) string {
 	return strings.ToLower(strings.ReplaceAll(title, " ", "-"))
 }
 
-func eChartsLayoutClass(layout string) string {
-	switch layout {
-	case "center":
-		return "mx-auto grid max-w-5xl gap-4"
-	case "flex":
-		return "flex flex-wrap gap-4"
-	case "none":
-		return "space-y-4"
-	default:
-		return "space-y-4"
-	}
-}
-
 func shellPage(title string, active string, content templ.Component) componentdocshell.Page {
 	return componentdocshell.Page{
 		Title:         title,
 		DocumentTitle: title + " · Goshtoso Charts",
-		Description:   "Server-rendered chart components for Goshtoso applications.",
+		Description:   "Static vector and interactive chart components for Goshtoso applications.",
 		Active:        active,
 		Content:       content,
 		Head:          brand.Head(),
-		EnableTOC:     active == "heartbeat" || active == "line" || active == "bar" || active == "pie" || active == "echarts-bar" || active == "echarts-line" || active == "go-echarts",
+		EnableTOC:     active == "heartbeat" || active == "line" || active == "bar" || active == "pie" || active == "interactive-bar" || active == "interactive-line",
 	}
 }
 
@@ -65,7 +52,7 @@ func shellNavigation() componentdocshell.Navigation {
 		SectionsTitle: "Documentation",
 		Sections: []sidebar.Section{
 			{
-				Title: "Server-rendered",
+				Title: "Static / Vector",
 				Items: []sidebar.Item{
 					{ID: "heartbeat", Label: "Heartbeat", Href: "/components/heartbeat"},
 					{ID: "line", Label: "Line chart", Href: "/components/line"},
@@ -76,27 +63,26 @@ func shellNavigation() componentdocshell.Navigation {
 			{
 				Title: "Interactive / Cartesian",
 				Items: []sidebar.Item{
-					{ID: "echarts-bar", Label: "Bar", Href: "/components/echarts/bar"},
-					{ID: "echarts-line", Label: "Line", Href: "/components/echarts/line"},
-					{ID: "echarts-scatter", Label: "Scatter", Href: "/components/echarts/scatter"},
-					{ID: "echarts-heatmap", Label: "Heatmap", Href: "/components/echarts/heatmap"},
+					{ID: "interactive-bar", Label: "Bar", Href: "/components/interactive/bar"},
+					{ID: "interactive-line", Label: "Line", Href: "/components/interactive/line"},
+					{ID: "interactive-scatter", Label: "Scatter", Href: "/components/interactive/scatter"},
+					{ID: "interactive-heatmap", Label: "Heatmap", Href: "/components/interactive/heatmap"},
 				},
 			},
 			{
 				Title: "Interactive / Statistical",
 				Items: []sidebar.Item{
-					{ID: "echarts-pie", Label: "Pie", Href: "/components/echarts/pie"},
-					{ID: "echarts-radar", Label: "Radar", Href: "/components/echarts/radar"},
-					{ID: "echarts-boxplot", Label: "Box plot", Href: "/components/echarts/boxplot"},
-					{ID: "echarts-gauge", Label: "Gauge", Href: "/components/echarts/gauge"},
-					{ID: "echarts-funnel", Label: "Funnel", Href: "/components/echarts/funnel"},
+					{ID: "interactive-pie", Label: "Pie", Href: "/components/interactive/pie"},
+					{ID: "interactive-radar", Label: "Radar", Href: "/components/interactive/radar"},
+					{ID: "interactive-boxplot", Label: "Box plot", Href: "/components/interactive/boxplot"},
+					{ID: "interactive-gauge", Label: "Gauge", Href: "/components/interactive/gauge"},
+					{ID: "interactive-funnel", Label: "Funnel", Href: "/components/interactive/funnel"},
 				},
 			},
 			{
 				Title: "Examples",
 				Items: []sidebar.Item{
 					{ID: "status-page", Label: "Status page", Href: "/examples/status-page"},
-					{ID: "go-echarts", Label: "Interactive catalog", Href: "/examples/go-echarts"},
 				},
 			},
 		},

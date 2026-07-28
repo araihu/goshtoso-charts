@@ -102,10 +102,10 @@ func tokenPalette() chart.ColorPalette {
 
 func tokenizedSVG(svg string, style charttheme.Style) string {
 	replacer := strings.NewReplacer(
-		"rgb(1,1,1)", "var(--goshtoso-charts-surface)",
-		"rgb(2,2,2)", "var(--goshtoso-charts-outline)",
-		"rgb(3,3,3)", "var(--goshtoso-charts-grid)",
-		"rgb(4,4,4)", "var(--goshtoso-charts-text)",
+		"rgb(1,1,1)", "var(--color-chart-surface)",
+		"rgb(2,2,2)", "var(--color-chart-outline)",
+		"rgb(3,3,3)", "var(--color-chart-grid)",
+		"rgb(4,4,4)", "var(--color-chart-text)",
 		"rgb(5,5,5)", html.EscapeString(style.SeriesColor(0)),
 		"rgb(6,6,6)", html.EscapeString(style.SeriesColor(1)),
 		"rgb(7,7,7)", html.EscapeString(style.SeriesColor(2)),

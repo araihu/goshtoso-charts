@@ -23,7 +23,7 @@ func TestPieRendersSSRAccessibleSVG(t *testing.T) {
 		t.Fatalf("Render() error = %v", err)
 	}
 	markup := output.String()
-	for _, want := range []string{"<figure class=\"goshtoso-charts-pie goshtoso-charts-palette goshtoso-charts-palette-auto\" role=\"img\" aria-label=\"Deployments by status\"", "<svg", "This week.", "var(--goshtoso-charts-series-1)", "var(--goshtoso-charts-surface)", "var(--font-paragraph), sans-serif"} {
+	for _, want := range []string{"<figure class=\"goshtoso-charts-pie goshtoso-charts-palette goshtoso-charts-palette-auto\" role=\"img\" aria-label=\"Deployments by status\"", "<svg", "This week.", "var(--color-chart-series-1)", "var(--color-chart-surface)", "var(--font-paragraph), sans-serif"} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
 		}

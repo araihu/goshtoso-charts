@@ -5,12 +5,11 @@ import (
 	"github.com/araihu/goshtoso/components/panel"
 	"github.com/araihu/goshtoso-app-shells/componentpage"
 	"github.com/araihu/goshtoso-charts/components/bar"
-	interactive "github.com/araihu/goshtoso-charts/components/echarts"
+	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	"github.com/araihu/goshtoso-charts/components/heartbeat"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/site/internal/brand"
-	"github.com/araihu/goshtoso-charts/site/internal/echartsexamples"
 )
 
 templ OverviewPage(fragment bool) {
@@ -23,8 +22,8 @@ templ overviewContent() {
 			@brand.LandingLogo()
 			<p class="pb-1 text-sm font-semibold uppercase tracking-wide text-primary dark:text-primary-dark">Charts</p>
 		</div>
-		<h1 class="font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong">SSR charts for Goshtoso</h1>
-		<p class="max-w-2xl text-lg text-on-surface-muted dark:text-on-surface-dark-muted">Generic Go and templ chart components. First driver: Xisnove monitor detail and public status pages. No browser renderer, hydration, or chart-runtime assets.</p>
+		<h1 class="font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong">Charts for Goshtoso</h1>
+		<p class="max-w-2xl text-lg text-on-surface-muted dark:text-on-surface-dark-muted">Typed Go and templ chart components with static vector and interactive variants. Public APIs stay renderer-neutral and follow Goshtoso theme tokens.</p>
 	</section>
 	<div class="grid gap-4 md:grid-cols-2">
 		@panel.Panel(panel.Config{Header: overviewHeartbeatHeader()}) {
@@ -91,151 +90,151 @@ templ PiePage(fragment bool) {
 	@layout("Pie chart", "pie", pieContent(), fragment)
 }
 
-templ EChartsBarPage(fragment bool) {
-	@layout("ECharts bar", "echarts-bar", eChartsBarContent(), fragment)
+templ InteractiveBarPage(fragment bool) {
+	@layout("Interactive bar", "interactive-bar", interactiveChartBarContent(), fragment)
 }
 
-templ eChartsBarContent() {
+templ interactiveChartBarContent() {
 	@componentpage.Page(componentpage.Config{
-		Title: "ECharts bar",
+		Title: "Interactive bar",
 		Description: "Reusable interactive bar component for categorical comparisons.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Interactive categorical comparisons.", "Primitive", "echarts.Bar", "Kind", "components.KindEChartsBar", "Configuration", "Label, Caption, XAxis, typed Series, size, global options, and series options.", "Accessibility", "Figure name comes from Label; Caption stays visible."),
-			Preview: interactive.Bar(sampleEChartsBar()),
-			Code: eChartsBarCode(),
+			AbovePreview: componentContract("Purpose", "Interactive categorical comparisons.", "Primitive", "interactive.Bar", "Kind", "components.KindInteractiveBar", "Configuration", "Label, Caption, XAxis, typed Series, size, renderer-neutral ChartOptions and SeriesOptions.", "Accessibility", "Figure name comes from Label; Caption stays visible."),
+			Preview: interactive.Bar(sampleInteractiveBar()),
+			Code: interactiveChartBarCode(),
 		},
 	})
 }
 
-templ EChartsLinePage(fragment bool) {
-	@layout("ECharts line", "echarts-line", eChartsLineContent(), fragment)
+templ InteractiveLinePage(fragment bool) {
+	@layout("Interactive line", "interactive-line", interactiveChartLineContent(), fragment)
 }
 
-templ eChartsLineContent() {
+templ interactiveChartLineContent() {
 	@componentpage.Page(componentpage.Config{
-		Title: "ECharts line",
+		Title: "Interactive line",
 		Description: "Reusable interactive line component for ordered trends.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Interactive ordered trends.", "Primitive", "echarts.Line", "Kind", "components.KindEChartsLine", "Configuration", "Label, Caption, XAxis, typed Series, size, global options, and series options.", "Accessibility", "Figure name comes from Label; Caption stays visible."),
-			Preview: interactive.Line(sampleEChartsLine()),
-			Code: eChartsLineCode(),
+			AbovePreview: componentContract("Purpose", "Interactive ordered trends.", "Primitive", "interactive.Line", "Kind", "components.KindInteractiveLine", "Configuration", "Label, Caption, XAxis, typed Series, size, renderer-neutral ChartOptions and SeriesOptions.", "Accessibility", "Figure name comes from Label; Caption stays visible."),
+			Preview: interactive.Line(sampleInteractiveLine()),
+			Code: interactiveChartLineCode(),
 		},
 	})
 }
 
-templ EChartsScatterPage(fragment bool) {
-	@layout("ECharts scatter", "echarts-scatter", eChartsScatterContent(), fragment)
+templ InteractiveScatterPage(fragment bool) {
+	@layout("Interactive scatter", "interactive-scatter", interactiveChartScatterContent(), fragment)
 }
 
-templ eChartsScatterContent() {
+templ interactiveChartScatterContent() {
 	@componentpage.Page(componentpage.Config{
-		Title: "ECharts scatter",
+		Title: "Interactive scatter",
 		Description: "Reusable interactive scatter component for quantitative relationships or categorical points. The effect variant adds ripple emphasis without changing component identity.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Explore correlation, clusters, and outliers; optionally call attention to exceptional points.", "Primitive", "echarts.Scatter", "Kind", "components.KindEChartsScatter", "Configuration", "Label, Caption, standard or effect Variant, optional Ripple, category or value axis mode, typed Series, size, options, and chart style.", "Accessibility", "Animation is supplemental. Figure name comes from Label and Caption stays visible; pair the canvas with a table or text summary when exact points matter."),
-			Preview: interactive.Scatter(sampleEChartsScatter()),
-			Code: eChartsScatterCode(),
+			AbovePreview: componentContract("Purpose", "Explore correlation, clusters, and outliers; optionally call attention to exceptional points.", "Primitive", "interactive.Scatter", "Kind", "components.KindInteractiveScatter", "Configuration", "Label, Caption, standard or effect Variant, optional Ripple, category or value axis mode, typed Series, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Animation is supplemental. Figure name comes from Label and Caption stays visible; pair the canvas with a table or text summary when exact points matter."),
+			Preview: interactive.Scatter(sampleInteractiveScatter()),
+			Code: interactiveChartScatterCode(),
 		},
 		After: demoNote("Variant contract", "ScatterVariantStandard is the zero-value default. ScatterVariantEffect adds ripple rendering while the constructor, config, Instance, and stable Kind remain the same."),
 	})
 }
 
-templ EChartsPiePage(fragment bool) {
-	@layout("ECharts pie", "echarts-pie", eChartsPieContent(), fragment)
+templ InteractivePiePage(fragment bool) {
+	@layout("Interactive pie", "interactive-pie", interactiveChartPieContent(), fragment)
 }
 
-templ eChartsPieContent() {
+templ interactiveChartPieContent() {
 	@componentpage.Page(componentpage.Config{
-		Title: "ECharts pie",
+		Title: "Interactive pie",
 		Description: "Reusable interactive pie component for compact part-to-whole views, including donut and rose treatments within one stable component contract.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Summarize a small named distribution as parts of a total.", "Primitive", "echarts.Pie", "Kind", "components.KindEChartsPie", "Configuration", "Label, Caption, typed Series and sectors, radii, rose mode, pad angle, size, options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Pair the canvas with exact values in text or a table."),
-			Preview: interactive.Pie(sampleEChartsPie()),
-			Code: eChartsPieCode(),
+			AbovePreview: componentContract("Purpose", "Summarize a small named distribution as parts of a total.", "Primitive", "interactive.Pie", "Kind", "components.KindInteractivePie", "Configuration", "Label, Caption, typed Series and sectors, radii, rose mode, pad angle, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Pair the canvas with exact values in text or a table."),
+			Preview: interactive.Pie(sampleInteractivePie()),
+			Code: interactiveChartPieCode(),
 		},
 		After: demoNote("Rendered defaults", "A zero outer radius renders at 75%. A zero inner radius renders a full pie; set both radii for a donut. Rose mode remains off unless selected."),
 	})
 }
 
-templ EChartsRadarPage(fragment bool) {
-	@layout("ECharts radar", "echarts-radar", eChartsRadarContent(), fragment)
+templ InteractiveRadarPage(fragment bool) {
+	@layout("Interactive radar", "interactive-radar", interactiveChartRadarContent(), fragment)
 }
 
-templ eChartsRadarContent() {
+templ interactiveChartRadarContent() {
 	@componentpage.Page(componentpage.Config{
-		Title: "ECharts radar",
+		Title: "Interactive radar",
 		Description: "Reusable interactive radar component for comparing aligned multidimensional profiles against explicit indicator maxima.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Compare a small number of profiles across the same bounded dimensions.", "Primitive", "echarts.Radar", "Kind", "components.KindEChartsRadar", "Configuration", "Label, Caption, typed Indicators, aligned named vectors, size, global and series options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve indicator names and exact values in adjacent content."),
-			Preview: interactive.Radar(sampleEChartsRadar()),
-			Code: eChartsRadarCode(),
+			AbovePreview: componentContract("Purpose", "Compare a small number of profiles across the same bounded dimensions.", "Primitive", "interactive.Radar", "Kind", "components.KindInteractiveRadar", "Configuration", "Label, Caption, typed Indicators, aligned named vectors, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve indicator names and exact values in adjacent content."),
+			Preview: interactive.Radar(sampleInteractiveRadar()),
+			Code: interactiveChartRadarCode(),
 		},
 	})
 }
 
-templ EChartsHeatMapPage(fragment bool) {
-	@layout("ECharts heatmap", "echarts-heatmap", eChartsHeatMapContent(), fragment)
+templ InteractiveHeatMapPage(fragment bool) {
+	@layout("Interactive heatmap", "interactive-heatmap", interactiveChartHeatMapContent(), fragment)
 }
 
-templ eChartsHeatMapContent() {
+templ interactiveChartHeatMapContent() {
 	@componentpage.Page(componentpage.Config{
-		Title: "ECharts heatmap",
+		Title: "Interactive heatmap",
 		Description: "Reusable interactive heatmap component for comparing intensity across category grids or calendar dates within one stable component contract.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Reveal concentration, gaps, and patterns across two dimensions.", "Primitive", "echarts.HeatMap", "Kind", "components.KindEChartsHeatMap", "Configuration", "Label, Caption, Cartesian or Calendar coordinate variant, typed value range and Series, size, options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Provide an adjacent table or text summary when exact cell values matter."),
-			Preview: interactive.HeatMap(sampleEChartsHeatMap()),
-			Code: eChartsHeatMapCode(),
+			AbovePreview: componentContract("Purpose", "Reveal concentration, gaps, and patterns across two dimensions.", "Primitive", "interactive.HeatMap", "Kind", "components.KindInteractiveHeatMap", "Configuration", "Label, Caption, Cartesian or Calendar coordinate variant, typed value range and Series, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Provide an adjacent table or text summary when exact cell values matter."),
+			Preview: interactive.HeatMap(sampleInteractiveHeatMap()),
+			Code: interactiveChartHeatMapCode(),
 		},
 		After: demoNote("Coordinate contract", "HeatMapCoordinateCartesian is the zero-value default. HeatMapCoordinateCalendar replaces category axes with an explicit inclusive date range while the constructor, config, Instance, and stable Kind remain the same."),
 	})
 }
 
-templ EChartsBoxPlotPage(fragment bool) {
-	@layout("ECharts box plot", "echarts-boxplot", eChartsBoxPlotContent(), fragment)
+templ InteractiveBoxPlotPage(fragment bool) {
+	@layout("Interactive box plot", "interactive-boxplot", interactiveChartBoxPlotContent(), fragment)
 }
 
-templ eChartsBoxPlotContent() {
+templ interactiveChartBoxPlotContent() {
 	@componentpage.Page(componentpage.Config{
-		Title: "ECharts box plot",
+		Title: "Interactive box plot",
 		Description: "Reusable interactive box plot component for comparing validated five-number summaries across aligned categories.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Compare distribution centers, spreads, and ranges across categories.", "Primitive", "echarts.BoxPlot", "Kind", "components.KindEChartsBoxPlot", "Configuration", "Label, Caption, Categories, typed single or multiple Series, size, options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve the five-number summaries in adjacent content for exact comparison."),
-			Preview: interactive.BoxPlot(sampleEChartsBoxPlot()),
-			Code: eChartsBoxPlotCode(),
+			AbovePreview: componentContract("Purpose", "Compare distribution centers, spreads, and ranges across categories.", "Primitive", "interactive.BoxPlot", "Kind", "components.KindInteractiveBoxPlot", "Configuration", "Label, Caption, Categories, typed single or multiple Series, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve the five-number summaries in adjacent content for exact comparison."),
+			Preview: interactive.BoxPlot(sampleInteractiveBoxPlot()),
+			Code: interactiveChartBoxPlotCode(),
 		},
 		After: demoNote("Summary contract", "Each category accepts one finite, ordered summary: minimum, first quartile, median, third quartile, and maximum. Multiple series share the same categories."),
 	})
 }
 
-templ EChartsGaugePage(fragment bool) {
-	@layout("ECharts gauge", "echarts-gauge", eChartsGaugeContent(), fragment)
+templ InteractiveGaugePage(fragment bool) {
+	@layout("Interactive gauge", "interactive-gauge", interactiveChartGaugeContent(), fragment)
 }
 
-templ eChartsGaugeContent() {
+templ interactiveChartGaugeContent() {
 	@componentpage.Page(componentpage.Config{
-		Title: "ECharts gauge",
+		Title: "Interactive gauge",
 		Description: "Reusable interactive gauge component for bounded readings, with standard and progress treatments under one stable component contract.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Show one or more current readings against an explicit bounded range.", "Primitive", "echarts.Gauge", "Kind", "components.KindEChartsGauge", "Configuration", "Label, Caption, standard or progress Variant, Min and Max, typed Series and readings, size, options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. State current values and the range in adjacent content when exact readings matter."),
-			Preview: interactive.Gauge(sampleEChartsGauge()),
-			Code: eChartsGaugeCode(),
+			AbovePreview: componentContract("Purpose", "Show one or more current readings against an explicit bounded range.", "Primitive", "interactive.Gauge", "Kind", "components.KindInteractiveGauge", "Configuration", "Label, Caption, standard or progress Variant, Min and Max, typed Series and readings, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. State current values and the range in adjacent content when exact readings matter."),
+			Preview: interactive.Gauge(sampleInteractiveGauge()),
+			Code: interactiveChartGaugeCode(),
 		},
 		After: demoNote("Variant contract", "GaugeVariantStandard is the zero-value default and Max defaults to 100. GaugeVariantProgress changes the visual treatment while the constructor, config, Instance, and stable Kind remain the same."),
 	})
 }
 
-templ EChartsFunnelPage(fragment bool) {
-	@layout("ECharts funnel", "echarts-funnel", eChartsFunnelContent(), fragment)
+templ InteractiveFunnelPage(fragment bool) {
+	@layout("Interactive funnel", "interactive-funnel", interactiveChartFunnelContent(), fragment)
 }
 
-templ eChartsFunnelContent() {
+templ interactiveChartFunnelContent() {
 	@componentpage.Page(componentpage.Config{
-		Title: "ECharts funnel",
+		Title: "Interactive funnel",
 		Description: "Reusable interactive funnel component for comparing named stage volumes with typed ordering under one stable component contract.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Show progressive reduction or conversion across a small sequence of named stages.", "Primitive", "echarts.Funnel", "Kind", "components.KindEChartsFunnel", "Configuration", "Label, Caption, descending, ascending, or caller-data Order, typed Series and stages, size, options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve stage names, values, and intended order in adjacent content."),
-			Preview: interactive.Funnel(sampleEChartsFunnel()),
-			Code: eChartsFunnelCode(),
+			AbovePreview: componentContract("Purpose", "Show progressive reduction or conversion across a small sequence of named stages.", "Primitive", "interactive.Funnel", "Kind", "components.KindInteractiveFunnel", "Configuration", "Label, Caption, descending, ascending, or caller-data Order, typed Series and stages, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve stage names, values, and intended order in adjacent content."),
+			Preview: interactive.Funnel(sampleInteractiveFunnel()),
+			Code: interactiveChartFunnelCode(),
 		},
 		After: demoNote("Ordering contract", "FunnelOrderDescending is the zero-value default. Ascending and caller-data ordering remain variants of the same constructor, config, Instance, and stable Kind."),
 	})
@@ -269,49 +268,6 @@ templ lineContent() {
 
 templ StatusPageExample(fragment bool) {
 	@layout("Status page example", "status-page", statusPageContent(), fragment)
-}
-
-templ EChartsCatalogPage(examples []echartsexamples.Example, fragment bool) {
-	@layout("go-echarts catalog", "go-echarts", eChartsCatalogContent(examples), fragment)
-}
-
-templ eChartsCatalogContent(examples []echartsexamples.Example) {
-	<section class="space-y-2">
-		<p class="text-sm font-semibold text-primary dark:text-primary-dark">Interactive examples</p>
-		<h1 class="font-title text-3xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">go-echarts catalog</h1>
-		<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">Direct ports of upstream examples. Interactive charts use pinned local ECharts assets; SSR primitives remain available separately.</p>
-	</section>
-	<section class="grid gap-3 md:grid-cols-2" aria-label="go-echarts examples">
-		for _, example := range examples {
-			<a class="rounded-radius border border-outline bg-surface p-4 no-underline hover:bg-surface-alt dark:border-outline-dark dark:bg-surface-dark dark:hover:bg-surface-dark-alt" href={ "/examples/go-echarts/" + example.Slug }>
-				<p class="text-xs font-semibold uppercase tracking-wide text-primary dark:text-primary-dark">{ example.Group }</p>
-				<h2 class="mt-1 text-base font-bold text-on-surface-strong dark:text-on-surface-dark-strong">{ example.Title }</h2>
-				<p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">{ example.Source }</p>
-			</a>
-		}
-	</section>
-}
-
-templ EChartsExamplePage(example echartsexamples.Example, fragment bool) {
-	@layout(example.Title, "go-echarts", eChartsExampleContent(example), fragment)
-}
-
-templ eChartsExampleContent(example echartsexamples.Example) {
-	<section class="space-y-2">
-		<p class="text-sm font-semibold text-primary dark:text-primary-dark">{ example.Group }</p>
-		<h1 class="font-title text-3xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">{ example.Title }</h1>
-		<a class="text-sm text-primary underline dark:text-primary-dark" href={ example.Source }>Upstream source</a>
-	</section>
-	if example.Layout != "" {
-		<section class={ eChartsLayoutClass(example.Layout) } aria-label={ example.Title }>
-			for _, chart := range echartsexamples.LayoutCharts() {
-				@panel.Panel(panel.Config{Body: interactive.EChart(interactive.Config{Label: example.Title, Caption: "Interactive chart in the upstream " + example.Layout + " page layout.", Chart: chart})})
-			}
-		</section>
-	} else {
-		@panel.Panel(panel.Config{Body: interactive.EChart(interactive.Config{Label: example.Title, Caption: "Interactive go-echarts port using a pinned local runtime.", Chart: example.Build()})})
-	}
-	<p><a class="text-sm text-primary underline dark:text-primary-dark" href="/examples/go-echarts">All go-echarts examples</a></p>
 }
 
 templ statusPageContent() {

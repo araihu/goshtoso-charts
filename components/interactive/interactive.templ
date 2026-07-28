@@ -1,0 +1,15 @@
+package interactive
+
+import "github.com/araihu/goshtoso-charts/components/charttheme"
+
+templ interactiveTemplate(cfg renderConfig, element templ.Component, script templ.Component) {
+	@charttheme.Styles()
+	<figure class={ cfg.Style.RootClasses("goshtoso-charts-interactive") } role="img" aria-label={ cfg.Label } data-goshtoso-charts-explicit-colors={ explicitColors(cfg.Style) }>
+		@element
+		@script
+		@themeRuntime()
+		if cfg.Caption != "" {
+			<figcaption class="mt-2 text-sm text-on-surface dark:text-on-surface-dark">{ cfg.Caption }</figcaption>
+		}
+	</figure>
+}

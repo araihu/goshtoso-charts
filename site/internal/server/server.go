@@ -7,7 +7,6 @@ import (
 	shellassets "github.com/araihu/goshtoso-app-shells/componentdocshell/assets"
 	"github.com/araihu/goshtoso-charts/site/internal/brand"
 	"github.com/araihu/goshtoso-charts/site/internal/echartsassets"
-	"github.com/araihu/goshtoso-charts/site/internal/echartsexamples"
 	"github.com/araihu/goshtoso-charts/site/internal/pages"
 	"github.com/araihu/goshtoso-charts/site/internal/searchassets"
 	"github.com/araihu/goshtoso/assets"
@@ -43,49 +42,46 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/pie", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.PiePage(isFragment(request)))
 	})
-	mux.HandleFunc("GET /components/echarts/bar", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.EChartsBarPage(isFragment(request)))
+	mux.HandleFunc("GET /components/interactive/bar", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveBarPage(isFragment(request)))
 	})
-	mux.HandleFunc("GET /components/echarts/line", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.EChartsLinePage(isFragment(request)))
+	mux.HandleFunc("GET /components/interactive/line", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveLinePage(isFragment(request)))
 	})
-	mux.HandleFunc("GET /components/echarts/scatter", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.EChartsScatterPage(isFragment(request)))
+	mux.HandleFunc("GET /components/interactive/scatter", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveScatterPage(isFragment(request)))
 	})
+	mux.HandleFunc("GET /components/interactive/effect-scatter", func(writer http.ResponseWriter, request *http.Request) {
+		http.Redirect(writer, request, "/components/interactive/scatter", http.StatusPermanentRedirect)
+	})
+	mux.HandleFunc("GET /components/interactive/pie", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractivePiePage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /components/interactive/radar", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveRadarPage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /components/interactive/heatmap", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveHeatMapPage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /components/interactive/boxplot", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveBoxPlotPage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /components/interactive/gauge", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveGaugePage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /components/interactive/funnel", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveFunnelPage(isFragment(request)))
+	})
+	for _, component := range []string{"bar", "line", "scatter", "pie", "radar", "heatmap", "boxplot", "gauge", "funnel"} {
+		mux.HandleFunc("GET /components/echarts/"+component, func(writer http.ResponseWriter, request *http.Request) {
+			http.Redirect(writer, request, "/components/interactive/"+component, http.StatusPermanentRedirect)
+		})
+	}
 	mux.HandleFunc("GET /components/echarts/effect-scatter", func(writer http.ResponseWriter, request *http.Request) {
-		http.Redirect(writer, request, "/components/echarts/scatter", http.StatusPermanentRedirect)
-	})
-	mux.HandleFunc("GET /components/echarts/pie", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.EChartsPiePage(isFragment(request)))
-	})
-	mux.HandleFunc("GET /components/echarts/radar", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.EChartsRadarPage(isFragment(request)))
-	})
-	mux.HandleFunc("GET /components/echarts/heatmap", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.EChartsHeatMapPage(isFragment(request)))
-	})
-	mux.HandleFunc("GET /components/echarts/boxplot", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.EChartsBoxPlotPage(isFragment(request)))
-	})
-	mux.HandleFunc("GET /components/echarts/gauge", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.EChartsGaugePage(isFragment(request)))
-	})
-	mux.HandleFunc("GET /components/echarts/funnel", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.EChartsFunnelPage(isFragment(request)))
+		http.Redirect(writer, request, "/components/interactive/scatter", http.StatusPermanentRedirect)
 	})
 	mux.HandleFunc("GET /examples/status-page", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.StatusPageExample(isFragment(request)))
-	})
-	mux.HandleFunc("GET /examples/go-echarts", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.EChartsCatalogPage(echartsexamples.All(), isFragment(request)))
-	})
-	mux.HandleFunc("GET /examples/go-echarts/{slug}", func(writer http.ResponseWriter, request *http.Request) {
-		example, ok := echartsexamples.Find(request.PathValue("slug"))
-		if !ok {
-			http.NotFound(writer, request)
-			return
-		}
-		render(writer, request, pages.EChartsExamplePage(example, isFragment(request)))
 	})
 	return mux
 }

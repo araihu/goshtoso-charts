@@ -5,8 +5,6 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
-
-	"github.com/araihu/goshtoso-charts/site/internal/echartsexamples"
 )
 
 func TestDemoRoutesRender(t *testing.T) {
@@ -16,24 +14,22 @@ func TestDemoRoutesRender(t *testing.T) {
 		path string
 		want string
 	}{
-		{"/", "SSR charts for Goshtoso"},
+		{"/", "Charts for Goshtoso"},
 		{"/attributions", "Backing libraries"},
 		{"/components/heartbeat", "Heartbeat"},
 		{"/components/line", "Line chart"},
 		{"/components/bar", "Bar chart"},
 		{"/components/pie", "Pie chart"},
-		{"/components/echarts/bar", "ECharts bar"},
-		{"/components/echarts/line", "ECharts line"},
-		{"/components/echarts/scatter", "ECharts scatter"},
-		{"/components/echarts/pie", "ECharts pie"},
-		{"/components/echarts/radar", "ECharts radar"},
-		{"/components/echarts/heatmap", "ECharts heatmap"},
-		{"/components/echarts/boxplot", "ECharts box plot"},
-		{"/components/echarts/gauge", "ECharts gauge"},
-		{"/components/echarts/funnel", "ECharts funnel"},
+		{"/components/interactive/bar", "Interactive bar"},
+		{"/components/interactive/line", "Interactive line"},
+		{"/components/interactive/scatter", "Interactive scatter"},
+		{"/components/interactive/pie", "Interactive pie"},
+		{"/components/interactive/radar", "Interactive radar"},
+		{"/components/interactive/heatmap", "Interactive heatmap"},
+		{"/components/interactive/boxplot", "Interactive box plot"},
+		{"/components/interactive/gauge", "Interactive gauge"},
+		{"/components/interactive/funnel", "Interactive funnel"},
 		{"/examples/status-page", "Status page example"},
-		{"/examples/go-echarts", "go-echarts catalog"},
-		{"/examples/go-echarts/bar-basic", "Basic bar"},
 	} {
 		recorder := httptest.NewRecorder()
 		handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, test.path, nil))
@@ -60,8 +56,11 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 			t.Errorf("attributions page missing %q", want)
 		}
 	}
+	if strings.Contains(attributions.Body.String(), "optional extensions") {
+		t.Error("attributions page claims removed optional extensions are still pinned")
+	}
 
-	for _, path := range []string{"/components/echarts/bar", "/components/echarts/line", "/components/echarts/scatter", "/components/echarts/pie", "/components/echarts/radar", "/components/echarts/heatmap", "/components/echarts/boxplot", "/components/echarts/gauge", "/components/echarts/funnel"} {
+	for _, path := range []string{"/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter", "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap", "/components/interactive/boxplot", "/components/interactive/gauge", "/components/interactive/funnel"} {
 		page := httptest.NewRecorder()
 		handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, path, nil))
 		for _, unwanted := range []string{"backed by go-echarts", "with go-echarts options", ">go-echarts catalog<"} {
@@ -75,12 +74,26 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 func TestEffectScatterDocumentationRedirectsToUnifiedScatter(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()
-	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/echarts/effect-scatter", nil))
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/effect-scatter", nil))
 	if recorder.Code != http.StatusPermanentRedirect {
 		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusPermanentRedirect)
 	}
-	if location := recorder.Header().Get("Location"); location != "/components/echarts/scatter" {
+	if location := recorder.Header().Get("Location"); location != "/components/interactive/scatter" {
 		t.Fatalf("Location = %q, want unified scatter route", location)
+	}
+}
+
+func TestEngineNamedComponentRoutesRedirectToPublicInteractiveRoutes(t *testing.T) {
+	t.Parallel()
+	for _, component := range []string{"bar", "line", "scatter", "pie", "radar", "heatmap", "boxplot", "gauge", "funnel"} {
+		recorder := httptest.NewRecorder()
+		New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/echarts/"+component, nil))
+		if recorder.Code != http.StatusPermanentRedirect {
+			t.Errorf("GET legacy %s status = %d, want %d", component, recorder.Code, http.StatusPermanentRedirect)
+		}
+		if location := recorder.Header().Get("Location"); location != "/components/interactive/"+component {
+			t.Errorf("GET legacy %s Location = %q", component, location)
+		}
 	}
 }
 
@@ -96,45 +109,6 @@ func TestOverviewAndAttributionsUseNativeSidebarIcons(t *testing.T) {
 	}
 	if !strings.Contains(body, `href="/attributions"`) || !strings.Contains(body, `aria-current="page"`) {
 		t.Error("attributions navigation does not retain linked, active accessible state")
-	}
-}
-
-func TestEveryPortedEChartsRouteRenders(t *testing.T) {
-	t.Parallel()
-	handler := New()
-	for _, example := range echartsexamples.All() {
-		recorder := httptest.NewRecorder()
-		handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/examples/go-echarts/"+example.Slug, nil))
-		if recorder.Code != http.StatusOK {
-			t.Errorf("GET %s status = %d, want 200", example.Slug, recorder.Code)
-			continue
-		}
-		body := recorder.Body.String()
-		for _, want := range []string{example.Title, "echarts.init", "/charts/echarts/echarts@4.min.js"} {
-			if !strings.Contains(body, want) {
-				t.Errorf("GET %s missing %q", example.Slug, want)
-			}
-		}
-	}
-}
-
-func TestPageLayoutPortsRenderUpstreamChartSet(t *testing.T) {
-	t.Parallel()
-	for _, slug := range []string{"page-center-layout", "page-flex-layout", "page-none-layout"} {
-		recorder := httptest.NewRecorder()
-		New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/examples/go-echarts/"+slug, nil))
-		if count := strings.Count(recorder.Body.String(), "echarts.init"); count != 16 {
-			t.Errorf("GET %s renders %d charts, want 16", slug, count)
-		}
-	}
-}
-
-func TestUnknownEChartsExampleIsNotFound(t *testing.T) {
-	t.Parallel()
-	recorder := httptest.NewRecorder()
-	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/examples/go-echarts/not-real", nil))
-	if recorder.Code != http.StatusNotFound {
-		t.Fatalf("GET unknown example = %d, want 404", recorder.Code)
 	}
 }
 
@@ -168,14 +142,18 @@ func TestAssetsAreMountedWithoutStripPrefix(t *testing.T) {
 	}
 }
 
-func TestEChartsRuntimeIsLocal(t *testing.T) {
+func TestInteractiveRendererRuntimeIsLocal(t *testing.T) {
 	t.Parallel()
-	for _, path := range []string{"/charts/echarts/echarts@4.min.js", "/charts/echarts/echarts-gl.min.js", "/charts/echarts/echarts-liquidfill.min.js", "/charts/echarts/echarts-wordcloud.min.js", "/charts/echarts/maps/china.js", "/charts/echarts/maps/guangdong.js"} {
-		recorder := httptest.NewRecorder()
-		New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, path, nil))
-		if recorder.Code != http.StatusOK || recorder.Body.Len() == 0 {
-			t.Fatalf("GET %s status/body = %d/%d", path, recorder.Code, recorder.Body.Len())
-		}
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/charts/echarts/echarts@4.min.js", nil))
+	if recorder.Code != http.StatusOK || recorder.Body.Len() == 0 {
+		t.Fatalf("GET base runtime status/body = %d/%d", recorder.Code, recorder.Body.Len())
+	}
+
+	removed := httptest.NewRecorder()
+	New().ServeHTTP(removed, httptest.NewRequest(http.MethodGet, "/charts/echarts/echarts-gl.min.js", nil))
+	if removed.Code != http.StatusNotFound {
+		t.Fatalf("GET removed catalog extension status = %d, want %d", removed.Code, http.StatusNotFound)
 	}
 }
 
@@ -184,7 +162,7 @@ func TestComponentDocsNavigationHasSearchGroupsAndComponentContract(t *testing.T
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/heartbeat", nil))
 	body := recorder.Body.String()
-	for _, want := range []string{"Search docs...", "Server-rendered", "Interactive / Cartesian", "Examples", "component-doc-shell__sidebar", "components.KindHeartbeat", "Bar chart", "Pie chart", "Accessibility", "lg:grid-cols-2"} {
+	for _, want := range []string{"Search docs...", "Static / Vector", "Interactive / Cartesian", "Examples", "component-doc-shell__sidebar", "components.KindHeartbeat", "Bar chart", "Pie chart", "Accessibility", "lg:grid-cols-2"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("component docs page missing %q", want)
 		}

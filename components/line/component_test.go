@@ -27,7 +27,7 @@ func TestLineRendersSSRAccessibleSVG(t *testing.T) {
 		t.Fatalf("Render() error = %v", err)
 	}
 	markup := output.String()
-	for _, want := range []string{"<figure class=\"goshtoso-charts-line goshtoso-charts-palette goshtoso-charts-palette-pastel ring-2\" role=\"img\" aria-label=\"Weekly signups\"", "<svg", "Seven-day trend", "#123456", "var(--goshtoso-charts-surface)", "var(--font-paragraph), sans-serif"} {
+	for _, want := range []string{"<figure class=\"goshtoso-charts-line goshtoso-charts-palette goshtoso-charts-palette-pastel ring-2\" role=\"img\" aria-label=\"Weekly signups\"", "<svg", "Seven-day trend", "#123456", "var(--color-chart-surface)", "var(--font-paragraph), sans-serif"} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q:\n%s", want, markup)
 		}

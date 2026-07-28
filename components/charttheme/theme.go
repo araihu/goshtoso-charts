@@ -26,7 +26,7 @@ const (
 //
 // Colors replace the selected palette in order. Class is appended to the
 // chart's root figure and may contain Tailwind utility classes or an
-// application-defined class that overrides --goshtoso-charts-series-* tokens.
+// application-defined class that overrides --color-chart-* tokens.
 type Style struct {
 	Palette Palette
 	Colors  []string
@@ -40,9 +40,9 @@ var palettes = map[Palette][]string{
 	PalettePastel:  {"#93c5fd", "#fca5a5", "#86efac", "#fcd34d", "#c4b5fd", "#67e8f9", "#f9a8d4", "#bef264"},
 }
 
-// ResolvedColors returns a copy of the resolved literal palette. Explicit Style.Colors
-// take precedence. Auto uses Bold because browser chart renderers cannot
-// reliably resolve CSS custom properties into canvas colors.
+// ResolvedColors returns a copy of the initial literal palette. Explicit
+// Style.Colors take precedence. Auto starts with Bold; interactive components
+// replace it with computed theme tokens after the private runtime initializes.
 func (style Style) ResolvedColors() []string {
 	palette := style.Palette
 	if palette == PaletteAuto {
@@ -84,5 +84,5 @@ func (style Style) SeriesColor(index int) string {
 	if index >= 0 && index < len(style.Colors) && strings.TrimSpace(style.Colors[index]) != "" {
 		return style.Colors[index]
 	}
-	return "var(--goshtoso-charts-series-" + strconv.Itoa(index%8+1) + ")"
+	return "var(--color-chart-series-" + strconv.Itoa(index%8+1) + ")"
 }

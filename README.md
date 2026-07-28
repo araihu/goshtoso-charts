@@ -1,11 +1,10 @@
 # Goshtoso Charts
 
-SSR SVG charts for Go applications using [Goshtoso](https://github.com/araihu/goshtoso). Initial product driver: monitor detail and public status pages in Xisnove. Public API remains product-neutral.
+Static vector and interactive charts for Go applications using [Goshtoso](https://github.com/araihu/goshtoso). Initial product driver: monitor detail and public status pages in Xisnove. Public API remains product-neutral.
 
 `goshtoso-charts` provides Go/templ chart components in two layers: lightweight
-SSR SVG primitives and opt-in interactive components backed by go-echarts. No
-Node process or CDN asset is required; interactive consumers serve a pinned
-ECharts runtime from their own application.
+static vector primitives and opt-in interactive components. The public API is
+renderer-neutral, and no Node process or CDN asset is required.
 
 ## Install
 
@@ -19,9 +18,12 @@ go get github.com/araihu/goshtoso-charts
 
 Every chart follows Goshtoso component shape: a typed `Config`, concrete `Instance`, stable `Kind()`, and `templ.Component` rendering. Extension-owned kinds live in `github.com/araihu/goshtoso-charts/components`; they deliberately do not modify Goshtoso's core kind registry.
 
-Chart surfaces use Goshtoso tokens. Categorical series use chart-specific tokens
-(`--goshtoso-charts-series-1` through `--goshtoso-charts-series-8`) so a theme's
-small semantic palette does not make unrelated series look equivalent.
+Chart surfaces use Goshtoso tokens. Categorical series use Tailwind-compatible
+chart tokens (`--color-chart-series-1` through `--color-chart-series-8`) so a
+theme's small semantic palette does not make unrelated series look equivalent.
+Surface, outline, grid, and text equivalents use the same `--color-chart-*`
+namespace. Tailwind arbitrary-variable utilities such as
+`text-(--color-chart-series-1)` and `bg-(--color-chart-surface)` can reuse them.
 
 ## Chart palettes
 
@@ -50,10 +52,11 @@ Style: charttheme.Style{
 ```
 
 Application CSS may target `my-chart` and override any
-`--goshtoso-charts-series-*` token. Heartbeat keeps semantic status colors by
+`--color-chart-series-*` token. Heartbeat keeps semantic status colors by
 default; its `Colors` order is up, degraded, down, unknown. Interactive canvas
-charts cannot reliably consume CSS custom properties, so Auto uses Bold there;
-choose `PaletteAraiHu` when an interactive chart must match AraiHu explicitly.
+charts resolve these CSS tokens through the private runtime bridge and refresh
+when Goshtoso theme or dark-mode state changes. Explicit `Style.Colors` remain
+authoritative.
 
 ## Heartbeat
 
@@ -149,24 +152,25 @@ Use pie charts for a small categorical distribution that is meaningful as parts 
 
 Keep exact values in nearby text or a table when readers need them.
 
-## Interactive ECharts components
+## Interactive components
 
-Interactive components expose typed Goshtoso configs while retaining advanced
-go-echarts options. Bar and Line form the first public Cartesian pair.
+Interactive components expose only typed Goshtoso Charts configs. Renderer
+types and callbacks are implementation details and cannot cross the public API.
 
 ```templ
-@echarts.Bar(echarts.BarConfig{
+@interactive.Bar(interactive.BarConfig{
 	Label: "Weekly deployments",
 	XAxis: []string{"Mon", "Tue"},
-	Series: []echarts.BarSeries{{
+	Series: []interactive.BarSeries{{
 		Name: "Production",
-		Data: []opts.BarData{{Value: 3}, {Value: 5}},
+		Data: []interactive.BarData{{Value: 3}, {Value: 5}},
 	}},
 })
 ```
 
-Use application-owned values only. go-echarts supports executable option
-functions, so request- or user-controlled data must not enter raw options.
+Use application-owned values only. Shared `ChartOptions`, `SeriesOptions`, and
+component-specific typed variants provide controlled customization without
+exposing the backing renderer.
 
 ## Roadmap
 

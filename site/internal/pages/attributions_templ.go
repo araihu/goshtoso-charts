@@ -74,11 +74,11 @@ func attributionsContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = attributionCard("go-analyze/charts", "Go-native SVG renderer backing the server-rendered line, bar, and pie components.", "v0.6.0", "MIT", "https://github.com/go-analyze/charts", "https://github.com/go-analyze/charts/blob/v0.6.0/LICENSE").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = attributionCard("go-analyze/charts", "Go-native SVG renderer backing the static vector line, bar, and pie components.", "v0.6.0", "MIT", "https://github.com/go-analyze/charts", "https://github.com/go-analyze/charts/blob/v0.6.0/LICENSE").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = attributionCard("go-echarts", "Go adapter used to construct opt-in interactive chart components and examples.", "v2.7.2", "MIT", "https://github.com/go-echarts/go-echarts", "https://github.com/go-echarts/go-echarts/blob/v2.7.2/LICENSE").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = attributionCard("go-echarts", "Private Go adapter used by the renderer-neutral interactive components.", "v2.7.2", "MIT", "https://github.com/go-echarts/go-echarts", "https://github.com/go-echarts/go-echarts/blob/v2.7.2/LICENSE").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -86,7 +86,7 @@ func attributionsContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</section><section class=\"max-w-3xl rounded-radius border border-outline bg-surface-alt p-4 text-sm text-on-surface-muted dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark-muted\"><h2 class=\"font-title text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Local runtime notice</h2><p class=\"mt-2\">Interactive runtime files and optional extensions are pinned in this repository. Their checksums and redistribution notes live in <code>site/internal/echartsassets/NOTICE.md</code>.</p></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</section><section class=\"max-w-3xl rounded-radius border border-outline bg-surface-alt p-4 text-sm text-on-surface-muted dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark-muted\"><h2 class=\"font-title text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Local runtime notice</h2><p class=\"mt-2\">The private interactive runtime is pinned in this repository. Its checksum and redistribution notes live in <code>site/internal/echartsassets/NOTICE.md</code>.</p></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

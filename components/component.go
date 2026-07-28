@@ -25,27 +25,27 @@ const (
 	KindBarChart Kind = "bar-chart"
 	// KindPieChart identifies a categorical proportional breakdown chart.
 	KindPieChart Kind = "pie-chart"
-	// KindInteractiveECharts identifies a browser-rendered go-echarts chart.
-	KindInteractiveECharts Kind = "interactive-echarts"
-	KindEChartsBar         Kind = "echarts-bar"
-	KindEChartsLine        Kind = "echarts-line"
-	// KindEChartsScatter identifies a browser-rendered scatter chart.
-	KindEChartsScatter Kind = "echarts-scatter"
-	// KindEChartsPie identifies a browser-rendered pie chart.
-	KindEChartsPie Kind = "echarts-pie"
-	// KindEChartsRadar identifies a browser-rendered radar chart.
-	KindEChartsRadar Kind = "echarts-radar"
-	// KindEChartsHeatMap identifies a browser-rendered heat map chart.
-	KindEChartsHeatMap Kind = "echarts-heatmap"
-	// KindEChartsBoxPlot identifies a browser-rendered box plot chart.
-	KindEChartsBoxPlot Kind = "echarts-boxplot"
-	// KindEChartsGauge identifies a browser-rendered gauge chart.
-	KindEChartsGauge Kind = "echarts-gauge"
-	// KindEChartsFunnel identifies a browser-rendered funnel chart.
-	KindEChartsFunnel Kind = "echarts-funnel"
+	// KindInteractiveBar identifies a browser-rendered bar chart.
+	KindInteractiveBar Kind = "interactive-bar"
+	// KindInteractiveLine identifies a browser-rendered line chart.
+	KindInteractiveLine Kind = "interactive-line"
+	// KindInteractiveScatter identifies a browser-rendered scatter chart.
+	KindInteractiveScatter Kind = "interactive-scatter"
+	// KindInteractivePie identifies a browser-rendered pie chart.
+	KindInteractivePie Kind = "interactive-pie"
+	// KindInteractiveRadar identifies a browser-rendered radar chart.
+	KindInteractiveRadar Kind = "interactive-radar"
+	// KindInteractiveHeatMap identifies a browser-rendered heat map chart.
+	KindInteractiveHeatMap Kind = "interactive-heatmap"
+	// KindInteractiveBoxPlot identifies a browser-rendered box plot chart.
+	KindInteractiveBoxPlot Kind = "interactive-boxplot"
+	// KindInteractiveGauge identifies a browser-rendered gauge chart.
+	KindInteractiveGauge Kind = "interactive-gauge"
+	// KindInteractiveFunnel identifies a browser-rendered funnel chart.
+	KindInteractiveFunnel Kind = "interactive-funnel"
 )
 
-var allKinds = []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart, KindInteractiveECharts, KindEChartsBar, KindEChartsLine, KindEChartsScatter, KindEChartsPie, KindEChartsRadar, KindEChartsHeatMap, KindEChartsBoxPlot, KindEChartsGauge, KindEChartsFunnel}
+var allKinds = []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel}
 
 // AllKinds returns supported component kinds in stable order.
 func AllKinds() []Kind {
