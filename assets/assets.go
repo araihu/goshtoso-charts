@@ -15,9 +15,11 @@ const (
 	RuntimeCDNURL = "https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"
 	// RuntimeCDNIntegrity authenticates bytes served by RuntimeCDNURL.
 	RuntimeCDNIntegrity = "sha384-BQKzmHvQLMCAnL3UtDBA1Al5tFjsCz1wrMlIUA1wkzo14DYkRWjywW+p9pCj0cwd"
+	// ControlRuntimeURL is the versioned shared chart-controls runtime.
+	ControlRuntimeURL = Prefix + "js/controls/1/controls.js"
 )
 
-//go:embed js/runtime/echarts/5.4.3/echarts.min.js
+//go:embed js/runtime/echarts/5.4.3/echarts.min.js js/controls/1/controls.js
 var files embed.FS
 
 // Handler serves embedded assets at Prefix. Mount it directly at Prefix; the

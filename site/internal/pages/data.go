@@ -1,7 +1,11 @@
 package pages
 
 import (
+	"fmt"
+	"math/rand"
+
 	"github.com/araihu/goshtoso-charts/components/bar"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
@@ -43,10 +47,12 @@ templ Layout() {
 
 func sampleLatency() line.Config {
 	return line.Config{
-		Label:   "HTTPS monitor latency in milliseconds",
-		Caption: "Median latency, last seven checks.",
-		Labels:  []string{"08:00", "08:01", "08:02", "08:03", "08:04", "08:05", "08:06"},
-		Series:  []line.Series{{Name: "Latency (ms)", Values: []float64{42, 47, 900, 51, 2_000, 44, 46}}},
+		Label:    "HTTPS monitor latency in milliseconds",
+		Caption:  "Median latency, last seven checks.",
+		Labels:   []string{"08:00", "08:01", "08:02", "08:03", "08:04", "08:05", "08:06"},
+		Series:   []line.Series{{Name: "Latency (ms)", Values: []float64{42, 47, 900, 51, 2_000, 44, 46}}},
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "https-monitor-latency"},
 	}
 }
 
@@ -59,7 +65,9 @@ func sampleDeployments() bar.Config {
 			{Name: "Successful", Values: []float64{18, 12, 9}},
 			{Name: "Failed", Values: []float64{1, 2, 1}},
 		},
-		Stacked: true,
+		Stacked:  true,
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "deployments-by-environment"},
 	}
 }
 
@@ -72,27 +80,9 @@ func sampleObservationStates() pie.Config {
 			{Name: "Degraded", Value: 4},
 			{Name: "Down", Value: 2},
 		},
-	}
-}
-
-func sampleBasicScatter() scatter.Config {
-	return scatter.Config{
-		Label:      "Scatter series by day",
-		Caption:    "Five series across Monday through Sunday; the missing Thursday point in Email preserves the upstream null value.",
-		Categories: []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"},
-		Options:    scatter.Options{Size: 4},
-		Series: []scatter.Series{
-			{
-				Name:   "Email",
-				Points: scatterPoints([]string{"Mon", "Tue", "Wed", "Fri", "Sat", "Sun"}, []float64{120, 132, 101, 90, 230, 210}),
-			},
-			{
-				Name:   "Union Ads",
-				Points: scatterPoints([]string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}, []float64{220, 182, 191, 234, 290, 330, 310}),
-			},
-			{Name: "Video Ads", Points: scatterPoints([]string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}, []float64{150, 232, 201, 154, 190, 330, 410})},
-			{Name: "Direct", Points: scatterPoints([]string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}, []float64{320, 332, 301, 334, 390, 330, 320})},
-			{Name: "Search Engine", Points: scatterPoints([]string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}, []float64{820, 932, 901, 934, 1290, 1330, 1320})},
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export: &chartcontrol.ExportOptions{
+			Filename: "observation-states", Background: chartcontrol.ExportBackgroundTransparent,
 		},
 	}
 }
@@ -113,6 +103,8 @@ func sampleBasicRadar() radar.Config {
 			{Name: "Allocated Budget", Values: []float64{4200, 3000, 20000, 35000, 50000, 18000}},
 			{Name: "Actual Spending", Values: []float64{5000, 14000, 28000, 26000, 42000, 21000}},
 		},
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "basic-radar-chart"},
 	}
 }
 
@@ -128,12 +120,59 @@ func sampleBasicRadarOverride() radar.Config {
 	return cfg
 }
 
-func scatterPoints(categories []string, values []float64) []scatter.Point {
-	points := make([]scatter.Point, len(categories))
+func sampleDenseScatter() scatter.Config {
+	const dataPointCount = 1000
+	categories := make([]string, dataPointCount)
 	for index := range categories {
-		points[index] = scatter.Point{Category: categories[index], Value: values[index]}
+		categories[index] = fmt.Sprintf("foo %d", index)
 	}
-	return points
+	values := denseScatterValues(rand.New(rand.NewSource(20260728)), 3, dataPointCount, 10)
+	zero, maximum := 0.0, 280.0
+	noGap := false
+	return scatter.Config{
+		Label:      "Dense scatter data",
+		Caption:    "Three bounded random-walk series across 1,000 categories; sampled axis labels, trend lines, and maximum references summarize the shape. Applications own any adjacent exact-data view.",
+		Categories: categories,
+		Width:      600, Height: 400,
+		Options: scatter.Options{Size: 0.5, Trend: scatter.TrendLine{Kind: scatter.TrendSimpleMovingAverage, Period: 100}, ValueFormat: scatter.ValueFormatHumanized},
+		Series: []scatter.Series{
+			{Name: "One", Values: values[0], Options: scatter.Options{ReferenceLine: scatter.ReferenceLineMaximum}},
+			{Name: "Two", Values: values[1], Options: scatter.Options{ReferenceLine: scatter.ReferenceLineMaximum}},
+			{Name: "Three", Values: values[2]},
+		},
+		Title:    scatter.TitleOptions{Text: "Dense Scatter Chart Demo", Placement: scatter.PlacementCenter},
+		Legend:   scatter.LegendOptions{Orientation: scatter.LegendVertical, Placement: scatter.PlacementRight, Alignment: scatter.AlignmentRight, FontSize: 6},
+		XAxis:    scatter.CategoryAxisOptions{BoundaryGap: &noGap, LabelCount: 10, LabelFontSize: 6, LabelRotation: 45},
+		YAxis:    scatter.ValueAxisOptions{Min: &zero, Max: &maximum, Unit: 10, LabelSkip: 1, LabelFontSize: 6},
+		Padding:  scatter.Padding{Top: 16, Right: 32, Bottom: 16, Left: 16},
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "dense-scatter-data"},
+	}
+}
+
+func denseScatterValues(rng *rand.Rand, seriesCount, pointCount int, maxVariationPercentage float64) [][][]float64 {
+	data := make([][][]float64, seriesCount)
+	for seriesIndex := range data {
+		data[seriesIndex] = make([][]float64, pointCount)
+		for pointIndex := 0; pointIndex < pointCount; pointIndex++ {
+			if pointIndex == 0 {
+				data[seriesIndex][pointIndex] = []float64{rng.Float64() * 100}
+				continue
+			}
+			previous := data[seriesIndex][pointIndex-1][0]
+			variation := previous * maxVariationPercentage / 100
+			minimum, maximum := previous-variation, previous+variation
+			values := []float64{minimum + rng.Float64()*(maximum-minimum)}
+			if pointIndex%2 == 0 {
+				values = append(values, minimum+rng.Float64()*(maximum-minimum))
+			}
+			if pointIndex%10 == 0 {
+				values = append(values, minimum+rng.Float64()*(maximum-minimum))
+			}
+			data[seriesIndex][pointIndex] = values
+		}
+	}
+	return data
 }
 
 func lineCode() string {
@@ -169,29 +208,17 @@ func pieCode() string {
 
 func scatterCode() string {
 	return `@scatter.Scatter(scatter.Config{
-  Label: "Scatter series by day",
-  Categories: []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"},
-  Options: scatter.Options{Size: 4},
-  Series: []scatter.Series{
-    {
-      Name: "Email",
-      Points: []scatter.Point{
-        {Category: "Mon", Value: 120}, {Category: "Tue", Value: 132},
-        {Category: "Wed", Value: 101}, {Category: "Fri", Value: 90},
-        {Category: "Sat", Value: 230}, {Category: "Sun", Value: 210},
-      },
-    },
-    {
-      Name: "Union Ads",
-      Points: []scatter.Point{
-        {Category: "Mon", Value: 220}, {Category: "Tue", Value: 182},
-        {Category: "Wed", Value: 191}, {Category: "Thu", Value: 234},
-        {Category: "Fri", Value: 290}, {Category: "Sat", Value: 330},
-        {Category: "Sun", Value: 310},
-      },
-    },
-    // Video Ads, Direct, and Search Engine retain the same upstream values.
-  },
+	Label: "Dense scatter data",
+	Categories: labels,
+	Width: 600, Height: 400,
+	Options: scatter.Options{Size: 0.5, Trend: scatter.TrendLine{
+		Kind: scatter.TrendSimpleMovingAverage, Period: 100,
+	}},
+	Series: []scatter.Series{
+		{Name: "One", Values: values[0], Options: scatter.Options{ReferenceLine: scatter.ReferenceLineMaximum}},
+		{Name: "Two", Values: values[1], Options: scatter.Options{ReferenceLine: scatter.ReferenceLineMaximum}},
+		{Name: "Three", Values: values[2]},
+	},
 })`
 }
 

@@ -5,6 +5,7 @@ import (
 	"math"
 	"strconv"
 
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
 )
@@ -18,6 +19,10 @@ type ChartOptions struct {
 	XAxis     *AxisOptions
 	YAxis     *AxisOptions
 	Animation *bool
+	// Controls configures shared controls; Expand defaults on while fullscreen and collapse default off.
+	Controls chartcontrol.Options
+	// Export customizes or disables default PNG export.
+	Export *chartcontrol.ExportOptions
 }
 
 // TitleOptions configures chart title text and placement.

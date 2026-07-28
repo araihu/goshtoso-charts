@@ -7,8 +7,35 @@ import (
 	"testing"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
+
+func TestLineSupportsSharedControlsAndExport(t *testing.T) {
+	t.Parallel()
+	instance := Line(Config{
+		Label:    "Latency",
+		Labels:   []string{"Mon"},
+		Series:   []Series{{Name: "p95", Values: []float64{12}}},
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "latency"},
+	})
+	var output bytes.Buffer
+	if err := instance.Render(context.Background(), &output); err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	markup := output.String()
+	for _, want := range []string{
+		`data-goshtoso-chart-control="fullscreen"`,
+		`data-goshtoso-chart-control="collapse"`,
+		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`,
+		`>SVG</button>`, `>PNG</button>`,
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("markup missing %q", want)
+		}
+	}
+}
 
 func TestLineRendersSSRAccessibleSVG(t *testing.T) {
 	t.Parallel()
@@ -32,8 +59,8 @@ func TestLineRendersSSRAccessibleSVG(t *testing.T) {
 			t.Errorf("rendered markup missing %q:\n%s", want, markup)
 		}
 	}
-	if strings.Contains(markup, "<script") {
-		t.Errorf("SSR chart unexpectedly contains script: %s", markup)
+	if strings.Contains(markup, "echarts.init") {
+		t.Errorf("SSR chart unexpectedly contains interactive renderer initialization: %s", markup)
 	}
 }
 

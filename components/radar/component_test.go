@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	"github.com/a-h/templ"
+	chartassets "github.com/araihu/goshtoso-charts/assets"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	chart "github.com/go-analyze/charts"
@@ -59,8 +60,16 @@ func TestRadarRendersSSRAccessibleSVGAndExactValues(t *testing.T) {
 			t.Errorf("rendered markup missing %q:\n%s", want, markup)
 		}
 	}
-	if strings.Contains(markup, "<script") {
-		t.Errorf("SSR chart unexpectedly contains script: %s", markup)
+	if !strings.Contains(markup, `src="`+chartassets.ControlRuntimeURL+`"`) {
+		t.Errorf("SSR chart missing shared controls runtime")
+	}
+	if got := strings.Count(markup, "<script"); got != 1 {
+		t.Errorf("SSR chart script count = %d, want shared controls runtime only", got)
+	}
+	for _, want := range []string{`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`, `>SVG</button>`, `>PNG</button>`} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("radar shared wrapper missing %q", want)
+		}
 	}
 	if strings.Contains(markup, "rgba(5,5,5") || strings.Contains(markup, "rgba(6,6,6") {
 		t.Errorf("radar area fill retained private placeholder colors: %s", markup)

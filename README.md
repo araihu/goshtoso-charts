@@ -123,47 +123,67 @@ Keep exact values in nearby text or a table when readers need them.
 
 ## Scatter chart
 
-Use scatter charts for observations across explicit ordered categories. This
-example adapts the upstream
-`examples/1-Painter/scatter_chart-1-basic/main.go` dataset. Its null Thursday
-value is represented by omitting the typed point. Categories are equally spaced
-keys; use another component when a proportional numeric X axis is required.
+Use scatter charts for sparse observations or dense aligned samples across
+explicit ordered categories. This example adapts upstream
+`examples/1-Painter/scatter_chart-3-dense_data/main.go` with a fixed local RNG
+seed: three 1,000-category bounded random walks, repeated samples, SMA(100), and
+maximum references. Categories remain equally spaced keys.
 
 ```templ
 @scatter.Scatter(scatter.Config{
-	Label:      "Scatter series by day",
-	Categories: []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"},
-	Options:    scatter.Options{Size: 4},
+	Label:      "Dense scatter data",
+	Categories: labels,
+	Width: 600, Height: 400,
+	Options: scatter.Options{Size: 0.5, Trend: scatter.TrendLine{
+		Kind: scatter.TrendSimpleMovingAverage, Period: 100,
+	}},
 	Series: []scatter.Series{
-		{
-			Name: "Email",
-			Points: []scatter.Point{
-				{Category: "Mon", Value: 120},
-				{Category: "Tue", Value: 132},
-				{Category: "Wed", Value: 101},
-				{Category: "Fri", Value: 90},
-				{Category: "Sat", Value: 230},
-				{Category: "Sun", Value: 210},
-			},
-		},
-		{
-			Name: "Union Ads",
-			Points: []scatter.Point{
-				{Category: "Mon", Value: 220},
-				{Category: "Tue", Value: 182},
-				{Category: "Wed", Value: 191},
-				{Category: "Thu", Value: 234},
-				{Category: "Fri", Value: 290},
-				{Category: "Sat", Value: 330},
-				{Category: "Sun", Value: 310},
-			},
-		},
+		{Name: "One", Values: values[0], Options: scatter.Options{ReferenceLine: scatter.ReferenceLineMaximum}},
+		{Name: "Two", Values: values[1], Options: scatter.Options{ReferenceLine: scatter.ReferenceLineMaximum}},
+		{Name: "Three", Values: values[2]},
 	},
 })
 ```
 
-Marker symbol and size are typed options on the same component. Keep exact
-points in nearby text or a table when readers need them.
+`Values` aligns zero, one, or many samples to each category without repeating
+category strings. Sparse `Points` remains supported; one series cannot mix both.
+For large datasets, keep exact data in a caller-owned table, download, or drill-down
+instead of expanding thousands of values into the chart DOM.
+
+## Shared controls and export
+
+Every current chart accepts the same renderer-neutral control contract. All
+charts default to Expand plus capability-derived Export. Fullscreen and collapse
+remain independent opt-ins. Controls require the local `assets.Handler()` mount
+shown below.
+
+```go
+import "github.com/araihu/goshtoso-charts/components/chartcontrol"
+
+staticCfg.Controls = chartcontrol.Options{
+	Fullscreen:  true,
+	Collapsible: true,
+}
+staticCfg.Export = &chartcontrol.ExportOptions{
+	Filename: "weekly-signups",
+}
+
+interactiveCfg.Options.Controls = staticCfg.Controls
+interactiveCfg.Options.Export = staticCfg.Export
+
+// Explicit opt-outs remain renderer-neutral.
+staticCfg.Controls.Expand = chartcontrol.Bool(false)
+staticCfg.Export = &chartcontrol.ExportOptions{Disabled: true}
+```
+
+Static Line, Bar, Pie, Scatter, and Radar expose one Goshtoso Export dropdown
+with SVG and PNG. Current interactive components, including Sunburst, expose one
+direct PNG Export button.
+Zero proven formats render no Export control; one renders a direct button; more
+than one renders a Goshtoso Dropdown. Unsupported explicit formats fail
+rendering instead of creating dead controls. Expand, collapse, and fullscreen
+preserve chart DOM, interaction state, and live SSE instances.
+See the [capability matrix, layout contract, and pending integration checks](docs/chart-controls.md).
 
 ## Interactive components
 

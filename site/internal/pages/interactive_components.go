@@ -3,9 +3,18 @@ package pages
 import (
 	"fmt"
 
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 )
+
+func controlledOptions(title, filename string) interactive.ChartOptions {
+	return interactive.ChartOptions{
+		Title:    &interactive.TitleOptions{Text: title},
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: filename},
+	}
+}
 
 func sampleInteractiveBar() interactive.BarConfig {
 	return interactive.BarConfig{
@@ -15,7 +24,7 @@ func sampleInteractiveBar() interactive.BarConfig {
 			{Name: "Staging", Data: []interactive.BarData{{Value: 8}, {Value: 12}, {Value: 9}, {Value: 14}, {Value: 11}}},
 			{Name: "Production", Data: []interactive.BarData{{Value: 3}, {Value: 5}, {Value: 4}, {Value: 6}, {Value: 7}}},
 		},
-		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Deployments"}},
+		Options: controlledOptions("Deployments", "interactive-deployments"),
 	}
 }
 
@@ -24,7 +33,7 @@ func sampleInteractiveLine() interactive.LineConfig {
 		Label: "Weekly latency trend", Caption: "Interactive line component.",
 		XAxis:   []string{"Mon", "Tue", "Wed", "Thu", "Fri"},
 		Series:  []interactive.LineSeries{{Name: "Latency (ms)", Data: []interactive.LineData{{Value: 42}, {Value: 47}, {Value: 45}, {Value: 51}, {Value: 44}}}},
-		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Latency"}},
+		Options: controlledOptions("Latency", "interactive-latency"),
 	}
 }
 
@@ -38,7 +47,7 @@ func sampleInteractiveScatter() interactive.ScatterConfig {
 			Data: []interactive.ScatterData{{Value: 35}, {Value: 52}, {Value: 91}, {Value: 64}},
 		}},
 		Ripple:  &interactive.RippleOptions{Scale: 6, BrushType: "stroke"},
-		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Release impact"}},
+		Options: controlledOptions("Release impact", "release-impact"),
 	}
 }
 
@@ -49,7 +58,7 @@ func sampleInteractivePie() interactive.PieConfig {
 			Name: "Incidents", InnerRadius: 32, OuterRadius: 72,
 			Data: []interactive.PieData{{Name: "Open", Value: 12}, {Name: "Investigating", Value: 7}, {Name: "Resolved", Value: 28}},
 		}},
-		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Incident states"}},
+		Options: controlledOptions("Incident states", "incident-states"),
 	}
 }
 
@@ -69,7 +78,7 @@ func sampleInteractiveRadar() interactive.RadarConfig {
 				{Name: "Target", Values: []float64{100, 100, 165, 20}},
 			},
 		}},
-		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Service health"}},
+		Options: controlledOptions("Service health", "service-health"),
 	}
 }
 
@@ -87,7 +96,7 @@ func sampleInteractiveHeatMap() interactive.HeatMapConfig {
 				{X: 2, Y: 2, Value: 0}, {X: 3, Y: 2, Value: 8}, {X: 4, Y: 2, Value: 16},
 			},
 		}},
-		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Deployment activity"}},
+		Options: controlledOptions("Deployment activity", "deployment-activity"),
 	}
 }
 
@@ -103,7 +112,7 @@ func sampleInteractiveBoxPlot() interactive.BoxPlotConfig {
 				{Min: 25, Q1: 44, Median: 62, Q3: 86, Max: 138},
 			},
 		}},
-		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Request latency"}},
+		Options: controlledOptions("Request latency", "request-latency-distribution"),
 	}
 }
 
@@ -114,7 +123,7 @@ func sampleInteractiveGauge() interactive.GaugeConfig {
 		Series: []interactive.GaugeSeries{{
 			Name: "Rollout", Data: []interactive.GaugeData{{Name: "Complete", Value: 73}},
 		}},
-		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Deployment completion"}},
+		Options: controlledOptions("Deployment completion", "deployment-completion"),
 	}
 }
 
@@ -130,7 +139,7 @@ func sampleInteractiveFunnel() interactive.FunnelConfig {
 				{Name: "Deployed", Value: 48},
 			},
 		}},
-		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Release pipeline"}},
+		Options: controlledOptions("Release pipeline", "release-pipeline"),
 	}
 }
 
@@ -153,7 +162,7 @@ func sampleInteractiveGraph() interactive.Instance {
 		},
 		Roam:    interactive.GraphRoamEnabled,
 		Force:   &interactive.ForceOptions{Repulsion: 180, Gravity: 0.08, EdgeLength: 110},
-		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Service dependencies"}},
+		Options: controlledOptions("Service dependencies", "service-dependencies"),
 	})
 }
 
@@ -176,7 +185,7 @@ func sampleInteractiveSankey() interactive.Instance {
 			},
 		}},
 		Layout:  interactive.SankeyLayout{NodeWidth: 18, NodeGap: 14},
-		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "Request flow"}},
+		Options: controlledOptions("Request flow", "request-flow"),
 	})
 }
 
@@ -213,13 +222,10 @@ func sampleInteractiveTree() interactive.Instance {
 		InitialDepth: interactive.Int(-1),
 		NodeLabel:    &interactive.LabelOptions{Show: interactive.Bool(true), Position: "top"},
 		LeafLabel:    &interactive.LabelOptions{Show: interactive.Bool(true), Position: "right"},
-		Insets:       interactive.TreeInsets{Left: "8%", Right: "40%", Top: "12%", Bottom: "12%"},
+		Insets:       interactive.TreeInsets{Left: "14%", Right: "14%", Top: "12%", Bottom: "12%"},
 		Width:        "100%",
 		Height:       "440px",
-		Options: interactive.ChartOptions{
-			Title:  &interactive.TitleOptions{Text: "Basic tree example"},
-			Legend: &interactive.LegendOptions{Show: interactive.Bool(false)},
-		},
+		Options:      controlledOptions("Basic tree example", "basic-tree-example"),
 	})
 }
 
@@ -242,9 +248,11 @@ func sampleInteractiveSunburst() interactive.Instance {
 		Width:        "100%",
 		Height:       "32rem",
 		Options: interactive.ChartOptions{
-			Title:   &interactive.TitleOptions{Text: "Basic sunburst example"},
-			Legend:  &interactive.LegendOptions{Show: interactive.Bool(false)},
-			Tooltip: &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "item"},
+			Title:    &interactive.TitleOptions{Text: "Basic sunburst example"},
+			Legend:   &interactive.LegendOptions{Show: interactive.Bool(false)},
+			Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "item"},
+			Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Export:   &chartcontrol.ExportOptions{Filename: "basic-sunburst-example"},
 		},
 	})
 }
@@ -272,6 +280,8 @@ func liveAvailabilityBar(label, caption string, states []int) interactive.BarCon
 			},
 			YAxis:     &interactive.AxisOptions{Min: interactive.Float(0), Max: interactive.Float(1), Show: interactive.Bool(false)},
 			Animation: interactive.Bool(false),
+			Controls:  chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Export:    &chartcontrol.ExportOptions{Filename: "live-availability"},
 		},
 		SeriesOptions: interactive.SeriesOptions{Stack: "availability", BarWidth: "70%", BarGap: "0%"},
 	}
@@ -401,9 +411,10 @@ func interactiveChartBoxPlotCode() string {
 
 func interactiveChartGaugeCode() string {
 	return `@interactive.Gauge(interactive.GaugeConfig{
-  Label: "Deployment completion",
-  Variant: interactive.GaugeVariantProgress,
-  Series: []interactive.GaugeSeries{{
+	  Label: "Deployment completion",
+	  Variant: interactive.GaugeVariantProgress,
+	  Scale: interactive.GaugeScale{}, // Theme-aware cold-to-warm default.
+	  Series: []interactive.GaugeSeries{{
     Name: "Rollout",
     Data: []interactive.GaugeData{{Name: "Complete", Value: 73}},
   }},
@@ -478,7 +489,7 @@ func interactiveTreeCode() string {
   InitialDepth: interactive.Int(-1),
   NodeLabel: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "top"},
   LeafLabel: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "right"},
-  Insets: interactive.TreeInsets{Left: "8%", Right: "40%", Top: "12%", Bottom: "12%"},
+	Insets: interactive.TreeInsets{Left: "14%", Right: "14%", Top: "12%", Bottom: "12%"},
   Width: "100%",
   Height: "440px",
 })`

@@ -10,6 +10,7 @@ import (
 
 	"github.com/a-h/templ"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	"github.com/go-echarts/go-echarts/v2/render"
 )
@@ -23,12 +24,16 @@ type renderConfig struct {
 	Animation *bool
 	RootAttrs templ.Attributes
 	Details   templ.Component
+	Controls  chartcontrol.Options
+	Export    *chartcontrol.ExportOptions
 	// AxisLabelIntervals restore renderer-neutral integers after the private
 	// renderer serializes its string-only interval field.
 	AxisLabelIntervals []int
 	// ThemeSeriesItems lists series indexes whose renderer-specific item style
 	// is library-managed. Explicit caller item styles are never listed.
 	ThemeSeriesItems []int
+	// GaugeScale is private JSON consumed by the shared theme runtime.
+	GaugeScale string
 	// ScriptReplacements restore values that the private renderer cannot
 	// distinguish from omitted zero values.
 	ScriptReplacements []scriptReplacement
@@ -92,7 +97,11 @@ func (instance Instance) Render(ctx context.Context, writer io.Writer) error {
 	for _, replacement := range instance.cfg.ScriptReplacements {
 		snippet.Script = strings.ReplaceAll(snippet.Script, replacement.Old, replacement.New)
 	}
-	return interactiveTemplate(instance.cfg, templ.Raw(snippet.Element), templ.Raw(snippet.Script)).Render(ctx, writer)
+	chart := interactiveTemplate(instance.cfg, templ.Raw(snippet.Element), templ.Raw(snippet.Script))
+	return chartcontrol.Wrapper(chartcontrol.WrapperConfig{
+		Label: instance.cfg.Label, Controls: instance.cfg.Controls, Export: instance.cfg.Export,
+		Capability: chartcontrol.ExportCapabilityInteractiveRaster,
+	}, chart).Render(ctx, writer)
 }
 
 var _ chartcomponents.Component = Instance{}

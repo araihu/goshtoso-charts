@@ -77,6 +77,8 @@ func Line(cfg LineConfig) Instance {
 		Style:              cfg.Style,
 		Live:               cartesianLiveConfig(cfg.Live),
 		Animation:          cfg.Options.Animation,
+		Controls:           cfg.Options.Controls,
+		Export:             cfg.Options.Export,
 		AxisLabelIntervals: axisLabelIntervals(cfg.Options),
 	})
 }

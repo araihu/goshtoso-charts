@@ -10,6 +10,7 @@ import (
 
 	"github.com/a-h/templ"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	chart "github.com/go-analyze/charts"
 )
@@ -29,7 +30,11 @@ func (instance Instance) Render(ctx context.Context, writer io.Writer) error {
 	if err != nil {
 		return err
 	}
-	return radarTemplate(instance.cfg, templ.Raw(svg)).Render(ctx, writer)
+	chart := radarTemplate(instance.cfg, templ.Raw(svg))
+	return chartcontrol.Wrapper(chartcontrol.WrapperConfig{
+		Label: instance.cfg.Label, Controls: instance.cfg.Controls, Export: instance.cfg.Export,
+		Capability: chartcontrol.ExportCapabilityStaticSVG,
+	}, chart).Render(ctx, writer)
 }
 
 func renderSVG(cfg Config) (string, error) {

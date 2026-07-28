@@ -213,7 +213,7 @@ templ interactiveChartGaugeContent() {
 		Title: "Interactive gauge",
 		Description: "Reusable interactive gauge component for bounded readings, with standard and progress treatments under one stable component contract.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Show one or more current readings against an explicit bounded range.", "Primitive", "interactive.Gauge", "Kind", "components.KindInteractiveGauge", "Configuration", "Label, Caption, standard or progress Variant, Min and Max, typed Series and readings, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. State current values and the range in adjacent content when exact readings matter."),
+			AbovePreview: componentContract("Purpose", "Show one or more current readings against an explicit bounded range.", "Primitive", "interactive.Gauge", "Kind", "components.KindInteractiveGauge", "Configuration", "Label, Caption, standard or progress Variant, Min and Max, typed Series/readings, thermal/reversed/custom/single-color Scale, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Cold-to-warm communicates magnitude, never success/failure; state current values and the range in adjacent color-independent content."),
 			Preview: interactive.Gauge(sampleInteractiveGauge()),
 			Code: interactiveChartGaugeCode(),
 		},
@@ -322,13 +322,13 @@ templ pieContent() {
 templ scatterContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Scatter chart",
-		Description: "Categorical SSR SVG for showing repeated observations, clusters, and outliers across an explicit ordered set of keys.",
+		Description: "Dense categorical SSR SVG for repeated observations, trends, clusters, and outliers across an explicit ordered set of keys.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Compare distributions of observations across ordered categories without browser rendering.", "Primitive", "scatter.Scatter", "Kind", "components.KindScatterChart", "Configuration", "Label, Caption, ordered Categories, named Series with categorical Points, typed marker Symbol and Size options, Width, Height, root class and attributes, and chart palette.", "Accessibility", "Figure name comes from Label; Caption stays visible. Keep exact points in an adjacent table or text summary when values matter."),
-			Preview: scatter.Scatter(sampleBasicScatter()),
+			AbovePreview: componentContract("Purpose", "Compare dense or sparse distributions across ordered categories without browser rendering.", "Primitive", "scatter.Scatter", "Kind", "components.KindScatterChart", "Configuration", "Label, Caption, ordered Categories, named Series with sparse Points or aligned multi-sample Values, typed trend/reference/axis/legend/title/padding/marker/value-format options, dimensions, root attributes, and chart palette.", "Accessibility", "Figure name comes from Label; Caption stays bounded and visible. Applications provide an adjacent exact-data table, download, or drill-down when all samples matter; the chart never expands thousands of points into DOM text."),
+			Preview: scatter.Scatter(sampleDenseScatter()),
 			Code: scatterCode(),
 		},
-		After: demoNote("Category contract", "This preview adapts the upstream examples/1-Painter/scatter_chart-1-basic/main.go dataset. Categories define equally spaced keys in caller order; the upstream null is represented by omitting that typed point. Symbol and Size remain presentation options on this component."),
+		After: demoNote("Dense category contract", "This preview adapts upstream examples/1-Painter/scatter_chart-3-dense_data/main.go with a fixed local RNG seed: three 1,000-category bounded random walks, repeated samples, SMA(100), maximum references, compact axes and legend. Categories define aligned slots; Values permits zero, one, or multiple samples without repeated category lookups. Sparse Points remains supported but cannot be mixed within one series."),
 	})
 }
 

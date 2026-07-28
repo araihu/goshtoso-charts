@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/a-h/templ"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
 
@@ -65,6 +66,10 @@ type Config struct {
 	Height     int
 	Style      charttheme.Style
 	RootAttrs  templ.Attributes
+	// Controls configures shared controls; Expand defaults on while fullscreen and collapse default off.
+	Controls chartcontrol.Options
+	// Export customizes or disables default SVG and PNG export.
+	Export *chartcontrol.ExportOptions
 }
 
 func (cfg Config) validate() error {

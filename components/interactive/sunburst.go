@@ -124,6 +124,7 @@ func Sunburst(cfg SunburstConfig) Instance {
 	return newInstance(chartcomponents.KindInteractiveSunburst, renderConfig{
 		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style,
 		Animation: cfg.Options.Animation, RootAttrs: cfg.RootAttrs,
+		Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		Details: sunburstExactValues(flattenSunburstNodes(cfg.Nodes)),
 		ScriptReplacements: []scriptReplacement{
 			{Old: `"nodeClick":"` + sunburstDisabledNavigationValue + `"`, New: `"nodeClick":false`},

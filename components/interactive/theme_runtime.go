@@ -21,9 +21,10 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 (function () {
   "use strict";
   var key = "__goshtosoChartsThemeRuntime";
-  var runtime = window[key];
-  if (!runtime) {
-    var figures = new Set();
+	var runtime = window[key];
+	if (!runtime) {
+		var figures = new Set();
+		var observedHosts = new WeakSet();
     var scheduled = false;
     var colorCanvas = document.createElement("canvas");
     colorCanvas.width = 1;
@@ -37,7 +38,7 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
       var pixel = colorContext.getImageData(0, 0, 1, 1).data;
       return "rgba(" + pixel[0] + ", " + pixel[1] + ", " + pixel[2] + ", " + (pixel[3] / 255) + ")";
     };
-    var cssColor = function (figure, name, fallback) {
+		var cssColor = function (figure, name, fallback) {
       var probe = document.createElement("span");
       probe.hidden = true;
       probe.style.color = "var(" + name + ", " + fallback + ")";
@@ -45,7 +46,16 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
       var value = getComputedStyle(probe).color;
       probe.remove();
       return rendererColor(value, fallback);
-    };
+		};
+		var classColor = function (figure, className, fallback) {
+			var probe = document.createElement("span");
+			probe.hidden = true;
+			probe.className = className;
+			figure.appendChild(probe);
+			var value = getComputedStyle(probe).color;
+			probe.remove();
+			return rendererColor(value, fallback);
+		};
     var repeat = function (items, value) {
       return (items && items.length ? items : []).map(function () { return value; });
     };
@@ -71,8 +81,12 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
       if (!figure.isConnected || !window.echarts) return;
       var host = figure.querySelector("[_echarts_instance_]");
       if (!host) return;
-      var chart = window.echarts.getInstanceByDom(host);
-      if (!chart) return;
+			var chart = window.echarts.getInstanceByDom(host);
+			if (!chart) return;
+			if (!observedHosts.has(host) && resizeObserver) {
+				observedHosts.add(host);
+				resizeObserver.observe(host);
+			}
 
       var surface = cssColor(figure, "--color-chart-surface", "#ffffff");
       var surfaceAlt = cssColor(figure, "--color-chart-surface-alt", surface);
@@ -92,9 +106,19 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
       var explicitColors = figure.getAttribute("data-goshtoso-charts-explicit-colors") === "true";
       var explicitAnimation = figure.getAttribute("data-goshtoso-charts-explicit-animation") || "default";
       var palette = explicitColors && current.color && current.color.length ? current.color : seriesColors;
-      var themeSeriesItems = (figure.getAttribute("data-goshtoso-charts-theme-series-items") || "")
+			var themeSeriesItems = (figure.getAttribute("data-goshtoso-charts-theme-series-items") || "")
         .split(",").filter(Boolean).map(function (value) { return Number(value); });
-      var managesSeriesItem = function (index) { return themeSeriesItems.indexOf(index) !== -1; };
+			var managesSeriesItem = function (index) { return themeSeriesItems.indexOf(index) !== -1; };
+			var gaugeScale = null;
+			try { gaugeScale = JSON.parse(figure.getAttribute("data-goshtoso-charts-gauge-scale") || "null"); } catch (_) {}
+			var gaugeColors = gaugeScale && (gaugeScale.stops || []).map(function (stop) {
+				if (stop.token === "low") return scaleLow;
+				if (stop.token === "mid") return scaleMid;
+				if (stop.token === "high") return scaleHigh;
+				if (stop.class) return classColor(figure, stop.class, text);
+				return rendererColor(stop.color, text);
+			});
+			if (gaugeScale && gaugeScale.reverse) gaugeColors.reverse();
       var axis = {
         axisLabel: { color: muted },
         axisLine: { lineStyle: { color: outline } },
@@ -108,8 +132,12 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
         splitLine: { lineStyle: { color: grid } },
         splitArea: { areaStyle: { color: [surface, surfaceAlt] } }
       };
-      var themedSeries = (current.series || []).map(function (series, index) {
-        var themedItem = {
+			var themedSeries = (current.series || []).map(function (series, index) {
+				// Tree disclosure and Sunburst view-root state live inside their series
+				// models. Presentation-only series updates can rebuild those models.
+				// Global palette and text/background tokens still theme both.
+				if (series.type === "tree" || series.type === "sunburst") return null;
+				var themedItem = {
           id: series.id,
           name: series.name,
           animationDurationUpdate: 0,
@@ -121,8 +149,8 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
         if (series.type === "boxplot" && managesSeriesItem(index)) {
           themedItem.itemStyle = { color: palette[index % palette.length], borderColor: palette[index % palette.length] };
         }
-        if (series.type === "gauge") {
-          themedItem.axisLine = { lineStyle: { color: [[1, surfaceAlt]] } };
+			if (series.type === "gauge") {
+				themedItem.axisLine = { lineStyle: { width: 20, color: gaugeScale ? gaugeScale.stops.map(function (stop, stopIndex) { return [stop.position, gaugeColors[stopIndex]]; }) : [[1, surfaceAlt]] } };
           themedItem.axisLabel = { color: muted };
           themedItem.axisTick = { lineStyle: { color: outline } };
           themedItem.splitLine = { lineStyle: { color: outline } };
@@ -135,13 +163,13 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
           }
         }
         return themedItem;
-      });
+			}).filter(Boolean);
       var themedVisualMaps = (current.visualMap || []).map(function () {
         var visualMap = { textStyle: { color: text } };
         if (!explicitColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] };
         return visualMap;
       });
-      var themed = {
+			var themed = {
         backgroundColor: surface,
         textStyle: { color: text },
         title: repeat(current.title, { textStyle: { color: strong }, subtextStyle: { color: muted } }),
@@ -158,7 +186,20 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
           textStyle: { color: strong }
         }),
         series: themedSeries
-      };
+			};
+			var treeExpansion = [];
+			chart.getModel().eachSeriesByType("tree", function (seriesModel) {
+				var data = seriesModel.getData();
+				for (var dataIndex = 0; dataIndex < data.count(); dataIndex += 1) {
+					var node = data.tree.getNodeByDataIndex(dataIndex);
+					if (node && node.children && node.children.length) treeExpansion.push({ seriesIndex: seriesModel.seriesIndex, dataIndex: dataIndex, expanded: node.isExpand });
+				}
+			});
+			var sunburstViewRoots = [];
+			chart.getModel().eachSeriesByType("sunburst", function (seriesModel) {
+				var viewRoot = seriesModel.getViewRoot && seriesModel.getViewRoot();
+				if (viewRoot) sunburstViewRoots.push({ seriesIndex: seriesModel.seriesIndex, dataIndex: viewRoot.dataIndex });
+			});
       if (!explicitColors) {
         themed.color = seriesColors;
       }
@@ -168,7 +209,17 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
         themed.animationDuration = 0;
         themed.animationDurationUpdate = 0;
       }
-      chart.setOption(themed, { notMerge: false, lazyUpdate: false, silent: true });
+			chart.setOption(themed, { notMerge: false, lazyUpdate: false, silent: true });
+			treeExpansion.forEach(function (state) {
+				var seriesModel = chart.getModel().getSeriesByIndex(state.seriesIndex);
+				var node = seriesModel && seriesModel.getData().tree.getNodeByDataIndex(state.dataIndex);
+				if (node && node.isExpand !== state.expanded) chart.dispatchAction({ type: "treeExpandAndCollapse", seriesIndex: state.seriesIndex, dataIndex: state.dataIndex });
+			});
+			sunburstViewRoots.forEach(function (state) {
+				var seriesModel = chart.getModel().getSeriesByIndex(state.seriesIndex);
+				var targetNode = seriesModel && seriesModel.getData().tree.getNodeByDataIndex(state.dataIndex);
+				if (targetNode) chart.dispatchAction({ type: "sunburstRootToNode", seriesIndex: state.seriesIndex, targetNode: targetNode });
+			});
     };
     var refresh = function () {
       if (scheduled) return;

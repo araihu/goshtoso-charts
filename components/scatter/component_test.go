@@ -3,15 +3,42 @@ package scatter
 import (
 	"bytes"
 	"context"
+	"fmt"
 	"math"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/a-h/templ"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	chart "github.com/go-analyze/charts"
 )
+
+func TestScatterSupportsSharedControlsAndExport(t *testing.T) {
+	t.Parallel()
+	instance := Scatter(Config{
+		Label: "Samples", Categories: []string{"A"},
+		Series:   []Series{{Name: "Values", Points: []Point{{Category: "A", Value: 1}}}},
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "samples"},
+	})
+	var output bytes.Buffer
+	if err := instance.Render(context.Background(), &output); err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	for _, want := range []string{
+		`data-goshtoso-chart-control="fullscreen"`,
+		`data-goshtoso-chart-control="collapse"`,
+		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`,
+		`>SVG</button>`, `>PNG</button>`,
+	} {
+		if !strings.Contains(output.String(), want) {
+			t.Errorf("markup missing %q", want)
+		}
+	}
+}
 
 func TestScatterRendersSSRAccessibleSVG(t *testing.T) {
 	t.Parallel()
@@ -44,8 +71,8 @@ func TestScatterRendersSSRAccessibleSVG(t *testing.T) {
 			t.Errorf("rendered markup missing %q:\n%s", want, markup)
 		}
 	}
-	if strings.Contains(markup, "<script") {
-		t.Errorf("SSR chart unexpectedly contains script: %s", markup)
+	if strings.Contains(markup, "echarts.init") {
+		t.Errorf("SSR chart unexpectedly contains interactive renderer initialization: %s", markup)
 	}
 }
 
@@ -78,6 +105,46 @@ func TestScatterMapsCategoricalPointsAndTypedOptions(t *testing.T) {
 	}
 	if got := options.SeriesList[1].Values[0]; len(got) != 2 || got[0] != 3 || got[1] != 4 {
 		t.Fatalf("repeated category values = %v, want both samples", got)
+	}
+}
+
+func TestScatterMapsDenseAlignedDataAndRendererNeutralOptions(t *testing.T) {
+	t.Parallel()
+	minimum, maximum, gap := 0.0, 280.0, false
+	cfg := Config{
+		Label: "Dense", Categories: []string{"foo 0", "foo 1", "foo 2"},
+		Series: []Series{
+			{Name: "One", Values: [][]float64{{10}, {}, {11, 12, 13}}, Options: Options{ReferenceLine: ReferenceLineMaximum}},
+			{Name: "Two", Values: [][]float64{{20}, {21}, {22}}},
+		},
+		Options: Options{Size: .5, Trend: TrendLine{Kind: TrendSimpleMovingAverage, Period: 2}, ValueFormat: ValueFormatHumanized},
+		Title:   TitleOptions{Text: "Dense Scatter Chart Demo", Placement: PlacementCenter},
+		Legend:  LegendOptions{Orientation: LegendVertical, Placement: PlacementRight, Alignment: AlignmentRight, FontSize: 6},
+		XAxis:   CategoryAxisOptions{BoundaryGap: &gap, LabelCount: 10, LabelFontSize: 6, LabelRotation: 45},
+		YAxis:   ValueAxisOptions{Min: &minimum, Max: &maximum, Unit: 10, LabelSkip: 1, LabelFontSize: 6},
+		Padding: Padding{Top: 16, Right: 32, Bottom: 16, Left: 16},
+	}
+	options := scatterOptions(cfg)
+	if got := options.SeriesList[0].Values[2]; len(got) != 3 || got[2] != 13 {
+		t.Fatalf("aligned repeated samples = %v", got)
+	}
+	if options.Symbol.Size != .5 || len(options.SeriesList[0].TrendLine) != 1 || options.SeriesList[0].TrendLine[0].Period != 2 {
+		t.Fatalf("dense marker/trend options missing: %#v", options.SeriesList[0])
+	}
+	if len(options.SeriesList[0].MarkLine.Lines) != 1 || options.SeriesList[0].MarkLine.Lines[0].Type != chart.SeriesMarkTypeMax {
+		t.Fatalf("maximum reference missing: %#v", options.SeriesList[0].MarkLine)
+	}
+	if options.XAxis.LabelCount != 10 || math.Abs(options.XAxis.LabelRotation-math.Pi/4) > .0001 || options.XAxis.BoundaryGap == nil || *options.XAxis.BoundaryGap {
+		t.Fatalf("x axis = %#v", options.XAxis)
+	}
+	if options.YAxis[0].Min == nil || *options.YAxis[0].Min != 0 || options.YAxis[0].Max == nil || *options.YAxis[0].Max != 280 || options.YAxis[0].Unit != 10 || options.YAxis[0].LabelSkipCount != 1 {
+		t.Fatalf("y axis = %#v", options.YAxis[0])
+	}
+	if options.Title.Text != "Dense Scatter Chart Demo" || options.Title.Offset.Left != chart.PositionCenter || options.Legend.Offset.Left != chart.PositionRight || options.Legend.Vertical == nil || !*options.Legend.Vertical {
+		t.Fatalf("title/legend options missing: %#v %#v", options.Title, options.Legend)
+	}
+	if options.Padding.Left != 16 || options.Padding.Right != 32 {
+		t.Fatalf("padding = %#v", options.Padding)
 	}
 }
 
@@ -136,7 +203,14 @@ func TestScatterValidation(t *testing.T) {
 		{name: "categories", cfg: Config{Label: "Points", Series: []Series{{Name: "A"}}}, want: "at least one category"},
 		{name: "duplicate category", cfg: Config{Label: "Points", Categories: []string{"A", "A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: 2}}}}}, want: `category "A" is duplicated`},
 		{name: "series name", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Points: []Point{{Category: "A", Value: 2}}}}}, want: "series 1 needs a name"},
-		{name: "point", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A"}}}, want: `series "A" needs at least one point`},
+		{name: "point", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A"}}}, want: `series "A" needs points or aligned values`},
+		{name: "mixed data", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: 1}}, Values: [][]float64{{2}}}}}, want: `cannot use both points and aligned values`},
+		{name: "dense length", cfg: Config{Label: "Points", Categories: []string{"A", "B"}, Series: []Series{{Name: "A", Values: [][]float64{{1}}}}}, want: `aligned values length 1 must match 2 categories`},
+		{name: "dense value", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Values: [][]float64{{math.Inf(1)}}}}}, want: `sample 0 must contain a finite value`},
+		{name: "empty dense", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Values: [][]float64{{}}}}}, want: `needs at least one aligned value`},
+		{name: "trend period", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Values: [][]float64{{1}}}}, Options: Options{Trend: TrendLine{Kind: TrendSimpleMovingAverage, Period: 2}}}, want: `trend period cannot exceed category count`},
+		{name: "axis range", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Values: [][]float64{{1}}}}, YAxis: ValueAxisOptions{Min: float64Pointer(2), Max: float64Pointer(1)}}, want: `minimum must be less than maximum`},
+		{name: "padding", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Values: [][]float64{{1}}}}, Padding: Padding{Right: -1}}, want: `padding cannot be negative`},
 		{name: "category", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "B", Value: 2}}}}}, want: `references unknown category "B"`},
 		{name: "value", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: math.NaN()}}}}}, want: "must contain a finite value"},
 		{name: "symbol", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: 2}}}}, Options: Options{Symbol: "star"}}, want: `unsupported symbol "star"`},
@@ -157,6 +231,8 @@ func TestScatterValidation(t *testing.T) {
 	}
 }
 
+func float64Pointer(value float64) *float64 { return &value }
+
 func TestScatterEscapesProgrammaticSeriesColors(t *testing.T) {
 	t.Parallel()
 	instance := Scatter(Config{
@@ -175,5 +251,32 @@ func TestScatterEscapesProgrammaticSeriesColors(t *testing.T) {
 	}
 	if !strings.Contains(markup, `red&#34; onload=&#34;alert(1)`) {
 		t.Fatalf("escaped programmatic color missing from SVG: %s", markup)
+	}
+}
+
+func TestScatterDenseRenderStaysBounded(t *testing.T) {
+	t.Parallel()
+	categories := make([]string, 1000)
+	values := make([][]float64, 1000)
+	for index := range categories {
+		categories[index] = fmt.Sprintf("foo %d", index)
+		values[index] = []float64{float64(index % 280)}
+		if index%2 == 0 {
+			values[index] = append(values[index], float64((index+1)%280))
+		}
+	}
+	start := time.Now()
+	var output bytes.Buffer
+	if err := Scatter(Config{Label: "Dense", Categories: categories, Series: []Series{{Name: "One", Values: values}}, Width: 600, Height: 400}).Render(context.Background(), &output); err != nil {
+		t.Fatal(err)
+	}
+	if elapsed := time.Since(start); elapsed > 3*time.Second {
+		t.Fatalf("dense render took %s", elapsed)
+	}
+	if output.Len() < 100_000 {
+		t.Fatalf("dense render unexpectedly small: %d bytes", output.Len())
+	}
+	if strings.Count(output.String(), "<figcaption") > 1 {
+		t.Fatal("dense accessibility output exploded into per-point captions")
 	}
 }

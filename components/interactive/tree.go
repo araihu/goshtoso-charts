@@ -145,6 +145,12 @@ func Tree(cfg TreeConfig) Instance {
 		roots[index] = rendererTreeNode(root)
 	}
 	seriesOptions := []charts.SeriesOpts{treeChartOptions(cfg)}
+	seriesOptions = append(seriesOptions, func(series *charts.SingleSeries) {
+		// Tree relayout must settle before wrapper resize/theme transitions. Keep
+		// this private: callers configure whether animation exists, not engine timing.
+		series.AnimationDuration = 150
+		series.AnimationDurationUpdate = 100
+	})
 	if cfg.Symbol != TreeSymbolCircle || cfg.SymbolSize != 0 {
 		seriesOptions = append(seriesOptions, func(series *charts.SingleSeries) {
 			series.Symbol = rendererTreeSymbol(cfg.Symbol)
@@ -157,6 +163,7 @@ func Tree(cfg TreeConfig) Instance {
 
 	render := renderConfig{
 		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation,
+		Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 	}
 	if cfg.InitialDepth != nil && *cfg.InitialDepth == 0 {
 		render.ScriptReplacements = append(render.ScriptReplacements, scriptReplacement{
@@ -175,14 +182,15 @@ func treeChartOptions(cfg TreeConfig) charts.SeriesOpts {
 			initialDepth = treeInitialDepthZeroSentinel
 		}
 	}
+	insets := resolvedTreeInsets(cfg.Insets)
 	tree := opts.TreeChart{
 		Layout:           rendererTreeLayout(cfg.Layout),
 		Orient:           rendererTreeOrientation(cfg.Orientation),
 		InitialTreeDepth: initialDepth,
-		Left:             cfg.Insets.Left,
-		Right:            cfg.Insets.Right,
-		Top:              cfg.Insets.Top,
-		Bottom:           cfg.Insets.Bottom,
+		Left:             insets.Left,
+		Right:            insets.Right,
+		Top:              insets.Top,
+		Bottom:           insets.Bottom,
 	}
 	if cfg.Roam == TreeRoamEnabled {
 		tree.Roam = opts.Bool(true)
@@ -199,6 +207,22 @@ func treeChartOptions(cfg TreeConfig) charts.SeriesOpts {
 		tree.Leaves = &opts.TreeLeaves{Label: &label}
 	}
 	return charts.WithTreeOpts(tree)
+}
+
+func resolvedTreeInsets(insets TreeInsets) TreeInsets {
+	if insets.Left == "" {
+		insets.Left = "14%"
+	}
+	if insets.Right == "" {
+		insets.Right = "14%"
+	}
+	if insets.Top == "" {
+		insets.Top = "12%"
+	}
+	if insets.Bottom == "" {
+		insets.Bottom = "12%"
+	}
+	return insets
 }
 
 func rendererTreeNode(node *TreeNode) opts.TreeData {

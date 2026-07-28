@@ -1,0 +1,12 @@
+{
+  "name": "goshtoso-charts-site-tests",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "playwright": "1.61.1",
+    "sharp": "0.34.5"
+  },
+  "scripts": {
+    "test:chart-controls": "node --test browser/chart_controls.test.cjs"
+  }
+}

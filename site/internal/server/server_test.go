@@ -121,7 +121,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		"Foundation dependencies", "Chart and rendering libraries", "Bundled runtime and assets",
 		"Goshtoso", "v0.0.13", "Goshtoso App Shells", "commit 4c4aa5ae787e", "templ", "v0.3.1020",
 		"go-analyze/charts", "v0.6.0", "go-echarts", "v2.7.2", "Apache ECharts", "v5.4.3",
-		"examples/1-Painter/scatter_chart-1-basic/main.go",
+		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 		"examples/1-Painter/radar_chart-1-basic/main.go",
 		`href="https://github.com/araihu/goshtoso"`, `href="https://github.com/go-echarts/go-echarts"`,
 		`href="https://echarts.apache.org/"`, `href="https://github.com/apache/echarts/blob/5.4.3/LICENSE"`,
@@ -182,21 +182,21 @@ func TestSunburstDocumentationPreservesOfficialBasicExample(t *testing.T) {
 	}
 }
 
-func TestScatterDocumentationPreservesUpstreamBasicExample(t *testing.T) {
+func TestScatterDocumentationPreservesUpstreamDenseExample(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/scatter", nil))
 	body := recorder.Body.String()
 	for _, want := range []string{
-		"Scatter series by day", "Email", "Union Ads", "Video Ads", "Direct", "Search Engine",
-		"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
-		"examples/1-Painter/scatter_chart-1-basic/main.go",
+		"Dense scatter data", "Dense Scatter Chart Demo", "One", "Two", "Three",
+		"1,000 categories", "SMA(100)", "maximum references", "foo 0", "foo 999",
+		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("scatter documentation missing upstream example content %q", want)
 		}
 	}
-	for _, unwanted := range []string{"Dense sample populations", "population and sample index"} {
+	for _, unwanted := range []string{"Scatter series by day", "Email", "Union Ads", "Video Ads"} {
 		if strings.Contains(body, unwanted) {
 			t.Errorf("scatter documentation retains invented framing %q", unwanted)
 		}
@@ -476,6 +476,76 @@ func TestInteractiveRendererRuntimeIsLocal(t *testing.T) {
 	handler.ServeHTTP(removed, httptest.NewRequest(http.MethodGet, "/charts/echarts/echarts@4.min.js", nil))
 	if removed.Code != http.StatusNotFound {
 		t.Fatalf("GET removed catalog extension status = %d, want %d", removed.Code, http.StatusNotFound)
+	}
+}
+
+func TestEveryCurrentChartPageUsesSharedControlsAndCapabilityGating(t *testing.T) {
+	t.Parallel()
+	handler := New()
+	tests := []struct {
+		path         string
+		wantDropdown bool
+	}{
+		{path: "/components/line", wantDropdown: true},
+		{path: "/components/bar", wantDropdown: true},
+		{path: "/components/pie", wantDropdown: true},
+		{path: "/components/scatter", wantDropdown: true},
+		{path: "/components/interactive/bar"},
+		{path: "/components/interactive/line"},
+		{path: "/components/interactive/scatter"},
+		{path: "/components/interactive/heatmap"},
+		{path: "/components/interactive/pie"},
+		{path: "/components/interactive/radar"},
+		{path: "/components/interactive/boxplot"},
+		{path: "/components/interactive/gauge"},
+		{path: "/components/interactive/funnel"},
+		{path: "/components/interactive/graph"},
+		{path: "/components/interactive/sankey"},
+		{path: "/components/interactive/tree"},
+	}
+	for _, test := range tests {
+		t.Run(test.path, func(t *testing.T) {
+			recorder := httptest.NewRecorder()
+			handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, test.path, nil))
+			if recorder.Code != http.StatusOK {
+				t.Fatalf("GET %s status = %d", test.path, recorder.Code)
+			}
+			body := recorder.Body.String()
+			for _, want := range []string{
+				`data-goshtoso-chart-control="collapse"`,
+				`data-goshtoso-chart-control="fullscreen"`,
+				`data-goshtoso-chart-expand`, `role="dialog"`,
+				`src="` + chartassets.ControlRuntimeURL + `"`,
+			} {
+				if !strings.Contains(body, want) {
+					t.Errorf("GET %s missing %q", test.path, want)
+				}
+			}
+			if got := strings.Contains(body, `data-goshtoso-chart-export-menu`); got != test.wantDropdown {
+				t.Errorf("GET %s export dropdown presence = %t, want %t", test.path, got, test.wantDropdown)
+			}
+			if test.wantDropdown {
+				for _, want := range []string{`>SVG</button>`, `>PNG</button>`} {
+					if !strings.Contains(body, want) {
+						t.Errorf("GET %s dropdown missing %q", test.path, want)
+					}
+				}
+				if strings.Contains(body, `data-goshtoso-chart-export="`) {
+					t.Errorf("GET %s rendered direct export button for multi-format capability", test.path)
+				}
+			} else if !strings.Contains(body, `data-goshtoso-chart-export="png"`) {
+				t.Errorf("GET %s missing direct PNG export", test.path)
+			}
+		})
+	}
+}
+
+func TestChartControlRuntimeIsLocal(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, chartassets.ControlRuntimeURL, nil))
+	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), "requestFullscreen") {
+		t.Fatalf("GET control runtime status/body = %d/%q", recorder.Code, recorder.Body.String())
 	}
 }
 

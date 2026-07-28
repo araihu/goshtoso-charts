@@ -120,7 +120,7 @@ func Sankey(cfg SankeyConfig) Instance {
 	}
 
 	return newInstance(chartcomponents.KindInteractiveSankey, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 	})
 }
 

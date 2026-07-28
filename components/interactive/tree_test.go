@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
 
@@ -31,8 +32,12 @@ func TestTreeRendersConfiguredHierarchy(t *testing.T) {
 		Symbol:    TreeSymbolDiamond, SymbolSize: 18,
 		Insets: TreeInsets{Left: "8%", Right: "8%", Top: "12%", Bottom: "12%"},
 		Width:  "720px", Height: "420px",
-		Options: ChartOptions{Title: &TitleOptions{Text: "Ownership"}},
-		Style:   charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "overflow-x-auto"},
+		Options: ChartOptions{
+			Title:    &TitleOptions{Text: "Ownership"},
+			Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Export:   &chartcontrol.ExportOptions{Filename: "ownership"},
+		},
+		Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "overflow-x-auto"},
 	})
 
 	if instance.Kind() != chartcomponents.KindInteractiveTree {
@@ -54,6 +59,8 @@ func TestTreeRendersConfiguredHierarchy(t *testing.T) {
 		`"text":"Ownership"`, `"color":["#654321","#ff8a3d"`,
 		`"#abcdef"`, `"#123456"`,
 		"goshtoso-charts-palette-araihu overflow-x-auto",
+		`data-goshtoso-chart-control="fullscreen"`, `data-goshtoso-chart-control="collapse"`,
+		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
@@ -61,6 +68,12 @@ func TestTreeRendersConfiguredHierarchy(t *testing.T) {
 	}
 	if strings.Contains(markup, strconv.Itoa(treeInitialDepthZeroSentinel)) {
 		t.Fatal("rendered markup leaked initial-depth sentinel")
+	}
+	if strings.Contains(markup, `data-goshtoso-chart-export="svg"`) {
+		t.Fatal("interactive tree exposed unsupported SVG export")
+	}
+	if strings.Contains(markup, `data-goshtoso-chart-export-menu`) {
+		t.Fatal("interactive tree rendered dropdown for one format")
 	}
 }
 
@@ -77,7 +90,7 @@ func TestTreeRendersRadialAndExpandedVariantsWithSameKind(t *testing.T) {
 	if err := instance.Render(context.Background(), &output); err != nil {
 		t.Fatalf("Render() error = %v", err)
 	}
-	for _, want := range []string{`"layout":"radial"`, `"orient":"LR"`, `"initialTreeDepth":-1`} {
+	for _, want := range []string{`"layout":"radial"`, `"orient":"LR"`, `"initialTreeDepth":-1`, `"left":"14%"`, `"right":"14%"`, `"top":"12%"`, `"bottom":"12%"`, `"animationDuration":150`, `"animationDurationUpdate":100`} {
 		if !strings.Contains(output.String(), want) {
 			t.Errorf("rendered markup missing %q", want)
 		}

@@ -6,6 +6,7 @@ import (
 	"strings"
 	"testing"
 
+	chartassets "github.com/araihu/goshtoso-charts/assets"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
 )
 
@@ -28,8 +29,11 @@ func TestPieRendersSSRAccessibleSVG(t *testing.T) {
 			t.Errorf("rendered markup missing %q", want)
 		}
 	}
-	if strings.Contains(markup, "<script") {
-		t.Errorf("SSR chart unexpectedly contains script")
+	if !strings.Contains(markup, `src="`+chartassets.ControlRuntimeURL+`"`) {
+		t.Errorf("SSR chart missing shared controls runtime")
+	}
+	if got := strings.Count(markup, "<script"); got != 1 {
+		t.Errorf("SSR chart script count = %d, want shared controls runtime only", got)
 	}
 }
 

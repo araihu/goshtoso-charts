@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"html"
 	"io"
+	"math"
 	"strings"
 
 	"github.com/a-h/templ"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	chart "github.com/go-analyze/charts"
 )
@@ -28,7 +30,11 @@ func (instance Instance) Render(ctx context.Context, writer io.Writer) error {
 	if err != nil {
 		return err
 	}
-	return scatterTemplate(instance.cfg, templ.Raw(svg)).Render(ctx, writer)
+	chart := scatterTemplate(instance.cfg, templ.Raw(svg))
+	return chartcontrol.Wrapper(chartcontrol.WrapperConfig{
+		Label: instance.cfg.Label, Controls: instance.cfg.Controls, Export: instance.cfg.Export,
+		Capability: chartcontrol.ExportCapabilityStaticSVG,
+	}, chart).Render(ctx, writer)
 }
 
 func renderSVG(cfg Config) (string, error) {
@@ -61,10 +67,17 @@ func scatterOptions(cfg Config) chart.ScatterChartOption {
 	values := make([][][]float64, len(cfg.Series))
 	names := make([]string, len(cfg.Series))
 	for seriesIndex, series := range cfg.Series {
-		values[seriesIndex] = make([][]float64, len(cfg.Categories))
-		for _, point := range series.Points {
-			categoryIndex := categoryIndexes[point.Category]
-			values[seriesIndex][categoryIndex] = append(values[seriesIndex][categoryIndex], point.Value)
+		if series.Values != nil {
+			values[seriesIndex] = make([][]float64, len(series.Values))
+			for categoryIndex := range series.Values {
+				values[seriesIndex][categoryIndex] = append([]float64(nil), series.Values[categoryIndex]...)
+			}
+		} else {
+			values[seriesIndex] = make([][]float64, len(cfg.Categories))
+			for _, point := range series.Points {
+				categoryIndex := categoryIndexes[point.Category]
+				values[seriesIndex][categoryIndex] = append(values[seriesIndex][categoryIndex], point.Value)
+			}
 		}
 		names[seriesIndex] = series.Name
 	}
@@ -74,9 +87,61 @@ func scatterOptions(cfg Config) chart.ScatterChartOption {
 	options.Legend.SeriesNames = names
 	options.Theme = tokenPalette()
 	options.Symbol = chartSymbol(cfg.Options)
+	if cfg.Padding != (Padding{}) {
+		options.Padding = chart.NewBox(cfg.Padding.Left, cfg.Padding.Top, cfg.Padding.Right, cfg.Padding.Bottom)
+	}
+	options.Title.Text = cfg.Title.Text
+	if cfg.Title.Placement == PlacementCenter {
+		options.Title.Offset = chart.OffsetCenter
+	}
+	if cfg.Legend.Orientation == LegendVertical {
+		options.Legend.Vertical = chart.Ptr(true)
+	}
+	switch cfg.Legend.Placement {
+	case PlacementCenter:
+		options.Legend.Offset = chart.OffsetCenter
+	case PlacementRight:
+		options.Legend.Offset = chart.OffsetRight
+	}
+	switch cfg.Legend.Alignment {
+	case AlignmentRight:
+		options.Legend.Align = chart.AlignRight
+	case AlignmentCenter:
+		options.Legend.Align = chart.AlignCenter
+	}
+	if cfg.Legend.FontSize > 0 {
+		options.Legend.FontStyle = chart.NewFontStyleWithSize(cfg.Legend.FontSize)
+	}
+	options.XAxis.BoundaryGap = cfg.XAxis.BoundaryGap
+	options.XAxis.LabelCount = cfg.XAxis.LabelCount
+	options.XAxis.LabelRotation = cfg.XAxis.LabelRotation * math.Pi / 180
+	if cfg.XAxis.LabelFontSize > 0 {
+		options.XAxis.LabelFontStyle = chart.NewFontStyleWithSize(cfg.XAxis.LabelFontSize)
+	}
+	if len(options.YAxis) == 0 {
+		options.YAxis = []chart.YAxisOption{{}}
+	}
+	options.YAxis[0].Min, options.YAxis[0].Max = cfg.YAxis.Min, cfg.YAxis.Max
+	options.YAxis[0].Unit, options.YAxis[0].LabelSkipCount = cfg.YAxis.Unit, cfg.YAxis.LabelSkip
+	if cfg.YAxis.LabelFontSize > 0 {
+		options.YAxis[0].LabelFontStyle = chart.NewFontStyleWithSize(cfg.YAxis.LabelFontSize)
+	}
 	for index, series := range cfg.Series {
+		resolved := series.Options.resolved(cfg.Options)
 		options.SeriesList[index].Name = series.Name
-		options.SeriesList[index].Symbol = chartSymbol(series.Options.resolved(cfg.Options))
+		options.SeriesList[index].Symbol = chartSymbol(resolved)
+		if resolved.Trend.Kind == TrendSimpleMovingAverage {
+			options.SeriesList[index].TrendLine = []chart.SeriesTrendLine{{Type: chart.SeriesTrendTypeSMA, Period: resolved.Trend.Period}}
+		}
+		if resolved.ReferenceLine == ReferenceLineMaximum {
+			options.SeriesList[index].MarkLine.AddLines(chart.SeriesMarkTypeMax)
+		}
+		if resolved.ValueFormat == ValueFormatHumanized {
+			formatter := func(value float64) string { return chart.FormatValueHumanizeShort(value, 0, false) }
+			options.SeriesList[index].Label.ValueFormatter = formatter
+			options.SeriesList[index].MarkLine.ValueFormatter = formatter
+			options.ValueFormatter = formatter
+		}
 	}
 	return options
 }

@@ -1,8 +1,10 @@
 package interactive
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
+	"strings"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
@@ -36,6 +38,31 @@ type GaugeConfig struct {
 	Options       ChartOptions
 	SeriesOptions SeriesOptions
 	Style         charttheme.Style
+	Scale         GaugeScale
+}
+
+// GaugeScaleMode selects scale treatment. Zero value is thermal sequential.
+type GaugeScaleMode string
+
+const (
+	GaugeScaleThermal     GaugeScaleMode = ""
+	GaugeScaleCustom      GaugeScaleMode = "custom"
+	GaugeScaleSingleColor GaugeScaleMode = "single-color"
+)
+
+// GaugeScale configures the full Min-to-Max arc independently from progress.
+type GaugeScale struct {
+	Mode    GaugeScaleMode
+	Reverse bool
+	Stops   []GaugeScaleStop
+	Color   string
+	Class   string
+}
+
+// GaugeScaleStop applies a semantic color from the prior stop through Value.
+type GaugeScaleStop struct {
+	Value        float64
+	Color, Class string
 }
 
 // GaugeSeries describes one named dial series. Series options override variant defaults.
@@ -124,8 +151,35 @@ func Gauge(cfg GaugeConfig) Instance {
 	}
 
 	return newInstance(chartcomponents.KindInteractiveGauge, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, ThemeSeriesItems: themeSeriesItems,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, ThemeSeriesItems: themeSeriesItems, GaugeScale: gaugeScaleJSON(cfg, minimum, maximum),
 	})
+}
+
+type gaugeScalePayload struct {
+	Mode    string                  `json:"mode"`
+	Reverse bool                    `json:"reverse,omitempty"`
+	Stops   []gaugeScalePayloadStop `json:"stops,omitempty"`
+}
+type gaugeScalePayloadStop struct {
+	Position float64 `json:"position"`
+	Color    string  `json:"color,omitempty"`
+	Class    string  `json:"class,omitempty"`
+	Token    string  `json:"token,omitempty"`
+}
+
+func gaugeScaleJSON(cfg GaugeConfig, minimum, maximum int) string {
+	payload := gaugeScalePayload{Mode: string(cfg.Scale.Mode), Reverse: cfg.Scale.Reverse}
+	if cfg.Scale.Mode == GaugeScaleCustom {
+		for _, stop := range cfg.Scale.Stops {
+			payload.Stops = append(payload.Stops, gaugeScalePayloadStop{Position: (stop.Value - float64(minimum)) / float64(maximum-minimum), Color: stop.Color, Class: stop.Class})
+		}
+	} else if cfg.Scale.Mode == GaugeScaleSingleColor {
+		payload.Stops = []gaugeScalePayloadStop{{Position: 1, Color: cfg.Scale.Color, Class: cfg.Scale.Class}}
+	} else {
+		payload.Stops = []gaugeScalePayloadStop{{Position: .34, Token: "low"}, {Position: .67, Token: "mid"}, {Position: 1, Token: "high"}}
+	}
+	data, _ := json.Marshal(payload)
+	return string(data)
 }
 
 func gaugeVariantOptions(variant GaugeVariant, minimum, maximum int) charts.SeriesOpts {
@@ -134,7 +188,7 @@ func gaugeVariantOptions(variant GaugeVariant, minimum, maximum int) charts.Seri
 		series.Max = maximum
 		if variant == GaugeVariantProgress {
 			series.Progress = &opts.Progress{
-				Show: opts.Bool(true), RoundCap: opts.Bool(true), Clip: opts.Bool(true),
+				Show: opts.Bool(true), Width: 6, RoundCap: opts.Bool(true), Clip: opts.Bool(true),
 			}
 			series.Pointer = &opts.Pointer{Show: opts.Bool(false)}
 		}
@@ -160,6 +214,9 @@ func validateGaugeConfig(cfg GaugeConfig) error {
 	if minimum >= maximum {
 		return fmt.Errorf("gauge chart minimum must be less than maximum")
 	}
+	if err := validateGaugeScale(cfg.Scale, minimum, maximum); err != nil {
+		return err
+	}
 	if len(cfg.Series) == 0 {
 		return fmt.Errorf("gauge chart series is required")
 	}
@@ -181,6 +238,50 @@ func validateGaugeConfig(cfg GaugeConfig) error {
 				return fmt.Errorf("gauge chart series %q data point %q value must be between %d and %d", series.Name, point.Name, minimum, maximum)
 			}
 		}
+	}
+	return nil
+}
+
+func validateGaugeScale(scale GaugeScale, minimum, maximum int) error {
+	if scale.Mode != GaugeScaleThermal && scale.Mode != GaugeScaleCustom && scale.Mode != GaugeScaleSingleColor {
+		return fmt.Errorf("gauge chart scale mode %q is not supported", scale.Mode)
+	}
+	validPaint := func(color, class string) bool {
+		return (strings.TrimSpace(color) == "") != (strings.TrimSpace(class) == "")
+	}
+	if scale.Mode == GaugeScaleThermal {
+		if len(scale.Stops) > 0 || scale.Color != "" || scale.Class != "" {
+			return fmt.Errorf("gauge chart thermal scale does not accept custom paint")
+		}
+		return nil
+	}
+	if scale.Mode == GaugeScaleSingleColor {
+		if !validPaint(scale.Color, scale.Class) {
+			return fmt.Errorf("gauge chart single-color scale requires exactly one color or class")
+		}
+		if len(scale.Stops) > 0 {
+			return fmt.Errorf("gauge chart single-color scale does not accept stops")
+		}
+		return nil
+	}
+	if len(scale.Stops) < 2 {
+		return fmt.Errorf("gauge chart custom scale requires at least two stops")
+	}
+	previous := float64(minimum)
+	for index, stop := range scale.Stops {
+		if math.IsNaN(stop.Value) || math.IsInf(stop.Value, 0) || stop.Value < float64(minimum) || stop.Value > float64(maximum) {
+			return fmt.Errorf("gauge chart scale stop %d value must be within gauge range", index)
+		}
+		if index > 0 && stop.Value <= previous {
+			return fmt.Errorf("gauge chart scale stops must be strictly increasing")
+		}
+		if !validPaint(stop.Color, stop.Class) {
+			return fmt.Errorf("gauge chart scale stop %d requires exactly one color or class", index)
+		}
+		previous = stop.Value
+	}
+	if scale.Stops[len(scale.Stops)-1].Value != float64(maximum) {
+		return fmt.Errorf("gauge chart final scale stop must equal maximum")
 	}
 	return nil
 }

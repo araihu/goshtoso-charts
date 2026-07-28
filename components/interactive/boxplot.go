@@ -101,7 +101,7 @@ func BoxPlot(cfg BoxPlotConfig) Instance {
 	}
 
 	return newInstance(chartcomponents.KindInteractiveBoxPlot, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, AxisLabelIntervals: axisLabelIntervals(cfg.Options), ThemeSeriesItems: themeSeriesItems,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, AxisLabelIntervals: axisLabelIntervals(cfg.Options), ThemeSeriesItems: themeSeriesItems,
 	})
 }
 

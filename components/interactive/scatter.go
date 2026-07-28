@@ -92,7 +92,7 @@ func Scatter(cfg ScatterConfig) Instance {
 			}
 			chart.AddSeries(series.Name, data, scatterSeriesOptions(cfg, series)...)
 		}
-		return newInstance(chartcomponents.KindInteractiveScatter, renderConfig{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, AxisLabelIntervals: axisLabelIntervals(cfg.Options)})
+		return newInstance(chartcomponents.KindInteractiveScatter, renderConfig{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, AxisLabelIntervals: axisLabelIntervals(cfg.Options)})
 	}
 
 	chart := charts.NewScatter()
@@ -110,7 +110,7 @@ func Scatter(cfg ScatterConfig) Instance {
 		}
 		chart.AddSeries(series.Name, data, scatterSeriesOptions(cfg, series)...)
 	}
-	return newInstance(chartcomponents.KindInteractiveScatter, renderConfig{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, AxisLabelIntervals: axisLabelIntervals(cfg.Options)})
+	return newInstance(chartcomponents.KindInteractiveScatter, renderConfig{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, AxisLabelIntervals: axisLabelIntervals(cfg.Options)})
 }
 
 func scatterSeriesOptions(cfg ScatterConfig, series ScatterSeries) []charts.SeriesOpts {

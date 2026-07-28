@@ -1,5 +1,7 @@
 # Goshtoso integration snags
 
+- Interactive charts require one library-owned ResizeObserver so canvases follow consumer layout changes after initialization. Future chart components, including Sunburst, must register through the shared interactive runtime instead of creating component-specific observers.
+
 ## 2026-07-27: templ control flow must remain structurally separate
 
 The first `bar.templ` draft placed `@chart` and `if cfg.Caption != ""` on one
@@ -108,3 +110,28 @@ parity at 607px desktop and 277px mobile while preserving the same renderer
 instance across layout and theme changes. Wrapper integration may carry
 equivalent observer logic; reconcile that single private seam rather than
 adding component-specific resize runtimes.
+
+## 2026-07-28: chart controls generated templ import
+
+- `control.templ` initially imported `github.com/a-h/templ` because it used
+  `templ.Attributes` and `templ.SafeURL`. `templ generate` already injects that
+  import for generated templates, producing `templ redeclared in this block`.
+  Templ expressions may use the generated import without declaring it in the
+  source import block.
+
+## 2026-07-28: templ source paths depend on generation root
+
+Running `templ generate` from the repository root writes nested-site source-map
+filenames with a `site/` prefix, while running it from the nested `site` module
+writes the same filenames relative to that module. A whole-root check and a
+nested-site check therefore cannot both accept one generated path spelling.
+The clean gate checks each root component template with `templ generate -check
+-f`, then runs `GOWORK=off templ generate -check` from `site`.
+
+## 2026-07-28: Modal has no component-content slot
+
+Goshtoso v0.0.13 `modal.Config` accepts `Body` text but no `templ.Component`
+body or slot. Chart Expand still uses `modal.Modal` for its labeled dialog,
+Escape handling, focus trap, scroll lock, backdrop, and focus restoration; the
+private controls runtime relocates the same chart content node into the Modal
+body while open, then restores it without recreating renderer state.

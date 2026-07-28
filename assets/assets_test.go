@@ -35,3 +35,20 @@ func TestHandlerDoesNotServeUnversionedRuntimeAlias(t *testing.T) {
 		t.Fatalf("GET unversioned runtime status = %d, want %d", recorder.Code, http.StatusNotFound)
 	}
 }
+
+func TestHandlerServesVersionedChartControlRuntime(t *testing.T) {
+	t.Parallel()
+
+	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodGet, assets.ControlRuntimeURL, nil)
+	assets.Handler().ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("GET %s status = %d, want %d", assets.ControlRuntimeURL, recorder.Code, http.StatusOK)
+	}
+	for _, want := range []string{"requestFullscreen", "getDataURL", "goshtoso-charts:resize"} {
+		if !strings.Contains(recorder.Body.String(), want) {
+			t.Errorf("control runtime missing %q", want)
+		}
+	}
+}
