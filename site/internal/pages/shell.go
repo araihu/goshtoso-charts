@@ -5,6 +5,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/araihu/goshtoso-app-shells/componentdocshell"
+	"github.com/araihu/goshtoso-charts/site/internal/brand"
 	"github.com/araihu/goshtoso/components/sidebar"
 )
 
@@ -14,17 +15,24 @@ func tocID(title string) string {
 
 func shellPage(title string, active string, content templ.Component) componentdocshell.Page {
 	return componentdocshell.Page{
-		Title:       title,
-		Description: "Server-rendered chart components for Goshtoso applications.",
-		Active:      active,
-		Content:     content,
-		EnableTOC:   active == "heartbeat" || active == "line",
+		Title:         title,
+		DocumentTitle: title + " · Goshtoso Charts",
+		Description:   "Server-rendered chart components for Goshtoso applications.",
+		Active:        active,
+		Content:       content,
+		Head:          brand.Head(),
+		EnableTOC:     active == "heartbeat" || active == "line",
 	}
 }
 
 func shellConfig() componentdocshell.Config {
 	return componentdocshell.Config{
-		Brand: componentdocshell.GoshtosoBrand("Goshtoso Charts", "/", ""),
+		Brand: componentdocshell.Brand{
+			Name:       "Charts",
+			HomeURL:    "/",
+			Logo:       brand.Logo(),
+			FaviconURL: brand.IconURL(),
+		},
 		Navigation: componentdocshell.Navigation{
 			Items: []sidebar.Item{
 				{ID: "overview", Label: "Overview", Href: "/"},
