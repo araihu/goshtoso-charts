@@ -228,7 +228,7 @@ func Parallel(cfg ParallelConfig) Instance {
 	}
 
 	return newInstance(chartcomponents.KindInteractiveParallel, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, ResponsiveWidth: responsiveWidth(cfg.Width),
 		Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		RootAttrs: cfg.RootAttrs, Details: parallelExactValues(cfg.Dimensions, flattenParallelRows(cfg.Series, maxParallelDetailRows)),
 		ScriptReplacements: replacements,

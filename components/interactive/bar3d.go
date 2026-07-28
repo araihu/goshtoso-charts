@@ -182,7 +182,7 @@ func Bar3D(cfg Bar3DConfig) Instance {
 	paintJSON, _ := json.Marshal(paints)
 
 	return newInstance(chartcomponents.KindInteractiveBar3D, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style, ResponsiveWidth: responsiveWidth(cfg.Width),
 		Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		RootAttrs: cfg.RootAttrs, Details: bar3DExactCells(cfg.Axes, cfg.Series),
 		ExplicitVisualMapColors: cfg.VisualRange != nil && cfg.VisualRange.Palette != Bar3DPaletteColdToWarm,

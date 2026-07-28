@@ -196,11 +196,12 @@ test("tree expansion state and instance survive collapse and fullscreen", async 
   }
 });
 
-test("shared ResizeObserver converges a 847px interactive canvas into a 607px flex host without re-init", async () => {
+test("shared ResizeObserver converges a responsive interactive canvas after its consumer container shrinks without re-init", async () => {
   const page = await pageAt("/components/interactive/tree");
   try {
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
-    await wrapper.evaluate((element) => {
+    const sizes = await wrapper.evaluate((element) => {
+      const content = element.querySelector("[data-goshtoso-chart-content]");
       const host = element.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);
       const data = instance.getModel().getSeriesByIndex(0).getData();
@@ -209,22 +210,180 @@ test("shared ResizeObserver converges a 847px interactive canvas into a 607px fl
       instance.dispatchAction({ type: "treeExpandAndCollapse", seriesIndex: 0, dataIndex: nodeIndex });
       element.__flexInstance = instance;
       element.__flexNodeIndex = nodeIndex;
-      host.style.width = "847px";
-      instance.resize();
+      const large = Math.min(847, content.clientWidth);
+      const small = Math.max(320, large - 240);
+      content.style.width = `${large}px`;
+      return { large, small };
     });
-    await page.waitForFunction(() => document.querySelector("[_echarts_instance_]").clientWidth === 847);
-    await wrapper.evaluate((element) => { element.querySelector("[_echarts_instance_]").style.width = "607px"; });
-    await page.waitForFunction(() => {
+    await page.waitForFunction((width) => document.querySelector("[_echarts_instance_]").clientWidth === width, sizes.large);
+    await wrapper.evaluate((element, width) => {
+      element.querySelector("[data-goshtoso-chart-content]").style.width = `${width}px`;
+    }, sizes.small);
+    await page.waitForFunction((width) => {
       const host = document.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);
-      return host.clientWidth === 607 && instance.getWidth() === 607 && Math.round(host.querySelector("canvas").getBoundingClientRect().width) === 607;
-    });
+      return host.clientWidth === width && instance.getWidth() === width && Math.round(host.querySelector("canvas").getBoundingClientRect().width) === width;
+    }, sizes.small);
     assert.deepEqual(await wrapper.evaluate((element) => {
       const host = element.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);
       const node = instance.getModel().getSeriesByIndex(0).getData().tree.getNodeByDataIndex(element.__flexNodeIndex);
       return { sameInstance: instance === element.__flexInstance, expanded: node.isExpand, host: host.clientWidth, chart: instance.getWidth(), canvas: Math.round(host.querySelector("canvas").getBoundingClientRect().width) };
-    }), { sameInstance: true, expanded: true, host: 607, chart: 607, canvas: 607 });
+    }), { sameInstance: true, expanded: true, host: sizes.small, chart: sizes.small, canvas: sizes.small });
+  } finally {
+    await page.close();
+  }
+});
+
+test("Bar, Line, Pie, and Tree settle across narrow/dark and wide/light modal geometry without animation reset", async () => {
+  const cases = [
+    ["/components/interactive/bar", "Weekly deployments by environment"],
+    ["/components/interactive/line", "Weekly latency trend"],
+    ["/components/interactive/pie", "Incident states"],
+    ["/components/interactive/tree", "Basic tree example"],
+  ];
+  const displays = [
+    { viewport: { width: 390, height: 844 }, dark: true },
+    { viewport: { width: 1440, height: 1000 }, dark: false },
+  ];
+  for (const [route, label] of cases) {
+    for (const display of displays) {
+      const page = await pageAt(route, display.viewport);
+      try {
+        await page.evaluate((dark) => document.documentElement.classList.toggle("dark", dark), display.dark);
+        const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+        await wrapper.evaluate((element) => {
+          const content = element.querySelector("[data-goshtoso-chart-content]");
+          const host = element.querySelector("[_echarts_instance_]");
+          const instance = window.echarts.getInstanceByDom(host);
+          element.__responsiveContent = content;
+          element.__responsiveHost = host;
+          element.__responsiveInstance = instance;
+          element.__responsiveResizeOptions = [];
+          const resize = instance.resize;
+          instance.resize = function (options) {
+            element.__responsiveResizeOptions.push(options || null);
+            return resize.apply(this, arguments);
+          };
+        });
+        await page.waitForFunction(() => {
+          const host = document.querySelector("[data-goshtoso-chart-wrapper] [_echarts_instance_]");
+          const chart = window.echarts.getInstanceByDom(host);
+          return chart.getWidth() === host.clientWidth && chart.getHeight() === host.clientHeight;
+        });
+        const initial = await wrapper.evaluate((element) => {
+          const content = element.querySelector("[data-goshtoso-chart-content]");
+          const host = element.querySelector("[_echarts_instance_]");
+          const hostRect = host.getBoundingClientRect();
+          const contentRect = content.getBoundingClientRect();
+          return {
+            contained: hostRect.width <= contentRect.width + 1,
+            centerDelta: Math.abs((hostRect.left + hostRect.right - contentRect.left - contentRect.right) / 2),
+          };
+        });
+        assert.equal(initial.contained, true, `${route} overflowed ${display.viewport.width}px preview`);
+        assert.ok(initial.centerDelta <= 1, `${route} center delta ${initial.centerDelta}`);
+
+        const trigger = wrapper.locator("[data-goshtoso-chart-expand] > div > button").first();
+        await trigger.click();
+        const dialog = wrapper.getByRole("dialog", { name: label });
+        await dialog.waitFor({ state: "visible" });
+        await page.waitForTimeout(350);
+        const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
+        if (await collapse.count()) assert.equal(await collapse.isHidden(), true);
+        await dialog.locator(".goshtoso-charts-expand-panel").evaluate((panel) => {
+          panel.style.width = "70vw";
+          window.dispatchEvent(new Event("resize"));
+        });
+        await page.waitForTimeout(250);
+        const expanded = await wrapper.evaluate((element) => {
+          const host = element.querySelector("[_echarts_instance_]");
+          const instance = window.echarts.getInstanceByDom(host);
+          const canvas = host.querySelector("canvas");
+          return {
+            sameContent: element.__responsiveContent === element.querySelector("[data-goshtoso-chart-content]"),
+            sameHost: element.__responsiveHost === host,
+            sameInstance: element.__responsiveInstance === instance,
+            chartWidth: instance.getWidth(),
+            chartHeight: instance.getHeight(),
+            hostWidth: host.clientWidth,
+            hostHeight: host.clientHeight,
+            canvasWidth: Math.round(canvas.getBoundingClientRect().width),
+            canvasHeight: Math.round(canvas.getBoundingClientRect().height),
+            instanceHosts: element.querySelectorAll("[_echarts_instance_]").length,
+          };
+        });
+        assert.equal(expanded.sameContent, true);
+        assert.equal(expanded.sameHost, true);
+        assert.equal(expanded.sameInstance, true);
+        assert.equal(expanded.instanceHosts, 1);
+        assert.deepEqual(
+          { width: expanded.chartWidth, height: expanded.chartHeight, canvasWidth: expanded.canvasWidth, canvasHeight: expanded.canvasHeight },
+          { width: expanded.hostWidth, height: expanded.hostHeight, canvasWidth: expanded.hostWidth, canvasHeight: expanded.hostHeight },
+        );
+
+        await dialog.getByRole("button", { name: "close modal" }).click();
+        await dialog.waitFor({ state: "hidden" });
+        await page.waitForTimeout(350);
+        const restored = await wrapper.evaluate((element) => ({
+          sameContent: element.__responsiveContent === element.querySelector("[data-goshtoso-chart-content]"),
+          sameHost: element.__responsiveHost === element.querySelector("[_echarts_instance_]"),
+          sameInstance: element.__responsiveInstance === window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]")),
+          resizeOptions: element.__responsiveResizeOptions,
+          collapseVisible: !element.querySelector('[data-goshtoso-chart-control="collapse"]').hidden,
+        }));
+        assert.equal(restored.sameContent, true);
+        assert.equal(restored.sameHost, true);
+        assert.equal(restored.sameInstance, true);
+        assert.equal(restored.collapseVisible, true);
+        assert.ok(restored.resizeOptions.length >= 2, `${route} observed ${restored.resizeOptions.length} resize calls`);
+        for (const options of restored.resizeOptions) {
+          assert.equal(options?.animation?.duration, 0, `${route} resize restarted animation`);
+        }
+      } finally {
+        await page.close();
+      }
+    }
+  }
+});
+
+test("responsive registration is idempotent and unobserves host and container after removal", async () => {
+  const page = await browser.newPage({ viewport: { width: 900, height: 800 } });
+  try {
+    await page.addInitScript(() => {
+      const NativeResizeObserver = window.ResizeObserver;
+      globalThis.__responsiveObserved = [];
+      globalThis.__responsiveUnobserved = [];
+      window.ResizeObserver = class extends NativeResizeObserver {
+        observe(target) {
+          globalThis.__responsiveObserved.push(target);
+          return super.observe(target);
+        }
+        unobserve(target) {
+          globalThis.__responsiveUnobserved.push(target);
+          return super.unobserve(target);
+        }
+      };
+    });
+    await page.goto(`${baseURL}/components/interactive/bar`);
+    await page.locator("[data-goshtoso-chart-wrapper]").first().waitFor();
+    await page.waitForFunction(() => Boolean(window.__goshtosoChartsThemeRuntime));
+    const observed = await page.evaluate(() => {
+      const figure = document.querySelector(".goshtoso-charts-interactive");
+      const host = figure.querySelector("[_echarts_instance_]");
+      host.dataset.resizeProbe = "host";
+      host.parentElement.dataset.resizeProbe = "container";
+      const before = globalThis.__responsiveObserved.filter((target) => target === host || target === host.parentElement).length;
+      window.__goshtosoChartsThemeRuntime.register(figure);
+      const after = globalThis.__responsiveObserved.filter((target) => target === host || target === host.parentElement).length;
+      return { before, after };
+    });
+    assert.deepEqual(observed, { before: 2, after: 2 });
+    await page.locator("[data-goshtoso-chart-wrapper]").first().evaluate((element) => element.remove());
+    await page.waitForFunction(() => {
+      const probes = globalThis.__responsiveUnobserved.map((target) => target.dataset.resizeProbe);
+      return probes.includes("host") && probes.includes("container");
+    });
   } finally {
     await page.close();
   }

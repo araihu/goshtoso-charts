@@ -130,7 +130,7 @@ func ThemeRiver(cfg ThemeRiverConfig) Instance {
 		})
 	}
 	return newInstance(chartcomponents.KindInteractiveThemeRiver, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style, ResponsiveWidth: responsiveWidth(cfg.Width),
 		Animation: cfg.Options.Animation, RootAttrs: cfg.RootAttrs,
 		Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		Details:            themeRiverExactValues(themeRiverDetailRows(cfg.Streams, maxThemeRiverDetailRows)),

@@ -13,6 +13,7 @@
     "test:gauge-liquid": "node --test browser/gauge_liquid.test.cjs",
     "test:geo": "node --test browser/geo.test.cjs",
     "test:line-dual-axis": "node --test browser/line_dual_axis.test.cjs",
+    "test:line3d": "node --test browser/line3d.test.cjs",
     "test:pie": "node --test browser/pie.test.cjs",
     "test:surface3d": "node --test browser/surface3d.test.cjs",
     "test:table": "node --test browser/table.test.cjs",

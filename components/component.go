@@ -49,6 +49,8 @@ const (
 	KindInteractiveBar3D Kind = "interactive-bar-3d"
 	// KindInteractiveSurface3D identifies a browser-rendered three-dimensional surface chart.
 	KindInteractiveSurface3D Kind = "interactive-surface-3d"
+	// KindInteractiveLine3D identifies a browser-rendered three-dimensional line chart.
+	KindInteractiveLine3D Kind = "interactive-line-3d"
 	// KindInteractivePie identifies a browser-rendered pie chart.
 	KindInteractivePie Kind = "interactive-pie"
 	// KindInteractiveRadar identifies a browser-rendered radar chart.
@@ -87,7 +89,7 @@ const (
 	KindInteractiveGeo Kind = "interactive-geo"
 )
 
-var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindCandlestickChart, KindHeatMapChart, KindFunnelChart, KindTable, KindViolinChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractiveScatter3D, KindInteractiveBar3D, KindInteractiveSurface3D, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst, KindInteractiveTreemap, KindInteractiveParallel, KindInteractiveThemeRiver, KindInteractiveCandlestick, KindInteractiveWordCloud, KindInteractiveMap, KindInteractiveGeo}
+var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindCandlestickChart, KindHeatMapChart, KindFunnelChart, KindTable, KindViolinChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractiveScatter3D, KindInteractiveBar3D, KindInteractiveSurface3D, KindInteractiveLine3D, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst, KindInteractiveTreemap, KindInteractiveParallel, KindInteractiveThemeRiver, KindInteractiveCandlestick, KindInteractiveWordCloud, KindInteractiveMap, KindInteractiveGeo}
 
 // AllKinds returns supported chart kinds in stable order. Document-level
 // dependency components are intentionally excluded.

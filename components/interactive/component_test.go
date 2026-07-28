@@ -52,7 +52,7 @@ func TestEChartRendersTrustedSnippet(t *testing.T) {
 	t.Parallel()
 	bar := charts.NewBar()
 	bar.SetXAxis([]string{"Mon", "Tue"}).AddSeries("Signups", []opts.BarData{{Value: 12}, {Value: 18}})
-	instance := newInstance(chartcomponents.KindInteractiveBar, renderConfig{Label: "Weekly signups", Caption: "Interactive example.", Chart: bar})
+	instance := newInstance(chartcomponents.KindInteractiveBar, renderConfig{Label: "Weekly signups", Caption: "Interactive example.", Chart: bar, ResponsiveWidth: true})
 	if instance.Kind() != chartcomponents.KindInteractiveBar {
 		t.Fatalf("Kind() = %q", instance.Kind())
 	}
@@ -65,6 +65,7 @@ func TestEChartRendersTrustedSnippet(t *testing.T) {
 		"goshtoso-charts-interactive", "Weekly signups", "echarts.init", "Interactive example.",
 		`data-goshtoso-charts-explicit-colors="false"`,
 		`data-goshtoso-charts-explicit-animation="default"`,
+		`data-goshtoso-charts-responsive-width="true"`,
 		"data-goshtoso-charts-theme-runtime", `--color-chart-text-strong`,
 		`backgroundColor: surface`, `title: repeat`, `legend: repeat`, `xAxis: repeat`,
 		`yAxis: repeat`, `radar: repeat`, `visualMap: themedVisualMaps`, `tooltip: repeat`,
@@ -73,15 +74,35 @@ func TestEChartRendersTrustedSnippet(t *testing.T) {
 		`--color-chart-series-`, `themed.color = seriesColors`,
 		`--color-chart-scale-low`, `--color-chart-scale-mid`, `--color-chart-scale-high`,
 		`getImageData`, `rendererColor`,
-		`ResizeObserver`, `pendingResizeHosts`, `scheduleResize(entry.target)`, `data-goshtoso-charts-gauge-scale`,
+		`ResizeObserver`, `responsiveFigures`, `targetFigures`, `data-goshtoso-charts-gauge-scale`,
 		`data-goshtoso-charts-candlestick-styles`, `series.type === "boxplot"`, `series.type === "candlestick"`, `series.type === "gauge"`,
 		`themedVisualMaps`, `current.color`, `themeSeriesItems`,
 		`matchMedia("(prefers-color-scheme: dark)")`,
 		`matchMedia("(prefers-reduced-motion: reduce)")`,
-		`ResizeObserver`, `chart.resize()`,
+		`data-goshtoso-charts-line3d-auto-rotate`, `series.type === "line3D"`,
+		`autoRotate: !reduceMotion`,
+		`ResizeObserver`, `chart.resize({ width: width, height: height, animation: { duration: 0 } })`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
+		}
+	}
+}
+
+func TestResponsiveWidthOnlyDefaultsOmittedAndFullWidthHosts(t *testing.T) {
+	t.Parallel()
+	for _, test := range []struct {
+		width string
+		want  bool
+	}{
+		{want: true},
+		{width: "100%", want: true},
+		{width: " 100% ", want: true},
+		{width: "720px", want: false},
+		{width: "48rem", want: false},
+	} {
+		if got := responsiveWidth(test.width); got != test.want {
+			t.Errorf("responsiveWidth(%q) = %t, want %t", test.width, got, test.want)
 		}
 	}
 }
@@ -90,7 +111,6 @@ func TestThemeRuntimeUsesIdentityPreservingImmediateSilentMerge(t *testing.T) {
 	t.Parallel()
 	for _, unwanted := range []string{
 		`chart.setOption(themed, false, true)`,
-		`subtree: true`,
 		`type: series.type`,
 	} {
 		if strings.Contains(themeRuntimeMarkup, unwanted) {
@@ -102,11 +122,11 @@ func TestThemeRuntimeUsesIdentityPreservingImmediateSilentMerge(t *testing.T) {
 		`notMerge: false`, `lazyUpdate: false`, `silent: true`,
 		`explicitAnimation === "default"`, `themed.animation = false`,
 		`subtree: false`,
-		`resizeObserver.observe(host)`,
+		`resizeObserver.observe(target)`,
 		`requestAnimationFrame(function ()`,
 		`if (!explicitVisualMapColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] }`,
 		`series.type === "map"`, `item.sourceColor`, `item.className`,
-		`gaugeScale.stops.map`, `observedHosts`,
+		`gaugeScale.stops.map`, `observeTarget`,
 		`if (value === inherited) return rendererColor(fallback, fallback)`,
 		`series.type === "tree" || series.type === "sunburst" || series.type === "treemap"`,
 		`Never`, `partial Treemap levels`,
@@ -126,32 +146,72 @@ func TestThemeRuntimeResizesCanvasAfterConsumerHostShrinks(t *testing.T) {
 	// wrapper and responsive layout changes without replacing the chart instance.
 	for _, want := range []string{
 		`var resizeObserver = window.ResizeObserver ? new ResizeObserver`,
-		`entries.forEach(function (entry) { scheduleResize(entry.target); });`,
-		`if (resizeObserver && host) resizeObserver.observe(host);`,
-		`scheduleResize(host);`,
+		`observeTarget(figure, host);`,
+		`observeTarget(figure, host && host.parentElement);`,
+		`scheduleResize(figure);`,
 		`window.echarts.getInstanceByDom(host)`,
-		`chart.resize();`,
+		`chart.resize({ width: width, height: height, animation: { duration: 0 } });`,
+		`window.addEventListener("resize", scheduleAll);`,
+		`document.addEventListener("goshtoso-charts:resize",`,
 	} {
 		if !strings.Contains(themeRuntimeMarkup, want) {
 			t.Errorf("responsive theme runtime missing %q", want)
 		}
 	}
-	register := strings.Index(themeRuntimeMarkup, `register: function (figure)`)
+	register := strings.Index(themeRuntimeMarkup, `var registerResponsive = function (figure)`)
 	if register < 0 {
-		t.Fatal("interactive runtime missing shared registration")
+		t.Fatal("interactive runtime missing responsive registration")
 	}
 	registration := themeRuntimeMarkup[register:]
-	observe := strings.Index(registration, `resizeObserver.observe(host)`)
+	observe := strings.Index(registration, `observeTarget(figure, host)`)
 	if observe < 0 {
-		t.Fatal("interactive registration must observe chart host size")
+		t.Fatal("interactive registration must observe chart host geometry")
 	}
-	resize := strings.Index(registration[observe:], `scheduleResize(host)`)
+	resize := strings.Index(registration[observe:], `scheduleResize(figure)`)
 	apply := strings.Index(registration[observe:], `apply(figure)`)
 	if resize < 0 || apply < 0 || resize > apply {
 		t.Fatal("interactive registration must observe and schedule resize before applying theme options")
 	}
 	if strings.Contains(themeRuntimeMarkup, `echarts.init(`) {
 		t.Fatal("shared runtime must resize the existing instance without reinitializing it")
+	}
+}
+
+func TestThemeRuntimeCleansResponsiveObserversWithoutDuplicateRegistration(t *testing.T) {
+	t.Parallel()
+	for _, want := range []string{
+		`var responsiveFigures = new Map();`,
+		`if (responsiveFigures.has(figure))`,
+		`resizeObserver.unobserve(target);`,
+		`responsiveFigures.delete(figure);`,
+		`if (!figure.isConnected) unregister(figure);`,
+		`childList: true`,
+		`subtree: true`,
+	} {
+		if !strings.Contains(themeRuntimeMarkup, want) {
+			t.Errorf("responsive lifecycle missing %q", want)
+		}
+	}
+}
+
+func TestThemeRuntimeSettlesGeometryWithoutRestartingAnimation(t *testing.T) {
+	t.Parallel()
+	for _, want := range []string{
+		`stableFrames`,
+		`frameCount`,
+		`maxSettleFrames`,
+		`settleFrames`,
+		`requestAnimationFrame(step);`,
+		`animation: { duration: 0 }`,
+	} {
+		if !strings.Contains(themeRuntimeMarkup, want) {
+			t.Errorf("responsive settling runtime missing %q", want)
+		}
+	}
+	for _, unwanted := range []string{`echarts.init(`, `echarts.dispose(`} {
+		if strings.Contains(themeRuntimeMarkup, unwanted) {
+			t.Errorf("responsive runtime must preserve instance, found %q", unwanted)
+		}
 	}
 }
 

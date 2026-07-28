@@ -167,7 +167,7 @@ func WordCloud(cfg WordCloudConfig) Instance {
 	chart.MultiSeries[0].TextStyle = &opts.TextStyle{Color: style.ResolvedColors()[0]}
 
 	return newInstance(chartcomponents.KindInteractiveWordCloud, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style, ResponsiveWidth: responsiveWidth(cfg.Width),
 		Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		RootAttrs: cfg.RootAttrs, Details: wordCloudExactValues(wordCloudDetailRows(cfg.Series.Words, maxWordCloudDetailRows)),
 		ScriptReplacements: wordCloudScriptReplacements(cfg.Series.Options),

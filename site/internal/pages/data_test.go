@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"math"
 	"math/rand"
+	"os"
 	"reflect"
+	"strings"
 	"testing"
 	"time"
 
@@ -36,6 +38,22 @@ func TestDualAxisLineSampleMechanicallyMatchesPinnedUpstreamExample(t *testing.T
 	if !reflect.DeepEqual(cfg.Series[0].Values, []float64{120, 132, 101, 134, 90, 230, 210}) ||
 		!reflect.DeepEqual(cfg.Series[1].Values, []float64{820, 932, 901, 934, 1290, 1330, 1320}) {
 		t.Fatalf("dual-axis values = %#v", cfg.Series)
+	}
+}
+
+func TestInteractiveComponentPagesRemainRendererNeutral(t *testing.T) {
+	t.Parallel()
+	for _, path := range []string{"pages.templ", "interactive_components.go"} {
+		source, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("read %s: %v", path, err)
+		}
+		lower := strings.ToLower(string(source))
+		for _, forbidden := range []string{"go-echarts", "apache echarts", "window.echarts"} {
+			if strings.Contains(lower, forbidden) {
+				t.Errorf("%s exposes private renderer name %q", path, forbidden)
+			}
+		}
 	}
 }
 

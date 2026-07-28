@@ -1,0 +1,33 @@
+package interactive
+
+import (
+	"fmt"
+	"strconv"
+)
+
+templ line3DExactData(label string, series []Line3DSeries, summary Line3DDataSummary, autoRotate bool) {
+	{{ bounds := line3DBounds(series) }}
+	<section class="mt-3 max-w-full text-sm text-on-surface dark:text-on-surface-dark" aria-label={ label + " exact data" } data-line3d-exact-data>
+		<h3 class="font-semibold">Exact line data</h3>
+		<p class="mt-2" data-line3d-formula><span class="font-semibold">Formula:</span> { summary.Formula }</p>
+		<p class="mt-1 text-on-surface-muted dark:text-on-surface-dark-muted" data-line3d-summary>
+			{ strconv.Itoa(line3DPointCount(series)) } ordered points.
+			{ summary.Parameter } domain [{ fmt.Sprintf("%g", summary.ParameterMin) }, { fmt.Sprintf("%g", summary.ParameterMax) }];
+			X domain [{ fmt.Sprintf("%g", bounds[0]) }, { fmt.Sprintf("%g", bounds[1]) }];
+			Y domain [{ fmt.Sprintf("%g", bounds[2]) }, { fmt.Sprintf("%g", bounds[3]) }];
+			Z domain [{ fmt.Sprintf("%g", bounds[4]) }, { fmt.Sprintf("%g", bounds[5]) }].
+		</p>
+		if autoRotate {
+			<p class="mt-1 text-on-surface-muted dark:text-on-surface-dark-muted" data-line3d-motion>View rotates automatically and initial drawing may animate. Reduced-motion preference disables animation and keeps the same chart stationary.</p>
+		} else {
+			<p class="mt-1 text-on-surface-muted dark:text-on-surface-dark-muted" data-line3d-motion>View remains stationary; initial drawing may animate. Reduced-motion preference disables animation.</p>
+		}
+		<a
+			class="mt-3 inline-flex min-h-11 items-center rounded-radius border border-outline px-4 py-2 font-semibold text-on-surface hover:bg-surface-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-outline-dark dark:text-on-surface-dark dark:hover:bg-surface-dark-alt"
+			href={ line3DCSVURL(series) }
+			download={ line3DDownloadName(label) + "-exact-data.csv" }
+			type="text/csv"
+			data-line3d-download
+		>Download all exact points as CSV</a>
+	</section>
+}

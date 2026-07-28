@@ -21,11 +21,14 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 (function () {
   "use strict";
   var key = "__goshtosoChartsThemeRuntime";
-	var runtime = window[key];
-	if (!runtime) {
-		var figures = new Set();
-		var observedHosts = new WeakSet();
-    var scheduled = false;
+		var runtime = window[key];
+		if (!runtime) {
+			var figures = new Set();
+			var responsiveFigures = new Map();
+			var targetFigures = new WeakMap();
+			var settleFrames = 2;
+			var maxSettleFrames = 10;
+	    var scheduled = false;
     var colorCanvas = document.createElement("canvas");
     colorCanvas.width = 1;
     colorCanvas.height = 1;
@@ -71,34 +74,112 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
       "#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8",
       "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"
     ];
-    var resize = function (host) {
-      if (!host.isConnected || !window.echarts) return;
-      var chart = window.echarts.getInstanceByDom(host);
-      if (!chart) return;
-      chart.resize();
-    };
-    var pendingResizeHosts = new WeakSet();
-    var scheduleResize = function (host) {
-      if (!host || pendingResizeHosts.has(host)) return;
-      pendingResizeHosts.add(host);
-      requestAnimationFrame(function () {
-        pendingResizeHosts.delete(host);
-        resize(host);
-      });
-    };
-    var resizeObserver = window.ResizeObserver ? new ResizeObserver(function (entries) {
-      entries.forEach(function (entry) { scheduleResize(entry.target); });
-    }) : null;
-    var apply = function (figure) {
-      if (!figure.isConnected || !window.echarts) return;
-      var host = figure.querySelector("[_echarts_instance_]");
-      if (!host) return;
+	    var unregister = function (figure) {
+	      var state = responsiveFigures.get(figure);
+	      if (!state) return;
+	      state.targets.forEach(function (target) {
+	        var owners = targetFigures.get(target);
+	        if (!owners) return;
+	        owners.delete(figure);
+	        if (!owners.size) {
+	          if (resizeObserver) resizeObserver.unobserve(target);
+	          targetFigures.delete(target);
+	        }
+	      });
+	      responsiveFigures.delete(figure);
+	      figures.delete(figure);
+	    };
+	    var resize = function (figure, state) {
+	      if (!figure.isConnected || !window.echarts) {
+	        if (!figure.isConnected) unregister(figure);
+	        return null;
+	      }
+	      var host = figure.querySelector("[_echarts_instance_]");
+	      if (!host) return null;
+	      var bounds = host.getBoundingClientRect();
+	      var width = Math.round(bounds.width);
+	      var height = Math.round(bounds.height);
+	      if (!(width > 0) || !(height > 0)) return null;
+	      var chart = window.echarts.getInstanceByDom(host);
+	      if (!chart) return null;
+	      if (chart.getWidth() !== width || chart.getHeight() !== height) {
+	        chart.resize({ width: width, height: height, animation: { duration: 0 } });
+	      }
+	      var geometry = width + "x" + height;
+	      state.stableFrames = geometry === state.geometry ? state.stableFrames + 1 : 0;
+	      state.geometry = geometry;
+	      return geometry;
+	    };
+	    var scheduleResize = function (figure) {
+	      var state = responsiveFigures.get(figure);
+	      if (!state || state.scheduled) return;
+	      state.scheduled = true;
+	      state.stableFrames = 0;
+	      state.frameCount = 0;
+	      var step = function () {
+	        if (!responsiveFigures.has(figure)) return;
+	        state.frameCount += 1;
+	        resize(figure, state);
+	        if (state.stableFrames < settleFrames && state.frameCount < maxSettleFrames) {
+	          requestAnimationFrame(step);
+	          return;
+	        }
+	        state.scheduled = false;
+	      };
+	      requestAnimationFrame(step);
+	    };
+	    var resizeObserver = window.ResizeObserver ? new ResizeObserver(function (entries) {
+	      entries.forEach(function (entry) {
+	        var owners = targetFigures.get(entry.target);
+	        if (owners) owners.forEach(scheduleResize);
+	      });
+	    }) : null;
+	    var observeTarget = function (figure, target) {
+	      if (!resizeObserver || !target) return;
+	      var state = responsiveFigures.get(figure);
+	      if (!state || state.targets.has(target)) return;
+	      state.targets.add(target);
+	      var owners = targetFigures.get(target);
+	      if (!owners) {
+	        owners = new Set();
+	        targetFigures.set(target, owners);
+	        resizeObserver.observe(target);
+	      }
+	      owners.add(figure);
+	    };
+	    var registerResponsive = function (figure) {
+	      if (responsiveFigures.has(figure)) {
+	        scheduleResize(figure);
+	        return;
+	      }
+	      responsiveFigures.set(figure, {
+	        targets: new Set(), scheduled: false, stableFrames: 0, frameCount: 0, geometry: ""
+	      });
+	      var host = figure.querySelector("[_echarts_instance_]");
+	      observeTarget(figure, host);
+	      observeTarget(figure, host && host.parentElement);
+	      scheduleResize(figure);
+	    };
+	    var scheduleAll = function () {
+	      responsiveFigures.forEach(function (_, figure) { scheduleResize(figure); });
+	    };
+	    window.addEventListener("resize", scheduleAll);
+	    document.addEventListener("goshtoso-charts:resize", function (event) {
+	      var wrapper = event.target.closest && event.target.closest("[data-goshtoso-chart-wrapper]");
+	      if (!wrapper) return;
+	      wrapper.querySelectorAll(".goshtoso-charts-interactive").forEach(scheduleResize);
+	    });
+	    new MutationObserver(function () {
+	      responsiveFigures.forEach(function (_, figure) {
+	        if (!figure.isConnected) unregister(figure);
+	      });
+	    }).observe(document.documentElement, { childList: true, subtree: true });
+	    var apply = function (figure) {
+	      if (!figure.isConnected || !window.echarts) return;
+	      var host = figure.querySelector("[_echarts_instance_]");
+	      if (!host) return;
 			var chart = window.echarts.getInstanceByDom(host);
 			if (!chart) return;
-			if (!observedHosts.has(host) && resizeObserver) {
-				observedHosts.add(host);
-				resizeObserver.observe(host);
-			}
 
       var surface = cssColor(figure, "--color-chart-surface", "#ffffff");
       var surfaceAlt = cssColor(figure, "--color-chart-surface-alt", surface);
@@ -141,6 +222,11 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			var surface3DPaints = [];
 			try { surface3DPaints = JSON.parse(figure.getAttribute("data-goshtoso-charts-surface3d-paints") || "[]"); } catch (_) {}
 			var surface3DColdToWarm = figure.getAttribute("data-goshtoso-charts-surface3d-cold-to-warm") === "true";
+			var line3DPaints = [];
+			try { line3DPaints = JSON.parse(figure.getAttribute("data-goshtoso-charts-line3d-paints") || "[]"); } catch (_) {}
+			var line3DColdToWarm = figure.getAttribute("data-goshtoso-charts-line3d-cold-to-warm") === "true";
+			var line3DAutoRotate = figure.getAttribute("data-goshtoso-charts-line3d-auto-rotate") === "true";
+			var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 			var gaugeColors = gaugeScale && (gaugeScale.stops || []).map(function (stop) {
 				if (stop.token === "low") return scaleLow;
 				if (stop.token === "mid") return scaleMid;
@@ -311,6 +397,15 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 				return Object.assign({}, item, { itemStyle: Object.assign({}, item.itemStyle || {}, { color: pointColor }) });
 			});
 		}
+		if (series.type === "line3D") {
+			var line3DPaint = line3DPaints[index] || {};
+			var line3DSeriesColor = line3DPaint.class
+				? classColorOrFallback(figure, line3DPaint.class, palette[index % palette.length])
+				: (line3DPaint.color
+					? rendererColor(line3DPaint.color, palette[index % palette.length])
+					: palette[index % palette.length]);
+			themedItem.lineStyle = Object.assign({}, series.lineStyle || {}, { color: line3DSeriesColor });
+		}
         if (series.type === "boxplot" && managesSeriesItem(index)) {
           themedItem.itemStyle = { color: palette[index % palette.length], borderColor: palette[index % palette.length] };
         }
@@ -352,7 +447,7 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			}).filter(Boolean);
       var themedVisualMaps = (current.visualMap || []).map(function () {
         var visualMap = { textStyle: { color: text } };
-        if (scatter3DColdToWarm || bar3DColdToWarm || surface3DColdToWarm) {
+        if (scatter3DColdToWarm || bar3DColdToWarm || surface3DColdToWarm || line3DColdToWarm) {
           visualMap.inRange = { color: Array.from({ length: 10 }, function (_, index) {
             return cssColor(figure, "--color-chart-scatter3d-" + (index + 1), scatter3DColdToWarmFallbacks[index]);
           }) };
@@ -391,6 +486,11 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
         }),
         series: themedSeries
 			};
+			if (line3DAutoRotate) {
+				themed.grid3D = (current.grid3D || []).map(function (grid3D) {
+					return { viewControl: Object.assign({}, grid3D.viewControl || {}, { autoRotate: !reduceMotion }) };
+				});
+			}
 			var treeExpansion = [];
 			chart.getModel().eachSeriesByType("tree", function (seriesModel) {
 				var data = seriesModel.getData();
@@ -412,7 +512,6 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
       if (!explicitColors) {
         themed.color = seriesColors;
       }
-      var reduceMotion = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
       if (reduceMotion && explicitAnimation === "default") {
         themed.animation = false;
         themed.animationDuration = 0;
@@ -440,9 +539,9 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
       scheduled = true;
       requestAnimationFrame(function () {
         scheduled = false;
-        figures.forEach(function (figure) {
-          if (figure.isConnected) apply(figure); else figures.delete(figure);
-        });
+	        figures.forEach(function (figure) {
+	          if (figure.isConnected) apply(figure); else unregister(figure);
+	        });
       });
     };
     var observer = new MutationObserver(refresh);
@@ -461,14 +560,13 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
       if (preferredMotion.addEventListener) preferredMotion.addEventListener("change", refresh);
       else if (preferredMotion.addListener) preferredMotion.addListener(refresh);
     }
-    runtime = window[key] = {
-      register: function (figure) {
-        figures.add(figure);
-        var host = figure.querySelector("[_echarts_instance_]");
-        if (resizeObserver && host) resizeObserver.observe(host);
-        scheduleResize(host);
-        apply(figure);
-      },
+	    runtime = window[key] = {
+	      register: function (figure) {
+	        if (!figure) return;
+	        figures.add(figure);
+	        registerResponsive(figure);
+	        apply(figure);
+	      },
       refresh: refresh
     };
   }

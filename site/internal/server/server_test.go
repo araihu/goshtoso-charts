@@ -38,6 +38,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/interactive/scatter-3d", "Interactive scatter 3D"},
 		{"/components/interactive/bar-3d", "Interactive bar 3D"},
 		{"/components/interactive/surface-3d", "Interactive surface 3D"},
+		{"/components/interactive/line-3d", "Interactive line 3D"},
 		{"/components/interactive/pie", "Interactive pie"},
 		{"/components/interactive/radar", "Interactive radar"},
 		{"/components/interactive/heatmap", "Interactive heatmap"},
@@ -98,6 +99,41 @@ func TestLinePageIncludesPinnedDualAxisTreatmentWithoutEngineBranding(t *testing
 	} {
 		if !strings.Contains(attributions.Body.String(), want) {
 			t.Errorf("central attribution missing pinned Line source %q", want)
+		}
+	}
+}
+
+func TestLine3DPagePreservesBothTreatmentsAndCentralizedAttribution(t *testing.T) {
+	t.Parallel()
+	handler := New()
+	page := httptest.NewRecorder()
+	handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, "/components/interactive/line-3d", nil))
+	if page.Code != http.StatusOK {
+		t.Fatalf("GET Line3D status = %d", page.Code)
+	}
+	body := page.Body.String()
+	for _, want := range []string{
+		"Interactive line 3D", "basic line3d example", "auto rotating", "25000 ordered points",
+		"t = i / 1000", "cos(75", "sin(75", "t domain [0, 24.999]",
+		"Line3DConfig", "Point3D", "Line3DVisualRange", "Line3DGrid", "Line3DView",
+		"ChartOptions", "SeriesOptions", "Color or Class", "Download all exact points as CSV",
+		"Reduced-motion", "Expand", "Collapse", "PNG",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("Line3D page missing %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-echarts", "Apache ECharts", "echarts-gl", "line3d.go", "raw option", "infrastructure", "operations"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("Line3D page contains non-neutral content %q", unwanted)
+		}
+	}
+
+	attributions := httptest.NewRecorder()
+	handler.ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	for _, want := range []string{"examples/line3d.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd"} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("central attribution missing pinned Line3D source %q", want)
 		}
 	}
 }

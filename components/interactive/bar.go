@@ -87,6 +87,7 @@ func Bar(cfg BarConfig) Instance {
 		Label:              cfg.Label,
 		Caption:            cfg.Caption,
 		Chart:              chart,
+		ResponsiveWidth:    responsiveWidth(cfg.Width),
 		Style:              cfg.Style,
 		Live:               cartesianLiveConfig(cfg.Live),
 		Animation:          cfg.Options.Animation,

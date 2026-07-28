@@ -50,10 +50,10 @@ const (
 	// GuangdongMapCDNIntegrity authenticates bytes served by GuangdongMapCDNURL.
 	GuangdongMapCDNIntegrity = "sha384-Q7MOpZeBbcPxI3hKHud73/Z1PjvChsn12B3IN6NqOj08KXRF1IU2D7LvaY16uV4w"
 	// ControlRuntimeURL is the versioned shared chart-controls runtime.
-	ControlRuntimeURL = Prefix + "js/controls/1/controls.js"
+	ControlRuntimeURL = Prefix + "js/controls/2/controls.js"
 )
 
-//go:embed js/runtime/echarts/5.4.3/echarts.min.js js/runtime/word-cloud/2.1.0/runtime.min.js js/runtime/liquid/3.1.0/runtime.min.js js/runtime/liquid/3.1.0/LICENSE.md js/runtime/three-d/2.0.9/runtime.min.js js/runtime/three-d/2.0.9/LICENSE js/maps/41f247b1cbb6/*.js js/controls/1/controls.js
+//go:embed js/runtime/echarts/5.4.3/echarts.min.js js/runtime/word-cloud/2.1.0/runtime.min.js js/runtime/liquid/3.1.0/runtime.min.js js/runtime/liquid/3.1.0/LICENSE.md js/runtime/three-d/2.0.9/runtime.min.js js/runtime/three-d/2.0.9/LICENSE js/maps/41f247b1cbb6/*.js js/controls/1/controls.js js/controls/2/controls.js
 var files embed.FS
 
 // Handler serves embedded assets at Prefix. Mount it directly at Prefix; the

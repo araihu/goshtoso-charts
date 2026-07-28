@@ -26,6 +26,9 @@ type renderConfig struct {
 	Details   templ.Component
 	Controls  chartcontrol.Options
 	Export    *chartcontrol.ExportOptions
+	// ResponsiveWidth marks omitted or percentage-based renderer width as
+	// container-owned without changing explicit fixed-width overflow semantics.
+	ResponsiveWidth bool
 	// AxisLabelIntervals restore renderer-neutral integers after the private
 	// renderer serializes its string-only interval field.
 	AxisLabelIntervals []int
@@ -53,6 +56,11 @@ type renderConfig struct {
 	// Surface3DPaints and Surface3DColdToWarm are private paint metadata.
 	Surface3DPaints     string
 	Surface3DColdToWarm bool
+	// Line3DPaints and Line3DColdToWarm are private paint metadata.
+	Line3DPaints     string
+	Line3DColdToWarm bool
+	// Line3DAutoRotate lets the runtime disable motion for reduced-motion users.
+	Line3DAutoRotate bool
 	// ScriptReplacements restore values that the private renderer cannot
 	// distinguish from omitted zero values.
 	ScriptReplacements []scriptReplacement
@@ -68,6 +76,11 @@ func animationPreference(value *bool) string {
 		return "default"
 	}
 	return strconv.FormatBool(*value)
+}
+
+func responsiveWidth(value string) bool {
+	value = strings.TrimSpace(value)
+	return value == "" || value == "100%"
 }
 
 func themeSeriesItems(indexes []int) string {

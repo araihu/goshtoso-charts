@@ -122,7 +122,7 @@ func Sunburst(cfg SunburstConfig) Instance {
 	chart.AddSeries(cfg.Label, nodes, seriesOptions...)
 
 	return newInstance(chartcomponents.KindInteractiveSunburst, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, ResponsiveWidth: responsiveWidth(cfg.Width),
 		Animation: cfg.Options.Animation, RootAttrs: cfg.RootAttrs,
 		Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		Details: sunburstExactValues(flattenSunburstNodes(cfg.Nodes)),

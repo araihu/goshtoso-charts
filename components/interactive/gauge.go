@@ -219,7 +219,7 @@ func Gauge(cfg GaugeConfig) Instance {
 	}
 
 	return newInstance(chartcomponents.KindInteractiveGauge, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, ThemeSeriesItems: themeSeriesItems, GaugeScale: gaugeScaleJSON(cfg, minimum, maximum),
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, ResponsiveWidth: responsiveWidth(cfg.Width), ThemeSeriesItems: themeSeriesItems, GaugeScale: gaugeScaleJSON(cfg, minimum, maximum),
 	})
 }
 
@@ -247,7 +247,7 @@ func liquidGauge(cfg GaugeConfig, minimum, maximum int) Instance {
 	chart.AddSeries(series.Name, normalizeGaugeLiquidData(series.Data, minimum, maximum), seriesOptions...)
 
 	return newInstance(chartcomponents.KindInteractiveGauge, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, ResponsiveWidth: responsiveWidth(cfg.Width),
 		Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		Details: gaugeLiquidExactValues(cfg.Label, minimum, maximum, series.Data),
 		Liquid:  gaugeLiquidJSON(cfg.Liquid), ScriptReplacements: gaugeLiquidScriptReplacements(cfg.Liquid),

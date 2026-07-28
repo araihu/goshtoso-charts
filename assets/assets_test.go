@@ -53,6 +53,24 @@ func TestHandlerServesVersionedChartControlRuntime(t *testing.T) {
 			t.Errorf("control runtime missing %q", want)
 		}
 	}
+	if strings.Contains(recorder.Body.String(), "chart.resize()") {
+		t.Fatal("renderer-neutral controls runtime resized a private chart engine directly")
+	}
+}
+
+func TestHandlerKeepsPreviousChartControlRuntimeAvailable(t *testing.T) {
+	t.Parallel()
+
+	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodGet, "/charts/assets/js/controls/1/controls.js", nil)
+	assets.Handler().ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("GET previous controls runtime status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+	if !strings.Contains(recorder.Body.String(), "goshtoso-charts:resize") {
+		t.Fatal("previous controls runtime is not intact")
+	}
 }
 
 func TestHandlerServesVersionedWordCloudRuntime(t *testing.T) {

@@ -23,15 +23,15 @@ async function freePort() {
 }
 
 async function ready() {
-  for (let attempt = 0; attempt < 160; attempt += 1) {
+  for (let attempt = 0; attempt < 200; attempt += 1) {
     try {
-      if ((await fetch(`${baseURL}/components/interactive/surface-3d`)).ok) return;
+      if ((await fetch(`${baseURL}/components/interactive/line-3d`)).ok) return;
     } catch {
-      // Test-owned server is still starting.
+      // Test-owned random-port server is still starting.
     }
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
-  throw new Error(`Surface3D verification server did not start at ${baseURL}`);
+  throw new Error(`Line3D verification server did not start at ${baseURL}`);
 }
 
 before(async () => {
@@ -53,8 +53,9 @@ after(async () => {
   }
 });
 
-async function pageAt(viewport) {
+async function pageAt(viewport, reducedMotion = "no-preference") {
   const page = await browser.newPage({ viewport, acceptDownloads: true });
+  await page.emulateMedia({ reducedMotion });
   await page.addInitScript(() => {
     const createObjectURL = URL.createObjectURL.bind(URL);
     globalThis.__chartBlobTypes = [];
@@ -63,10 +64,10 @@ async function pageAt(viewport) {
       return createObjectURL(blob);
     };
   });
-  await page.goto(`${baseURL}/components/interactive/surface-3d`, { waitUntil: "domcontentloaded" });
-  await page.locator("[data-surface3d-variant]").first().waitFor();
+  await page.goto(`${baseURL}/components/interactive/line-3d`, { waitUntil: "domcontentloaded" });
+  await page.locator("[data-line3d-variant]").first().waitFor();
   await page.waitForFunction(() => {
-    const hosts = [...document.querySelectorAll("[data-surface3d-variant] [_echarts_instance_]")];
+    const hosts = [...document.querySelectorAll("[data-line3d-variant] [_echarts_instance_]")];
     return hosts.length === 2 && hosts.every((host) => Boolean(window.echarts.getInstanceByDom(host)));
   });
   await page.waitForFunction(() => Boolean(document.documentElement._x_dataStack));
@@ -74,7 +75,7 @@ async function pageAt(viewport) {
 }
 
 function wrapperFor(page, variant = "base") {
-  return page.locator(`[data-surface3d-variant="${variant}"] [data-goshtoso-chart-wrapper]`).first();
+  return page.locator(`[data-line3d-variant="${variant}"] [data-goshtoso-chart-wrapper]`).first();
 }
 
 async function measure(wrapper) {
@@ -82,88 +83,95 @@ async function measure(wrapper) {
     const host = element.querySelector("[_echarts_instance_]");
     const instance = window.echarts.getInstanceByDom(host);
     const option = instance.getOption();
-    const values = option.series[0].data.map((point) => point.value.slice(0, 3));
+    const values = option.series[0].data.map((point) => Array.isArray(point) ? point.slice(0, 3) : point.value.slice(0, 3));
     const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(values)));
-    const summary = element.parentElement.querySelector("[data-surface3d-exact-data]");
+    const summary = element.parentElement.querySelector("[data-line3d-exact-data]");
     return {
-      sameInstance: !element.__surface3DInstance || instance === element.__surface3DInstance,
+      sameInstance: !element.__line3DInstance || instance === element.__line3DInstance,
       hostWidth: host.clientWidth,
       hostHeight: host.clientHeight,
       chartWidth: instance.getWidth(),
       chartHeight: instance.getHeight(),
       canvasCount: host.querySelectorAll("canvas").length,
-      seriesType: option.series[0].type,
+      type: option.series[0].type,
+      name: option.series[0].name,
       count: values.length,
       hash: [...new Uint8Array(bytes)].map((value) => value.toString(16).padStart(2, "0")).join(""),
       values,
       range: [option.visualMap[0].min, option.visualMap[0].max],
       calculable: option.visualMap[0].calculable,
       scaleColors: option.visualMap[0].inRange.color,
+      autoRotate: option.grid3D[0].viewControl.autoRotate,
       background: option.backgroundColor,
       axisText: option.xAxis3D[0].axisLabel.color,
       grid: option.xAxis3D[0].splitLine.lineStyle.color,
-      formula: summary.querySelector("[data-surface3d-formula]").textContent,
-      summary: summary.querySelector("[data-surface3d-summary]").textContent.replace(/\s+/g, " ").trim(),
+      formula: summary.querySelector("[data-line3d-formula]").textContent,
+      summary: summary.querySelector("[data-line3d-summary]").textContent.replace(/\s+/g, " ").trim(),
+      motion: summary.querySelector("[data-line3d-motion]").textContent.replace(/\s+/g, " ").trim(),
       tableRows: summary.querySelectorAll("tr").length,
     };
   });
 }
 
-test("both exact surfaces, local runtime order, route/search, palette, and CSV access", async () => {
+test("both treatments preserve exact plotted order, CSV, local assets, route, and search", async () => {
   const page = await pageAt({ width: 1440, height: 900 });
   try {
     const resources = await page.evaluate(() => [...document.scripts].map((script) => script.src).filter(Boolean));
     const names = ["echarts/5.4.3", "word-cloud/2.1.0", "liquid/3.1.0", "three-d/2.0.9", "maps/41f247b1cbb6"];
     const indexes = names.map((name) => resources.findIndex((url) => url.includes(name)));
     assert.ok(indexes.every((index) => index >= 0), JSON.stringify({ resources, indexes }));
-    assert.ok(indexes[0] < indexes[1] && indexes[1] < indexes[2] && indexes[2] < indexes[3] && indexes[3] < indexes[4], JSON.stringify(indexes));
+    assert.ok(indexes.every((value, index) => index === 0 || indexes[index - 1] < value), JSON.stringify(indexes));
 
     const base = await measure(wrapperFor(page));
-    assert.equal(base.seriesType, "surface");
+    assert.equal(base.type, "line3D");
+    assert.equal(base.name, "line3D");
     assert.ok(base.canvasCount >= 1);
-    assert.equal(base.count, 14400);
-    assert.equal(base.hash, "5530efe5532a0482cab10949d18ee56cee3eca691ebe2b37f593804f3565e5c3");
-    assert.deepEqual(base.values[0].slice(0, 2), [-1, -1]);
-    assert.ok(Math.abs(base.values[0][2]) < 1e-15);
-    assert.deepEqual(base.values.at(-1).slice(0, 2), [59 / 60, 59 / 60]);
-    assert.deepEqual(base.range, [-3, 3]);
+    assert.equal(base.count, 25000);
+    assert.equal(base.hash, "63f356cee0db8603edec10d54e8aec4f5eba291e8c99b961119c9543fd6c63a4");
+    assert.deepEqual(base.values[0], [1.25, 0, 0]);
+    assert.deepEqual(base.range, [0, 30]);
     assert.equal(base.calculable, true);
     assert.equal(base.scaleColors.length, 10);
-    assert.match(base.formula, /i \/ 60.*j \/ 60.*sin/);
-    assert.match(base.summary, /14400 ordered points.*X domain \[-1, 0\.9833333333333333\].*Y domain \[-1, 0\.9833333333333333\]/);
+    assert.equal(base.autoRotate, false);
+    assert.match(base.formula, /i \/ 1000.*cos\(75.*sin\(75/);
+    assert.match(base.summary, /25000 ordered points.*t domain \[0, 24\.999\].*X domain \[-1\.2489045114273476, 1\.25\].*Y domain \[-1\.2497258288146875, 1\.2497201051428937\].*Z domain \[-1\.9368409642920035, 26\.985899643193864\]/);
+    assert.match(base.motion, /remains stationary/);
     assert.equal(base.tableRows, 0);
 
-    const rose = await measure(wrapperFor(page, "rose"));
-    assert.equal(rose.seriesType, "surface");
-    assert.equal(rose.count, 3600);
-    assert.equal(rose.hash, "987c440f0454e249cb105bb15ac2356d26989b1dde57b6a8f3197e0e19e91b42");
-    assert.deepEqual(rose.values[0].slice(0, 2), [-3, -3]);
-    assert.deepEqual(rose.values.at(-1).slice(0, 2), [2.9, 2.9]);
-    assert.deepEqual(rose.range, [-3, 3]);
-    assert.equal(rose.calculable, true);
-    assert.equal(rose.scaleColors.length, 10);
-    assert.match(rose.formula, /i \/ 10.*j \/ 10.*sin/);
-    assert.match(rose.summary, /3600 ordered points.*X domain \[-3, 2\.9\].*Y domain \[-3, 2\.9\]/);
-    assert.equal(rose.tableRows, 0);
+    const rotating = await measure(wrapperFor(page, "auto-rotate"));
+    assert.equal(rotating.type, "line3D");
+    assert.equal(rotating.count, 25000);
+    assert.equal(rotating.hash, base.hash);
+    assert.deepEqual(rotating.values, base.values);
+    assert.deepEqual(rotating.range, base.range);
+    assert.deepEqual(rotating.scaleColors, base.scaleColors);
+    assert.equal(rotating.autoRotate, true);
+    assert.match(rotating.motion, /rotates automatically.*initial drawing may animate.*Reduced-motion/);
+    assert.equal(rotating.tableRows, 0);
 
-    const expectedByVariant = { base, rose };
-    for (const variant of ["base", "rose"]) {
+    const expectedByVariant = { base, "auto-rotate": rotating };
+    for (const variant of ["base", "auto-rotate"]) {
       const wrapper = wrapperFor(page, variant);
       const pending = page.waitForEvent("download");
       await wrapper.locator("xpath=..").getByRole("link", { name: "Download all exact points as CSV" }).click();
       const artifact = await pending;
       const csv = await fs.readFile(await artifact.path(), "utf8");
       const lines = csv.trimEnd().split("\n");
-      assert.equal(lines[0], "series,x,y,z");
-      assert.equal(lines.length - 1, variant === "base" ? 14400 : 3600);
-      assert.equal(lines[1].startsWith('"surface3d",'), true);
-      assert.equal(lines.at(-1).startsWith('"surface3d",'), true);
-      const csvValues = lines.slice(1).map((line) => line.slice('"surface3d",'.length).split(",").map(Number));
+      assert.equal(lines[0], "series,index,x,y,z");
+      assert.equal(lines.length - 1, 25000);
+      const csvValues = lines.slice(1).map((line, index) => {
+        const columns = line.slice('"line3D",'.length).split(",");
+        assert.equal(Number(columns[0]), index);
+        return columns.slice(1).map(Number);
+      });
       assert.deepEqual(csvValues, expectedByVariant[variant].values);
     }
 
     const search = await page.request.get(`${baseURL}/components/line`);
-    assert.match(await search.text(), /data-search="surface 3d interactive \/ 3d interactive-surface-3d"/);
+    assert.match(await search.text(), /data-search="line 3d interactive \/ 3d interactive-line-3d"/);
+    for (const route of ["/components/interactive/scatter-3d", "/components/interactive/bar-3d", "/components/interactive/surface-3d"]) {
+      assert.equal((await page.request.get(`${baseURL}${route}`)).status(), 200);
+    }
     for (const asset of ["/charts/assets/js/controls/2/controls.js", "/charts/assets/js/runtime/three-d/2.0.9/runtime.min.js", "/charts/assets/js/runtime/echarts/5.4.3/echarts.min.js"]) {
       assert.equal((await page.request.get(`${baseURL}${asset}`)).status(), 200);
     }
@@ -172,50 +180,63 @@ test("both exact surfaces, local runtime order, route/search, palette, and CSV a
   }
 });
 
-test("390 and 1440 widths retain four theme modes, contrast, centering, and resize convergence", async () => {
-  const themed = new Map();
+test("390 and 1440 widths retain light/dark theme contrast and responsive convergence", async () => {
+  const themed = new Set();
   for (const width of [390, 1440]) {
-    for (const theme of ["goshtoso", "araihu"]) {
-      for (const dark of [false, true]) {
-        const page = await pageAt({ width, height: 900 });
-        try {
-          await page.evaluate(({ theme, dark }) => {
-            document.documentElement.dataset.theme = theme;
-            document.documentElement.classList.toggle("dark", dark);
-          }, { theme, dark });
-          await page.waitForTimeout(500);
-          const wrapper = wrapperFor(page);
-          const state = await measure(wrapper);
-          assert.deepEqual({ chartWidth: state.chartWidth, chartHeight: state.chartHeight }, { chartWidth: state.hostWidth, chartHeight: state.hostHeight });
-          assert.deepEqual(await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth })), { client: width, scroll: width });
-          assert.equal(await wrapper.evaluate((element) => {
-            const host = element.querySelector("[_echarts_instance_]").getBoundingClientRect();
-            const content = element.querySelector("[data-goshtoso-chart-content]").getBoundingClientRect();
-            return Math.abs((host.left + host.right) / 2 - (content.left + content.right) / 2) < 2;
-          }), true);
-          const contrast = await page.evaluate(({ background, foreground }) => {
-            const parse = (value) => (value.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
-            const luminance = (value) => {
-              const rgb = parse(value).map((channel) => channel / 255).map((channel) => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
-              return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
-            };
-            const first = luminance(background);
-            const second = luminance(foreground);
-            return (Math.max(first, second) + 0.05) / (Math.min(first, second) + 0.05);
-          }, { background: state.background, foreground: state.axisText });
-          assert.ok(contrast >= 4.5, `contrast ${contrast}: ${JSON.stringify(state)}`);
-          assert.notEqual(state.grid, state.background);
-          themed.set(`${theme}-${dark}`, `${state.background}|${state.axisText}|${state.scaleColors.join("|")}`);
-        } finally {
-          await page.close();
-        }
+    for (const dark of [false, true]) {
+      const page = await pageAt({ width, height: 900 });
+      try {
+        await page.evaluate((darkMode) => document.documentElement.classList.toggle("dark", darkMode), dark);
+        await page.waitForTimeout(350);
+        const wrapper = wrapperFor(page);
+        const state = await measure(wrapper);
+        assert.deepEqual({ chartWidth: state.chartWidth, chartHeight: state.chartHeight }, { chartWidth: state.hostWidth, chartHeight: state.hostHeight });
+        assert.deepEqual(await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth })), { client: width, scroll: width });
+        assert.equal(await wrapper.evaluate((element) => {
+          const host = element.querySelector("[_echarts_instance_]").getBoundingClientRect();
+          const content = element.querySelector("[data-goshtoso-chart-content]").getBoundingClientRect();
+          return Math.abs((host.left + host.right) / 2 - (content.left + content.right) / 2) < 2;
+        }), true);
+        const contrast = await page.evaluate(({ background, foreground }) => {
+          const parse = (value) => (value.match(/[\d.]+/g) || []).slice(0, 3).map(Number);
+          const luminance = (value) => {
+            const rgb = parse(value).map((channel) => channel / 255).map((channel) => channel <= 0.04045 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
+            return 0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2];
+          };
+          const first = luminance(background);
+          const second = luminance(foreground);
+          return (Math.max(first, second) + .05) / (Math.min(first, second) + .05);
+        }, { background: state.background, foreground: state.axisText });
+        assert.ok(contrast >= 4.5, `contrast ${contrast}: ${JSON.stringify(state)}`);
+        assert.notEqual(state.grid, state.background);
+        themed.add(`${state.background}|${state.axisText}|${state.scaleColors.join("|")}`);
+      } finally {
+        await page.close();
       }
     }
   }
-  assert.equal(new Set(themed.values()).size, 4, JSON.stringify([...themed]));
+  assert.equal(themed.size, 2);
 });
 
-test("large centered modal preserves instance and opaque direct PNG", async () => {
+test("auto-rotation obeys reduced motion and remains stable", async () => {
+  const page = await pageAt({ width: 1440, height: 900 }, "reduce");
+  try {
+    const rotating = await measure(wrapperFor(page, "auto-rotate"));
+    assert.equal(rotating.autoRotate, false);
+    assert.match(rotating.motion, /Reduced-motion preference disables animation and keeps the same chart stationary/);
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.waitForFunction(() => {
+      const wrapper = document.querySelector('[data-line3d-variant="auto-rotate"] [data-goshtoso-chart-wrapper]');
+      const host = wrapper.querySelector("[_echarts_instance_]");
+      return window.echarts.getInstanceByDom(host).getOption().grid3D[0].viewControl.autoRotate === true;
+    });
+    assert.equal((await measure(wrapperFor(page, "auto-rotate"))).autoRotate, true);
+  } finally {
+    await page.close();
+  }
+});
+
+test("large centered modal preserves instance, hides collapse, and exports opaque PNG", async () => {
   const page = await pageAt({ width: 1440, height: 900 });
   const errors = [];
   page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
@@ -224,14 +245,14 @@ test("large centered modal preserves instance and opaque direct PNG", async () =
     const wrapper = wrapperFor(page);
     await wrapper.evaluate((element) => {
       const host = element.querySelector("[_echarts_instance_]");
-      element.__surface3DInstance = window.echarts.getInstanceByDom(host);
+      element.__line3DInstance = window.echarts.getInstanceByDom(host);
     });
     const initial = await measure(wrapper);
     await wrapper.evaluate((element) => {
       element.querySelector(".goshtoso-charts-interactive > .container").style.width = "60%";
     });
     await page.waitForFunction((initialWidth) => {
-      const wrapper = document.querySelector('[data-surface3d-variant="base"] [data-goshtoso-chart-wrapper]');
+      const wrapper = document.querySelector('[data-line3d-variant="base"] [data-goshtoso-chart-wrapper]');
       const host = wrapper.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);
       return host.clientWidth < initialWidth && instance.getWidth() === host.clientWidth;
@@ -241,21 +262,22 @@ test("large centered modal preserves instance and opaque direct PNG", async () =
       element.querySelector(".goshtoso-charts-interactive > .container").style.width = "";
     });
     await page.waitForFunction((initialWidth) => {
-      const wrapper = document.querySelector('[data-surface3d-variant="base"] [data-goshtoso-chart-wrapper]');
+      const wrapper = document.querySelector('[data-line3d-variant="base"] [data-goshtoso-chart-wrapper]');
       const host = wrapper.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);
       return host.clientWidth === initialWidth && instance.getWidth() === host.clientWidth;
     }, initial.hostWidth);
     await wrapper.locator("[data-goshtoso-chart-expand] > div > button").click();
-    const dialog = wrapper.getByRole("dialog", { name: "basic surface3D example" });
+    const dialog = wrapper.getByRole("dialog", { name: "basic line3d example" });
     await dialog.waitFor({ state: "visible" });
     await page.waitForFunction((initialWidth) => {
-      const wrapper = document.querySelector('[data-surface3d-variant="base"] [data-goshtoso-chart-wrapper]');
+      const wrapper = document.querySelector('[data-line3d-variant="base"] [data-goshtoso-chart-wrapper]');
       const host = wrapper.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);
       return host.clientWidth > initialWidth && instance.getWidth() === host.clientWidth;
     }, initial.hostWidth);
     assert.equal((await measure(wrapper)).sameInstance, true);
+    assert.equal(await wrapper.locator('[data-goshtoso-chart-control="collapse"]').isHidden(), true);
     const panel = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((element) => {
       const rect = element.getBoundingClientRect();
       return {
@@ -267,15 +289,15 @@ test("large centered modal preserves instance and opaque direct PNG", async () =
     });
     assert.equal(panel.centered, true);
     assert.equal(panel.contained, true);
-    assert.ok(panel.widthRatio >= 0.75 && panel.heightRatio >= 0.55, JSON.stringify(panel));
+    assert.ok(panel.widthRatio >= .75 && panel.heightRatio >= .55, JSON.stringify(panel));
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden" });
 
     const pending = page.waitForEvent("download");
-    await wrapper.getByRole("button", { name: "Download basic surface3D example as PNG" }).click();
+    await wrapper.getByRole("button", { name: "Download basic line3d example as PNG" }).click();
     const artifact = await pending;
     const bytes = await fs.readFile(await artifact.path());
-    assert.equal(artifact.suggestedFilename(), "basic-surface3d-example.png");
+    assert.equal(artifact.suggestedFilename(), "basic-line3d-example.png");
     assert.equal(await page.evaluate(() => globalThis.__chartBlobTypes.at(-1)), "image/png");
     assert.deepEqual([...bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
     const image = sharp(bytes).ensureAlpha().raw();
@@ -290,7 +312,7 @@ test("large centered modal preserves instance and opaque direct PNG", async () =
   }
 });
 
-test("pinned CDN core and 3D extension use SRI and register Surface3D in order", async () => {
+test("pinned CDN core and 3D extension use SRI and register Line3D in order", async () => {
   const page = await browser.newPage();
   const errors = [];
   page.on("pageerror", (error) => errors.push(error.message));
@@ -299,7 +321,7 @@ test("pinned CDN core and 3D extension use SRI and register Surface3D in order",
       <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js" integrity="sha384-BQKzmHvQLMCAnL3UtDBA1Al5tFjsCz1wrMlIUA1wkzo14DYkRWjywW+p9pCj0cwd" crossorigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js" integrity="sha384-f4gAUkb5Y6LE9n50CbiH1hCBCw7021OeJu0ZrgRpgW6G1CZjPR8cu33e8rCFLqCl" crossorigin="anonymous"></script>
     </head><body><div id="chart" style="width:400px;height:300px"></div>
-    <script>const chart=echarts.init(document.getElementById("chart"));chart.setOption({xAxis3D:{},yAxis3D:{},zAxis3D:{},grid3D:{},series:[{type:"surface",data:[[0,0,0],[1,0,1]]}]});</script>
+    <script>const chart=echarts.init(document.getElementById("chart"));chart.setOption({xAxis3D:{},yAxis3D:{},zAxis3D:{},grid3D:{},series:[{type:"line3D",data:[[0,0,0],[1,0,1]]}]});</script>
     </body></html>`, { waitUntil: "networkidle" });
     assert.deepEqual(await page.evaluate(() => {
       const scripts = [...document.scripts].filter((item) => item.src);
@@ -311,7 +333,7 @@ test("pinned CDN core and 3D extension use SRI and register Surface3D in order",
         integrity: scripts.map((item) => item.integrity),
       };
     }), {
-      type: "surface",
+      type: "line3D",
       canvases: 1,
       order: [
         "https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js",

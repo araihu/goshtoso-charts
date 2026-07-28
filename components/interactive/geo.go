@@ -165,7 +165,7 @@ func Geo(cfg GeoConfig) Instance {
 	seriesJSON, _ := json.Marshal(runtimeSeries)
 
 	return newInstance(chartcomponents.KindInteractiveGeo, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style, ResponsiveWidth: responsiveWidth(cfg.Width),
 		Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		RootAttrs: cfg.RootAttrs, Details: geoExactValues(geoDetailRows(cfg.Series, maxGeoDetailRows)),
 		ExplicitVisualMapColors: geoVisualRangeHasColors(cfg.VisualRange),

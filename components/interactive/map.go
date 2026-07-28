@@ -136,7 +136,7 @@ func Map(cfg MapConfig) Instance {
 	chart.MultiSeries[0].Data = rendered
 
 	return newInstance(chartcomponents.KindInteractiveMap, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style, ResponsiveWidth: responsiveWidth(cfg.Width),
 		Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		RootAttrs: cfg.RootAttrs, Details: mapExactValues(mapDetailRows(cfg.Series.Regions, maxMapDetailRows)),
 		ExplicitVisualMapColors: mapScaleHasColors(resolvedMapScale(cfg)),

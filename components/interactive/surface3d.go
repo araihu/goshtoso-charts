@@ -198,7 +198,7 @@ func Surface3D(cfg Surface3DConfig) Instance {
 	return newInstance(chartcomponents.KindInteractiveSurface3D, renderConfig{
 		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style,
 		Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export,
-		RootAttrs: cfg.RootAttrs, Details: surface3DExactData(cfg.Label, cfg.Series, cfg.DataSummary),
+		ResponsiveWidth: responsiveWidth(cfg.Width), RootAttrs: cfg.RootAttrs, Details: surface3DExactData(cfg.Label, cfg.Series, cfg.DataSummary),
 		ExplicitVisualMapColors: cfg.VisualRange != nil && cfg.VisualRange.Palette != Surface3DPaletteColdToWarm,
 		Surface3DPaints:         string(paintJSON), Surface3DColdToWarm: cfg.VisualRange != nil && cfg.VisualRange.Palette == Surface3DPaletteColdToWarm,
 	})

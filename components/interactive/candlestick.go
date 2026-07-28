@@ -173,7 +173,7 @@ func Candlestick(cfg CandlestickConfig) Instance {
 	style := cfg.Style
 	style.Class = strings.TrimSpace("goshtoso-charts-interactive-candlestick " + style.Class)
 	return newInstance(chartcomponents.KindInteractiveCandlestick, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style, ResponsiveWidth: responsiveWidth(cfg.Width),
 		Animation: cfg.Options.Animation, RootAttrs: cfg.RootAttrs,
 		Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		AxisLabelIntervals: axisLabelIntervals(cfg.Options),

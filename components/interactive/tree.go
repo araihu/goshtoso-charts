@@ -162,7 +162,7 @@ func Tree(cfg TreeConfig) Instance {
 	chart.AddSeries(cfg.Label, roots, seriesOptions...)
 
 	render := renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, ResponsiveWidth: responsiveWidth(cfg.Width),
 		Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 	}
 	if cfg.InitialDepth != nil && *cfg.InitialDepth == 0 {

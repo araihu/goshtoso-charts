@@ -48,16 +48,21 @@ Primary source checks:
 
 The wrapper owns controls and local horizontal overflow only. It applies no
 page grid, catalog, or documentation layout. Fixed-width charts remain fixed
-and scroll inside the wrapper on narrow screens. `Width: "100%"` remains
-consumer-responsive. Charts remain centered within their local content area.
+and scroll inside the wrapper on narrow screens. Omitted width and
+`Width: "100%"` use the full available local container width without replacing
+the renderer host. Charts remain centered within their local content area.
 
-This matches the official go-echarts examples: center layout keeps the default
-page behavior, while [flex](https://github.com/go-echarts/examples/blob/bda428480a82d6d77ebb9fa939cf8d52528453dd/examples/page_flex_layout.go)
+This uses the official go-echarts examples only as layout references:
+[center](https://github.com/go-echarts/examples/blob/bda428480a82d6d77ebb9fa939cf8d52528453dd/examples/page_center_layout.go)
+keeps the default page behavior, while [flex](https://github.com/go-echarts/examples/blob/bda428480a82d6d77ebb9fa939cf8d52528453dd/examples/page_flex_layout.go)
 and [none](https://github.com/go-echarts/examples/blob/bda428480a82d6d77ebb9fa939cf8d52528453dd/examples/page_none_layout.go)
 are explicit consumer page choices. Shared controls do not select any of them.
 Word-cloud catalog variants use a consumer-owned flex wrapper; shared
-`ResizeObserver` handling watches each actual chart host and calls `resize()`
-on its existing instance when that parent layout changes.
+`ResizeObserver` handling watches each actual chart host and its immediate
+container. Host, modal, fullscreen, explicit control, and window changes settle
+over consecutive frames before the private runtime resizes the existing
+instance with zero-duration resize animation. Removed figures unobserve both
+targets; repeated registration is idempotent.
 Map and Geo reuse the same pinned national and Guangdong geometry delivery.
 Map owns named region values; Geo owns longitude/latitude coordinate series.
 

@@ -168,7 +168,7 @@ func Scatter3D(cfg Scatter3DConfig) Instance {
 	paintJSON, _ := json.Marshal(paints)
 
 	return newInstance(chartcomponents.KindInteractiveScatter3D, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style, ResponsiveWidth: responsiveWidth(cfg.Width),
 		Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		RootAttrs: cfg.RootAttrs, Details: scatter3DExactPoints(cfg.Series),
 		ExplicitVisualMapColors: cfg.VisualRange != nil && cfg.VisualRange.Palette != Scatter3DPaletteColdToWarm,

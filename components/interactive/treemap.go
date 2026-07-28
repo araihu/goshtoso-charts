@@ -153,7 +153,7 @@ func Treemap(cfg TreemapConfig) Instance {
 	}
 
 	return newInstance(chartcomponents.KindInteractiveTreemap, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, ResponsiveWidth: responsiveWidth(cfg.Width),
 		Animation: cfg.Options.Animation, RootAttrs: cfg.RootAttrs,
 		Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		Details:            treemapExactValues(flattenTreemapNodes(cfg.Nodes, maxTreemapDetailRows)),

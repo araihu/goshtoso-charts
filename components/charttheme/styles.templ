@@ -8,6 +8,12 @@ templ Styles() {
 		.goshtoso-charts-interactive > .container > .item {
 			margin-inline: auto;
 		}
+		.goshtoso-charts-interactive[data-goshtoso-charts-responsive-width="true"] > .container > .item {
+			box-sizing: border-box;
+			width: 100% !important;
+			max-width: 100%;
+			min-width: 0;
+		}
 		.goshtoso-charts-theme-river > .container > .item {
 			box-sizing: border-box;
 			width: 100% !important;

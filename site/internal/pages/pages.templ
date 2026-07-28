@@ -202,6 +202,30 @@ templ InteractiveSurface3DPage(fragment bool) {
 	@layout("Interactive surface 3D", "interactive-surface-3d", interactiveSurface3DContent(), fragment)
 }
 
+templ InteractiveLine3DPage(fragment bool) {
+	@layout("Interactive line 3D", "interactive-line-3d", interactiveLine3DContent(), fragment)
+}
+
+templ interactiveLine3DContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive line 3D",
+		Description: "Reusable three-dimensional ordered line with typed points, visual range, grid view, accessible rotation behavior, responsive sizing, and deterministic exact-data access.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Trace one ordered parametric path across three finite quantitative dimensions.", "Primitive", "interactive.Line3D", "Kind", "components.KindInteractiveLine3D", "Configuration", "Label, Caption, typed Point3D series, typed visual range and palette, grid and view options, auto-rotation, size, renderer-neutral ChartOptions and SeriesOptions, caller Color or Class, root attributes, controls, export, and chart style.", "Accessibility", "Figure name comes from Label. Formula, point count, parameter and coordinate domains remain visible beside a deterministic CSV download. Auto-rotation stops when reduced motion is preferred."),
+			Preview: interactiveLine3DVariants(),
+			Code: interactiveLine3DCode(),
+		},
+		After: demoNote("Variant contract", "The stationary base and auto-rotating treatment preserve the same 25,000 ordered points, formula, visual range, and palette on one Line3D component, route, Instance, and stable Kind. Reduced-motion users receive the stationary treatment."),
+	})
+}
+
+templ interactiveLine3DVariants() {
+	<div class="space-y-10" data-line3d-variants>
+		<div data-line3d-variant="base">@sampleInteractiveLine3D("basic line3d example", "basic-line3d-example", false)</div>
+		<div data-line3d-variant="auto-rotate">@sampleInteractiveLine3D("auto rotating", "auto-rotating", true)</div>
+	</div>
+}
+
 templ interactiveSurface3DContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive surface 3D",
