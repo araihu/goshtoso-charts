@@ -45,6 +45,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/interactive/sunburst", "Interactive sunburst"},
 		{"/components/interactive/treemap", "Interactive treemap"},
 		{"/components/interactive/parallel", "Interactive parallel coordinates"},
+		{"/components/interactive/theme-river", "Interactive theme river"},
 		{"/examples/live-availability", "Live availability"},
 	} {
 		recorder := httptest.NewRecorder()
@@ -157,6 +158,34 @@ func TestCandlestickDocumentationPreservesUpstreamBasicExampleWithoutEngineBrand
 	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
 	if !strings.Contains(attributions.Body.String(), "examples/1-Painter/candlestick_chart-1-basic/main.go") {
 		t.Error("central attributions missing official candlestick source path")
+	}
+}
+
+func TestThemeRiverDocumentationPreservesPinnedUpstreamExampleWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/theme-river", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"ThemeRiver-SingleAxis-Time", "DQ", "TY", "SS", "QG", "SY", "DD",
+		"2015/11/08", "2015/11/28", "Exact stream values",
+		"components.KindInteractiveThemeRiver",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("theme river documentation missing upstream example content %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-echarts", "examples/themeriver.go", "infrastructure", "operations"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("theme river component page contains non-neutral content %q", unwanted)
+		}
+	}
+	attributions := httptest.NewRecorder()
+	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	for _, want := range []string{"examples/themeriver.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd"} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("central attributions missing %q", want)
+		}
 	}
 }
 

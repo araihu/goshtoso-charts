@@ -2,6 +2,8 @@ package pages
 
 import (
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
@@ -430,6 +432,40 @@ func parallelSampleObservations(rows []parallelSampleRow) []interactive.Parallel
 	return result
 }
 
+func sampleInteractiveThemeRiver() interactive.Instance {
+	return interactive.ThemeRiver(interactive.ThemeRiverConfig{
+		Label: "ThemeRiver-SingleAxis-Time", Caption: "Six named streams across aligned daily values from 8–28 November 2015.",
+		Streams: sampleThemeRiverStreams(), Layout: interactive.ThemeRiverLayout{BottomPercent: interactive.Float(10)},
+		Width: "100%", Height: "500px",
+		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "ThemeRiver-SingleAxis-Time"}, Tooltip: &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "axis"}, Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true}, Export: &chartcontrol.ExportOptions{Filename: "theme-river-single-axis-time"}},
+	})
+}
+
+func sampleThemeRiverStreams() []interactive.ThemeRiverStream {
+	dates := make([]time.Time, 21)
+	for index := range dates {
+		dates[index] = time.Date(2015, time.November, 8+index, 0, 0, 0, 0, time.UTC)
+	}
+	values := [][]float64{
+		{10, 15, 35, 38, 22, 16, 7, 2, 17, 33, 40, 32, 26, 35, 40, 32, 26, 22, 16, 22, 10},
+		{35, 36, 37, 22, 24, 26, 34, 21, 18, 45, 32, 35, 30, 28, 27, 26, 15, 30, 35, 42, 42},
+		{21, 25, 27, 23, 24, 21, 35, 39, 40, 36, 33, 43, 40, 34, 28, 26, 37, 41, 46, 47, 41},
+		{10, 15, 35, 38, 22, 16, 7, 2, 17, 33, 40, 32, 26, 35, 40, 32, 26, 22, 16, 22, 10},
+		{10, 15, 35, 38, 22, 16, 7, 2, 17, 33, 40, 32, 26, 35, 4, 32, 26, 22, 16, 22, 10},
+		{10, 15, 35, 38, 22, 16, 7, 2, 17, 33, 4, 32, 26, 35, 40, 32, 26, 22, 16, 22, 10},
+	}
+	names := []string{"DQ", "TY", "SS", "QG", "SY", "DD"}
+	streams := make([]interactive.ThemeRiverStream, len(names))
+	for streamIndex, name := range names {
+		points := make([]interactive.ThemeRiverPoint, len(dates))
+		for pointIndex, date := range dates {
+			points[pointIndex] = interactive.ThemeRiverPoint{Time: date, Value: values[streamIndex][pointIndex]}
+		}
+		streams[streamIndex] = interactive.ThemeRiverStream{Name: name, Class: "stream-" + strings.ToLower(name), Points: points}
+	}
+	return streams
+}
+
 func liveAvailabilityBar(label, caption string, states []int) interactive.BarConfig {
 	categories := availabilityCategories(len(states))
 	series := []interactive.BarSeries{
@@ -738,5 +774,26 @@ func interactiveParallelCode() string {
   },
   Width: "900px", Height: "500px",
   Style: charttheme.Style{Class: "max-w-full"},
+})`
+}
+
+func interactiveThemeRiverCode() string {
+	return `@interactive.ThemeRiver(interactive.ThemeRiverConfig{
+  Label: "ThemeRiver-SingleAxis-Time",
+  Caption: "Six named streams across aligned daily values.",
+  Streams: []interactive.ThemeRiverStream{
+    {Name: "DQ", Class: "stream-dq", Points: []interactive.ThemeRiverPoint{
+      {Time: time.Date(2015, time.November, 8, 0, 0, 0, 0, time.UTC), Value: 10},
+      {Time: time.Date(2015, time.November, 9, 0, 0, 0, 0, time.UTC), Value: 15},
+      // Remaining aligned dates continue through 28 November.
+    }},
+    // TY, SS, QG, SY, and DD use the same aligned dates.
+  },
+  Layout: interactive.ThemeRiverLayout{BottomPercent: interactive.Float(10)},
+  Width: "100%", Height: "500px",
+  Options: interactive.ChartOptions{
+    Title: &interactive.TitleOptions{Text: "ThemeRiver-SingleAxis-Time"},
+    Tooltip: &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "axis"},
+  },
 })`
 }

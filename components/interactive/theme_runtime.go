@@ -192,6 +192,7 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
         legend: repeat(current.legend, { textStyle: { color: text } }),
         xAxis: repeat(current.xAxis, axis),
         yAxis: repeat(current.yAxis, axis),
+        singleAxis: repeat(current.singleAxis, axis),
         radiusAxis: repeat(current.radiusAxis, axis),
         angleAxis: repeat(current.angleAxis, axis),
 		parallelAxis: repeat(current.parallelAxis, axis),

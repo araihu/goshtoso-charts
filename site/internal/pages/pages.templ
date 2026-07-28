@@ -286,6 +286,23 @@ templ InteractiveTreemapPage(fragment bool) {
 	@layout("Interactive treemap", "interactive-treemap", interactiveTreemapContent(), fragment)
 }
 
+templ InteractiveThemeRiverPage(fragment bool) {
+	@layout("Interactive theme river", "interactive-theme-river", interactiveThemeRiverContent(), fragment)
+}
+
+templ interactiveThemeRiverContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive theme river",
+		Description: "Reusable temporal stream graph for comparing how named categories rise, fall, and overlap across aligned dates.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare evolving magnitude across named temporal streams while preserving their shared shape.", "Primitive", "interactive.ThemeRiver", "Kind", "components.KindInteractiveThemeRiver", "Configuration", "Label, Caption, typed named Streams and time Points, semantic classes or explicit colors, axis layout, boundary gap, labels, size, renderer-neutral title, legend, tooltip, controls, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded adjacent table preserves dates, stream names, exact values, and semantic classes."),
+			Preview: sampleInteractiveThemeRiver(),
+			Code: interactiveThemeRiverCode(),
+		},
+		After: demoNote("Temporal contract", "Every stream has one finite nonnegative value for each shared strictly increasing date. Streams remain one component; palette, labels, axis insets, and boundary gap are typed options."),
+	})
+}
+
 templ InteractiveParallelPage(fragment bool) {
 	@layout("Interactive parallel coordinates", "interactive-parallel", interactiveParallelContent(), fragment)
 }

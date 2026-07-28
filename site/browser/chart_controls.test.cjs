@@ -1177,6 +1177,134 @@ test("interactive Tree exports only opaque PNG at live dimensions", async () => 
   }
 });
 
+test("Theme river stays responsive and theme-distinguishable across viewport and theme matrix", async () => {
+  for (const width of [390, 1440]) {
+    for (const theme of ["goshtoso", "araihu"]) {
+      for (const mode of ["light", "dark"]) {
+        const page = await pageAt("/components/interactive/theme-river", { width, height: 900 });
+        const errors = [];
+        page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+        page.on("pageerror", (error) => errors.push(error.message));
+        try {
+          await page.evaluate(({ selected, dark }) => {
+            document.documentElement.dataset.theme = selected;
+            document.documentElement.classList.toggle("dark", dark);
+          }, { selected: theme, dark: mode === "dark" });
+          await page.waitForTimeout(350);
+          const result = await page.evaluate(() => {
+            const wrapper = document.querySelector("[data-goshtoso-chart-wrapper]");
+            const host = wrapper.querySelector("[_echarts_instance_]");
+            const instance = window.echarts.getInstanceByDom(host);
+            const colors = instance.getOption().color || [];
+            return {
+              client: document.documentElement.clientWidth,
+              scroll: document.documentElement.scrollWidth,
+              hostWidth: host.clientWidth,
+              contentWidth: wrapper.querySelector("[data-goshtoso-chart-content]").clientWidth,
+              chartWidth: instance.getWidth(),
+              canvasWidth: Math.round(host.querySelector("canvas").getBoundingClientRect().width),
+              hostHeight: host.clientHeight,
+              distinct: new Set(colors.slice(0, 6)).size,
+            };
+          });
+          assert.equal(result.scroll, result.client);
+          assert.ok(result.hostWidth <= result.contentWidth + 1);
+          assert.deepEqual({ chart: result.chartWidth, canvas: result.canvasWidth }, { chart: result.hostWidth, canvas: result.hostWidth });
+          assert.ok(result.hostHeight >= 288 && result.hostHeight <= 500, `host height = ${result.hostHeight}`);
+          assert.equal(result.distinct, 6);
+          assert.deepEqual(errors, []);
+        } finally {
+          await page.close();
+        }
+      }
+    }
+  }
+});
+
+test("Theme river preserves one instance through host resize, collapse, modal, theme, and native fullscreen; PNG stays opaque", async () => {
+  const page = await pageAt("/components/interactive/theme-river", { width: 1440, height: 900 });
+  try {
+    const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    await wrapper.evaluate((element) => {
+      const host = element.querySelector("[_echarts_instance_]");
+      element.__themeRiverInstance = window.echarts.getInstanceByDom(host);
+    });
+    const measure = () => wrapper.evaluate((element) => {
+      const host = element.querySelector("[_echarts_instance_]");
+      const instance = window.echarts.getInstanceByDom(host);
+      return {
+        sameInstance: instance === element.__themeRiverInstance,
+        hostWidth: host.clientWidth,
+        chartWidth: instance.getWidth(),
+        canvasWidth: Math.round(host.querySelector("canvas").getBoundingClientRect().width),
+        chartHeight: instance.getHeight(),
+      };
+    });
+
+    await wrapper.evaluate((element) => { element.style.width = "607px"; });
+    await page.waitForFunction(() => {
+      const wrapper = document.querySelector("[data-goshtoso-chart-wrapper]");
+      const host = wrapper.querySelector("[_echarts_instance_]");
+      return host.clientWidth === 607 && window.echarts.getInstanceByDom(host).getWidth() === 607;
+    });
+    let state = await measure();
+    assert.deepEqual({ same: state.sameInstance, host: state.hostWidth, chart: state.chartWidth, canvas: state.canvasWidth }, { same: true, host: 607, chart: 607, canvas: 607 });
+
+    const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
+    await collapse.click();
+    await collapse.click();
+    await page.waitForTimeout(350);
+    state = await measure();
+    assert.equal(state.sameInstance, true);
+
+    await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+    const dialog = wrapper.getByRole("dialog", { name: "ThemeRiver-SingleAxis-Time" });
+    await dialog.waitFor({ state: "visible" });
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = "araihu";
+      document.documentElement.classList.add("dark");
+    });
+    await page.waitForTimeout(450);
+    state = await measure();
+    assert.equal(state.sameInstance, true);
+    assert.deepEqual({ chart: state.chartWidth, canvas: state.canvasWidth }, { chart: state.hostWidth, canvas: state.hostWidth });
+    const modalGeometry = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((panel) => {
+      const rect = panel.getBoundingClientRect();
+      return {
+        centered: Math.abs((rect.left + rect.right) / 2 - innerWidth / 2) < 4,
+        large: rect.width >= innerWidth * 0.9 && rect.height >= innerHeight * 0.8,
+        contained: rect.left >= 0 && rect.right <= innerWidth + 1 && rect.top >= 0 && rect.bottom <= innerHeight + 1,
+      };
+    });
+    assert.deepEqual(modalGeometry, { centered: true, large: true, contained: true });
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "hidden" });
+
+    await wrapper.getByRole("button", { name: /^Enter fullscreen / }).click();
+    await page.waitForFunction(() => document.fullscreenElement !== null);
+    await page.waitForTimeout(350);
+    state = await measure();
+    assert.equal(state.sameInstance, true);
+    assert.deepEqual({ chart: state.chartWidth, canvas: state.canvasWidth }, { chart: state.hostWidth, canvas: state.hostWidth });
+    await page.evaluate(() => document.exitFullscreen());
+    await page.waitForFunction(() => document.fullscreenElement === null);
+    await page.waitForTimeout(350);
+
+    const expected = await measure();
+    assert.deepEqual({ width: expected.chartWidth, height: expected.chartHeight }, { width: 607, height: 337 });
+    const png = await download(page, "Download ThemeRiver-SingleAxis-Time as PNG");
+    assert.equal(png.filename, "theme-river-single-axis-time.png");
+    assert.equal(png.types.at(-1), "image/png");
+    assert.deepEqual([...png.bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    const metadata = await sharp(png.bytes).metadata();
+    assert.deepEqual({ width: metadata.width, height: metadata.height }, { width: expected.chartWidth, height: expected.chartHeight });
+    const pixels = await sharp(png.bytes).ensureAlpha().raw().toBuffer();
+    for (let index = 3; index < pixels.length; index += 4) assert.equal(pixels[index], 255);
+  } finally {
+    await page.close();
+  }
+});
+
 test("static Export dropdown uses Goshtoso keyboard and Escape semantics", async () => {
   const page = await pageAt("/components/scatter");
   try {

@@ -1,5 +1,14 @@
 # Goshtoso integration snags
 
+## 2026-07-28: ThemeRiver boundary-gap adapter gap
+
+The pinned private interactive-chart adapter can serialize ThemeRiver data and
+single-axis placement, but its series type omits the renderer's two-sided
+`boundaryGap` option. The renderer-neutral `ThemeRiverBoundaryGap` API therefore
+uses the shared deterministic snippet-replacement boundary instead of exporting
+raw maps, callbacks, or backing-renderer types. A future adapter upgrade should
+remove that repair once its typed series model covers the option.
+
 ## 2026-07-28: Parallel adapter omits supported axis and inactive styling fields
 
 The pinned private Go adapter exposes parallel-axis maximum, inverse, type, and

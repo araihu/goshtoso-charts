@@ -4,6 +4,7 @@ import (
 	"math/rand"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func TestDenseScatterValuesAreDeterministicAndPreserveUpstreamDistribution(t *testing.T) {
@@ -39,6 +40,37 @@ func TestDenseScatterValuesAreDeterministicAndPreserveUpstreamDistribution(t *te
 						t.Fatalf("series %d category %d value %f outside 10%% walk [%f,%f]", seriesIndex, index, sample, minimum, maximum)
 					}
 				}
+			}
+		}
+	}
+}
+
+func TestThemeRiverDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	streams := sampleThemeRiverStreams()
+	wantNames := []string{"DQ", "TY", "SS", "QG", "SY", "DD"}
+	wantValues := [][]float64{
+		{10, 15, 35, 38, 22, 16, 7, 2, 17, 33, 40, 32, 26, 35, 40, 32, 26, 22, 16, 22, 10},
+		{35, 36, 37, 22, 24, 26, 34, 21, 18, 45, 32, 35, 30, 28, 27, 26, 15, 30, 35, 42, 42},
+		{21, 25, 27, 23, 24, 21, 35, 39, 40, 36, 33, 43, 40, 34, 28, 26, 37, 41, 46, 47, 41},
+		{10, 15, 35, 38, 22, 16, 7, 2, 17, 33, 40, 32, 26, 35, 40, 32, 26, 22, 16, 22, 10},
+		{10, 15, 35, 38, 22, 16, 7, 2, 17, 33, 40, 32, 26, 35, 4, 32, 26, 22, 16, 22, 10},
+		{10, 15, 35, 38, 22, 16, 7, 2, 17, 33, 4, 32, 26, 35, 40, 32, 26, 22, 16, 22, 10},
+	}
+	if len(streams) != len(wantNames) {
+		t.Fatalf("stream count = %d, want %d", len(streams), len(wantNames))
+	}
+	for streamIndex, stream := range streams {
+		if stream.Name != wantNames[streamIndex] {
+			t.Fatalf("stream %d name = %q, want %q", streamIndex, stream.Name, wantNames[streamIndex])
+		}
+		if len(stream.Points) != 21 {
+			t.Fatalf("stream %q point count = %d", stream.Name, len(stream.Points))
+		}
+		for pointIndex, point := range stream.Points {
+			wantDate := time.Date(2015, time.November, 8+pointIndex, 0, 0, 0, 0, time.UTC)
+			if !point.Time.Equal(wantDate) || point.Value != wantValues[streamIndex][pointIndex] {
+				t.Fatalf("stream %q point %d = (%s, %g), want (%s, %g)", stream.Name, pointIndex, point.Time, point.Value, wantDate, wantValues[streamIndex][pointIndex])
 			}
 		}
 	}
