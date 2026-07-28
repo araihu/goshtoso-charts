@@ -39,9 +39,13 @@ const (
 	KindEChartsHeatMap Kind = "echarts-heatmap"
 	// KindEChartsBoxPlot identifies a browser-rendered box plot chart.
 	KindEChartsBoxPlot Kind = "echarts-boxplot"
+	// KindEChartsGauge identifies a browser-rendered gauge chart.
+	KindEChartsGauge Kind = "echarts-gauge"
+	// KindEChartsFunnel identifies a browser-rendered funnel chart.
+	KindEChartsFunnel Kind = "echarts-funnel"
 )
 
-var allKinds = []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart, KindInteractiveECharts, KindEChartsBar, KindEChartsLine, KindEChartsScatter, KindEChartsPie, KindEChartsRadar, KindEChartsHeatMap, KindEChartsBoxPlot}
+var allKinds = []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart, KindInteractiveECharts, KindEChartsBar, KindEChartsLine, KindEChartsScatter, KindEChartsPie, KindEChartsRadar, KindEChartsHeatMap, KindEChartsBoxPlot, KindEChartsGauge, KindEChartsFunnel}
 
 // AllKinds returns supported component kinds in stable order.
 func AllKinds() []Kind {

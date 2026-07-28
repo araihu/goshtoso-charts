@@ -24,6 +24,8 @@ func TestDocumentationSearchIndexesCategorizedNavigation(t *testing.T) {
 		`data-search="radar interactive / statistical echarts-radar"`,
 		`data-search="heatmap interactive / cartesian echarts-heatmap"`,
 		`data-search="box plot interactive / statistical echarts-boxplot"`,
+		`data-search="gauge interactive / statistical echarts-gauge"`,
+		`data-search="funnel interactive / statistical echarts-funnel"`,
 		`data-search="attributions general attributions"`,
 		`href="/attributions"`,
 		`href="/components/echarts/line"`,

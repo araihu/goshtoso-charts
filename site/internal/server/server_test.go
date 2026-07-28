@@ -29,6 +29,8 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/echarts/radar", "ECharts radar"},
 		{"/components/echarts/heatmap", "ECharts heatmap"},
 		{"/components/echarts/boxplot", "ECharts box plot"},
+		{"/components/echarts/gauge", "ECharts gauge"},
+		{"/components/echarts/funnel", "ECharts funnel"},
 		{"/examples/status-page", "Status page example"},
 		{"/examples/go-echarts", "go-echarts catalog"},
 		{"/examples/go-echarts/bar-basic", "Basic bar"},
@@ -59,7 +61,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		}
 	}
 
-	for _, path := range []string{"/components/echarts/bar", "/components/echarts/line", "/components/echarts/scatter", "/components/echarts/pie", "/components/echarts/radar", "/components/echarts/heatmap", "/components/echarts/boxplot"} {
+	for _, path := range []string{"/components/echarts/bar", "/components/echarts/line", "/components/echarts/scatter", "/components/echarts/pie", "/components/echarts/radar", "/components/echarts/heatmap", "/components/echarts/boxplot", "/components/echarts/gauge", "/components/echarts/funnel"} {
 		page := httptest.NewRecorder()
 		handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, path, nil))
 		for _, unwanted := range []string{"backed by go-echarts", "with go-echarts options", ">go-echarts catalog<"} {

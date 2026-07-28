@@ -106,6 +106,33 @@ func sampleEChartsBoxPlot() interactive.BoxPlotConfig {
 	}
 }
 
+func sampleEChartsGauge() interactive.GaugeConfig {
+	return interactive.GaugeConfig{
+		Label: "Deployment completion", Caption: "Current rollout completion percentage.",
+		Variant: interactive.GaugeVariantProgress,
+		Series: []interactive.GaugeSeries{{
+			Name: "Rollout", Data: []interactive.GaugeData{{Name: "Complete", Value: 73}},
+		}},
+		GlobalOptions: []charts.GlobalOpts{charts.WithTitleOpts(opts.Title{Title: "Deployment completion"})},
+	}
+}
+
+func sampleEChartsFunnel() interactive.FunnelConfig {
+	return interactive.FunnelConfig{
+		Label: "Release pipeline", Caption: "Builds progressing through release stages.",
+		Series: []interactive.FunnelSeries{{
+			Name: "Pipeline",
+			Data: []interactive.FunnelData{
+				{Name: "Built", Value: 120},
+				{Name: "Tested", Value: 94},
+				{Name: "Approved", Value: 61},
+				{Name: "Deployed", Value: 48},
+			},
+		}},
+		GlobalOptions: []charts.GlobalOpts{charts.WithTitleOpts(opts.Title{Title: "Release pipeline"})},
+	}
+}
+
 func eChartsBarCode() string {
 	return `@echarts.Bar(echarts.BarConfig{
   Label: "Weekly deployments",
@@ -190,6 +217,31 @@ func eChartsBoxPlotCode() string {
     Data: []echarts.BoxPlotData{
       {Min: 18, Q1: 31, Median: 42, Q3: 58, Max: 94},
       {Min: 25, Q1: 44, Median: 62, Q3: 86, Max: 138},
+    },
+  }},
+})`
+}
+
+func eChartsGaugeCode() string {
+	return `@echarts.Gauge(echarts.GaugeConfig{
+  Label: "Deployment completion",
+  Variant: echarts.GaugeVariantProgress,
+  Series: []echarts.GaugeSeries{{
+    Name: "Rollout",
+    Data: []echarts.GaugeData{{Name: "Complete", Value: 73}},
+  }},
+})`
+}
+
+func eChartsFunnelCode() string {
+	return `@echarts.Funnel(echarts.FunnelConfig{
+  Label: "Release pipeline",
+  Series: []echarts.FunnelSeries{{
+    Name: "Pipeline",
+    Data: []echarts.FunnelData{
+      {Name: "Built", Value: 120},
+      {Name: "Tested", Value: 94},
+      {Name: "Deployed", Value: 48},
     },
   }},
 })`

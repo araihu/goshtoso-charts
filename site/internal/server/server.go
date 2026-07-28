@@ -67,6 +67,12 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/echarts/boxplot", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.EChartsBoxPlotPage(isFragment(request)))
 	})
+	mux.HandleFunc("GET /components/echarts/gauge", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.EChartsGaugePage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /components/echarts/funnel", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.EChartsFunnelPage(isFragment(request)))
+	})
 	mux.HandleFunc("GET /examples/status-page", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.StatusPageExample(isFragment(request)))
 	})

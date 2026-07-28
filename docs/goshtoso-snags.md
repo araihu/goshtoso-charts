@@ -59,3 +59,10 @@ In go-echarts v2.7.2, `charts.HeatMap.Validate` does not call
 from the rendered option. The HeatMap component writes the validated X and Y
 category data to `XAxisList[0].Data` and `YAxisList[0].Data` directly. The
 renderer-specific workaround is covered by `TestHeatMapRendersCartesianChart`.
+
+## 2026-07-28: funnel ordering lacks a dedicated option helper
+
+go-echarts v2.7.2 exposes no dedicated funnel-series option for ordering. The
+Funnel component keeps ordering typed as `FunnelOrder` and applies the validated
+value through the exported `charts.SingleSeries.Sort` field. Rendering tests
+cover descending, ascending, and caller-data order.

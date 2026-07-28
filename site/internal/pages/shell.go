@@ -88,6 +88,8 @@ func shellNavigation() componentdocshell.Navigation {
 					{ID: "echarts-pie", Label: "Pie", Href: "/components/echarts/pie"},
 					{ID: "echarts-radar", Label: "Radar", Href: "/components/echarts/radar"},
 					{ID: "echarts-boxplot", Label: "Box plot", Href: "/components/echarts/boxplot"},
+					{ID: "echarts-gauge", Label: "Gauge", Href: "/components/echarts/gauge"},
+					{ID: "echarts-funnel", Label: "Funnel", Href: "/components/echarts/funnel"},
 				},
 			},
 			{
