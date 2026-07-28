@@ -1,0 +1,30 @@
+name: Deploy demo
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: Trigger Fly deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Dispatch central deployment
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.FLY_DEPLOY_DISPATCH_TOKEN }}
+          script: |
+            await github.rest.repos.createDispatchEvent({
+              owner: 'araihu',
+              repo: 'fly-deploy',
+              event_type: 'goshtoso-charts-main',
+              client_payload: {
+                goshtoso_charts_ref: context.sha,
+                goshtoso_charts_sha: context.sha,
+                goshtoso_charts_run_id: String(context.runId),
+                source_repository: `${context.repo.owner}/${context.repo.repo}`,
+              },
+            })
