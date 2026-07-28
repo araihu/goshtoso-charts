@@ -16,7 +16,7 @@ var foundationAttributions = []attribution{
 }
 
 var chartAttributions = []attribution{
-	{Name: "go-analyze/charts", Version: "v0.6.0", ProjectURL: "https://github.com/go-analyze/charts", License: "MIT", LicenseURL: "https://github.com/go-analyze/charts/blob/v0.6.0/LICENSE", UsedFor: "Go-native SVG rendering behind static/vector line, bar, and pie components."},
+	{Name: "go-analyze/charts", Version: "v0.6.0", ProjectURL: "https://github.com/go-analyze/charts", License: "MIT", LicenseURL: "https://github.com/go-analyze/charts/blob/v0.6.0/LICENSE", UsedFor: "Go-native SVG rendering behind static/vector line, bar, pie, and scatter components."},
 	{Name: "go-echarts", Version: "v2.7.2", ProjectURL: "https://github.com/go-echarts/go-echarts", License: "MIT", LicenseURL: "https://github.com/go-echarts/go-echarts/blob/v2.7.2/LICENSE", UsedFor: "Private Go adapter behind renderer-neutral interactive components."},
 }
 

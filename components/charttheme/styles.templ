@@ -8,6 +8,12 @@ templ Styles() {
 		.goshtoso-charts-interactive > .container > .item {
 			margin-inline: auto;
 		}
+		.goshtoso-charts-scatter__viewport {
+			overflow-x: auto;
+		}
+		.goshtoso-charts-scatter__viewport > svg {
+			min-width: 36rem;
+		}
 		.goshtoso-charts-palette {
 			--color-chart-surface: var(--color-surface);
 			--color-chart-surface-alt: var(--color-surface-alt, var(--color-surface));
@@ -95,7 +101,7 @@ templ Styles() {
 		}
 		.goshtoso-charts-palette-araihu,
 		[data-theme="araihu"] .goshtoso-charts-palette-auto {
-			--color-chart-series-1: var(--color-lime-400, #c7ff4a); --color-chart-series-2: var(--color-orange-400, #ff8a3d);
+			--color-chart-series-1: var(--color-lime-700, #4d7c0f); --color-chart-series-2: var(--color-orange-400, #ff8a3d);
 			--color-chart-series-3: var(--color-rose-500, #ef476f); --color-chart-series-4: var(--color-sky-400, #4cc9f0);
 			--color-chart-series-5: var(--color-violet-500, #9b5de5); --color-chart-series-6: var(--color-amber-300, #ffd166);
 			--color-chart-series-7: var(--color-pink-400, #f15bb5); --color-chart-series-8: var(--color-teal-500, #00b8a9);
@@ -103,6 +109,7 @@ templ Styles() {
 		}
 		.dark .goshtoso-charts-palette-araihu,
 		.dark[data-theme="araihu"] .goshtoso-charts-palette-auto {
+			--color-chart-series-1: var(--color-lime-400, #c7ff4a);
 			--color-chart-scale-low: var(--color-cyan-700, #0e7490); --color-chart-scale-mid: var(--color-amber-400, #fbbf24); --color-chart-scale-high: var(--color-rose-400, #fb7185);
 		}
 	</style>

@@ -83,14 +83,57 @@ func TestStylesExposeLightAndDarkSemanticChartTokens(t *testing.T) {
 		`--color-chart-text-strong: var(--color-on-surface-dark-strong`,
 		`--color-chart-text-muted: var(--color-on-surface-dark-muted`,
 		`[data-theme="araihu"] .goshtoso-charts-palette-auto`,
+		`--color-chart-series-1: var(--color-lime-700, #4d7c0f)`,
+		`--color-chart-series-1: var(--color-lime-400, #c7ff4a)`,
 		`--color-chart-scale-low: var(--color-sky-400`,
 		`--color-chart-scale-mid: var(--color-amber-500`,
 		`--color-chart-scale-high: var(--color-rose-600`,
 		`--color-chart-scale-high: var(--color-rose-400`,
 		`--color-chart-scale-mid: var(--color-amber-200`,
+		`.goshtoso-charts-scatter__viewport`,
+		`min-width: 36rem`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("theme styles missing %q", want)
+		}
+	}
+}
+
+func TestAraiHuAutoPaletteSplitsLightAndDarkSeriesOneWithoutChangingSemanticPalettes(t *testing.T) {
+	t.Parallel()
+	var output strings.Builder
+	if err := Styles().Render(context.Background(), &output); err != nil {
+		t.Fatalf("Styles().Render() error = %v", err)
+	}
+	markup := output.String()
+	lightStart := strings.Index(markup, `.goshtoso-charts-palette-araihu,`)
+	darkStart := strings.Index(markup, `.dark .goshtoso-charts-palette-araihu,`)
+	if lightStart == -1 || darkStart == -1 || darkStart <= lightStart {
+		t.Fatal("AraiHu light/dark palette rules are missing or unordered")
+	}
+	lightRule := markup[lightStart:darkStart]
+	darkRuleEnd := strings.Index(markup[darkStart:], `}`)
+	if darkRuleEnd == -1 {
+		t.Fatal("AraiHu dark palette rule is incomplete")
+	}
+	darkRule := markup[darkStart : darkStart+darkRuleEnd]
+	if !strings.Contains(lightRule, `--color-chart-series-1: var(--color-lime-700, #4d7c0f)`) || strings.Contains(lightRule, `--color-chart-series-1: var(--color-lime-400, #c7ff4a)`) {
+		t.Fatalf("AraiHu light series-1 token is not contrast-safe: %q", lightRule)
+	}
+	if !strings.Contains(darkRule, `--color-chart-series-1: var(--color-lime-400, #c7ff4a)`) || strings.Contains(darkRule, `--color-chart-series-1: var(--color-lime-700, #4d7c0f)`) {
+		t.Fatalf("AraiHu dark series-1 token does not restore bright lime: %q", darkRule)
+	}
+	for _, unchanged := range []string{
+		`--color-chart-series-2: var(--color-orange-400, #ff8a3d)`,
+		`--color-chart-scale-low: var(--color-sky-400, #38bdf8)`,
+		`--color-chart-scale-mid: var(--color-amber-500, #f59e0b)`,
+		`--color-chart-scale-high: var(--color-rose-600, #e11d48)`,
+		`--color-chart-series-1: color-mix(in srgb, var(--color-success`,
+		`--color-chart-series-2: color-mix(in srgb, var(--color-warning`,
+		`--color-chart-series-3: color-mix(in srgb, var(--color-danger`,
+	} {
+		if !strings.Contains(markup, unchanged) {
+			t.Errorf("unrelated semantic palette token changed or missing: %q", unchanged)
 		}
 	}
 }

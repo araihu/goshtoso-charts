@@ -36,7 +36,7 @@ type Style struct {
 }
 
 var palettes = map[Palette][]string{
-	PaletteAraiHu:  {"#c7ff4a", "#ff8a3d", "#ef476f", "#4cc9f0", "#9b5de5", "#ffd166", "#f15bb5", "#00b8a9"},
+	PaletteAraiHu:  {"#4d7c0f", "#ff8a3d", "#ef476f", "#4cc9f0", "#9b5de5", "#ffd166", "#f15bb5", "#00b8a9"},
 	PaletteBold:    {"#2563eb", "#dc2626", "#16a34a", "#d97706", "#7c3aed", "#0891b2", "#db2777", "#65a30d"},
 	PaletteNeutral: {"#111827", "#374151", "#4b5563", "#6b7280", "#9ca3af", "#d1d5db", "#78716c", "#a8a29e"},
 	PalettePastel:  {"#93c5fd", "#fca5a5", "#86efac", "#fcd34d", "#c4b5fd", "#67e8f9", "#f9a8d4", "#bef264"},

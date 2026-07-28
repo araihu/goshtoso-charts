@@ -22,7 +22,7 @@ func shellPage(title string, active string, content templ.Component) componentdo
 		Active:        active,
 		Content:       content,
 		Head:          templ.Join(brand.Head(), dependencies.Dependencies()),
-		EnableTOC:     active == "getting-started" || active == "line" || active == "bar" || active == "pie" || active == "interactive-bar" || active == "interactive-line" || active == "live-availability",
+		EnableTOC:     active == "getting-started" || active == "line" || active == "bar" || active == "pie" || active == "scatter" || active == "interactive-bar" || active == "interactive-line" || active == "live-availability",
 	}
 }
 
@@ -58,6 +58,7 @@ func shellNavigation() componentdocshell.Navigation {
 					{ID: "line", Label: "Line chart", Href: "/components/line"},
 					{ID: "bar", Label: "Bar chart", Href: "/components/bar"},
 					{ID: "pie", Label: "Pie chart", Href: "/components/pie"},
+					{ID: "scatter", Label: "Scatter chart", Href: "/components/scatter"},
 				},
 			},
 			{

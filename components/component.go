@@ -23,6 +23,8 @@ const (
 	KindBarChart Kind = "bar-chart"
 	// KindPieChart identifies a categorical proportional breakdown chart.
 	KindPieChart Kind = "pie-chart"
+	// KindScatterChart identifies a server-rendered categorical scatter chart.
+	KindScatterChart Kind = "scatter-chart"
 	// KindInteractiveBar identifies a browser-rendered bar chart.
 	KindInteractiveBar Kind = "interactive-bar"
 	// KindInteractiveLine identifies a browser-rendered line chart.
@@ -49,7 +51,7 @@ const (
 	KindInteractiveSankey Kind = "interactive-sankey"
 )
 
-var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey}
+var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey}
 
 // AllKinds returns supported chart kinds in stable order. Document-level
 // dependency components are intentionally excluded.

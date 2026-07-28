@@ -25,6 +25,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/line", "Line chart"},
 		{"/components/bar", "Bar chart"},
 		{"/components/pie", "Pie chart"},
+		{"/components/scatter", "Scatter chart"},
 		{"/components/interactive/bar", "Interactive bar"},
 		{"/components/interactive/line", "Interactive line"},
 		{"/components/interactive/scatter", "Interactive scatter"},
@@ -118,10 +119,10 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		t.Error("attributions page claims removed optional extensions are still pinned")
 	}
 
-	for _, path := range []string{"/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter", "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap", "/components/interactive/boxplot", "/components/interactive/gauge", "/components/interactive/funnel", "/components/interactive/graph", "/components/interactive/sankey"} {
+	for _, path := range []string{"/components/scatter", "/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter", "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap", "/components/interactive/boxplot", "/components/interactive/gauge", "/components/interactive/funnel", "/components/interactive/graph", "/components/interactive/sankey"} {
 		page := httptest.NewRecorder()
 		handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, path, nil))
-		for _, unwanted := range []string{"backed by go-echarts", "with go-echarts options", ">go-echarts catalog<"} {
+		for _, unwanted := range []string{"backed by go-echarts", "with go-echarts options", ">go-echarts catalog<", "go-analyze"} {
 			if strings.Contains(page.Body.String(), unwanted) {
 				t.Errorf("GET %s repeats centralized attribution %q", path, unwanted)
 			}
@@ -410,7 +411,7 @@ func TestComponentDocsNavigationHasSearchGroupsAndComponentContract(t *testing.T
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/line", nil))
 	body := recorder.Body.String()
-	for _, want := range []string{"Search docs...", "Static / Vector", "Interactive / Cartesian", "Interactive / Relationships", "Examples", "component-doc-shell__sidebar", "components.KindLineChart", "Live availability", "Bar chart", "Pie chart", "Accessibility", "lg:grid-cols-2"} {
+	for _, want := range []string{"Search docs...", "Static / Vector", "Interactive / Cartesian", "Interactive / Relationships", "Examples", "component-doc-shell__sidebar", "components.KindLineChart", "Live availability", "Bar chart", "Pie chart", "Scatter chart", "Accessibility", "lg:grid-cols-2"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("component docs page missing %q", want)
 		}

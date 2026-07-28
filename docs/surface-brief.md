@@ -14,7 +14,8 @@ Existing identity: Goshtoso design system. Density: standard. Motion: none.
 
 Visual direction: neutral figure, semantic series colors, restrained grid, no elevation or dashboard-card gallery.
 
-Chosen primitives: extension-owned static/vector `line`, `bar`, and `pie`
+Chosen primitives: extension-owned static/vector `line`, `bar`, `pie`, and
+categorical `scatter`
 figures plus renderer-neutral interactive components. Goshtoso `panel.Panel` is
 supplied by the consumer. Availability history is a Bar-chart example, not a
 domain-specific component.

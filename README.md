@@ -121,6 +121,51 @@ Use pie charts for a small categorical distribution that is meaningful as parts 
 
 Keep exact values in nearby text or a table when readers need them.
 
+## Scatter chart
+
+Use scatter charts for repeated observations across explicit ordered
+categories. The example follows the upstream dense-data example: several
+populations, repeated values at some sample indices, and compact markers.
+Categories are equally spaced keys, even when their labels look numeric; use
+another component when a proportional numeric X axis is required.
+
+```templ
+@scatter.Scatter(scatter.Config{
+	Label:      "Dense sample populations",
+	Categories: []string{"0", "1", "2", "3", "4"},
+	Options:    scatter.Options{Size: 2},
+	Series: []scatter.Series{
+		{
+			Name: "One",
+			Points: []scatter.Point{
+				{Category: "0", Value: 42},
+				{Category: "1", Value: 44},
+				{Category: "2", Value: 43},
+				{Category: "2", Value: 47},
+				{Category: "3", Value: 45},
+				{Category: "4", Value: 46},
+				{Category: "4", Value: 49},
+			},
+		},
+		{
+			Name: "Two",
+			Points: []scatter.Point{
+				{Category: "0", Value: 88},
+				{Category: "1", Value: 91},
+				{Category: "2", Value: 89},
+				{Category: "2", Value: 94},
+				{Category: "3", Value: 96},
+				{Category: "4", Value: 93},
+				{Category: "4", Value: 99},
+			},
+		},
+	},
+})
+```
+
+Marker symbol and size are typed options on the same component. Keep exact
+points in nearby text or a table when readers need them.
+
 ## Interactive components
 
 Interactive components expose only typed Goshtoso Charts configs. Renderer
@@ -184,7 +229,10 @@ Availability remains application semantics and is not a separate chart type.
 
 ## Roadmap
 
-Foundation: static/vector `line`, `bar`/stacked bar, and `pie`, plus typed interactive components. Next generic primitives: area and distribution/histogram. Add each only with a real use case, stable kind, accessible evidence, semantic-token palette, and focused tests.
+Foundation: static/vector `line`, `bar`/stacked bar, `pie`, and categorical
+`scatter`, plus typed interactive components. Next generic primitives: area and
+distribution/histogram. Add each only with a real use case, stable kind,
+accessible evidence, semantic-token palette, and focused tests.
 
 See [chart-library evaluation](docs/chart-library-evaluation.md), [surface brief](docs/surface-brief.md), and [Xisnove heartbeat brief](docs/xisnove-heartbeat.md).
 

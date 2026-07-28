@@ -42,6 +42,9 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/pie", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.PiePage(isFragment(request)))
 	})
+	mux.HandleFunc("GET /components/scatter", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.ScatterPage(isFragment(request)))
+	})
 	mux.HandleFunc("GET /components/interactive/bar", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.InteractiveBarPage(isFragment(request)))
 	})

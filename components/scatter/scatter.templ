@@ -1,0 +1,15 @@
+package scatter
+
+import "github.com/araihu/goshtoso-charts/components/charttheme"
+
+templ scatterTemplate(cfg Config, chart templ.Component) {
+	@charttheme.Styles()
+	<figure class={ cfg.Style.RootClasses("goshtoso-charts-scatter") } role="img" aria-label={ cfg.Label } { cfg.RootAttrs... }>
+		<div class="goshtoso-charts-scatter__viewport">
+			@chart
+		</div>
+		if cfg.Caption != "" {
+			<figcaption class="mt-2 text-sm text-on-surface dark:text-on-surface-dark">{ cfg.Caption }</figcaption>
+		}
+	</figure>
+}
