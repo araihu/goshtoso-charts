@@ -39,6 +39,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/interactive/graph", "Interactive graph"},
 		{"/components/interactive/sankey", "Interactive Sankey"},
 		{"/components/interactive/tree", "Interactive tree"},
+		{"/components/interactive/sunburst", "Interactive sunburst"},
 		{"/examples/live-availability", "Live availability"},
 	} {
 		recorder := httptest.NewRecorder()
@@ -145,7 +146,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		t.Error("attributions page claims removed optional extensions are still pinned")
 	}
 
-	for _, path := range []string{"/components/scatter", "/components/radar", "/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter", "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap", "/components/interactive/boxplot", "/components/interactive/gauge", "/components/interactive/funnel", "/components/interactive/graph", "/components/interactive/sankey"} {
+	for _, path := range []string{"/components/scatter", "/components/radar", "/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter", "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap", "/components/interactive/boxplot", "/components/interactive/gauge", "/components/interactive/funnel", "/components/interactive/graph", "/components/interactive/sankey", "/components/interactive/sunburst"} {
 		page := httptest.NewRecorder()
 		handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, path, nil))
 		for _, unwanted := range []string{"backed by go-echarts", "with go-echarts options", ">go-echarts catalog<", "go-analyze"} {
@@ -153,6 +154,31 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 				t.Errorf("GET %s repeats centralized attribution %q", path, unwanted)
 			}
 		}
+	}
+}
+
+func TestSunburstDocumentationPreservesOfficialBasicExample(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/sunburst", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Basic sunburst example", "parent-0", "child-0", "parent-6", "child-6",
+		"Exact hierarchy and values", "root class and attributes",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("sunburst documentation missing upstream example content %q", want)
+		}
+	}
+	for _, unwanted := range []string{"service ownership", "infrastructure", "ECharts", "go-echarts", "examples/sunburst.go"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("sunburst documentation contains forbidden framing or API branding %q", unwanted)
+		}
+	}
+	attributions := httptest.NewRecorder()
+	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	if !strings.Contains(attributions.Body.String(), "examples/sunburst.go") {
+		t.Error("central attributions missing official sunburst source path")
 	}
 }
 

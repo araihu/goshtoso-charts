@@ -30,6 +30,7 @@ func TestDocumentationSearchIndexesCategorizedNavigation(t *testing.T) {
 		`data-search="funnel interactive / statistical interactive-funnel"`,
 		`data-search="graph interactive / relationships interactive-graph"`,
 		`data-search="sankey interactive / relationships interactive-sankey"`,
+		`data-search="sunburst interactive / relationships interactive-sunburst"`,
 		`data-search="live availability examples live-availability"`,
 		`data-search="attributions general attributions"`,
 		`href="/attributions"`,

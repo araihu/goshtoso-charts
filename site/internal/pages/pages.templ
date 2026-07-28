@@ -263,6 +263,23 @@ templ InteractiveTreePage(fragment bool) {
 	@layout("Interactive tree", "interactive-tree", interactiveTreeContent(), fragment)
 }
 
+templ InteractiveSunburstPage(fragment bool) {
+	@layout("Interactive sunburst", "interactive-sunburst", interactiveSunburstContent(), fragment)
+}
+
+templ interactiveSunburstContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive sunburst",
+		Description: "Reusable radial hierarchy for comparing weighted parent-child sectors and focusing nested branches under one renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Explore weighted recursive hierarchies as concentric sectors.", "Primitive", "interactive.Sunburst", "Kind", "components.KindInteractiveSunburst", "Configuration", "Label, Caption, typed recursive Nodes, drill-down navigation, sibling ordering, labels, inner and outer radii, size, renderer-neutral chart options, root class and attributes, and chart palette with explicit colors.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent exact-value table preserves every node path, parent, and value."),
+			Preview: sampleInteractiveSunburst(),
+			Code: interactiveSunburstCode(),
+		},
+		After: demoNote("Hierarchy contract", "Drill-down with center-back navigation and descending sibling order are zero-value defaults. Disable navigation or preserve caller order with typed options on the same Sunburst component."),
+	})
+}
+
 templ interactiveTreeContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive tree",

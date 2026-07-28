@@ -223,6 +223,32 @@ func sampleInteractiveTree() interactive.Instance {
 	})
 }
 
+func sampleInteractiveSunburst() interactive.Instance {
+	return interactive.Sunburst(interactive.SunburstConfig{
+		Label:   "Basic sunburst example",
+		Caption: "Seven parent nodes, each paired with one child. Select a sector to focus the hierarchy; select the center to return.",
+		Nodes: []*interactive.SunburstNode{
+			{Name: "parent-0", Value: 0.81, Children: []*interactive.SunburstNode{{Name: "child-0", Value: 0.34}}},
+			{Name: "parent-1", Value: 0.62, Children: []*interactive.SunburstNode{{Name: "child-1", Value: 0.57}}},
+			{Name: "parent-2", Value: 0.45, Children: []*interactive.SunburstNode{{Name: "child-2", Value: 0.73}}},
+			{Name: "parent-3", Value: 0.93, Children: []*interactive.SunburstNode{{Name: "child-3", Value: 0.28}}},
+			{Name: "parent-4", Value: 0.38, Children: []*interactive.SunburstNode{{Name: "child-4", Value: 0.66}}},
+			{Name: "parent-5", Value: 0.71, Children: []*interactive.SunburstNode{{Name: "child-5", Value: 0.49}}},
+			{Name: "parent-6", Value: 0.54, Children: []*interactive.SunburstNode{{Name: "child-6", Value: 0.87}}},
+		},
+		LabelOptions: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "inside", FontSize: 10},
+		InnerRadius:  16,
+		OuterRadius:  88,
+		Width:        "100%",
+		Height:       "32rem",
+		Options: interactive.ChartOptions{
+			Title:   &interactive.TitleOptions{Text: "Basic sunburst example"},
+			Legend:  &interactive.LegendOptions{Show: interactive.Bool(false)},
+			Tooltip: &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "item"},
+		},
+	})
+}
+
 func liveAvailabilityBar(label, caption string, states []int) interactive.BarConfig {
 	categories := availabilityCategories(len(states))
 	series := []interactive.BarSeries{
@@ -455,5 +481,30 @@ func interactiveTreeCode() string {
   Insets: interactive.TreeInsets{Left: "8%", Right: "40%", Top: "12%", Bottom: "12%"},
   Width: "100%",
   Height: "440px",
+})`
+}
+
+func interactiveSunburstCode() string {
+	return `@interactive.Sunburst(interactive.SunburstConfig{
+  Label: "Basic sunburst example",
+  Caption: "Seven parent nodes, each paired with one child.",
+  Nodes: []*interactive.SunburstNode{
+    {Name: "parent-0", Value: 0.81, Children: []*interactive.SunburstNode{
+      {Name: "child-0", Value: 0.34},
+    }},
+    // parent-1 through parent-5 retain the same one-child shape.
+    {Name: "parent-6", Value: 0.54, Children: []*interactive.SunburstNode{
+      {Name: "child-6", Value: 0.87},
+    }},
+  },
+  Navigation: interactive.SunburstNavigationDrillDown,
+  Sort: interactive.SunburstSortDescending,
+  LabelOptions: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "inside", FontSize: 10},
+  InnerRadius: 16,
+  OuterRadius: 88,
+  Width: "100%",
+  Height: "32rem",
+  Style: charttheme.Style{Class: "max-w-full"},
+  RootAttrs: templ.Attributes{"data-chart-purpose": "hierarchy"},
 })`
 }

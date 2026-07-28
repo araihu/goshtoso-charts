@@ -4,7 +4,7 @@ import "github.com/araihu/goshtoso-charts/components/charttheme"
 
 templ interactiveTemplate(cfg renderConfig, element templ.Component, script templ.Component) {
 	@charttheme.Styles()
-	<figure class={ cfg.Style.RootClasses("goshtoso-charts-interactive") } role="img" aria-label={ cfg.Label } data-goshtoso-charts-explicit-colors={ explicitColors(cfg.Style) } data-goshtoso-charts-explicit-animation={ animationPreference(cfg.Animation) } data-goshtoso-charts-theme-series-items={ themeSeriesItems(cfg.ThemeSeriesItems) } { liveAttributes(cfg.Live)... }>
+	<figure class={ cfg.Style.RootClasses("goshtoso-charts-interactive") } role="img" aria-label={ cfg.Label } data-goshtoso-charts-explicit-colors={ explicitColors(cfg.Style) } data-goshtoso-charts-explicit-animation={ animationPreference(cfg.Animation) } data-goshtoso-charts-theme-series-items={ themeSeriesItems(cfg.ThemeSeriesItems) } { liveAttributes(cfg.Live)... } { cfg.RootAttrs... }>
 		@element
 		@script
 		@themeRuntime()
@@ -15,4 +15,7 @@ templ interactiveTemplate(cfg renderConfig, element templ.Component, script temp
 			<figcaption class="mt-2 text-sm text-on-surface dark:text-on-surface-dark">{ cfg.Caption }</figcaption>
 		}
 	</figure>
+	if cfg.Details != nil {
+		@cfg.Details
+	}
 }

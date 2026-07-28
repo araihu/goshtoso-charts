@@ -83,6 +83,7 @@ type LabelOptions struct {
 	Show     *bool
 	Position string
 	Color    string
+	FontSize int
 }
 
 // ItemStyle configures renderer-neutral fill and border presentation.
@@ -243,7 +244,7 @@ func mergeSeriesOptions(base, override SeriesOptions) []charts.SeriesOpts {
 }
 
 func rendererLabel(value *LabelOptions) opts.Label {
-	result := opts.Label{Position: value.Position, Color: value.Color}
+	result := opts.Label{Position: value.Position, Color: value.Color, FontSize: float32(value.FontSize)}
 	if value.Show != nil {
 		result.Show = opts.Bool(*value.Show)
 	}

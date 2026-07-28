@@ -79,3 +79,32 @@ matches the official `go-echarts/examples` Tree sample, which uses a 100% chart
 inside the default centered page layout. Its flex layout targets wrapping
 multiple charts, while none deliberately supplies no page layout; neither
 belongs in this single-component wrapper.
+
+## 2026-07-28: Sunburst sample determinism and zero-value serialization
+
+The official `go-echarts/examples` `examples/sunburst.go` sample generates two
+unseeded fractional values for each of seven `parent-N`/`child-N` pairs. The
+documentation keeps that exact hierarchy, naming, one-child shape, and
+fractional-value semantics, but uses fixed values so visual and regression
+checks are reproducible. In go-echarts v2.7.2, `opts.SunBurstData.Value` also
+uses `omitempty`, so an exact zero disappears from generated options. The typed
+Sunburst adapter uses a private negative sentinel after rejecting caller-owned
+negative values, then restores JSON zero before emitting the browser script.
+
+`charts.WithSunburstOpts` copies every field into the series. Applying it twice
+silently clears click navigation and sort values from the first call when the
+second call only configures zero-label behavior. Build one complete private
+option value before applying the helper.
+
+## 2026-07-28: interactive canvas must follow its consumer host
+
+At desktop shell width, the renderer initialized an 847px canvas before the
+consumer layout settled to a 607px chart host. `width: 100%` prevented page
+overflow but did not resize the already-created canvas. The existing private
+interactive theme runtime now registers one shared `ResizeObserver`, calls
+`chart.resize()` immediately, and observes the figure for later consumer or
+wrapper layout changes. Browser regression checks measured exact host/canvas
+parity at 607px desktop and 277px mobile while preserving the same renderer
+instance across layout and theme changes. Wrapper integration may carry
+equivalent observer logic; reconcile that single private seam rather than
+adding component-specific resize runtimes.

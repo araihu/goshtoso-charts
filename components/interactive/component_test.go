@@ -41,6 +41,7 @@ func TestEChartRendersTrustedSnippet(t *testing.T) {
 		`themedVisualMaps`, `current.color`, `themeSeriesItems`,
 		`matchMedia("(prefers-color-scheme: dark)")`,
 		`matchMedia("(prefers-reduced-motion: reduce)")`,
+		`ResizeObserver`, `chart.resize()`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
@@ -64,11 +65,39 @@ func TestThemeRuntimeUsesIdentityPreservingImmediateSilentMerge(t *testing.T) {
 		`notMerge: false`, `lazyUpdate: false`, `silent: true`,
 		`explicitAnimation === "default"`, `themed.animation = false`,
 		`subtree: false`,
+		`resizeObserver.observe(figure)`,
 		`if (!explicitColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] }`,
 	} {
 		if !strings.Contains(themeRuntimeMarkup, want) {
 			t.Errorf("immediate identity-preserving theme runtime missing %q", want)
 		}
+	}
+}
+
+func TestThemeRuntimeResizesCanvasAfterConsumerHostShrinks(t *testing.T) {
+	t.Parallel()
+	// Browser regression: shell layout produced an 847 px canvas in a 607 px
+	// consumer host. Registration must resize immediately, then observe later
+	// wrapper and responsive layout changes without replacing the chart instance.
+	for _, want := range []string{
+		`var resizeObserver = window.ResizeObserver ? new ResizeObserver`,
+		`entries.forEach(function (entry) { resize(entry.target); });`,
+		`if (resizeObserver) resizeObserver.observe(figure);`,
+		`resize(figure);`,
+		`chart.resize();`,
+	} {
+		if !strings.Contains(themeRuntimeMarkup, want) {
+			t.Errorf("responsive theme runtime missing %q", want)
+		}
+	}
+	observe := strings.Index(themeRuntimeMarkup, `resizeObserver.observe(figure)`)
+	if observe < 0 {
+		t.Fatal("interactive registration must observe consumer figure size")
+	}
+	resize := strings.Index(themeRuntimeMarkup[observe:], `resize(figure)`)
+	apply := strings.Index(themeRuntimeMarkup[observe:], `apply(figure)`)
+	if resize < 0 || apply < 0 || resize > apply {
+		t.Fatal("interactive registration must observe and resize before applying theme options")
 	}
 }
 

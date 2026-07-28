@@ -21,6 +21,8 @@ type renderConfig struct {
 	Style     charttheme.Style
 	Live      *liveConfig
 	Animation *bool
+	RootAttrs templ.Attributes
+	Details   templ.Component
 	// AxisLabelIntervals restore renderer-neutral integers after the private
 	// renderer serializes its string-only interval field.
 	AxisLabelIntervals []int

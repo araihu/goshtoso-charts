@@ -49,6 +49,17 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
     var repeat = function (items, value) {
       return (items && items.length ? items : []).map(function () { return value; });
     };
+    var resize = function (figure) {
+      if (!figure.isConnected || !window.echarts) return;
+      var host = figure.querySelector("[_echarts_instance_]");
+      if (!host) return;
+      var chart = window.echarts.getInstanceByDom(host);
+      if (!chart) return;
+      chart.resize();
+    };
+    var resizeObserver = window.ResizeObserver ? new ResizeObserver(function (entries) {
+      entries.forEach(function (entry) { resize(entry.target); });
+    }) : null;
     var apply = function (figure) {
       if (!figure.isConnected || !window.echarts) return;
       var host = figure.querySelector("[_echarts_instance_]");
@@ -181,6 +192,8 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
     runtime = window[key] = {
       register: function (figure) {
         figures.add(figure);
+        if (resizeObserver) resizeObserver.observe(figure);
+        resize(figure);
         apply(figure);
       },
       refresh: refresh

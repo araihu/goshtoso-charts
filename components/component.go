@@ -53,9 +53,11 @@ const (
 	KindInteractiveSankey Kind = "interactive-sankey"
 	// KindInteractiveTree identifies a browser-rendered hierarchical tree.
 	KindInteractiveTree Kind = "interactive-tree"
+	// KindInteractiveSunburst identifies a browser-rendered radial hierarchy.
+	KindInteractiveSunburst Kind = "interactive-sunburst"
 )
 
-var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree}
+var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst}
 
 // AllKinds returns supported chart kinds in stable order. Document-level
 // dependency components are intentionally excluded.
