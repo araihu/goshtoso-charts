@@ -213,3 +213,15 @@ probe now compares the classed computed color with its unclassed inherited
 color and retains the typed color or theme-token fallback when the class does
 not actually set color. This keeps `Class` useful for application semantics
 without silently overriding readable light/dark defaults.
+
+## 2026-07-28: Geo point data omits paint metadata
+
+go-echarts v2.7.2 `opts.GeoData` exposes only `Name` and `Value`, so it cannot
+carry point color or renderer-neutral semantic-class metadata. The Geo
+component validates typed longitude, latitude, value, Color, and Class fields,
+then replaces only the private serialized series data with an internal shape
+that retains those optional paint hints. Series and geometry paint metadata
+stay private data attributes consumed by the shared theme runtime. No raw map,
+callback, or renderer type crosses the public API. Component tests cover every
+exported geometry, series, and point Color/Class field; browser tests prove the
+resolved paints affect both scatter variants and follow light/dark theme changes.

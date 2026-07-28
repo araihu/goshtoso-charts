@@ -21,7 +21,7 @@ customization; `Disabled` is the explicit opt-out.
 | Component family | Current components | SVG | PNG | Evidence |
 |---|---|---:|---:|---|
 | Static/vector | Line, Bar, Pie, Scatter, Radar, Candlestick, Funnel, Heat map, Table, Violin | Yes | Yes | Each component configures `go-analyze/charts` with `ChartOutputSVG`, then reads `Painter.Bytes`. Browser PNG export rasterizes that resolved SVG at its intrinsic dimensions. |
-| Interactive | Bar, Line, Scatter, HeatMap, Pie, Radar, BoxPlot, Candlestick, Gauge, Funnel, Graph, Sankey, Tree, Sunburst, Treemap, Parallel coordinates, Theme river, Word cloud | No | Yes | Every component uses the current browser chart instance. Apache ECharts `getDataURL` documents PNG as the default and branches on the active canvas/SVG painter. Goshtoso Charts currently initializes go-echarts v2.7.2 with its default canvas renderer, so only PNG is exposed. |
+| Interactive | Bar, Line, Scatter, HeatMap, Pie, Radar, BoxPlot, Candlestick, Gauge, Funnel, Graph, Sankey, Tree, Sunburst, Treemap, Parallel coordinates, Theme river, Word cloud, Map, Geo | No | Yes | Every component uses the current browser chart instance. Apache ECharts `getDataURL` documents PNG as the default and branches on the active canvas/SVG painter. Goshtoso Charts currently initializes go-echarts v2.7.2 with its default canvas renderer, so only PNG is exposed. |
 
 Static transparent SVG/PNG backgrounds are supported. Opaque remains default
 and resolves the active Goshtoso surface color. Interactive transparent export
@@ -58,6 +58,8 @@ are explicit consumer page choices. Shared controls do not select any of them.
 Word-cloud catalog variants use a consumer-owned flex wrapper; shared
 `ResizeObserver` handling watches each actual chart host and calls `resize()`
 on its existing instance when that parent layout changes.
+Map and Geo reuse the same pinned national and Guangdong geometry delivery.
+Map owns named region values; Geo owns longitude/latitude coordinate series.
 
 ## Pair-integration coverage
 

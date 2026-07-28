@@ -124,6 +124,10 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			try { candlestickStyles = JSON.parse(figure.getAttribute("data-goshtoso-charts-candlestick-styles") || "[]"); } catch (_) {}
 			var liquidGauge = null;
 			try { liquidGauge = JSON.parse(figure.getAttribute("data-goshtoso-charts-liquid") || "null"); } catch (_) {}
+			var geoGeometryPaint = null;
+			try { geoGeometryPaint = JSON.parse(figure.getAttribute("data-goshtoso-charts-geo-geometry-paint") || "null"); } catch (_) {}
+			var geoSeriesPaints = [];
+			try { geoSeriesPaints = JSON.parse(figure.getAttribute("data-goshtoso-charts-geo-series-paints") || "[]"); } catch (_) {}
 			var gaugeColors = gaugeScale && (gaugeScale.stops || []).map(function (stop) {
 				if (stop.token === "low") return scaleLow;
 				if (stop.token === "mid") return scaleMid;
@@ -224,6 +228,25 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 				return Object.assign({}, item, { itemStyle: Object.assign({}, item.itemStyle || {}, { color: regionColor }) });
 			});
 		}
+		if ((series.type === "scatter" || series.type === "effectScatter") && series.coordinateSystem === "geo") {
+			var geoSeriesPaint = geoSeriesPaints[index] || {};
+			var geoSeriesColor = geoSeriesPaint.class
+				? classColorOrFallback(figure, geoSeriesPaint.class, palette[index % palette.length])
+				: (geoSeriesPaint.color
+					? rendererColor(geoSeriesPaint.color, palette[index % palette.length])
+					: (series.itemStyle && series.itemStyle.color
+						? rendererColor(series.itemStyle.color, palette[index % palette.length])
+						: palette[index % palette.length]));
+			themedItem.itemStyle = Object.assign({}, series.itemStyle || {}, { color: geoSeriesColor });
+			themedItem.data = (series.data || []).map(function (item) {
+				if (!item || typeof item !== "object") return item;
+				var pointColor = item.sourceColor
+					? rendererColor(item.sourceColor, geoSeriesColor)
+					: (item.className ? classColorOrFallback(figure, item.className, geoSeriesColor) : "");
+				if (!pointColor) return item;
+				return Object.assign({}, item, { itemStyle: Object.assign({}, item.itemStyle || {}, { color: pointColor }) });
+			});
+		}
         if (series.type === "boxplot" && managesSeriesItem(index)) {
           themedItem.itemStyle = { color: palette[index % palette.length], borderColor: palette[index % palette.length] };
         }
@@ -268,6 +291,14 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
         if (!explicitVisualMapColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] };
         return visualMap;
       });
+			var themedGeo = (current.geo || []).map(function (geo) {
+				var areaColor = geoGeometryPaint && geoGeometryPaint.class
+					? classColorOrFallback(figure, geoGeometryPaint.class, surfaceAlt)
+					: (geoGeometryPaint && geoGeometryPaint.color
+						? rendererColor(geoGeometryPaint.color, surfaceAlt)
+						: surfaceAlt);
+				return { itemStyle: Object.assign({}, geo.itemStyle || {}, { areaColor: areaColor, borderColor: outline }) };
+			});
 			var themed = {
         backgroundColor: surface,
         textStyle: { color: text },
@@ -280,6 +311,7 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
         angleAxis: repeat(current.angleAxis, axis),
 		parallelAxis: repeat(current.parallelAxis, axis),
         radar: repeat(current.radar, radar),
+        geo: themedGeo,
         visualMap: themedVisualMaps,
         tooltip: repeat(current.tooltip, {
           backgroundColor: surfaceAlt,

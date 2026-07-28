@@ -112,6 +112,46 @@ func TestInteractiveMapDatasetsAndVariantsMatchPinnedUpstreamExample(t *testing.
 	}
 }
 
+func TestInteractiveGeoDatasetsAndVariantsMatchPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if interactiveGeoUpstreamPath != "examples/geo.go" || interactiveGeoUpstreamRevision != "bda428480a82d6d77ebb9fa939cf8d52528453dd" {
+		t.Fatalf("geo upstream source = %s@%s", interactiveGeoUpstreamPath, interactiveGeoUpstreamRevision)
+	}
+	if interactiveGeoUpstreamSHA256 != "3a6dbe86c34e5ea478b1dea5430c10cac9f7c4905264e12fc37654f0f5d4550a" {
+		t.Fatalf("geo upstream SHA-256 = %s", interactiveGeoUpstreamSHA256)
+	}
+	wantNational := []interactive.GeoPoint{
+		{Name: "北京", Longitude: 116.40, Latitude: 39.90, Value: 81},
+		{Name: "上海", Longitude: 121.47, Latitude: 31.23, Value: 27},
+		{Name: "重庆", Longitude: 106.55, Latitude: 29.56, Value: 47},
+		{Name: "武汉", Longitude: 114.31, Latitude: 30.52, Value: 59},
+		{Name: "台湾", Longitude: 121.30, Latitude: 25.03, Value: 18},
+		{Name: "香港", Longitude: 114.17, Latitude: 22.28, Value: 63},
+	}
+	wantGuangdong := []interactive.GeoPoint{
+		{Name: "汕头", Longitude: 116.69, Latitude: 23.39, Value: 12},
+		{Name: "深圳", Longitude: 114.07, Latitude: 22.62, Value: 76},
+		{Name: "广州", Longitude: 113.23, Latitude: 23.16, Value: 41},
+	}
+	if !reflect.DeepEqual(interactiveGeoNationalPoints, wantNational) {
+		t.Fatalf("national points = %#v", interactiveGeoNationalPoints)
+	}
+	if !reflect.DeepEqual(interactiveGeoGuangdongPoints, wantGuangdong) {
+		t.Fatalf("Guangdong points = %#v", interactiveGeoGuangdongPoints)
+	}
+	for _, points := range [][]interactive.GeoPoint{interactiveGeoNationalPoints, interactiveGeoGuangdongPoints} {
+		for _, point := range points {
+			if point.Value < 0 || point.Value >= 100 {
+				t.Errorf("fixed literal value %q=%g outside upstream [0,100) domain", point.Name, point.Value)
+			}
+		}
+	}
+	variants := sampleInteractiveGeos()
+	if len(variants) != 2 || variants[0].name != "effect-scatter" || variants[1].name != "scatter" {
+		t.Fatalf("geo variants = %#v", variants)
+	}
+}
+
 func TestDenseScatterValuesAreDeterministicAndPreserveUpstreamDistribution(t *testing.T) {
 	t.Parallel()
 	first := denseScatterValues(rand.New(rand.NewSource(20260728)), 3, 1000, 10)

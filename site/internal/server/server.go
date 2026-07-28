@@ -123,6 +123,9 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/interactive/map", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.InteractiveMapPage(isFragment(request)))
 	})
+	mux.HandleFunc("GET /components/interactive/geo", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveGeoPage(isFragment(request)))
+	})
 	for _, component := range []string{"bar", "line", "scatter", "pie", "radar", "heatmap", "boxplot", "candlestick", "gauge", "funnel", "graph", "sankey", "tree", "word-cloud"} {
 		mux.HandleFunc("GET /components/echarts/"+component, func(writer http.ResponseWriter, request *http.Request) {
 			http.Redirect(writer, request, "/components/interactive/"+component, http.StatusPermanentRedirect)

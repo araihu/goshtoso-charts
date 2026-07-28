@@ -77,9 +77,11 @@ const (
 	KindInteractiveWordCloud Kind = "interactive-word-cloud"
 	// KindInteractiveMap identifies a browser-rendered geographic map.
 	KindInteractiveMap Kind = "interactive-map"
+	// KindInteractiveGeo identifies browser-rendered coordinate series over geographic geometry.
+	KindInteractiveGeo Kind = "interactive-geo"
 )
 
-var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindCandlestickChart, KindHeatMapChart, KindFunnelChart, KindTable, KindViolinChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst, KindInteractiveTreemap, KindInteractiveParallel, KindInteractiveThemeRiver, KindInteractiveCandlestick, KindInteractiveWordCloud, KindInteractiveMap}
+var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindCandlestickChart, KindHeatMapChart, KindFunnelChart, KindTable, KindViolinChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst, KindInteractiveTreemap, KindInteractiveParallel, KindInteractiveThemeRiver, KindInteractiveCandlestick, KindInteractiveWordCloud, KindInteractiveMap, KindInteractiveGeo}
 
 // AllKinds returns supported chart kinds in stable order. Document-level
 // dependency components are intentionally excluded.

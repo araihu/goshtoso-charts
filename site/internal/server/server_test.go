@@ -515,6 +515,50 @@ func TestMapDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testi
 	}
 }
 
+func TestGeoDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/geo", nil))
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Interactive geo", "interactive.Geo", "components.KindInteractiveGeo", "Interactive / Geographic",
+		"basic geo example", "Guangdong province", "Geo plots coordinate series", "Map remains the region-value choropleth",
+		"北京", "上海", "重庆", "武汉", "台湾", "香港", "汕头", "深圳", "广州",
+		"116.40", "39.90", "121.47", "31.23", "106.55", "29.56", "114.31", "30.52",
+		"121.30", "25.03", "114.17", "22.28", "116.69", "23.39", "114.07", "22.62", "113.23", "23.16",
+		"Exact coordinate values", "semantic Color or Class paint", `data-geo-variants`,
+		`data-geo-variant="effect-scatter"`, `data-geo-variant="scatter"`,
+		`"type":"effectScatter"`, `"type":"scatter"`, `"map":"广东"`,
+		`"period":4`, `"scale":6`, `"brushType":"stroke"`, `"calculable":true`, `"max":100`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("geo documentation missing upstream content %q", want)
+		}
+	}
+	if count := strings.Count(body, `data-geo-variant=`); count != 2 {
+		t.Errorf("geo variant count = %d, want 2", count)
+	}
+	for _, unwanted := range []string{"go-echarts", "Apache ECharts", "examples/geo.go", "infrastructure", "operations"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("geo component page contains private or invented framing %q", unwanted)
+		}
+	}
+
+	attributions := httptest.NewRecorder()
+	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	for _, want := range []string{
+		"examples/geo.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd",
+		"fixed literals", "same [0,100) domain", "national and Guangdong geometry",
+	} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("central attributions missing geo source evidence %q", want)
+		}
+	}
+}
+
 func TestSunburstDocumentationPreservesOfficialBasicExample(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()
@@ -942,7 +986,7 @@ func TestComponentDocsNavigationHasSearchGroupsAndComponentContract(t *testing.T
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/line", nil))
 	body := recorder.Body.String()
-	for _, want := range []string{"Search docs...", "Static / Vector", "Interactive / Cartesian", "Interactive / Relationships", "Examples", "component-doc-shell__sidebar", "components.KindLineChart", "Live availability", "Bar chart", "Pie chart", "Scatter chart", "Tree", "Accessibility", "lg:grid-cols-2"} {
+	for _, want := range []string{"Search docs...", "Static / Vector", "Interactive / Cartesian", "Interactive / Geographic", "Interactive / Relationships", "Examples", "component-doc-shell__sidebar", "components.KindLineChart", "Live availability", "Bar chart", "Pie chart", "Scatter chart", "Map", "Geo", "Tree", "Accessibility", "lg:grid-cols-2"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("component docs page missing %q", want)
 		}

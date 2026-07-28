@@ -40,6 +40,10 @@ type renderConfig struct {
 	CandlestickStyles string
 	// Liquid is private paint metadata consumed by the shared theme runtime.
 	Liquid string
+	// GeoGeometryPaint and GeoSeriesPaints are private paint metadata consumed
+	// by the shared theme runtime.
+	GeoGeometryPaint string
+	GeoSeriesPaints  string
 	// ScriptReplacements restore values that the private renderer cannot
 	// distinguish from omitted zero values.
 	ScriptReplacements []scriptReplacement

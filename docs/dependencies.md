@@ -67,6 +67,6 @@ Implementation asset names stay confined to this dependency package, the asset
 package, and dependency documentation. Public chart configs remain
 renderer-neutral.
 
-Map resources load after core, word-cloud, and liquid-gauge scripts. Local
+Map and Geo geometry resources load after core, word-cloud, and liquid-gauge scripts. Local
 paths, immutable versions or source revisions, SHA-256 values, licenses, CDN
 URLs, and SRI values live in `assets/NOTICE.md` and `assets/assets.go`.

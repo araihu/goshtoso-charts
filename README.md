@@ -324,6 +324,30 @@ exact values remain available beside the canvas.
 })
 ```
 
+Geo stays distinct from Map: it plots typed longitude/latitude/value points
+over the same pinned national or Guangdong geometry. Scatter and effect-scatter
+behavior remain series kinds on one component; visual ranges use theme
+cold-to-warm tokens unless callers provide explicit colors.
+
+```templ
+@interactive.Geo(interactive.GeoConfig{
+	Label:    "Guangdong province",
+	Geometry: interactive.GeoGeometryGuangdong,
+	VisualRange: &interactive.GeoVisualRange{
+		Min: 0, Max: 100, Calculable: interactive.Bool(true),
+	},
+	Series: []interactive.GeoSeries{{
+		Name: "geo",
+		Kind: interactive.GeoSeriesScatter,
+		Points: []interactive.GeoPoint{
+			{Name: "汕头", Longitude: 116.69, Latitude: 23.39, Value: 12},
+			{Name: "深圳", Longitude: 114.07, Latitude: 22.62, Value: 76},
+			{Name: "广州", Longitude: 113.23, Latitude: 23.16, Value: 41},
+		},
+	}},
+})
+```
+
 The demo's live-availability page uses this primitive with narrow stacked bars.
 Availability remains application semantics and is not a separate chart type.
 

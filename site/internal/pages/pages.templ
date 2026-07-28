@@ -356,6 +356,33 @@ templ InteractiveMapPage(fragment bool) {
 	@layout("Interactive map", "interactive-map", interactiveMapContent(), fragment)
 }
 
+templ InteractiveGeoPage(fragment bool) {
+	@layout("Interactive geo", "interactive-geo", interactiveGeoContent(), fragment)
+}
+
+templ interactiveGeoContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive geo",
+		Description: "Reusable coordinate series over registered national or regional geometry with one typed, renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Plot named longitude, latitude, and value tuples over geographic geometry.", "Primitive", "interactive.Geo", "Kind", "components.KindInteractiveGeo", "Configuration", "Label, Caption, typed Geometry, VisualRange, GeoSeries kind and points, ripple, labels, size, renderer-neutral ChartOptions and SeriesOptions, semantic Color or Class paint, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Every variant includes a bounded exact series, point, coordinate, value, and semantic-class table."),
+			Preview: interactiveGeoVariants(),
+			Code: interactiveGeoCode(),
+		},
+		After: demoNote("Geometry contract", "Geo plots coordinate series over registered geometry; Map remains the region-value choropleth component. National effect scatter and Guangdong scatter stay variants on one Geo identity. Local national and Guangdong geometry resources are reused by both components."),
+	})
+}
+
+templ interactiveGeoVariants() {
+	<div class="flex flex-wrap gap-6" data-geo-variants>
+		for _, variant := range sampleInteractiveGeos() {
+			<div class="min-w-0 flex-[1_1_24rem]" data-geo-variant={ variant.name }>
+				@variant.chart
+			</div>
+		}
+	</div>
+}
+
 templ interactiveMapContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive map",
