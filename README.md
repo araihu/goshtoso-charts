@@ -102,7 +102,24 @@ Use bar charts for categorical comparisons such as deployment outcomes, monitor-
 })
 ```
 
-As with line charts, keep exact values in nearby text or a table when readers need them.
+Vertical remains the zero-value orientation. Set `OrientationHorizontal` for
+category labels beside the bars; horizontal charts include an adjacent exact
+value table.
+
+```templ
+@bar.Bar(bar.Config{
+	Label:       "World population by reporting series",
+	Title:       "World Population",
+	Orientation: bar.OrientationHorizontal,
+	Labels:      []string{"UN", "Brazil", "Indonesia", "USA", "India", "China", "World"},
+	Series: []bar.Series{
+		{Name: "2011", Values: []float64{10, 30, 50, 70, 90, 110, 130}},
+		{Name: "2012", Values: []float64{20, 40, 60, 80, 100, 120, 140}},
+	},
+	Padding: bar.Padding{Top: 20, Right: 40, Bottom: 20, Left: 20},
+	Width: 600, Height: 400,
+})
+```
 
 ## Pie chart
 

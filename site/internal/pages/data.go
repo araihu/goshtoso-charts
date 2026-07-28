@@ -21,6 +21,12 @@ import (
 	"github.com/araihu/goshtoso/components/codeblock"
 )
 
+const (
+	horizontalBarUpstreamPath     = "examples/1-Painter/horizontal_bar_chart-1-basic/main.go"
+	horizontalBarUpstreamRevision = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
+	horizontalBarUpstreamSHA256   = "735240dd8433bd2494ae019f272840a8ff2fcf5572166b78269e23cbff7111a0"
+)
+
 type deterministicLCG struct{ state uint64 }
 
 func (generator *deterministicLCG) next() float64 {
@@ -90,6 +96,25 @@ func sampleDeployments() bar.Config {
 		Stacked:  true,
 		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "deployments-by-environment"},
+	}
+}
+
+func sampleHorizontalWorldPopulation() bar.Config {
+	return bar.Config{
+		Label:       "World population by reporting series",
+		Caption:     "Population values reported for 2011 and 2012.",
+		Title:       "World Population",
+		Orientation: bar.OrientationHorizontal,
+		Labels:      []string{"UN", "Brazil", "Indonesia", "USA", "India", "China", "World"},
+		Series: []bar.Series{
+			{Name: "2011", Values: []float64{10, 30, 50, 70, 90, 110, 130}},
+			{Name: "2012", Values: []float64{20, 40, 60, 80, 100, 120, 140}},
+		},
+		Padding:  bar.Padding{Top: 20, Right: 40, Bottom: 20, Left: 20},
+		Width:    600,
+		Height:   400,
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "world-population"},
 	}
 }
 
@@ -369,6 +394,21 @@ func barCode() string {
     {Name: "Failed", Values: []float64{1, 2, 1}},
   },
   Stacked: true,
+})`
+}
+
+func horizontalBarCode() string {
+	return `@bar.Bar(bar.Config{
+  Label: "World population by reporting series",
+  Title: "World Population",
+  Orientation: bar.OrientationHorizontal,
+  Labels: []string{"UN", "Brazil", "Indonesia", "USA", "India", "China", "World"},
+  Series: []bar.Series{
+    {Name: "2011", Values: []float64{10, 30, 50, 70, 90, 110, 130}},
+    {Name: "2012", Values: []float64{20, 40, 60, 80, 100, 120, 140}},
+  },
+  Padding: bar.Padding{Top: 20, Right: 40, Bottom: 20, Left: 20},
+  Width: 600, Height: 400,
 })`
 }
 

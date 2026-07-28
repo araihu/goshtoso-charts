@@ -225,3 +225,14 @@ stay private data attributes consumed by the shared theme runtime. No raw map,
 callback, or renderer type crosses the public API. Component tests cover every
 exported geometry, series, and point Color/Class field; browser tests prove the
 resolved paints affect both scatter variants and follow light/dark theme changes.
+
+## 2026-07-28: theme series fills may need a contrasting boundary
+
+AraiHu light mode resolves its second chart-series token to a bright orange
+against a warm light chart surface. The fill stays visually distinct but does
+not reach 3:1 by itself. Horizontal Bar preserves that shared theme token and
+adds a one-pixel chart-text-token boundary to series marks. Browser checks
+require 4.5:1 chart-text contrast, 3:1 mark-boundary contrast, distinct series
+fills, and the adjacent exact-value table across Goshtoso and AraiHu light/dark
+modes. This avoids a component-local palette fork and keeps meaning independent
+of color.

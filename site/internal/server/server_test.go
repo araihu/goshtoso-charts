@@ -61,6 +61,38 @@ func TestDemoRoutesRender(t *testing.T) {
 	}
 }
 
+func TestBarDocumentationPreservesHorizontalExampleWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/bar", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Horizontal orientation", "World Population", "2011", "2012",
+		"UN", "Brazil", "Indonesia", "USA", "India", "China", "World",
+		"10", "30", "50", "70", "90", "110", "130",
+		"20", "40", "60", "80", "100", "120", "140",
+		"OrientationHorizontal", "Padding", "600", "400",
+		"Exact category values", "Expand", "SVG", "PNG",
+		"bar.Bar", "components.KindBarChart",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("bar documentation missing horizontal example content %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-analyze", "horizontal_bar_chart-1-basic/main.go", "infrastructure", "operations", "raw map"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("bar component page contains non-neutral content %q", unwanted)
+		}
+	}
+	attributions := httptest.NewRecorder()
+	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	for _, want := range []string{"examples/1-Painter/horizontal_bar_chart-1-basic/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2"} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("central attribution missing pinned horizontal bar source %q", want)
+		}
+	}
+}
+
 func TestViolinDocumentationPreservesUpstreamSamplesWithoutEngineBranding(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()

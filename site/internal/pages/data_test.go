@@ -12,6 +12,33 @@ import (
 	"github.com/araihu/goshtoso-charts/components/interactive"
 )
 
+func TestHorizontalBarMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if horizontalBarUpstreamPath != "examples/1-Painter/horizontal_bar_chart-1-basic/main.go" ||
+		horizontalBarUpstreamRevision != "1fe31b06b8a82e00df877ff4417a75858547c1c2" ||
+		horizontalBarUpstreamSHA256 != "735240dd8433bd2494ae019f272840a8ff2fcf5572166b78269e23cbff7111a0" {
+		t.Fatalf("horizontal bar upstream source = %s@%s SHA-256 %s", horizontalBarUpstreamPath, horizontalBarUpstreamRevision, horizontalBarUpstreamSHA256)
+	}
+	cfg := sampleHorizontalWorldPopulation()
+	if cfg.Title != "World Population" || cfg.Width != 600 || cfg.Height != 400 {
+		t.Fatalf("title/dimensions drifted: %q %dx%d", cfg.Title, cfg.Width, cfg.Height)
+	}
+	if cfg.Padding.Top != 20 || cfg.Padding.Right != 40 || cfg.Padding.Bottom != 20 || cfg.Padding.Left != 20 {
+		t.Fatalf("padding drifted: %#v", cfg.Padding)
+	}
+	wantLabels := []string{"UN", "Brazil", "Indonesia", "USA", "India", "China", "World"}
+	wantNames := []string{"2011", "2012"}
+	wantValues := [][]float64{{10, 30, 50, 70, 90, 110, 130}, {20, 40, 60, 80, 100, 120, 140}}
+	if !reflect.DeepEqual(cfg.Labels, wantLabels) || len(cfg.Series) != 2 {
+		t.Fatalf("category/series shape drifted: labels %v series %d", cfg.Labels, len(cfg.Series))
+	}
+	for index, series := range cfg.Series {
+		if series.Name != wantNames[index] || !reflect.DeepEqual(series.Values, wantValues[index]) {
+			t.Fatalf("series %d = %q %v, want %q %v", index, series.Name, series.Values, wantNames[index], wantValues[index])
+		}
+	}
+}
+
 func TestViolinSamplesAreDeterministicAndPreserveUpstreamGenerator(t *testing.T) {
 	t.Parallel()
 	first, second := sampleDistributionShapes(), sampleDistributionShapes()

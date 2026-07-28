@@ -71,13 +71,21 @@ templ BarPage(fragment bool) {
 templ barContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Bar chart",
-		Description: "Categorical SSR SVG for counts, comparisons, and grouped operational outcomes. Set Stacked for composition within each category.",
+		Description: "Categorical SSR SVG for vertical or horizontal comparisons. Set Stacked for composition within each category.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Compare named values across categories, including stacked operational outcomes.", "Primitive", "bar.Bar", "Kind", "components.KindBarChart", "Configuration", "Label, Caption, category Labels, named Series, Stacked, optional Width, and Height.", "Accessibility", "Figure name comes from Label; Caption stays visible. Keep an adjacent table or text summary when exact values are needed."),
+			AbovePreview: componentContract("Purpose", "Compare named values across categories, including stacked outcomes and horizontal treatments.", "Primitive", "bar.Bar", "Kind", "components.KindBarChart", "Configuration", "Label, Caption, Title, category Labels, named Series, Stacked, typed Orientation and Padding, optional Width, and Height.", "Accessibility", "Figure name comes from Label and Caption stays visible. Horizontal charts include an exact category-value table."),
 			Preview: bar.Bar(sampleDeployments()),
 			Code: barCode(),
 		},
-		After: demoNote("Use case", "Use bar charts for deployment outcomes, observation counts, or other categorical comparisons. Keep domain aggregation at the application view-model boundary."),
+		Sections: []componentpage.Example{
+			{
+				Title: "Horizontal orientation",
+				Description: "Use the typed horizontal variant when category labels read more naturally beside bars. Vertical remains the zero-value default.",
+				Preview: bar.Bar(sampleHorizontalWorldPopulation()),
+				Code: horizontalBarCode(),
+			},
+		},
+		After: demoNote("Orientation contract", "Vertical is the zero-value default. Horizontal changes axis treatment on the same Bar component and preserves exact values in an adjacent table."),
 	})
 }
 
