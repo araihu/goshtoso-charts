@@ -305,6 +305,25 @@ config.Live = &interactive.LiveData{
 }
 ```
 
+Maps use one component for national and regional resources. Region names and
+values remain typed, caller colors or semantic classes stay programmatic, and
+exact values remain available beside the canvas.
+
+```templ
+@interactive.Map(interactive.MapConfig{
+	Label:    "Guangdong province",
+	Geometry: interactive.MapGeometryGuangdong,
+	Variant:  interactive.MapVariantRegional,
+	Series: interactive.MapSeries{
+		Name: "map",
+		Regions: []interactive.MapRegion{
+			{Name: "深圳市", Value: 128, Class: "major-city"},
+			{Name: "广州市", Value: 117, Color: "#ff8a3d"},
+		},
+	},
+})
+```
+
 The demo's live-availability page uses this primitive with narrow stacked bars.
 Availability remains application semantics and is not a separate chart type.
 

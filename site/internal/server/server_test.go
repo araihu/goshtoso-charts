@@ -478,6 +478,43 @@ func TestWordCloudDocumentationPreservesOfficialVariantsWithoutEngineBranding(t 
 	}
 }
 
+func TestMapDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/map", nil))
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Interactive map", "interactive.Map", "components.KindInteractiveMap", "Interactive / Geographic",
+		"basic map example", "show label", "VisualMap", "Guangdong province", "Map-theme",
+		"北京", "上海", "广东", "辽宁", "山东", "山西", "陕西", "新疆", "内蒙古",
+		"深圳市", "广州市", "湛江市", "汕头市", "东莞市", "佛山市", "云浮市", "肇庆市", "梅州市",
+		"Exact region values", "semantic classes or explicit colors", `data-map-variants`, `"map":"广东"`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("map documentation missing upstream content %q", want)
+		}
+	}
+	if count := strings.Count(body, `data-map-variant=`); count != 5 {
+		t.Errorf("map variant count = %d, want 5", count)
+	}
+	for _, unwanted := range []string{"go-echarts", "Apache ECharts", "examples/map.go", "infrastructure", "operations"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("map component page contains private or invented framing %q", unwanted)
+		}
+	}
+
+	attributions := httptest.NewRecorder()
+	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	for _, want := range []string{"examples/map.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd", "41f247b1cbb6", "national and Guangdong geometry"} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("central attributions missing map source evidence %q", want)
+		}
+	}
+}
+
 func TestSunburstDocumentationPreservesOfficialBasicExample(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()

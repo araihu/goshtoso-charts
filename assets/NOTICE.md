@@ -47,3 +47,16 @@ embedded distribution is therefore attributed under BSD-3-Clause.
 - Release source: `https://github.com/ecomfe/echarts-liquidfill/tree/v3.1.0`
 - Published package: `https://www.npmjs.com/package/echarts-liquidfill/v/3.1.0`
 - Distributed license: `https://github.com/ecomfe/echarts-liquidfill/blob/v3.1.0/license.md`
+
+## Geographic resources
+
+Goshtoso Charts embeds national and Guangdong geometry registration scripts
+from the map-resource repository at one immutable revision. These resources
+load after the core runtime and before chart initialization.
+
+- Local paths: `js/maps/41f247b1cbb6/china.js`, `js/maps/41f247b1cbb6/guangdong.js`
+- Revision: `41f247b1cbb649b029a2d3fffb04f469de372aa7`
+- Source: `https://github.com/go-echarts/go-echarts-assets/tree/41f247b1cbb649b029a2d3fffb04f469de372aa7/assets/maps`
+- SHA-256 (`china.js`): `146a69f110aca347228447319216ad665fbf6a57d81c73ddc911c1167aa39249`
+- SHA-256 (`guangdong.js`): `ca870acf1f735d4b8fda33bb41c0a2804c320ee0885a772e428cfdc4d66f4757`
+- License: `https://github.com/go-echarts/go-echarts-assets/blob/41f247b1cbb649b029a2d3fffb04f469de372aa7/LICENSE`

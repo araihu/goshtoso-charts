@@ -8,6 +8,8 @@ import (
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/araihu/goshtoso-charts/components/interactive"
 )
 
 func TestViolinSamplesAreDeterministicAndPreserveUpstreamGenerator(t *testing.T) {
@@ -72,6 +74,41 @@ func TestInteractiveCandlestickDataMechanicallyMatchesPinnedUpstreamExample(t *t
 	}
 	if got := fmt.Sprintf("%x", hash.Sum(nil)); got != "03fd8007530e739fbfce31cbe3e3e2f59e174ddaece06a7a144a30ec225f3c4f" {
 		t.Fatalf("normalized pinned upstream OHLC SHA-256 = %s", got)
+	}
+}
+
+func TestInteractiveMapDatasetsAndVariantsMatchPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if interactiveMapUpstreamPath != "examples/map.go" || interactiveMapUpstreamRevision != "bda428480a82d6d77ebb9fa939cf8d52528453dd" {
+		t.Fatalf("map upstream source = %s@%s", interactiveMapUpstreamPath, interactiveMapUpstreamRevision)
+	}
+	if interactiveMapUpstreamSHA256 != "3b59b5cb7ed392f3fa436d51fd420704ab2e82e439c95b226d35d12b913cf9da" {
+		t.Fatalf("map upstream SHA-256 = %s", interactiveMapUpstreamSHA256)
+	}
+	wantBase := []string{"北京", "上海", "广东", "辽宁", "山东", "山西", "陕西", "新疆", "内蒙古"}
+	wantGuangdong := []string{"深圳市", "广州市", "湛江市", "汕头市", "东莞市", "佛山市", "云浮市", "肇庆市", "梅州市"}
+	for name, test := range map[string]struct {
+		regions []interactive.MapRegion
+		want    []string
+	}{"base": {interactiveMapBaseRegions, wantBase}, "Guangdong": {interactiveMapGuangdongRegions, wantGuangdong}} {
+		if len(test.regions) != len(test.want) {
+			t.Fatalf("%s region count = %d, want %d", name, len(test.regions), len(test.want))
+		}
+		for index, region := range test.regions {
+			if region.Name != test.want[index] || region.Value < 0 || region.Value >= 150 {
+				t.Errorf("%s region %d = (%q, %g), want name %q and upstream [0,150) value domain", name, index, region.Name, region.Value, test.want[index])
+			}
+		}
+	}
+	variants := sampleInteractiveMaps()
+	wantVariants := []interactive.MapVariant{interactive.MapVariantBasic, interactive.MapVariantLabels, interactive.MapVariantScale, interactive.MapVariantRegional, interactive.MapVariantTheme}
+	if len(variants) != len(wantVariants) {
+		t.Fatalf("map variant count = %d, want %d", len(variants), len(wantVariants))
+	}
+	for index := range variants {
+		if variants[index].variant != wantVariants[index] {
+			t.Errorf("map variant %d = %q, want %q", index, variants[index].variant, wantVariants[index])
+		}
 	}
 }
 

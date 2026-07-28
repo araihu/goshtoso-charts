@@ -2,8 +2,9 @@
 
 Static vector charts need no browser runtime. Interactive charts need the
 version-matched scripts emitted by `components/dependencies`. The dependency
-set includes the small word-cloud extension after the core runtime, so every
-public interactive component shares one document-level dependency contract.
+set includes the small word-cloud extension and pinned geographic resources
+after the core runtime, so every public interactive component shares one
+document-level dependency contract.
 
 ## Recommended: embedded local runtime
 
@@ -51,7 +52,8 @@ Opt in only when third-party delivery is acceptable:
 @dependencies.Dependencies(dependencies.WithCDN())
 ```
 
-`WithCDN` uses pinned 5.4.3 core and 2.1.0 word-cloud jsDelivr URLs with
+`WithCDN` uses pinned 5.4.3 core, 2.1.0 word-cloud, and commit
+`41f247b1cbb649b029a2d3fffb04f469de372aa7` geometry jsDelivr URLs with
 SHA-384 Subresource Integrity and `crossorigin="anonymous"`. It does not
 silently fall back to local assets. Allow the CDN origin in `script-src` when
 enforcing CSP.
@@ -63,3 +65,7 @@ compatible with the Go renderer adapter.
 Implementation asset names stay confined to this dependency package, the asset
 package, and dependency documentation. Public chart configs remain
 renderer-neutral.
+
+Map resources load after core and word-cloud scripts. Local paths, immutable
+source revision, SHA-256 values, licenses, CDN URLs, and SRI values live in
+`assets/NOTICE.md` and `assets/assets.go`.

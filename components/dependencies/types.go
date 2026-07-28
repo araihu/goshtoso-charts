@@ -6,11 +6,13 @@ import (
 )
 
 type config struct {
-	initialized bool
-	core        scriptConfig
-	wordCloud   scriptConfig
-	liquid      scriptConfig
-	nonce       string
+	initialized  bool
+	core         scriptConfig
+	wordCloud    scriptConfig
+	liquid       scriptConfig
+	chinaMap     scriptConfig
+	guangdongMap scriptConfig
+	nonce        string
 }
 
 type scriptConfig struct {
@@ -35,6 +37,8 @@ func WithCDN() Option {
 		cfg.core = scriptConfig{url: assets.RuntimeCDNURL, integrity: assets.RuntimeCDNIntegrity, crossorigin: "anonymous"}
 		cfg.wordCloud = scriptConfig{url: assets.WordCloudRuntimeCDNURL, integrity: assets.WordCloudRuntimeCDNIntegrity, crossorigin: "anonymous"}
 		cfg.liquid = scriptConfig{url: assets.LiquidRuntimeCDNURL, integrity: assets.LiquidRuntimeCDNIntegrity, crossorigin: "anonymous"}
+		cfg.chinaMap = scriptConfig{url: assets.ChinaMapCDNURL, integrity: assets.ChinaMapCDNIntegrity, crossorigin: "anonymous"}
+		cfg.guangdongMap = scriptConfig{url: assets.GuangdongMapCDNURL, integrity: assets.GuangdongMapCDNIntegrity, crossorigin: "anonymous"}
 	})
 }
 
@@ -62,10 +66,12 @@ func WithLocalURL(url string) Option {
 
 func newConfig(options []Option) config {
 	cfg := config{
-		initialized: true,
-		core:        scriptConfig{url: assets.RuntimeURL},
-		wordCloud:   scriptConfig{url: assets.WordCloudRuntimeURL},
-		liquid:      scriptConfig{url: assets.LiquidRuntimeURL},
+		initialized:  true,
+		core:         scriptConfig{url: assets.RuntimeURL},
+		wordCloud:    scriptConfig{url: assets.WordCloudRuntimeURL},
+		liquid:       scriptConfig{url: assets.LiquidRuntimeURL},
+		chinaMap:     scriptConfig{url: assets.ChinaMapURL},
+		guangdongMap: scriptConfig{url: assets.GuangdongMapURL},
 	}
 	for _, option := range options {
 		if option != nil {
@@ -76,7 +82,7 @@ func newConfig(options []Option) config {
 }
 
 func (cfg config) scripts() []scriptConfig {
-	return []scriptConfig{cfg.core, cfg.wordCloud, cfg.liquid}
+	return []scriptConfig{cfg.core, cfg.wordCloud, cfg.liquid, cfg.chinaMap, cfg.guangdongMap}
 }
 
 func (cfg config) attributes(script scriptConfig) templ.Attributes {

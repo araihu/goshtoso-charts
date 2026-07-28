@@ -35,6 +35,7 @@ func TestDocumentationSearchIndexesCategorizedNavigation(t *testing.T) {
 		`data-search="funnel interactive / statistical interactive-funnel"`,
 		`data-search="parallel coordinates interactive / statistical interactive-parallel"`,
 		`data-search="word cloud interactive / statistical interactive-word-cloud"`,
+		`data-search="map interactive / geographic interactive-map"`,
 		`data-search="graph interactive / relationships interactive-graph"`,
 		`data-search="sankey interactive / relationships interactive-sankey"`,
 		`data-search="sunburst interactive / relationships interactive-sunburst"`,

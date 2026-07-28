@@ -1,6 +1,8 @@
 package assets_test
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -100,6 +102,28 @@ func TestHandlerServesLiquidRuntimeLicense(t *testing.T) {
 	for _, want := range []string{"BSD 3-Clause License", "Copyright (c) 2020, Baidu Inc.", "Redistribution and use"} {
 		if !strings.Contains(recorder.Body.String(), want) {
 			t.Errorf("liquid runtime license missing %q", want)
+		}
+	}
+}
+
+func TestHandlerServesPinnedMapResources(t *testing.T) {
+	t.Parallel()
+
+	for _, test := range []struct{ url, registration, sha256 string }{
+		{assets.ChinaMapURL, `registerMap("china"`, "146a69f110aca347228447319216ad665fbf6a57d81c73ddc911c1167aa39249"},
+		{assets.GuangdongMapURL, `registerMap("广东"`, "ca870acf1f735d4b8fda33bb41c0a2804c320ee0885a772e428cfdc4d66f4757"},
+	} {
+		recorder := httptest.NewRecorder()
+		request := httptest.NewRequest(http.MethodGet, test.url, nil)
+		assets.Handler().ServeHTTP(recorder, request)
+		if recorder.Code != http.StatusOK {
+			t.Errorf("GET %s status = %d, want %d", test.url, recorder.Code, http.StatusOK)
+		}
+		if !strings.Contains(recorder.Body.String(), test.registration) {
+			t.Errorf("map resource %s missing %q", test.url, test.registration)
+		}
+		if got := fmt.Sprintf("%x", sha256.Sum256(recorder.Body.Bytes())); got != test.sha256 {
+			t.Errorf("map resource %s SHA-256 = %s, want %s", test.url, got, test.sha256)
 		}
 	}
 }

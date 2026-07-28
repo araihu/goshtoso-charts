@@ -112,6 +112,7 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
       }
       var current = chart.getOption();
       var explicitColors = figure.getAttribute("data-goshtoso-charts-explicit-colors") === "true";
+      var explicitVisualMapColors = figure.getAttribute("data-goshtoso-charts-explicit-visual-map-colors") === "true";
       var explicitAnimation = figure.getAttribute("data-goshtoso-charts-explicit-animation") || "default";
       var palette = explicitColors && current.color && current.color.length ? current.color : seriesColors;
 			var themeSeriesItems = (figure.getAttribute("data-goshtoso-charts-theme-series-items") || "")
@@ -212,6 +213,17 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			var liquidLabel = liquidGauge && liquidGauge.label;
 			themedItem.label = { color: liquidPaint(liquidLabel, strong) };
 		}
+		if (series.type === "map") {
+			themedItem.itemStyle = Object.assign({}, series.itemStyle || {}, { areaColor: surfaceAlt, borderColor: outline });
+			themedItem.data = (series.data || []).map(function (item, itemIndex) {
+				if (!item || typeof item !== "object") return item;
+				var regionColor = item.sourceColor
+					? rendererColor(item.sourceColor, palette[itemIndex % palette.length])
+					: (item.className ? classColorOrFallback(figure, item.className, palette[itemIndex % palette.length]) : "");
+				if (!regionColor) return item;
+				return Object.assign({}, item, { itemStyle: Object.assign({}, item.itemStyle || {}, { color: regionColor }) });
+			});
+		}
         if (series.type === "boxplot" && managesSeriesItem(index)) {
           themedItem.itemStyle = { color: palette[index % palette.length], borderColor: palette[index % palette.length] };
         }
@@ -253,7 +265,7 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			}).filter(Boolean);
       var themedVisualMaps = (current.visualMap || []).map(function () {
         var visualMap = { textStyle: { color: text } };
-        if (!explicitColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] };
+        if (!explicitVisualMapColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] };
         return visualMap;
       });
 			var themed = {

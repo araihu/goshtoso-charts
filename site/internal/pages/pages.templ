@@ -352,6 +352,33 @@ templ InteractiveWordCloudPage(fragment bool) {
 	@layout("Interactive word cloud", "interactive-word-cloud", interactiveWordCloudContent(), fragment)
 }
 
+templ InteractiveMapPage(fragment bool) {
+	@layout("Interactive map", "interactive-map", interactiveMapContent(), fragment)
+}
+
+templ interactiveMapContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive map",
+		Description: "Reusable geographic values across national and regional geometry with one typed, renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare named values across geographic regions.", "Primitive", "interactive.Map", "Kind", "components.KindInteractiveMap", "Configuration", "Label, Caption, typed Geometry, Variant, Series and Region values, optional labels, continuous Scale, size, semantic classes or explicit colors, root attributes, controls, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Every variant includes a bounded exact region, value, and semantic-class table."),
+			Preview: interactiveMapVariants(),
+			Code: interactiveMapCode(),
+		},
+		After: demoNote("Geometry contract", "National and Guangdong resources ship locally by default. Basic, labels, continuous scale, regional, and theme-aware behavior remain variants and options on one Map component. Consumer flex layout owns placement; each map owns only its responsive renderer surface."),
+	})
+}
+
+templ interactiveMapVariants() {
+	<div class="flex flex-wrap gap-6" data-map-variants>
+		for _, variant := range sampleInteractiveMaps() {
+			<div class="min-w-0 flex-[1_1_24rem]" data-map-variant={ string(variant.variant) }>
+				@variant.chart
+			</div>
+		}
+	</div>
+}
+
 templ interactiveWordCloudContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive word cloud",

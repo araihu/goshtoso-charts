@@ -37,6 +37,17 @@ func TestDependenciesDefaultsToVendoredRuntime(t *testing.T) {
 	if strings.Index(out, assets.WordCloudRuntimeURL) > strings.Index(out, assets.LiquidRuntimeURL) {
 		t.Fatalf("liquid runtime loaded before word-cloud runtime\n%s", out)
 	}
+	for _, url := range []string{assets.ChinaMapURL, assets.GuangdongMapURL} {
+		if !strings.Contains(out, `src="`+url+`"`) {
+			t.Errorf("Dependencies() missing local map resource %q", url)
+		}
+		if strings.Index(out, assets.RuntimeURL) > strings.Index(out, url) {
+			t.Errorf("map resource loaded before core runtime: %q", url)
+		}
+	}
+	if strings.Index(out, assets.LiquidRuntimeURL) > strings.Index(out, assets.ChinaMapURL) || strings.Index(out, assets.ChinaMapURL) > strings.Index(out, assets.GuangdongMapURL) {
+		t.Fatalf("extension and map resources are not in stable dependency order\n%s", out)
+	}
 }
 
 func TestDependenciesCDNIsExplicitAndPinned(t *testing.T) {
@@ -50,6 +61,10 @@ func TestDependenciesCDNIsExplicitAndPinned(t *testing.T) {
 		`integrity="` + assets.WordCloudRuntimeCDNIntegrity + `"`,
 		`src="` + assets.LiquidRuntimeCDNURL + `"`,
 		`integrity="` + assets.LiquidRuntimeCDNIntegrity + `"`,
+		`src="` + assets.ChinaMapCDNURL + `"`,
+		`integrity="` + assets.ChinaMapCDNIntegrity + `"`,
+		`src="` + assets.GuangdongMapCDNURL + `"`,
+		`integrity="` + assets.GuangdongMapCDNIntegrity + `"`,
 		`crossorigin="anonymous"`,
 	} {
 		if !strings.Contains(out, want) {
@@ -65,8 +80,11 @@ func TestDependenciesCDNIsExplicitAndPinned(t *testing.T) {
 	if strings.Contains(out, assets.LiquidRuntimeURL) {
 		t.Fatalf("CDN option retained local liquid runtime URL\n%s", out)
 	}
-	if !(strings.Index(out, assets.RuntimeCDNURL) < strings.Index(out, assets.WordCloudRuntimeCDNURL) && strings.Index(out, assets.WordCloudRuntimeCDNURL) < strings.Index(out, assets.LiquidRuntimeCDNURL)) {
-		t.Fatalf("CDN dependencies not ordered core, word-cloud, liquid\n%s", out)
+	if !(strings.Index(out, assets.RuntimeCDNURL) < strings.Index(out, assets.WordCloudRuntimeCDNURL) &&
+		strings.Index(out, assets.WordCloudRuntimeCDNURL) < strings.Index(out, assets.LiquidRuntimeCDNURL) &&
+		strings.Index(out, assets.LiquidRuntimeCDNURL) < strings.Index(out, assets.ChinaMapCDNURL) &&
+		strings.Index(out, assets.ChinaMapCDNURL) < strings.Index(out, assets.GuangdongMapCDNURL)) {
+		t.Fatalf("CDN dependencies not ordered core, word-cloud, liquid, china map, guangdong map\n%s", out)
 	}
 }
 
@@ -118,7 +136,7 @@ func TestDependenciesPropagatesTemplNonce(t *testing.T) {
 	if !strings.Contains(out, `nonce="chart-nonce"`) {
 		t.Fatalf("dependency script missing templ nonce\n%s", out)
 	}
-	if strings.Count(out, `nonce="chart-nonce"`) != 3 {
+	if strings.Count(out, `nonce="chart-nonce"`) != 5 {
 		t.Fatalf("dependency scripts did not all receive templ nonce\n%s", out)
 	}
 }

@@ -34,6 +34,8 @@ type renderConfig struct {
 	ThemeSeriesItems []int
 	// GaugeScale is private JSON consumed by the shared theme runtime.
 	GaugeScale string
+	// ExplicitVisualMapColors keeps caller-selected scale colors authoritative.
+	ExplicitVisualMapColors bool
 	// CandlestickStyles is private JSON consumed by the shared theme runtime.
 	CandlestickStyles string
 	// Liquid is private paint metadata consumed by the shared theme runtime.
