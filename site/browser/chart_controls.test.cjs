@@ -731,6 +731,159 @@ test("Treemap focus and native breadcrumb back survive collapse, modal, theme, r
   }
 });
 
+test("Parallel coordinates preserve instance, data, theme lines, resize, controls, and opaque PNG", async () => {
+  const page = await pageAt("/components/interactive/parallel");
+  try {
+    const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    await wrapper.evaluate((element) => {
+      const host = element.querySelector("[_echarts_instance_]");
+      element.__parallelInstance = window.echarts.getInstanceByDom(host);
+    });
+    const measure = () => wrapper.evaluate((element) => {
+      const host = element.querySelector("[_echarts_instance_]");
+      const instance = window.echarts.getInstanceByDom(host);
+      const option = instance.getOption();
+      return {
+        sameInstance: instance === element.__parallelInstance,
+        hostWidth: host.clientWidth,
+        chartWidth: instance.getWidth(),
+        chartHeight: instance.getHeight(),
+        canvasWidth: Math.round(host.querySelector("canvas").getBoundingClientRect().width),
+        seriesRows: option.series.map((series) => series.data.length),
+        seriesNames: option.series.map((series) => series.name),
+        colors: option.series.map((series) => series.lineStyle.color),
+      };
+    });
+
+    let state = await measure();
+    assert.deepEqual(state.seriesRows, [21, 21, 21]);
+    assert.deepEqual(state.seriesNames, ["Beijing", "Guangzhou", "Shanghai"]);
+    assert.equal(new Set(state.colors).size, 3);
+
+    const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
+    await collapse.click();
+    await collapse.click();
+    await page.waitForTimeout(350);
+    state = await measure();
+    assert.equal(state.sameInstance, true);
+
+    await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+    const dialog = wrapper.getByRole("dialog", { name: "Multi Series parallel coordinates" });
+    await dialog.waitFor({ state: "visible" });
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = "araihu";
+      document.documentElement.classList.add("dark");
+    });
+    await page.waitForTimeout(450);
+    const themed = await measure();
+    assert.equal(themed.sameInstance, true);
+    assert.equal(new Set(themed.colors).size, 3);
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "hidden" });
+
+    await wrapper.evaluate((element) => { element.querySelector("[_echarts_instance_]").style.width = "607px"; });
+    await page.waitForFunction(() => {
+      const host = document.querySelector("[_echarts_instance_]");
+      const instance = window.echarts.getInstanceByDom(host);
+      return host.clientWidth === 607 && instance.getWidth() === 607 &&
+        Math.round(host.querySelector("canvas").getBoundingClientRect().width) === 607;
+    });
+    state = await measure();
+    assert.deepEqual(
+      { same: state.sameInstance, host: state.hostWidth, chart: state.chartWidth, canvas: state.canvasWidth },
+      { same: true, host: 607, chart: 607, canvas: 607 },
+    );
+
+    await wrapper.getByRole("button", { name: /^Enter fullscreen / }).click();
+    await page.waitForFunction(() => document.fullscreenElement !== null);
+    await page.waitForTimeout(350);
+    state = await measure();
+    assert.equal(state.sameInstance, true);
+    assert.deepEqual({ chart: state.chartWidth, canvas: state.canvasWidth }, { chart: state.hostWidth, canvas: state.hostWidth });
+    await page.evaluate(() => document.exitFullscreen());
+    await page.waitForFunction(() => document.fullscreenElement === null);
+    await page.waitForTimeout(350);
+
+    state = await measure();
+    assert.equal(state.sameInstance, true);
+    assert.deepEqual(state.seriesRows, [21, 21, 21]);
+    assert.equal(await page.getByRole("button", { name: /Multi Series parallel coordinates as SVG/ }).count(), 0);
+    const png = await download(page, "Download Multi Series parallel coordinates as PNG");
+    assert.equal(png.filename, "multi-series-parallel-coordinates.png");
+    assert.equal(png.types.at(-1), "image/png");
+    assert.deepEqual([...png.bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    const metadata = await sharp(png.bytes).metadata();
+    assert.deepEqual({ width: metadata.width, height: metadata.height }, { width: state.chartWidth, height: state.chartHeight });
+    const pixels = await sharp(png.bytes).ensureAlpha().raw().toBuffer();
+    for (let index = 3; index < pixels.length; index += 4) assert.equal(pixels[index], 255);
+  } finally {
+    await page.close();
+  }
+});
+
+test("Parallel flex consumer layout and expand modal resize the existing host instance", async () => {
+  const page = await pageAt("/components/interactive/parallel");
+  try {
+    const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    await wrapper.evaluate((element) => {
+      const content = element.querySelector("[data-goshtoso-chart-content]");
+      const host = element.querySelector("[_echarts_instance_]");
+      content.style.display = "flex";
+      content.style.width = "700px";
+      content.style.maxWidth = "100%";
+      host.style.width = "100%";
+      host.style.minWidth = "0";
+      host.style.flex = "1 1 auto";
+      element.__parallelFlexInstance = window.echarts.getInstanceByDom(host);
+    });
+    await page.waitForTimeout(500);
+    const initialFlex = await wrapper.evaluate((element) => {
+      const host = element.querySelector("[_echarts_instance_]");
+      const instance = window.echarts.getInstanceByDom(host);
+      return { host: host.clientWidth, chart: instance.getWidth(), canvas: Math.round(host.querySelector("canvas").getBoundingClientRect().width) };
+    });
+    assert.ok(initialFlex.host > 400 && initialFlex.host < 900, `initial flex host width ${initialFlex.host}`);
+    assert.deepEqual({ chart: initialFlex.chart, canvas: initialFlex.canvas }, { chart: initialFlex.host, canvas: initialFlex.host });
+
+    await wrapper.evaluate((element) => {
+      element.querySelector("[data-goshtoso-chart-content]").style.width = "400px";
+    });
+    await page.waitForFunction((previousWidth) => {
+      const host = document.querySelector("[_echarts_instance_]");
+      const instance = window.echarts.getInstanceByDom(host);
+      return host.clientWidth < previousWidth && instance.getWidth() === host.clientWidth &&
+        Math.round(host.querySelector("canvas").getBoundingClientRect().width) === host.clientWidth;
+    }, initialFlex.host);
+    assert.equal(await wrapper.evaluate((element) => {
+      const host = element.querySelector("[_echarts_instance_]");
+      return window.echarts.getInstanceByDom(host) === element.__parallelFlexInstance;
+    }), true);
+
+    await wrapper.evaluate((element) => {
+      element.querySelector("[data-goshtoso-chart-content]").style.width = "100%";
+    });
+    await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+    const dialog = wrapper.getByRole("dialog", { name: "Multi Series parallel coordinates" });
+    await dialog.waitFor({ state: "visible" });
+    await page.waitForFunction(() => {
+      const wrapperElement = document.querySelector("[data-goshtoso-chart-wrapper]");
+      const host = wrapperElement.querySelector("[_echarts_instance_]");
+      const instance = window.echarts.getInstanceByDom(host);
+      return instance === wrapperElement.__parallelFlexInstance && host.clientWidth > 400 &&
+        instance.getWidth() === host.clientWidth &&
+        Math.round(host.querySelector("canvas").getBoundingClientRect().width) === host.clientWidth;
+    });
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "hidden" });
+    assert.equal(await wrapper.evaluate((element) => {
+      const host = element.querySelector("[_echarts_instance_]");
+      return window.echarts.getInstanceByDom(host) === element.__parallelFlexInstance;
+    }), true);
+  } finally {
+    await page.close();
+  }
+});
+
 test("Candlestick shared controls export exact 600x400 opaque SVG and PNG artifacts", async () => {
   const page = await pageAt("/components/candlestick");
   try {
@@ -860,6 +1013,94 @@ test("static Scatter exports SVG and opaque PNG with intrinsic dimensions", asyn
     assert.deepEqual([...png.bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
     const metadata = await sharp(png.bytes).metadata();
 		assert.deepEqual({ width: metadata.width, height: metadata.height }, { width: 600, height: 400 });
+    const pixels = await sharp(png.bytes).ensureAlpha().raw().toBuffer();
+    for (let index = 3; index < pixels.length; index += 4) assert.equal(pixels[index], 255);
+  } finally {
+    await page.close();
+  }
+});
+
+test("static Heat Map preserves sequential colors and exports resolved 600x400 SVG and opaque PNG", async () => {
+  const page = await pageAt("/components/heatmap");
+  try {
+    const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    const presentation = await wrapper.evaluate((element) => {
+      const cells = [...element.querySelectorAll("figure svg path[class]")];
+      const viewport = element.querySelector(".goshtoso-charts-heatmap__viewport");
+      return {
+        count: cells.length,
+        low: getComputedStyle(cells[15]).fill,
+        high: getComputedStyle(cells[7]).fill,
+        localOverflow: viewport.scrollWidth >= viewport.clientWidth,
+        pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      };
+    });
+    assert.equal(presentation.count, 25);
+    assert.notEqual(presentation.low, presentation.high);
+    assert.equal(presentation.localOverflow, true);
+    assert.equal(presentation.pageOverflow, 0);
+
+    await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+    const dialog = wrapper.getByRole("dialog", { name: "Basic heat map" });
+    await dialog.waitFor({ state: "visible" });
+    await page.waitForTimeout(350);
+    const modalGeometry = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((panel) => {
+      const panelRect = panel.getBoundingClientRect();
+      const svgRect = panel.querySelector(".goshtoso-charts-heatmap__viewport > svg").getBoundingClientRect();
+      return {
+        panelContained: panelRect.left >= 0 && panelRect.right <= innerWidth + 1 && panelRect.top >= 0 && panelRect.bottom <= innerHeight + 1,
+        centered: Math.abs((panelRect.left + panelRect.right) / 2 - innerWidth / 2) < 4,
+        panelWidth: panelRect.width,
+        chartContained: svgRect.left >= panelRect.left && svgRect.right <= panelRect.right + 1 && svgRect.top >= panelRect.top && svgRect.bottom <= panelRect.bottom + 1,
+        aspect: svgRect.width / svgRect.height,
+      };
+    });
+    assert.deepEqual({
+      panelContained: modalGeometry.panelContained,
+      centered: modalGeometry.centered,
+      chartContained: modalGeometry.chartContained,
+    }, { panelContained: true, centered: true, chartContained: true });
+    assert.ok(modalGeometry.panelWidth >= 1000, `heat-map modal width ${modalGeometry.panelWidth}`);
+    assert.ok(Math.abs(modalGeometry.aspect - 1.5) < 0.02, `heat-map modal aspect ${modalGeometry.aspect}`);
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "hidden" });
+
+    const fullscreen = wrapper.locator('[data-goshtoso-chart-control="fullscreen"]');
+    await fullscreen.click();
+    await page.waitForFunction(() => Boolean(document.fullscreenElement));
+    const fullscreenGeometry = await wrapper.evaluate((element) => {
+      const viewport = element.querySelector(".goshtoso-charts-heatmap__viewport");
+      const svg = viewport.querySelector("svg");
+      return {
+        pressed: element.querySelector('[data-goshtoso-chart-control="fullscreen"]').getAttribute("aria-pressed"),
+        wrapper: { width: element.clientWidth, height: element.clientHeight },
+        svg: { width: Math.round(svg.getBoundingClientRect().width), height: Math.round(svg.getBoundingClientRect().height) },
+        pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+      };
+    });
+    assert.equal(fullscreenGeometry.pressed, "true");
+    assert.ok(fullscreenGeometry.wrapper.width >= 1200);
+    assert.ok(fullscreenGeometry.svg.width >= 1200);
+    assert.equal(fullscreenGeometry.pageOverflow, 0);
+    await page.evaluate(() => document.exitFullscreen());
+    await page.waitForFunction(() => !document.fullscreenElement);
+
+    const svg = await download(page, "Download Basic heat map as SVG");
+    assert.equal(svg.filename, "basic-heat-map.svg");
+    assert.equal(svg.types.at(-1), "image/svg+xml;charset=utf-8");
+    const markup = svg.bytes.toString("utf8");
+    assert.match(markup, /^<svg\b/);
+    assert.match(markup, /width="600"/);
+    assert.match(markup, /height="400"/);
+    assert.doesNotMatch(markup, /var\(/);
+    assert.doesNotMatch(markup, /color-mix\(/);
+
+    const png = await download(page, "Download Basic heat map as PNG");
+    assert.equal(png.filename, "basic-heat-map.png");
+    assert.equal(png.types.at(-1), "image/png");
+    assert.deepEqual([...png.bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    const metadata = await sharp(png.bytes).metadata();
+    assert.deepEqual({ width: metadata.width, height: metadata.height }, { width: 600, height: 400 });
     const pixels = await sharp(png.bytes).ensureAlpha().raw().toBuffer();
     for (let index = 3; index < pixels.length; index += 4) assert.equal(pixels[index], 255);
   } finally {
@@ -1050,8 +1291,8 @@ for (const width of [390, 1440]) {
 for (const width of [390, 1440]) {
   for (const theme of ["goshtoso", "araihu"]) {
     for (const mode of ["light", "dark"]) {
-      test(`${width}px ${theme} ${mode} keeps Candlestick and Treemap contained and theme-legible`, async () => {
-        for (const route of ["/components/candlestick", "/components/interactive/treemap"]) {
+      test(`${width}px ${theme} ${mode} keeps Candlestick, Heat Map, Treemap, and Parallel contained and theme-legible`, async () => {
+		for (const route of ["/components/candlestick", "/components/heatmap", "/components/interactive/treemap", "/components/interactive/parallel"]) {
           const page = await pageAt(route, { width, height: 900 });
           const errors = [];
           page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
@@ -1102,7 +1343,23 @@ for (const width of [390, 1440]) {
               assert.ok(result.decreasingContrast >= 3, `decreasing contrast ${result.decreasingContrast}`);
               assert.equal(result.localOverflow, "auto");
               assert.equal(result.locallyContained, true);
-            } else {
+			} else if (route === "/components/heatmap") {
+			  const result = await page.locator("[data-goshtoso-chart-wrapper]").first().evaluate((element) => {
+				const cells = [...element.querySelectorAll("figure svg path[class]")];
+				const viewport = element.querySelector(".goshtoso-charts-heatmap__viewport");
+				return {
+				  cells: cells.length,
+				  low: getComputedStyle(cells[15]).fill,
+				  high: getComputedStyle(cells[7]).fill,
+				  localOverflow: getComputedStyle(viewport).overflowX,
+				  locallyContained: viewport.scrollWidth >= viewport.clientWidth,
+				};
+			  });
+			  assert.equal(result.cells, 25);
+			  assert.notEqual(result.low, result.high);
+			  assert.equal(result.localOverflow, "auto");
+			  assert.equal(result.locallyContained, true);
+			} else {
 			  const geometry = await page.locator("[data-goshtoso-chart-wrapper]").first().evaluate((element) => {
                 const host = element.querySelector("[_echarts_instance_]");
                 const instance = window.echarts.getInstanceByDom(host);
@@ -1110,9 +1367,11 @@ for (const width of [390, 1440]) {
                   host: host.clientWidth,
                   chart: instance.getWidth(),
                   canvas: Math.round(host.querySelector("canvas").getBoundingClientRect().width),
+				  colors: instance.getOption().series.filter((series) => series.type === "parallel").map((series) => series.lineStyle.color),
                 };
 			  });
 			  assert.deepEqual({ chart: geometry.chart, canvas: geometry.canvas }, { chart: geometry.host, canvas: geometry.host });
+			  if (route.includes("parallel")) assert.equal(new Set(geometry.colors).size, 3);
             }
             assert.deepEqual(errors, []);
           } finally {

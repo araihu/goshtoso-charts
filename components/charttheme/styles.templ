@@ -27,6 +27,29 @@ templ Styles() {
 		.goshtoso-charts-candlestick__direction--decreasing { color: var(--color-chart-decreasing, var(--color-red-700, #b91c1c)); }
 		.dark .goshtoso-charts-candlestick__direction--increasing { color: var(--color-chart-increasing, var(--color-green-300, #86efac)); }
 		.dark .goshtoso-charts-candlestick__direction--decreasing { color: var(--color-chart-decreasing, var(--color-red-300, #fca5a5)); }
+		.goshtoso-charts-heatmap__viewport {
+			overflow-x: auto;
+		}
+		.goshtoso-charts-heatmap__viewport > svg {
+			min-width: 36rem;
+		}
+		.goshtoso-charts-heatmap__scale-gradient {
+			background: linear-gradient(90deg, var(--color-chart-scale-low), var(--color-chart-scale-mid), var(--color-chart-scale-high));
+		}
+		.goshtoso-charts-heatmap[data-heatmap-reverse="true"] .goshtoso-charts-heatmap__scale-gradient {
+			background: linear-gradient(90deg, var(--color-chart-scale-high), var(--color-chart-scale-mid), var(--color-chart-scale-low));
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-heatmap__viewport {
+			display: flex;
+			width: 100%;
+			justify-content: center;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-heatmap__viewport > svg {
+			width: min(100%, calc(141vh - 21rem));
+			height: auto;
+			min-width: 0;
+			aspect-ratio: 3 / 2;
+		}
 		.goshtoso-charts-palette {
 			--color-chart-surface: var(--color-surface);
 			--color-chart-surface-alt: var(--color-surface-alt, var(--color-surface));

@@ -247,6 +247,29 @@ Use application-owned values only. Shared `ChartOptions`, `SeriesOptions`, and
 component-specific typed variants provide controlled customization without
 exposing the backing renderer.
 
+Parallel coordinates use ordered typed dimensions and aligned observations.
+Numeric and categorical values cannot be mixed accidentally:
+
+```go
+chart := interactive.Parallel(interactive.ParallelConfig{
+	Label: "Air quality profiles",
+	Dimensions: []interactive.ParallelDimension{
+		{Name: "AQI", Range: &interactive.ParallelRange{Max: interactive.Float(300)}},
+		{Name: "Level", Categories: []string{"Good", "Moderate", "Heavily"}},
+	},
+	Series: []interactive.ParallelSeries{{
+		Name: "Beijing",
+		Observations: []interactive.ParallelObservation{{
+			Name: "Day 1",
+			Values: []interactive.ParallelValue{
+				interactive.ParallelNumber(55),
+				interactive.ParallelCategory("Moderate"),
+			},
+		}},
+	}},
+})
+```
+
 ### Live Cartesian data
 
 Interactive Bar and Line components can opt into an SSE source. Each named

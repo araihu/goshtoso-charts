@@ -138,7 +138,7 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 				// Global palette and text/background tokens still theme all three. Never
 				// re-supply partial Treemap levels while native navigation state is active.
 				if (series.type === "tree" || series.type === "sunburst" || series.type === "treemap") return null;
-				var themedItem = {
+        var themedItem = {
           id: series.id,
           name: series.name,
           animationDurationUpdate: 0,
@@ -147,6 +147,21 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
           emphasis: { label: { color: strong } },
           labelLine: { lineStyle: { color: outline } }
         };
+		if (series.type === "parallel") {
+			var seriesPathColor = series.className
+				? classColor(figure, series.className, palette[index % palette.length])
+				: (series.lineStyle && series.lineStyle.color
+					? rendererColor(series.lineStyle.color, palette[index % palette.length])
+					: palette[index % palette.length]);
+			themedItem.lineStyle = { color: seriesPathColor };
+			themedItem.data = (series.data || []).map(function (item) {
+				if (!item || Array.isArray(item) || (!item.className && !(item.lineStyle && item.lineStyle.color))) return item;
+				var itemColor = item.className
+					? classColor(figure, item.className, seriesPathColor)
+					: rendererColor(item.lineStyle.color, seriesPathColor);
+				return Object.assign({}, item, { lineStyle: Object.assign({}, item.lineStyle || {}, { color: itemColor }) });
+			});
+		}
         if (series.type === "boxplot" && managesSeriesItem(index)) {
           themedItem.itemStyle = { color: palette[index % palette.length], borderColor: palette[index % palette.length] };
         }
@@ -179,6 +194,7 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
         yAxis: repeat(current.yAxis, axis),
         radiusAxis: repeat(current.radiusAxis, axis),
         angleAxis: repeat(current.angleAxis, axis),
+		parallelAxis: repeat(current.parallelAxis, axis),
         radar: repeat(current.radar, radar),
         visualMap: themedVisualMaps,
         tooltip: repeat(current.tooltip, {

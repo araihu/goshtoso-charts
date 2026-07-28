@@ -51,6 +51,9 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/candlestick", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.CandlestickPage(isFragment(request)))
 	})
+	mux.HandleFunc("GET /components/heatmap", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.HeatMapPage(isFragment(request)))
+	})
 	mux.HandleFunc("GET /components/interactive/bar", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.InteractiveBarPage(isFragment(request)))
 	})
@@ -95,6 +98,9 @@ func New() http.Handler {
 	})
 	mux.HandleFunc("GET /components/interactive/treemap", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.InteractiveTreemapPage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /components/interactive/parallel", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveParallelPage(isFragment(request)))
 	})
 	for _, component := range []string{"bar", "line", "scatter", "pie", "radar", "heatmap", "boxplot", "gauge", "funnel", "graph", "sankey", "tree"} {
 		mux.HandleFunc("GET /components/echarts/"+component, func(writer http.ResponseWriter, request *http.Request) {

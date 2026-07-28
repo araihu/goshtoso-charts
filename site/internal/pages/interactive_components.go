@@ -317,6 +317,119 @@ func sampleInteractiveTreemap() interactive.Instance {
 	})
 }
 
+type parallelSampleRow struct {
+	values [7]float64
+	level  string
+}
+
+func sampleInteractiveParallel() interactive.Instance {
+	return interactive.Parallel(interactive.ParallelConfig{
+		Label:   "Multi Series parallel coordinates",
+		Caption: "Daily air-quality measurements for Beijing, Guangzhou, and Shanghai across seven numeric dimensions and one categorical level.",
+		Dimensions: []interactive.ParallelDimension{
+			{Name: "Date", Range: &interactive.ParallelRange{Max: interactive.Float(31)}, Inverse: true, NameLocation: interactive.ParallelNameStart},
+			{Name: "AQI"},
+			{Name: "PM2.5"},
+			{Name: "PM10"},
+			{Name: "CO"},
+			{Name: "NO2"},
+			{Name: "SO2"},
+			{Name: "Level", Categories: []string{"Good", "Moderate", "Lightly", "Moderately", "Heavily", "Severely"}},
+		},
+		Series: []interactive.ParallelSeries{
+			{Name: "Beijing", Observations: parallelSampleObservations([]parallelSampleRow{
+				{[7]float64{1, 55, 9, 56, 0.46, 18, 6}, "Moderate"},
+				{[7]float64{2, 25, 11, 21, 0.65, 34, 9}, "Good"},
+				{[7]float64{3, 56, 7, 63, 0.3, 14, 5}, "Moderate"},
+				{[7]float64{4, 33, 7, 29, 0.33, 16, 6}, "Good"},
+				{[7]float64{5, 42, 24, 44, 0.76, 40, 16}, "Good"},
+				{[7]float64{6, 82, 58, 90, 1.77, 68, 33}, "Moderate"},
+				{[7]float64{7, 74, 49, 77, 1.46, 48, 27}, "Moderate"},
+				{[7]float64{8, 78, 55, 80, 1.29, 59, 29}, "Moderate"},
+				{[7]float64{9, 267, 216, 280, 4.8, 108, 64}, "Heavily"},
+				{[7]float64{10, 185, 127, 216, 2.52, 61, 27}, "Moderately"},
+				{[7]float64{11, 39, 19, 38, 0.57, 31, 15}, "Good"},
+				{[7]float64{12, 41, 11, 40, 0.43, 21, 7}, "Good"},
+				{[7]float64{13, 64, 38, 74, 1.04, 46, 22}, "Moderate"},
+				{[7]float64{14, 108, 79, 120, 1.7, 75, 41}, "Lightly"},
+				{[7]float64{15, 108, 63, 116, 1.48, 44, 26}, "Lightly"},
+				{[7]float64{16, 33, 6, 29, 0.34, 13, 5}, "Good"},
+				{[7]float64{17, 94, 66, 110, 1.54, 62, 31}, "Moderate"},
+				{[7]float64{18, 186, 142, 192, 3.88, 93, 79}, "Moderately"},
+				{[7]float64{19, 57, 31, 54, 0.96, 32, 14}, "Moderate"},
+				{[7]float64{20, 22, 8, 17, 0.48, 23, 10}, "Good"},
+				{[7]float64{21, 39, 15, 36, 0.61, 29, 13}, "Good"},
+			})},
+			{Name: "Guangzhou", Observations: parallelSampleObservations([]parallelSampleRow{
+				{[7]float64{1, 26, 37, 27, 1.163, 27, 13}, "Good"},
+				{[7]float64{2, 85, 62, 71, 1.195, 60, 8}, "Moderate"},
+				{[7]float64{3, 78, 38, 74, 1.363, 37, 7}, "Moderate"},
+				{[7]float64{4, 21, 21, 36, 0.634, 40, 9}, "Good"},
+				{[7]float64{5, 41, 42, 46, 0.915, 81, 13}, "Good"},
+				{[7]float64{6, 56, 52, 69, 1.067, 92, 16}, "Moderate"},
+				{[7]float64{7, 64, 30, 28, 0.924, 51, 2}, "Moderate"},
+				{[7]float64{8, 55, 48, 74, 1.236, 75, 26}, "Moderate"},
+				{[7]float64{9, 76, 85, 113, 1.237, 114, 27}, "Moderate"},
+				{[7]float64{10, 91, 81, 104, 1.041, 56, 40}, "Moderate"},
+				{[7]float64{11, 84, 39, 60, 0.964, 25, 11}, "Moderate"},
+				{[7]float64{12, 64, 51, 101, 0.862, 58, 23}, "Moderate"},
+				{[7]float64{13, 70, 69, 120, 1.198, 65, 36}, "Moderate"},
+				{[7]float64{14, 77, 105, 178, 2.549, 64, 16}, "Moderate"},
+				{[7]float64{15, 109, 68, 87, 0.996, 74, 29}, "Lightly"},
+				{[7]float64{16, 73, 68, 97, 0.905, 51, 34}, "Moderate"},
+				{[7]float64{17, 54, 27, 47, 0.592, 53, 12}, "Moderate"},
+				{[7]float64{18, 51, 61, 97, 0.811, 65, 19}, "Moderate"},
+				{[7]float64{19, 91, 71, 121, 1.374, 43, 18}, "Moderate"},
+				{[7]float64{20, 73, 102, 182, 2.787, 44, 19}, "Moderate"},
+				{[7]float64{21, 73, 50, 76, 0.717, 31, 20}, "Moderate"},
+			})},
+			{Name: "Shanghai", Observations: parallelSampleObservations([]parallelSampleRow{
+				{[7]float64{1, 91, 45, 125, 0.82, 34, 23}, "Moderate"},
+				{[7]float64{2, 65, 27, 78, 0.86, 45, 29}, "Moderate"},
+				{[7]float64{3, 83, 60, 84, 1.09, 73, 27}, "Moderate"},
+				{[7]float64{4, 109, 81, 121, 1.28, 68, 51}, "Lightly"},
+				{[7]float64{5, 106, 77, 114, 1.07, 55, 51}, "Lightly"},
+				{[7]float64{6, 109, 81, 121, 1.28, 68, 51}, "Lightly"},
+				{[7]float64{7, 106, 77, 114, 1.07, 55, 51}, "Lightly"},
+				{[7]float64{8, 89, 65, 78, 0.86, 51, 26}, "Moderate"},
+				{[7]float64{9, 53, 33, 47, 0.64, 50, 17}, "Moderate"},
+				{[7]float64{10, 80, 55, 80, 1.01, 75, 24}, "Moderate"},
+				{[7]float64{11, 117, 81, 124, 1.03, 45, 24}, "Lightly"},
+				{[7]float64{12, 99, 71, 142, 1.1, 62, 42}, "Moderate"},
+				{[7]float64{13, 95, 69, 130, 1.28, 74, 50}, "Moderate"},
+				{[7]float64{14, 116, 87, 131, 1.47, 84, 40}, "Lightly"},
+				{[7]float64{15, 108, 80, 121, 1.3, 85, 37}, "Lightly"},
+				{[7]float64{16, 134, 83, 167, 1.16, 57, 43}, "Lightly"},
+				{[7]float64{17, 79, 43, 107, 1.05, 59, 37}, "Moderate"},
+				{[7]float64{18, 71, 46, 89, 0.86, 64, 25}, "Moderate"},
+				{[7]float64{19, 97, 71, 113, 1.17, 88, 31}, "Moderate"},
+				{[7]float64{20, 84, 57, 91, 0.85, 55, 31}, "Moderate"},
+				{[7]float64{21, 87, 63, 101, 0.9, 56, 41}, "Moderate"},
+			})},
+		},
+		Width: "900px", Height: "500px",
+		Options: interactive.ChartOptions{
+			Title:    &interactive.TitleOptions{Text: "Multi Series"},
+			Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Export:   &chartcontrol.ExportOptions{Filename: "multi-series-parallel-coordinates"},
+		},
+		Style: charttheme.Style{Class: "max-w-full"},
+	})
+}
+
+func parallelSampleObservations(rows []parallelSampleRow) []interactive.ParallelObservation {
+	result := make([]interactive.ParallelObservation, len(rows))
+	for index, row := range rows {
+		values := make([]interactive.ParallelValue, 0, 8)
+		for _, value := range row.values {
+			values = append(values, interactive.ParallelNumber(value))
+		}
+		values = append(values, interactive.ParallelCategory(row.level))
+		result[index] = interactive.ParallelObservation{Name: fmt.Sprintf("Day %d", index+1), Values: values}
+	}
+	return result
+}
+
 func liveAvailabilityBar(label, caption string, states []int) interactive.BarConfig {
 	categories := availabilityCategories(len(states))
 	series := []interactive.BarSeries{
@@ -603,5 +716,27 @@ func interactiveTreemapCode() string {
   LeafDepth: interactive.Int(1),
   Width: "100%",
   Height: "500px",
+})`
+}
+
+func interactiveParallelCode() string {
+	return `@interactive.Parallel(interactive.ParallelConfig{
+  Label: "Multi Series parallel coordinates",
+  Dimensions: []interactive.ParallelDimension{
+    {Name: "Date", Range: &interactive.ParallelRange{Max: interactive.Float(31)},
+      Inverse: true, NameLocation: interactive.ParallelNameStart},
+    {Name: "AQI"}, {Name: "PM2.5"}, {Name: "PM10"}, {Name: "CO"},
+    {Name: "NO2"}, {Name: "SO2"},
+    {Name: "Level", Categories: []string{
+      "Good", "Moderate", "Lightly", "Moderately", "Heavily", "Severely",
+    }},
+  },
+  Series: []interactive.ParallelSeries{
+    {Name: "Beijing", Observations: beijingObservations},
+    {Name: "Guangzhou", Observations: guangzhouObservations},
+    {Name: "Shanghai", Observations: shanghaiObservations},
+  },
+  Width: "900px", Height: "500px",
+  Style: charttheme.Style{Class: "max-w-full"},
 })`
 }

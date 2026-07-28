@@ -1,5 +1,19 @@
 # Goshtoso integration snags
 
+## 2026-07-28: Parallel adapter omits supported axis and inactive styling fields
+
+The pinned private Go adapter exposes parallel-axis maximum, inverse, type, and
+categories, but omits minimum, axis label/line options, and per-series inactive
+opacity even though the bundled browser runtime supports them. The typed public
+API retains those renderer-neutral controls. Its private serialization bridge
+replaces only the validated parallel-axis array and named-series fields before
+initialization; no raw option map or backing type crosses the component API.
+
+Parallel theme and responsive behavior required no component runtime. The
+existing shared runtime already observes the actual browser chart host, resolves
+its current instance, and calls `resize()` after consumer flex, modal,
+fullscreen, or collapse changes without disposing or reinitializing it.
+
 - Interactive charts require one library-owned ResizeObserver so canvases follow consumer layout changes after initialization. Future chart components, including Sunburst, must register through the shared interactive runtime instead of creating component-specific observers.
 
 ## 2026-07-27: templ control flow must remain structurally separate

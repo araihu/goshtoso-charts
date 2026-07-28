@@ -21,7 +21,7 @@ customization; `Disabled` is the explicit opt-out.
 | Component family | Current components | SVG | PNG | Evidence |
 |---|---|---:|---:|---|
 | Static/vector | Line, Bar, Pie, Scatter, Radar | Yes | Yes | Each component configures `go-analyze/charts` with `ChartOutputSVG`, then reads `Painter.Bytes`. Browser PNG export rasterizes that resolved SVG at its intrinsic dimensions. |
-| Interactive | Bar, Line, Scatter, HeatMap, Pie, Radar, BoxPlot, Gauge, Funnel, Graph, Sankey, Tree, Sunburst | No | Yes | Every component uses the current browser chart instance. Apache ECharts `getDataURL` documents PNG as the default and branches on the active canvas/SVG painter. Goshtoso Charts currently initializes go-echarts v2.7.2 with its default canvas renderer, so only PNG is exposed. |
+| Interactive | Bar, Line, Scatter, HeatMap, Pie, Radar, BoxPlot, Gauge, Funnel, Graph, Sankey, Tree, Sunburst, Treemap, Parallel coordinates | No | Yes | Every component uses the current browser chart instance. Apache ECharts `getDataURL` documents PNG as the default and branches on the active canvas/SVG painter. Goshtoso Charts currently initializes go-echarts v2.7.2 with its default canvas renderer, so only PNG is exposed. |
 
 Static transparent SVG/PNG backgrounds are supported. Opaque remains default
 and resolves the active Goshtoso surface color. Interactive transparent export

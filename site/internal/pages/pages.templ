@@ -5,6 +5,7 @@ import (
 	"github.com/araihu/goshtoso-app-shells/componentpage"
 	"github.com/araihu/goshtoso-charts/components/bar"
 	"github.com/araihu/goshtoso-charts/components/candlestick"
+	"github.com/araihu/goshtoso-charts/components/heatmap"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
@@ -91,6 +92,10 @@ templ RadarPage(fragment bool) {
 
 templ CandlestickPage(fragment bool) {
 	@layout("Candlestick", "candlestick", candlestickContent(), fragment)
+}
+
+templ HeatMapPage(fragment bool) {
+	@layout("Heat map", "heatmap", heatMapContent(), fragment)
 }
 
 templ InteractiveBarPage(fragment bool) {
@@ -276,6 +281,23 @@ templ InteractiveTreemapPage(fragment bool) {
 	@layout("Interactive treemap", "interactive-treemap", interactiveTreemapContent(), fragment)
 }
 
+templ InteractiveParallelPage(fragment bool) {
+	@layout("Interactive parallel coordinates", "interactive-parallel", interactiveParallelContent(), fragment)
+}
+
+templ interactiveParallelContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive parallel coordinates",
+		Description: "Reusable multivariate profiles across ordered numeric and categorical dimensions under one renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare many observations across the same ordered dimensions and reveal multivariate profiles.", "Primitive", "interactive.Parallel", "Kind", "components.KindInteractiveParallel", "Configuration", "Label, Caption, typed unique Dimensions with numeric ranges or categorical values, aligned named Series and Observations, semantic classes or explicit colors, percentage layout, axis labels and lines, smoothing, inactive opacity, size, chart options, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded adjacent table preserves series and observation names, every exact dimension value, and semantic classes without relying on line color."),
+			Preview: sampleInteractiveParallel(),
+			Code: interactiveParallelCode(),
+		},
+		After: demoNote("Dimension contract", "Dimension names and series names are unique. Every observation supplies exactly one typed value per dimension; numeric values must be finite and within declared bounds, while categorical values must name a declared category."),
+	})
+}
+
 templ interactiveTreemapContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive treemap",
@@ -385,6 +407,27 @@ templ candlestickContent() {
 			Code: candlestickCode(),
 		},
 		After: demoNote("OHLC contract", "Each finite datum satisfies Low <= Open/Close <= High. Close greater than or equal to open is stated as Increase; a lower close is stated as Decrease, so meaning never depends on color alone."),
+	})
+}
+
+templ heatMapContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Heat map",
+		Description: "Categorical SSR SVG for comparing values across a two-dimensional matrix with a sequential color scale.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare magnitude across the intersections of two ordered categorical axes.", "Primitive", "heatmap.HeatMap", "Kind", "components.KindHeatMapChart", "Configuration", "Label, Caption, Title, typed XAxis and YAxis labels, either a complete Rows matrix or indexed Cells, finite ValueRange, theme-aware sequential Gradient, dimensions, root attributes, and shared controls/export options.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded exact-value table preserves axis labels and numeric values so color is never the only signal."),
+			Preview: heatmap.HeatMap(sampleBasicHeatMap()),
+			Code: heatMapCode(),
+		},
+		Sections: []componentpage.Example{
+			{
+				Title: "Custom semantic scale",
+				Description: "Ordered stops accept renderer-neutral CSS colors and semantic classes; Reverse swaps scale direction on the same component.",
+				Preview: heatmap.HeatMap(sampleBasicHeatMapOverride()),
+				Code: heatMapOverrideCode(),
+			},
+		},
+		After: demoNote("Matrix contract", "Rows use Y-major order and contain one finite value for every X label. Indexed Cells cover the same complete matrix exactly once. The zero-value gradient is theme-aware cold to warm; every value remains inside the explicit range."),
 	})
 }
 

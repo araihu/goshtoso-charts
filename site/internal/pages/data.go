@@ -8,6 +8,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/candlestick"
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
+	"github.com/araihu/goshtoso-charts/components/heatmap"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/components/radar"
@@ -138,6 +139,35 @@ func sampleBasicRadarOverride() radar.Config {
 		Class:   "radar-explicit-override",
 	}
 	cfg.Options = radar.Options{RadiusPercent: 44, ValueLabels: radar.ValueLabelsShown}
+	return cfg
+}
+
+func sampleBasicHeatMap() heatmap.Config {
+	return heatmap.Config{
+		Label: "Basic heat map", Caption: "Values across five X and Y categories.", Title: "Heat Map Chart",
+		XAxis: heatmap.Axis{Title: "X-Axis", Labels: []string{"0", "1", "2", "3", "4"}},
+		YAxis: heatmap.Axis{Title: "Y-Axis", Labels: []string{"0", "1", "2", "3", "4"}},
+		Rows: [][]float64{
+			{4.4, 4.9, 7.0, 7.5, 4.3},
+			{2.6, 5.9, 9.0, 6.4, 2.3},
+			{3.3, 6.4, 7.0, 4.9, 3.2},
+			{1.9, 6.0, 9.0, 5.9, 2.6},
+			{4.4, 5.9, 7.0, 6.4, 4.6},
+		},
+		ValueRange: heatmap.ValueRange{Min: 1.9, Max: 9.0},
+		Controls:   chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:     &chartcontrol.ExportOptions{Filename: "basic-heat-map"},
+	}
+}
+
+func sampleBasicHeatMapOverride() heatmap.Config {
+	cfg := sampleBasicHeatMap()
+	cfg.Label = "Basic heat map with reversed custom scale"
+	cfg.Gradient = heatmap.Gradient{Reverse: true, Stops: []heatmap.GradientStop{
+		{At: 0, Color: "#0e7490", Class: "scale-cold"},
+		{At: 0.5, Color: "#fbbf24", Class: "scale-middle"},
+		{At: 1, Color: "#e11d48", Class: "scale-warm"},
+	}}
 	return cfg
 }
 
@@ -290,4 +320,34 @@ func candlestickCode() string {
     {Label: "Day 7", Open: 114, High: 121, Low: 111, Close: 119},
   },
 })`
+}
+
+func heatMapCode() string {
+	return `@heatmap.HeatMap(heatmap.Config{
+  Label: "Basic heat map",
+  Title: "Heat Map Chart",
+  XAxis: heatmap.Axis{Title: "X-Axis", Labels: []string{"0", "1", "2", "3", "4"}},
+  YAxis: heatmap.Axis{Title: "Y-Axis", Labels: []string{"0", "1", "2", "3", "4"}},
+  Rows: [][]float64{
+    {4.4, 4.9, 7.0, 7.5, 4.3},
+    {2.6, 5.9, 9.0, 6.4, 2.3},
+    {3.3, 6.4, 7.0, 4.9, 3.2},
+    {1.9, 6.0, 9.0, 5.9, 2.6},
+    {4.4, 5.9, 7.0, 6.4, 4.6},
+  },
+  ValueRange: heatmap.ValueRange{Min: 1.9, Max: 9},
+})`
+}
+
+func heatMapOverrideCode() string {
+	return `cfg := sampleBasicHeatMap()
+cfg.Gradient = heatmap.Gradient{
+  Reverse: true,
+  Stops: []heatmap.GradientStop{
+    {At: 0, Color: "#0e7490", Class: "scale-cold"},
+    {At: 0.5, Color: "#fbbf24", Class: "scale-middle"},
+    {At: 1, Color: "#e11d48", Class: "scale-warm"},
+  },
+}
+@heatmap.HeatMap(cfg)`
 }
