@@ -97,6 +97,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		"Foundation dependencies", "Chart and rendering libraries", "Bundled runtime and assets",
 		"Goshtoso", "v0.0.13", "Goshtoso App Shells", "commit 4c4aa5ae787e", "templ", "v0.3.1020",
 		"go-analyze/charts", "v0.6.0", "go-echarts", "v2.7.2", "Apache ECharts", "v5.4.3",
+		"examples/1-Painter/scatter_chart-1-basic/main.go",
 		`href="https://github.com/araihu/goshtoso"`, `href="https://github.com/go-echarts/go-echarts"`,
 		`href="https://echarts.apache.org/"`, `href="https://github.com/apache/echarts/blob/5.4.3/LICENSE"`,
 		`bg-primary/10`, "MIT", "Apache-2.0",
@@ -127,6 +128,27 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 			if strings.Contains(page.Body.String(), unwanted) {
 				t.Errorf("GET %s repeats centralized attribution %q", path, unwanted)
 			}
+		}
+	}
+}
+
+func TestScatterDocumentationPreservesUpstreamBasicExample(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/scatter", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Scatter series by day", "Email", "Union Ads", "Video Ads", "Direct", "Search Engine",
+		"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
+		"examples/1-Painter/scatter_chart-1-basic/main.go",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("scatter documentation missing upstream example content %q", want)
+		}
+	}
+	for _, unwanted := range []string{"Dense sample populations", "population and sample index"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("scatter documentation retains invented framing %q", unwanted)
 		}
 	}
 }

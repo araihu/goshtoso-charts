@@ -73,51 +73,34 @@ func sampleObservationStates() pie.Config {
 	}
 }
 
-func sampleDenseScatter() scatter.Config {
+func sampleBasicScatter() scatter.Config {
 	return scatter.Config{
-		Label:      "Dense sample populations",
-		Caption:    "One to three observations per population and sample index.",
-		Categories: []string{"0", "1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11"},
-		Options:    scatter.Options{Size: 2},
+		Label:      "Scatter series by day",
+		Caption:    "Five series across Monday through Sunday; the missing Thursday point in Email preserves the upstream null value.",
+		Categories: []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"},
+		Options:    scatter.Options{Size: 4},
 		Series: []scatter.Series{
 			{
-				Name: "One",
-				Points: []scatter.Point{
-					{Category: "0", Value: 42}, {Category: "1", Value: 44},
-					{Category: "2", Value: 43}, {Category: "2", Value: 47},
-					{Category: "3", Value: 45}, {Category: "4", Value: 46}, {Category: "4", Value: 49},
-					{Category: "5", Value: 52}, {Category: "6", Value: 50}, {Category: "6", Value: 54},
-					{Category: "7", Value: 55}, {Category: "8", Value: 57}, {Category: "8", Value: 61},
-					{Category: "9", Value: 60}, {Category: "10", Value: 62}, {Category: "10", Value: 66},
-					{Category: "10", Value: 68}, {Category: "11", Value: 65},
-				},
+				Name:   "Email",
+				Points: scatterPoints([]string{"Mon", "Tue", "Wed", "Fri", "Sat", "Sun"}, []float64{120, 132, 101, 90, 230, 210}),
 			},
 			{
-				Name: "Two",
-				Points: []scatter.Point{
-					{Category: "0", Value: 88}, {Category: "1", Value: 91},
-					{Category: "2", Value: 89}, {Category: "2", Value: 94},
-					{Category: "3", Value: 96}, {Category: "4", Value: 93}, {Category: "4", Value: 99},
-					{Category: "5", Value: 102}, {Category: "6", Value: 100}, {Category: "6", Value: 106},
-					{Category: "7", Value: 109}, {Category: "8", Value: 107}, {Category: "8", Value: 113},
-					{Category: "9", Value: 116}, {Category: "10", Value: 114}, {Category: "10", Value: 121},
-					{Category: "10", Value: 124}, {Category: "11", Value: 119},
-				},
+				Name:   "Union Ads",
+				Points: scatterPoints([]string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}, []float64{220, 182, 191, 234, 290, 330, 310}),
 			},
-			{
-				Name: "Three",
-				Points: []scatter.Point{
-					{Category: "0", Value: 136}, {Category: "1", Value: 142},
-					{Category: "2", Value: 139}, {Category: "2", Value: 148},
-					{Category: "3", Value: 151}, {Category: "4", Value: 147}, {Category: "4", Value: 156},
-					{Category: "5", Value: 160}, {Category: "6", Value: 157}, {Category: "6", Value: 166},
-					{Category: "7", Value: 171}, {Category: "8", Value: 168}, {Category: "8", Value: 177},
-					{Category: "9", Value: 181}, {Category: "10", Value: 178}, {Category: "10", Value: 188},
-					{Category: "10", Value: 193}, {Category: "11", Value: 186},
-				},
-			},
+			{Name: "Video Ads", Points: scatterPoints([]string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}, []float64{150, 232, 201, 154, 190, 330, 410})},
+			{Name: "Direct", Points: scatterPoints([]string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}, []float64{320, 332, 301, 334, 390, 330, 320})},
+			{Name: "Search Engine", Points: scatterPoints([]string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}, []float64{820, 932, 901, 934, 1290, 1330, 1320})},
 		},
 	}
+}
+
+func scatterPoints(categories []string, values []float64) []scatter.Point {
+	points := make([]scatter.Point, len(categories))
+	for index := range categories {
+		points[index] = scatter.Point{Category: categories[index], Value: values[index]}
+	}
+	return points
 }
 
 func lineCode() string {
@@ -153,34 +136,28 @@ func pieCode() string {
 
 func scatterCode() string {
 	return `@scatter.Scatter(scatter.Config{
-  Label: "Dense sample populations",
-  Categories: []string{"0", "1", "2", "3", "4"},
-  Options: scatter.Options{Size: 2},
+  Label: "Scatter series by day",
+  Categories: []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"},
+  Options: scatter.Options{Size: 4},
   Series: []scatter.Series{
     {
-      Name: "One",
+      Name: "Email",
       Points: []scatter.Point{
-        {Category: "0", Value: 42},
-        {Category: "1", Value: 44},
-        {Category: "2", Value: 43},
-        {Category: "2", Value: 47},
-        {Category: "3", Value: 45},
-        {Category: "4", Value: 46},
-        {Category: "4", Value: 49},
+        {Category: "Mon", Value: 120}, {Category: "Tue", Value: 132},
+        {Category: "Wed", Value: 101}, {Category: "Fri", Value: 90},
+        {Category: "Sat", Value: 230}, {Category: "Sun", Value: 210},
       },
     },
     {
-      Name: "Two",
+      Name: "Union Ads",
       Points: []scatter.Point{
-        {Category: "0", Value: 88},
-        {Category: "1", Value: 91},
-        {Category: "2", Value: 89},
-        {Category: "2", Value: 94},
-        {Category: "3", Value: 96},
-        {Category: "4", Value: 93},
-        {Category: "4", Value: 99},
+        {Category: "Mon", Value: 220}, {Category: "Tue", Value: 182},
+        {Category: "Wed", Value: 191}, {Category: "Thu", Value: 234},
+        {Category: "Fri", Value: 290}, {Category: "Sat", Value: 330},
+        {Category: "Sun", Value: 310},
       },
     },
+    // Video Ads, Direct, and Search Engine retain the same upstream values.
   },
 })`
 }

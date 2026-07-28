@@ -123,40 +123,39 @@ Keep exact values in nearby text or a table when readers need them.
 
 ## Scatter chart
 
-Use scatter charts for repeated observations across explicit ordered
-categories. The example follows the upstream dense-data example: several
-populations, repeated values at some sample indices, and compact markers.
-Categories are equally spaced keys, even when their labels look numeric; use
-another component when a proportional numeric X axis is required.
+Use scatter charts for observations across explicit ordered categories. This
+example adapts the upstream
+`examples/1-Painter/scatter_chart-1-basic/main.go` dataset. Its null Thursday
+value is represented by omitting the typed point. Categories are equally spaced
+keys; use another component when a proportional numeric X axis is required.
 
 ```templ
 @scatter.Scatter(scatter.Config{
-	Label:      "Dense sample populations",
-	Categories: []string{"0", "1", "2", "3", "4"},
-	Options:    scatter.Options{Size: 2},
+	Label:      "Scatter series by day",
+	Categories: []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"},
+	Options:    scatter.Options{Size: 4},
 	Series: []scatter.Series{
 		{
-			Name: "One",
+			Name: "Email",
 			Points: []scatter.Point{
-				{Category: "0", Value: 42},
-				{Category: "1", Value: 44},
-				{Category: "2", Value: 43},
-				{Category: "2", Value: 47},
-				{Category: "3", Value: 45},
-				{Category: "4", Value: 46},
-				{Category: "4", Value: 49},
+				{Category: "Mon", Value: 120},
+				{Category: "Tue", Value: 132},
+				{Category: "Wed", Value: 101},
+				{Category: "Fri", Value: 90},
+				{Category: "Sat", Value: 230},
+				{Category: "Sun", Value: 210},
 			},
 		},
 		{
-			Name: "Two",
+			Name: "Union Ads",
 			Points: []scatter.Point{
-				{Category: "0", Value: 88},
-				{Category: "1", Value: 91},
-				{Category: "2", Value: 89},
-				{Category: "2", Value: 94},
-				{Category: "3", Value: 96},
-				{Category: "4", Value: 93},
-				{Category: "4", Value: 99},
+				{Category: "Mon", Value: 220},
+				{Category: "Tue", Value: 182},
+				{Category: "Wed", Value: 191},
+				{Category: "Thu", Value: 234},
+				{Category: "Fri", Value: 290},
+				{Category: "Sat", Value: 330},
+				{Category: "Sun", Value: 310},
 			},
 		},
 	},

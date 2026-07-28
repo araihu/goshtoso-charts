@@ -303,10 +303,10 @@ templ scatterContent() {
 		Description: "Categorical SSR SVG for showing repeated observations, clusters, and outliers across an explicit ordered set of keys.",
 		Primary: componentpage.Example{
 			AbovePreview: componentContract("Purpose", "Compare distributions of observations across ordered categories without browser rendering.", "Primitive", "scatter.Scatter", "Kind", "components.KindScatterChart", "Configuration", "Label, Caption, ordered Categories, named Series with categorical Points, typed marker Symbol and Size options, Width, Height, root class and attributes, and chart palette.", "Accessibility", "Figure name comes from Label; Caption stays visible. Keep exact points in an adjacent table or text summary when values matter."),
-			Preview: scatter.Scatter(sampleDenseScatter()),
+			Preview: scatter.Scatter(sampleBasicScatter()),
 			Code: scatterCode(),
 		},
-		After: demoNote("Category contract", "Categories define equally spaced keys in caller order. Numeric-looking category labels remain categories, not proportional numeric X coordinates. Symbol and Size are presentation options on this same component."),
+		After: demoNote("Category contract", "This preview adapts the upstream examples/1-Painter/scatter_chart-1-basic/main.go dataset. Categories define equally spaced keys in caller order; the upstream null is represented by omitting that typed point. Symbol and Size remain presentation options on this component."),
 	})
 }
 
