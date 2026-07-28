@@ -1,5 +1,12 @@
 # Goshtoso integration snags
 
+## 2026-07-27: templ control flow must remain structurally separate
+
+The first `bar.templ` draft placed `@chart` and `if cfg.Caption != ""` on one
+line inside `<figure>`. `templ generate` rejected it with an unterminated `if`.
+Keep templ control flow on its own indented lines around nested components, then
+regenerate the checked-in `*_templ.go` artifact.
+
 ## 2026-07-27: templ runtime import
 
 `line.templ` initially declared `import "github.com/a-h/templ"`. `templ generate`

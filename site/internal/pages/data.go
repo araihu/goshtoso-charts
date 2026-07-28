@@ -3,8 +3,10 @@ package pages
 import (
 	"time"
 
+	"github.com/araihu/goshtoso-charts/components/bar"
 	"github.com/araihu/goshtoso-charts/components/heartbeat"
 	"github.com/araihu/goshtoso-charts/components/line"
+	"github.com/araihu/goshtoso-charts/components/pie"
 )
 
 var sampleStart = time.Date(2026, time.July, 27, 8, 0, 0, 0, time.UTC)
@@ -47,6 +49,31 @@ func sampleLatency() line.Config {
 	}
 }
 
+func sampleDeployments() bar.Config {
+	return bar.Config{
+		Label:   "Deployments by environment",
+		Caption: "Successful and failed deployments this week.",
+		Labels:  []string{"Development", "Staging", "Production"},
+		Series: []bar.Series{
+			{Name: "Successful", Values: []float64{18, 12, 9}},
+			{Name: "Failed", Values: []float64{1, 2, 1}},
+		},
+		Stacked: true,
+	}
+}
+
+func sampleObservationStates() pie.Config {
+	return pie.Config{
+		Label:   "Observation states",
+		Caption: "Most recent 100 retained monitor observations.",
+		Slices: []pie.Slice{
+			{Name: "Up", Value: 94},
+			{Name: "Degraded", Value: 4},
+			{Name: "Down", Value: 2},
+		},
+	}
+}
+
 func heartbeatCode() string {
 	return `@heartbeat.Heartbeat(heartbeat.Config{
   Label: "Public API availability",
@@ -65,5 +92,28 @@ func lineCode() string {
   Label: "HTTPS monitor latency in milliseconds",
   Labels: []string{"08:00", "08:01", "08:02"},
   Series: []line.Series{{Name: "Latency (ms)", Values: []float64{42, 47, 51}}},
+})`
+}
+
+func barCode() string {
+	return `@bar.Bar(bar.Config{
+  Label: "Deployments by environment",
+  Labels: []string{"Development", "Staging", "Production"},
+  Series: []bar.Series{
+    {Name: "Successful", Values: []float64{18, 12, 9}},
+    {Name: "Failed", Values: []float64{1, 2, 1}},
+  },
+  Stacked: true,
+})`
+}
+
+func pieCode() string {
+	return `@pie.Pie(pie.Config{
+  Label: "Observation states",
+  Slices: []pie.Slice{
+    {Name: "Up", Value: 94},
+    {Name: "Degraded", Value: 4},
+    {Name: "Down", Value: 2},
+  },
 })`
 }

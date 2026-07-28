@@ -21,9 +21,13 @@ const (
 	KindHeartbeat Kind = "heartbeat"
 	// KindLineChart identifies a quantitative time-series line chart.
 	KindLineChart Kind = "line-chart"
+	// KindBarChart identifies a quantitative categorical bar chart.
+	KindBarChart Kind = "bar-chart"
+	// KindPieChart identifies a categorical proportional breakdown chart.
+	KindPieChart Kind = "pie-chart"
 )
 
-var allKinds = []Kind{KindHeartbeat, KindLineChart}
+var allKinds = []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart}
 
 // AllKinds returns supported component kinds in stable order.
 func AllKinds() []Kind {

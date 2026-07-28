@@ -29,6 +29,12 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/line", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.LinePage(isFragment(request)))
 	})
+	mux.HandleFunc("GET /components/bar", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.BarPage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /components/pie", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.PiePage(isFragment(request)))
+	})
 	mux.HandleFunc("GET /examples/status-page", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.StatusPageExample(isFragment(request)))
 	})

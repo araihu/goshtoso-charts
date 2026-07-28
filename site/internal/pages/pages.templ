@@ -4,8 +4,10 @@ import (
 	"github.com/araihu/goshtoso/components/badge"
 	"github.com/araihu/goshtoso/components/panel"
 	"github.com/araihu/goshtoso-app-shells/componentpage"
+	"github.com/araihu/goshtoso-charts/components/bar"
 	"github.com/araihu/goshtoso-charts/components/heartbeat"
 	"github.com/araihu/goshtoso-charts/components/line"
+	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/site/internal/brand"
 )
 
@@ -28,6 +30,12 @@ templ overviewContent() {
 		}
 		@panel.Panel(panel.Config{Header: overviewLineHeader()}) {
 			@line.Line(sampleLatency())
+		}
+		@panel.Panel(panel.Config{Header: overviewBarHeader()}) {
+			@bar.Bar(sampleDeployments())
+		}
+		@panel.Panel(panel.Config{Header: overviewPieHeader()}) {
+			@pie.Pie(sampleObservationStates())
 		}
 	</div>
 	@demoNote("Component contract", "Each component has typed Config, concrete Instance, stable Kind, and templ.Component rendering. Consumers choose page composition; charts supply evidence surfaces.")
@@ -58,6 +66,40 @@ templ heartbeatContent() {
 
 templ LinePage(fragment bool) {
 	@layout("Line chart", "line", lineContent(), fragment)
+}
+
+templ BarPage(fragment bool) {
+	@layout("Bar chart", "bar", barContent(), fragment)
+}
+
+templ barContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Bar chart",
+		Description: "Categorical SSR SVG for counts, comparisons, and grouped operational outcomes. Set Stacked for composition within each category.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare named values across categories, including stacked operational outcomes.", "Primitive", "bar.Bar", "Kind", "components.KindBarChart", "Configuration", "Label, Caption, category Labels, named Series, Stacked, optional Width, and Height.", "Accessibility", "Figure name comes from Label; Caption stays visible. Keep an adjacent table or text summary when exact values are needed."),
+			Preview: bar.Bar(sampleDeployments()),
+			Code: barCode(),
+		},
+		After: demoNote("Use case", "Use bar charts for deployment outcomes, observation counts, or other categorical comparisons. Keep domain aggregation at the application view-model boundary."),
+	})
+}
+
+templ PiePage(fragment bool) {
+	@layout("Pie chart", "pie", pieContent(), fragment)
+}
+
+templ pieContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Pie chart",
+		Description: "Categorical SSR SVG for compact part-to-whole summaries. Use it when the category count stays small and a total supports comparison.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Summarize a small categorical status distribution as parts of a total.", "Primitive", "pie.Pie", "Kind", "components.KindPieChart", "Configuration", "Label, Caption, named Slices, optional Width, and Height.", "Accessibility", "Figure name comes from Label; Caption stays visible. Keep an adjacent table or text summary when exact values are needed."),
+			Preview: pie.Pie(sampleObservationStates()),
+			Code: pieCode(),
+		},
+		After: demoNote("Use case", "Use pie charts for bounded status breakdowns, not ordered time-series data. Aggregate domain data at the application view-model boundary."),
+	})
 }
 
 templ lineContent() {
@@ -109,6 +151,14 @@ templ overviewHeartbeatHeader() {
 
 templ overviewLineHeader() {
 	<div><h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Latency</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Line primitive</p></div>
+}
+
+templ overviewBarHeader() {
+	<div><h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Deployments</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Bar primitive</p></div>
+}
+
+templ overviewPieHeader() {
+	<div><h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Observation states</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Pie primitive</p></div>
 }
 
 templ demoNote(title string, text string) {

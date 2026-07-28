@@ -15,6 +15,9 @@
 
 ## Chart primitives
 
-- Add categorical and distribution primitives after their Xisnove projections
-  have a concrete consumer need; retain the generic typed-Config, Instance,
-  `Kind`, and SSR contract.
+- Added `bar` with grouped and stacked named series for categorical operations
+  data, plus `pie` for bounded part-to-whole status distributions. Both retain
+  typed config, concrete instance, stable kind, SSR SVG, semantic-token palette,
+  accessible figure label/caption, and focused validation/render tests.
+- Next: area and distribution/histogram, only when a concrete consumer need
+  exists; retain the same public and SSR contracts.

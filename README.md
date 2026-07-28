@@ -75,9 +75,44 @@ templ SignupTrend() {
 
 Line charts render their SVG geometry on the server but resolve their surface, outline, text, and series colors from Goshtoso semantic CSS tokens at display time. They therefore follow every built-in Goshtoso theme and `.dark` mode without a browser chart renderer or a fresh response.
 
+## Bar chart
+
+Use bar charts for categorical comparisons such as deployment outcomes, monitor-result counts, or status breakdowns. `Stacked` keeps multiple named series within each category; leave it false for side-by-side comparisons.
+
+```templ
+@bar.Bar(bar.Config{
+	Label: "Deployments by environment",
+	Labels: []string{"Development", "Staging", "Production"},
+	Series: []bar.Series{
+		{Name: "Successful", Values: []float64{18, 12, 9}},
+		{Name: "Failed", Values: []float64{1, 2, 1}},
+	},
+	Stacked: true,
+})
+```
+
+As with line charts, keep exact values in nearby text or a table when readers need them.
+
+## Pie chart
+
+Use pie charts for a small categorical distribution that is meaningful as parts of a total, such as retained monitor observation states. Avoid them for ordered time-series data or many categories.
+
+```templ
+@pie.Pie(pie.Config{
+	Label: "Observation states",
+	Slices: []pie.Slice{
+		{Name: "Up", Value: 94},
+		{Name: "Degraded", Value: 4},
+		{Name: "Down", Value: 2},
+	},
+})
+```
+
+Keep exact values in nearby text or a table when readers need them.
+
 ## Roadmap
 
-Foundation: `heartbeat` and `line`. Next generic primitives: bar/stacked bar, area, distribution/histogram, and categorical status breakdown. Add each only with a real monitor/status-page use case, stable kind, SSR output, no-data behavior, semantic-token palette, and focused tests.
+Foundation: `heartbeat`, `line`, `bar`/stacked bar, and `pie`. Next generic primitives: area and distribution/histogram. Add each only with a real monitor/status-page use case, stable kind, SSR output, no-data behavior, semantic-token palette, and focused tests.
 
 See [chart-library evaluation](docs/chart-library-evaluation.md), [surface brief](docs/surface-brief.md), and [Xisnove heartbeat brief](docs/xisnove-heartbeat.md).
 
