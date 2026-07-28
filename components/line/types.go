@@ -15,6 +15,28 @@ type Title struct {
 	Text string
 }
 
+// AreaOptions controls optional fill below every line series.
+// Opacity uses the renderer-neutral range 0..1. Zero selects the renderer's
+// default opacity when Enabled is true.
+type AreaOptions struct {
+	Enabled bool
+	Opacity float64
+}
+
+// CategoryAxisOptions controls the horizontal category axis.
+// A nil BoundaryGap preserves the Line component's legacy behavior.
+type CategoryAxisOptions struct {
+	BoundaryGap *bool
+}
+
+// LegendOptions controls legend layout.
+type LegendOptions struct {
+	Padding Padding
+}
+
+// Padding is spacing in pixels.
+type Padding struct{ Top, Right, Bottom, Left int }
+
 // Axis controls one numeric Y axis. Unit is a suggested positive tick step.
 // Min and Max optionally bound the axis and its assigned values. Color and
 // Class are mutually exclusive presentation overrides.
@@ -47,6 +69,9 @@ type Config struct {
 	Title   Title
 	Labels  []string
 	Series  []Series
+	Area    AreaOptions
+	XAxis   CategoryAxisOptions
+	Legend  LegendOptions
 	// YAxes optionally configures one or two numeric axes. Its zero value keeps
 	// the original single-axis Line rendering byte-for-byte.
 	YAxes  []Axis
@@ -74,6 +99,15 @@ func (cfg Config) validate() error {
 	}
 	if cfg.Height < 0 {
 		return fmt.Errorf("line chart height cannot be negative")
+	}
+	if !finite(cfg.Area.Opacity) || cfg.Area.Opacity < 0 || cfg.Area.Opacity > 1 {
+		return fmt.Errorf("line chart area opacity must be finite and between 0 and 1")
+	}
+	if !cfg.Area.Enabled && cfg.Area.Opacity != 0 {
+		return fmt.Errorf("line chart area opacity requires area fill to be enabled")
+	}
+	if err := validatePadding("legend", cfg.Legend.Padding); err != nil {
+		return err
 	}
 	if len(cfg.YAxes) > 2 {
 		return fmt.Errorf("line chart supports at most two Y axes")
@@ -174,6 +208,13 @@ func unsafeCSS(value string) bool {
 }
 
 func unsafeClass(value string) bool { return strings.ContainsAny(value, "\"'<>;") }
+
+func validatePadding(name string, padding Padding) error {
+	if padding.Top < 0 || padding.Right < 0 || padding.Bottom < 0 || padding.Left < 0 {
+		return fmt.Errorf("line chart %s padding cannot be negative", name)
+	}
+	return nil
+}
 
 func (cfg Config) width() int {
 	if cfg.Width > 0 {

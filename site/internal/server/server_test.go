@@ -72,6 +72,9 @@ func TestLinePageIncludesPinnedDualAxisTreatmentWithoutEngineBranding(t *testing
 	handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, "/components/line", nil))
 	body := page.Body.String()
 	for _, want := range []string{
+		"Filled area treatment", "Line", "Email", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun",
+		"120", "132", "101", "134", "90", "230", "210", "AreaOptions", "BoundaryGap", "Opacity",
+		`data-goshtoso-candidate="line-area-b2d7b87ff675f437"`,
 		"Dual Y-axis treatment", "Dual Axis Line", "Left Series", "Right Series",
 		"120", "132", "101", "134", "90", "230", "210",
 		"820", "932", "901", "934", "1290", "1330", "1320",
@@ -85,7 +88,7 @@ func TestLinePageIncludesPinnedDualAxisTreatmentWithoutEngineBranding(t *testing
 			t.Errorf("Line page missing %q", want)
 		}
 	}
-	for _, unwanted := range []string{"go-analyze", "line_chart-8-dual_y_axis/main.go", "infrastructure", "operations", "raw map"} {
+	for _, unwanted := range []string{"go-analyze", "line_chart-5-area/main.go", "line_chart-8-dual_y_axis/main.go", "infrastructure", "operations", "raw map"} {
 		if strings.Contains(body, unwanted) {
 			t.Errorf("Line page contains non-neutral content %q", unwanted)
 		}
@@ -94,6 +97,7 @@ func TestLinePageIncludesPinnedDualAxisTreatmentWithoutEngineBranding(t *testing
 	attributions := httptest.NewRecorder()
 	handler.ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
 	for _, want := range []string{
+		"examples/1-Painter/line_chart-5-area/main.go",
 		"examples/1-Painter/line_chart-8-dual_y_axis/main.go",
 		"1fe31b06b8a82e00df877ff4417a75858547c1c2",
 	} {

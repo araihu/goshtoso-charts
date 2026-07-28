@@ -777,11 +777,17 @@ templ lineContent() {
 		Title: "Line chart",
 		Description: "Quantitative SSR SVG for latency, queue depth, or any ordered numeric series. Renderer stays Go-native; surrounding panel stays application-owned.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Summarize one or more ordered numeric series without browser rendering.", "Primitive", "line.Line", "Kind", "components.KindLineChart", "Configuration", "Label, Caption, typed Title, axis Labels, named Series, optional one or two YAxes with finite ranges and units, Width, Height, chart palette, and shared controls/export.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent table maps every exact value to its named series and Y axis."),
+			AbovePreview: componentContract("Purpose", "Summarize one or more ordered numeric series without browser rendering.", "Primitive", "line.Line", "Kind", "components.KindLineChart", "Configuration", "Label, Caption, typed Title, axis Labels, named Series, optional filled Area, XAxis boundary gap, Legend padding, one or two YAxes with finite ranges and units, Width, Height, chart palette, and shared controls/export.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent table maps every exact value to its named series and Y axis."),
 			Preview: line.Line(sampleLatency()),
 			Code: lineCode(),
 		},
 		Sections: []componentpage.Example{
+			{
+				Title: "Filled area treatment",
+				Description: "Theme-aware fill adds magnitude emphasis while preserving the same ordered Line semantics and exact values.",
+				Preview: areaLineCandidate(),
+				Code: areaLineCode(),
+			},
 			{
 				Title: "Dual Y-axis treatment",
 				Description: "Two series retain independent theme-matched left and right scales while remaining one Line component.",
@@ -797,6 +803,12 @@ templ lineContent() {
 		},
 		After: demoNote("Theme contract", "Static line charts resolve Goshtoso semantic CSS tokens at display time. One SSR response follows every built-in theme and its dark mode; no browser chart renderer is involved."),
 	})
+}
+
+templ areaLineCandidate() {
+	<div data-goshtoso-candidate="line-area-b2d7b87ff675f437">
+		@line.Line(sampleAreaLine())
+	</div>
 }
 
 templ dualAxisLineCandidate() {

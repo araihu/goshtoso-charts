@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"io"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -76,9 +77,20 @@ func lineOptions(cfg Config) chart.LineChartOption {
 	}
 	options := chart.NewLineChartOptionWithData(values)
 	options.XAxis.Labels = cfg.Labels
+	options.XAxis.BoundaryGap = cfg.XAxis.BoundaryGap
 	options.Legend.SeriesNames = names
+	if cfg.Legend.Padding != (Padding{}) {
+		padding := cfg.Legend.Padding
+		options.Legend.Padding = chart.NewBox(padding.Left, padding.Top, padding.Right, padding.Bottom)
+	}
 	options.Theme = tokenPalette()
 	options.Title.Text = cfg.Title.Text
+	if cfg.Area.Enabled {
+		options.FillArea = chart.Ptr(true)
+		if cfg.Area.Opacity > 0 {
+			options.FillOpacity = uint8(math.Round(cfg.Area.Opacity * 255))
+		}
+	}
 	for index, series := range cfg.Series {
 		options.SeriesList[index].YAxisIndex = series.YAxisIndex
 		options.SeriesList[index].Name = series.Name
@@ -140,6 +152,15 @@ func tokenizedSVG(svg string, cfg Config) string {
 		"rgb(4,4,4)", "var(--color-chart-text)",
 	}
 	for index := 0; index < 8; index++ {
+		if cfg.Area.Enabled {
+			opacityByte := uint8(200)
+			if cfg.Area.Opacity > 0 {
+				opacityByte = uint8(math.Round(cfg.Area.Opacity * 255))
+			}
+			fillSentinel := fmt.Sprintf("rgba(%d,%d,%d,%.1f)", 5+index, 5+index, 5+index, float64(opacityByte)/255)
+			fillColor := fmt.Sprintf("color-mix(in srgb, %s %.6f%%, transparent)", html.EscapeString(seriesColor(cfg, index)), float64(opacityByte)/255*100)
+			replacements = append(replacements, fillSentinel, fillColor)
+		}
 		replacements = append(replacements, colorSentinel(5+index), html.EscapeString(seriesColor(cfg, index)))
 	}
 	for index := range cfg.YAxes {
@@ -178,11 +199,16 @@ var coloredSVGElement = regexp.MustCompile(`<(?:path|circle|rect|line|polyline|p
 func decorateSVG(svg string, cfg Config) string {
 	for index, series := range cfg.Series {
 		svg = addClassToColoredElements(svg, colorSentinel(5+index%8), series.Class)
+		svg = addClassToColoredElements(svg, rgbaSentinelPrefix(5+index%8), series.Class)
 	}
 	for index, axis := range cfg.YAxes {
 		svg = addClassToColoredElements(svg, colorSentinel(21+index), axis.Class)
 	}
 	return svg
+}
+
+func rgbaSentinelPrefix(value int) string {
+	return fmt.Sprintf("rgba(%d,%d,%d,", value, value, value)
 }
 
 func addClassToColoredElements(svg, color, class string) string {

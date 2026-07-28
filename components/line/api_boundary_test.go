@@ -11,7 +11,8 @@ import (
 func TestPublicAPIDoesNotExposeRendererTypes(t *testing.T) {
 	t.Parallel()
 	publicTypes := []reflect.Type{
-		reflect.TypeOf(line.Title{}), reflect.TypeOf(line.Axis{}), reflect.TypeOf(line.Series{}),
+		reflect.TypeOf(line.Title{}), reflect.TypeOf(line.AreaOptions{}), reflect.TypeOf(line.CategoryAxisOptions{}),
+		reflect.TypeOf(line.LegendOptions{}), reflect.TypeOf(line.Padding{}), reflect.TypeOf(line.Axis{}), reflect.TypeOf(line.Series{}),
 		reflect.TypeOf(line.Config{}), reflect.TypeOf(line.Instance{}), reflect.TypeOf(line.Line),
 	}
 	seen := make(map[reflect.Type]bool)

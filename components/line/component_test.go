@@ -30,6 +30,23 @@ func dualAxisConfig() Config {
 	}
 }
 
+func areaConfig() Config {
+	minimum := 0.0
+	noGap := false
+	return Config{
+		Label:  "Line",
+		Title:  Title{Text: "Line"},
+		Labels: []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"},
+		Series: []Series{{Name: "Email", Values: []float64{120, 132, 101, 134, 90, 230, 210}}},
+		Area:   AreaOptions{Enabled: true, Opacity: 150.0 / 255.0},
+		XAxis:  CategoryAxisOptions{BoundaryGap: &noGap},
+		Legend: LegendOptions{Padding: Padding{Top: 5, Bottom: 10}},
+		YAxes:  []Axis{{Min: &minimum}},
+		Width:  600,
+		Height: 400,
+	}
+}
+
 func TestLineDefaultSVGCompatibilityHash(t *testing.T) {
 	t.Parallel()
 	svg, err := renderSVG(Config{
@@ -44,6 +61,69 @@ func TestLineDefaultSVGCompatibilityHash(t *testing.T) {
 	const want = "da1c17f69cfc37e474c3d678f756d67782c2942e3901f8203c59c6e5d6e39063"
 	if got != want {
 		t.Fatalf("default SVG SHA-256 = %s, want %s", got, want)
+	}
+}
+
+func TestLineMechanicallyMapsFilledAreaTreatment(t *testing.T) {
+	t.Parallel()
+	cfg := areaConfig()
+	options := lineOptions(cfg)
+	if cfg.width() != 600 || cfg.height() != 400 || options.Title.Text != "Line" {
+		t.Fatalf("geometry/title = %dx%d %q", cfg.width(), cfg.height(), options.Title.Text)
+	}
+	if !reflect.DeepEqual(options.XAxis.Labels, []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}) ||
+		!reflect.DeepEqual(options.Legend.SeriesNames, []string{"Email"}) {
+		t.Fatalf("labels/names = %#v / %#v", options.XAxis.Labels, options.Legend.SeriesNames)
+	}
+	if len(options.SeriesList) != 1 || !reflect.DeepEqual(options.SeriesList[0].Values, []float64{120, 132, 101, 134, 90, 230, 210}) {
+		t.Fatalf("series = %#v", options.SeriesList)
+	}
+	if options.FillArea == nil || !*options.FillArea || options.FillOpacity != 150 ||
+		options.XAxis.BoundaryGap == nil || *options.XAxis.BoundaryGap ||
+		options.Legend.Padding.Top != 5 || options.Legend.Padding.Bottom != 10 ||
+		len(options.YAxis) != 1 || options.YAxis[0].Min == nil || *options.YAxis[0].Min != 0 {
+		t.Fatalf("area options = fill %v opacity %d gap %v legend %#v y %#v", options.FillArea, options.FillOpacity, options.XAxis.BoundaryGap, options.Legend.Padding, options.YAxis)
+	}
+}
+
+func TestLineFilledAreaSVGUsesThemeTokenAndCallerPresentation(t *testing.T) {
+	t.Parallel()
+	cfg := areaConfig()
+	cfg.Series[0].Color = "#14532d"
+	svg, err := renderSVG(cfg)
+	if err != nil {
+		t.Fatalf("renderSVG() error = %v", err)
+	}
+	for _, want := range []string{"#14532d", "color-mix(in srgb, #14532d 58.823529%", `viewBox="0 0 600 400"`} {
+		if !strings.Contains(svg, want) {
+			t.Errorf("filled SVG missing %q", want)
+		}
+	}
+	if strings.Contains(svg, "rgba(5,5,5") {
+		t.Fatal("area fill sentinel leaked")
+	}
+
+	cfg = areaConfig()
+	cfg.Series[0].Class = "caller-area-series"
+	svg, err = renderSVG(cfg)
+	if err != nil {
+		t.Fatalf("renderSVG() class error = %v", err)
+	}
+	if !strings.Contains(svg, `class="caller-area-series"`) {
+		t.Fatal("caller series class missing from filled area")
+	}
+}
+
+func TestLineFilledAreaSVGHash(t *testing.T) {
+	t.Parallel()
+	svg, err := renderSVG(areaConfig())
+	if err != nil {
+		t.Fatalf("renderSVG() error = %v", err)
+	}
+	got := fmt.Sprintf("%x", sha256.Sum256([]byte(svg)))
+	const want = "8e4fc86cac88beeb67105a99870ab3b48dcbb3b528e0b12bf71c6ed86243649b"
+	if got != want {
+		t.Fatalf("area SVG SHA-256 = %s, want %s", got, want)
 	}
 }
 
@@ -258,6 +338,11 @@ func TestLineValidation(t *testing.T) {
 		{name: "infinite", edit: func(c *Config) { c.Series[0].Values[0] = math.Inf(1) }, want: "value 0 must be finite"},
 		{name: "width", edit: func(c *Config) { c.Width = -1 }, want: "width cannot be negative"},
 		{name: "height", edit: func(c *Config) { c.Height = -1 }, want: "height cannot be negative"},
+		{name: "area opacity nan", edit: func(c *Config) { c.Area = AreaOptions{Enabled: true, Opacity: math.NaN()} }, want: "area opacity must be finite and between 0 and 1"},
+		{name: "area opacity negative", edit: func(c *Config) { c.Area = AreaOptions{Enabled: true, Opacity: -0.1} }, want: "area opacity must be finite and between 0 and 1"},
+		{name: "area opacity high", edit: func(c *Config) { c.Area = AreaOptions{Enabled: true, Opacity: 1.1} }, want: "area opacity must be finite and between 0 and 1"},
+		{name: "area opacity conflict", edit: func(c *Config) { c.Area = AreaOptions{Opacity: 0.5} }, want: "area opacity requires area fill"},
+		{name: "legend padding", edit: func(c *Config) { c.Legend.Padding.Top = -1 }, want: "legend padding cannot be negative"},
 		{name: "axis count", edit: func(c *Config) { c.YAxes = []Axis{{}, {}, {}} }, want: "at most two Y axes"},
 		{name: "axis index negative", edit: func(c *Config) { c.Series[0].YAxisIndex = -1 }, want: "Y axis index -1 is out of bounds"},
 		{name: "axis index high", edit: func(c *Config) { c.Series[1].YAxisIndex = 2 }, want: "Y axis index 2 is out of bounds"},

@@ -41,6 +41,27 @@ func TestDualAxisLineSampleMechanicallyMatchesPinnedUpstreamExample(t *testing.T
 	}
 }
 
+func TestAreaLineSampleMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if areaLineUpstreamPath != "examples/1-Painter/line_chart-5-area/main.go" ||
+		areaLineUpstreamRevision != "1fe31b06b8a82e00df877ff4417a75858547c1c2" ||
+		areaLineUpstreamSHA256 != "b2d7b87ff675f437dbc95f2d7a0447c2040e18c5b873256a5808987dfc6131d0" {
+		t.Fatalf("area upstream source = %s@%s SHA-256 %s", areaLineUpstreamPath, areaLineUpstreamRevision, areaLineUpstreamSHA256)
+	}
+	cfg := sampleAreaLine()
+	if cfg.Label != "Line" || cfg.Title.Text != "Line" || cfg.Width != 600 || cfg.Height != 400 {
+		t.Fatalf("area title/geometry = %q %#v %dx%d", cfg.Label, cfg.Title, cfg.Width, cfg.Height)
+	}
+	if !reflect.DeepEqual(cfg.Labels, []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}) || len(cfg.Series) != 1 ||
+		cfg.Series[0].Name != "Email" || !reflect.DeepEqual(cfg.Series[0].Values, []float64{120, 132, 101, 134, 90, 230, 210}) {
+		t.Fatalf("area labels/series = %#v / %#v", cfg.Labels, cfg.Series)
+	}
+	if !cfg.Area.Enabled || cfg.Area.Opacity != 150.0/255.0 || cfg.XAxis.BoundaryGap == nil || *cfg.XAxis.BoundaryGap ||
+		cfg.Legend.Padding.Top != 5 || cfg.Legend.Padding.Bottom != 10 || len(cfg.YAxes) != 1 || cfg.YAxes[0].Min == nil || *cfg.YAxes[0].Min != 0 {
+		t.Fatalf("area options = %#v %#v %#v %#v", cfg.Area, cfg.XAxis, cfg.Legend, cfg.YAxes)
+	}
+}
+
 func TestInteractiveComponentPagesRemainRendererNeutral(t *testing.T) {
 	t.Parallel()
 	for _, path := range []string{"pages.templ", "interactive_components.go"} {

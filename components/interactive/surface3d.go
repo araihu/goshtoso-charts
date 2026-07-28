@@ -266,7 +266,15 @@ func validateSurface3DConfig(cfg Surface3DConfig) error {
 		}
 	}
 	if cfg.Axes != nil {
-		for name, axis := range map[string]Surface3DAxis{"x": cfg.Axes.X, "y": cfg.Axes.Y, "z": cfg.Axes.Z} {
+		for _, namedAxis := range []struct {
+			name string
+			axis Surface3DAxis
+		}{
+			{name: "x", axis: cfg.Axes.X},
+			{name: "y", axis: cfg.Axes.Y},
+			{name: "z", axis: cfg.Axes.Z},
+		} {
+			name, axis := namedAxis.name, namedAxis.axis
 			if strings.TrimSpace(axis.Name) == "" {
 				return fmt.Errorf("surface 3D chart %s axis name is required", name)
 			}

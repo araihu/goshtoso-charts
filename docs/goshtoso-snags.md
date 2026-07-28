@@ -281,3 +281,23 @@ count, and computed X/Y/Z domains visible, then provides an adjacent,
 user-triggered deterministic CSV download containing every point in plot order.
 The browser gate verifies CSV counts and endpoints alongside independent Go and
 browser serialization hashes.
+
+## 2026-07-28: fixed Heatmap reserves must account for responsive hosts
+
+The visual-scale overlap fix initially used grid left `64`, right `5%`, and
+visual-scale left `12`. After integration with shared responsive sizing, the
+390px documentation viewport produced a 292px chart host and only a
+134.694921875px plot. Scale and Y labels stayed separated, but the categorical
+plot became too narrow. Grid left `52`, right `0`, and visual-scale left `8`
+preserve at least 12px measured scale-to-label separation while retaining at
+least 160px of plot width across the 390px matrix. The same-instance modal,
+caller colors, exact data and domain, and PNG dimensions remain unchanged.
+
+## 2026-07-28: map iteration cannot define Surface3D validation order
+
+Surface3D validated X, Y, and Z axes by ranging over a Go map. An entirely
+empty typed axis set could therefore report the Z-axis error before the
+contract's expected X-axis error, making the root test gate nondeterministic.
+Validation now visits X, Y, then Z through an ordered slice. Rendering and the
+renderer-neutral public API are unchanged; the focused invalid-config test
+passes repeatedly.

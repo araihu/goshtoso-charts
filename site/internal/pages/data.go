@@ -32,6 +32,9 @@ const (
 	dualAxisLineUpstreamPath      = "examples/1-Painter/line_chart-8-dual_y_axis/main.go"
 	dualAxisLineUpstreamRevision  = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
 	dualAxisLineUpstreamSHA256    = "78a3edd9aa356dc798c367b40cc5abecdb765b634795c38767f34bf266b805af"
+	areaLineUpstreamPath          = "examples/1-Painter/line_chart-5-area/main.go"
+	areaLineUpstreamRevision      = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
+	areaLineUpstreamSHA256        = "b2d7b87ff675f437dbc95f2d7a0447c2040e18c5b873256a5808987dfc6131d0"
 )
 
 type deterministicLCG struct{ state uint64 }
@@ -106,6 +109,26 @@ func sampleDualAxisLine() line.Config {
 		Height:   400,
 		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "dual-axis-line"},
+	}
+}
+
+func sampleAreaLine() line.Config {
+	minimum := 0.0
+	noGap := false
+	return line.Config{
+		Label:    "Line",
+		Caption:  "A filled area emphasizes magnitude across the seven ordered labels.",
+		Title:    line.Title{Text: "Line"},
+		Labels:   []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"},
+		Series:   []line.Series{{Name: "Email", Values: []float64{120, 132, 101, 134, 90, 230, 210}}},
+		Area:     line.AreaOptions{Enabled: true, Opacity: 150.0 / 255.0},
+		XAxis:    line.CategoryAxisOptions{BoundaryGap: &noGap},
+		Legend:   line.LegendOptions{Padding: line.Padding{Top: 5, Bottom: 10}},
+		YAxes:    []line.Axis{{Min: &minimum}},
+		Width:    600,
+		Height:   400,
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "filled-area-line"},
 	}
 }
 
@@ -520,6 +543,24 @@ func dualAxisLineCode() string {
     {Name: "Right Series", Values: []float64{820, 932, 901, 934, 1290, 1330, 1320}, YAxisIndex: 1},
   },
   YAxes: []line.Axis{{}, {}},
+  Width: 600,
+  Height: 400,
+})`
+}
+
+func areaLineCode() string {
+	return `minimum := 0.0
+noGap := false
+
+@line.Line(line.Config{
+  Label: "Line",
+  Title: line.Title{Text: "Line"},
+  Labels: []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"},
+  Series: []line.Series{{Name: "Email", Values: []float64{120, 132, 101, 134, 90, 230, 210}}},
+  Area: line.AreaOptions{Enabled: true, Opacity: 150.0 / 255.0},
+  XAxis: line.CategoryAxisOptions{BoundaryGap: &noGap},
+  Legend: line.LegendOptions{Padding: line.Padding{Top: 5, Bottom: 10}},
+  YAxes: []line.Axis{{Min: &minimum}},
   Width: 600,
   Height: 400,
 })`

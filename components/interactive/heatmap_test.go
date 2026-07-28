@@ -38,7 +38,10 @@ func TestHeatMapRendersCartesianChart(t *testing.T) {
 		`"data":["08:00","09:00"]`, `"data":["Mon","Tue"]`,
 		`"name":"Requests"`, `"value":[0,0,5]`, `"value":[1,1,18]`,
 		`"max":20`, `"color":["#123456","#ff8a3d"`,
+		`"left":"52","right":"0","bottom":"56","containLabel":true`,
+		`"left":"8","bottom":"24"`,
 		`"show":true`, `"animation":false`, `"text":"Traffic density"`,
+		`data-goshtoso-charts-explicit-visual-map-colors="true"`,
 		"goshtoso-charts-palette-araihu min-h-80",
 	} {
 		if !strings.Contains(markup, want) {
@@ -70,10 +73,14 @@ func TestHeatMapRendersCalendarChart(t *testing.T) {
 		`"calendar"`, `"range":["2026-07-01","2026-07-31"]`, `"cellSize":"20"`,
 		`"coordinateSystem":"calendar"`, `"value":["2026-07-01",3]`,
 		`"value":["2026-07-31",8]`, `"color":["#93c5fd","#fca5a5"`,
+		`"left":"8","bottom":"24"`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
 		}
+	}
+	if strings.Contains(markup, `"containLabel":true`) {
+		t.Error("calendar heatmap unexpectedly rendered Cartesian grid layout")
 	}
 }
 
