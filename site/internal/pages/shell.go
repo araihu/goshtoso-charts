@@ -5,6 +5,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/araihu/goshtoso-app-shells/componentdocshell"
+	"github.com/araihu/goshtoso-charts/components/dependencies"
 	"github.com/araihu/goshtoso-charts/site/internal/brand"
 	"github.com/araihu/goshtoso/components/sidebar"
 )
@@ -20,7 +21,7 @@ func shellPage(title string, active string, content templ.Component) componentdo
 		Description:   "Static vector and interactive chart components for Goshtoso applications.",
 		Active:        active,
 		Content:       content,
-		Head:          brand.Head(),
+		Head:          templ.Join(brand.Head(), dependencies.Dependencies()),
 		EnableTOC:     active == "heartbeat" || active == "line" || active == "bar" || active == "pie" || active == "interactive-bar" || active == "interactive-line",
 	}
 }

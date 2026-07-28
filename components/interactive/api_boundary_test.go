@@ -3,7 +3,9 @@ package interactive_test
 import (
 	"encoding/json"
 	"fmt"
+	"go/ast"
 	"go/importer"
+	"go/parser"
 	"go/token"
 	"go/types"
 	"io"
@@ -15,6 +17,32 @@ import (
 )
 
 const forbiddenAPIPackagePrefix = "github.com/go-echarts/"
+
+func TestPublicAPIIdentifiersAreRendererNeutral(t *testing.T) {
+	t.Parallel()
+
+	packages, err := parser.ParseDir(token.NewFileSet(), ".", func(info os.FileInfo) bool {
+		return !strings.HasSuffix(info.Name(), "_test.go")
+	}, 0)
+	if err != nil {
+		t.Fatalf("parse package: %v", err)
+	}
+	var leaks []string
+	for _, parsed := range packages {
+		for _, file := range parsed.Files {
+			ast.Inspect(file, func(node ast.Node) bool {
+				identifier, ok := node.(*ast.Ident)
+				if ok && token.IsExported(identifier.Name) && strings.Contains(strings.ToLower(identifier.Name), "echarts") {
+					leaks = append(leaks, identifier.Name)
+				}
+				return true
+			})
+		}
+	}
+	if len(leaks) != 0 {
+		t.Fatalf("public API names expose renderer implementation: %s", strings.Join(leaks, ", "))
+	}
+}
 
 func TestPublicAPIDoesNotExposeGoEChartsTypes(t *testing.T) {
 	t.Parallel()

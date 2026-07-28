@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	chartassets "github.com/araihu/goshtoso-charts/assets"
 )
 
 func TestDemoRoutesRender(t *testing.T) {
@@ -51,7 +53,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 	if attributions.Code != http.StatusOK {
 		t.Fatalf("GET /attributions status = %d, want %d", attributions.Code, http.StatusOK)
 	}
-	for _, want := range []string{"Goshtoso App Shells", "templ", "go-analyze/charts", "go-echarts", "Apache ECharts", "MIT license", "Apache-2.0 license", "site/internal/echartsassets/NOTICE.md"} {
+	for _, want := range []string{"Goshtoso App Shells", "templ", "go-analyze/charts", "go-echarts", "Apache ECharts", ">5.4.3<", "MIT license", "Apache-2.0 license", ">assets/NOTICE.md<"} {
 		if !strings.Contains(attributions.Body.String(), want) {
 			t.Errorf("attributions page missing %q", want)
 		}
@@ -144,14 +146,25 @@ func TestAssetsAreMountedWithoutStripPrefix(t *testing.T) {
 
 func TestInteractiveRendererRuntimeIsLocal(t *testing.T) {
 	t.Parallel()
+	handler := New()
+
+	page := httptest.NewRecorder()
+	handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, "/components/interactive/bar", nil))
+	if !strings.Contains(page.Body.String(), `src="`+chartassets.RuntimeURL+`"`) {
+		t.Fatalf("interactive page missing public local dependency tag %q", chartassets.RuntimeURL)
+	}
+	if strings.Contains(page.Body.String(), "cdn.jsdelivr.net") {
+		t.Fatal("demo opted into CDN runtime")
+	}
+
 	recorder := httptest.NewRecorder()
-	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/charts/echarts/echarts@4.min.js", nil))
-	if recorder.Code != http.StatusOK || recorder.Body.Len() == 0 {
-		t.Fatalf("GET base runtime status/body = %d/%d", recorder.Code, recorder.Body.Len())
+	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, chartassets.RuntimeURL, nil))
+	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), `version="5.4.3"`) {
+		t.Fatalf("GET modern runtime status/version = %d/%t", recorder.Code, strings.Contains(recorder.Body.String(), `version="5.4.3"`))
 	}
 
 	removed := httptest.NewRecorder()
-	New().ServeHTTP(removed, httptest.NewRequest(http.MethodGet, "/charts/echarts/echarts-gl.min.js", nil))
+	handler.ServeHTTP(removed, httptest.NewRequest(http.MethodGet, "/charts/echarts/echarts@4.min.js", nil))
 	if removed.Code != http.StatusNotFound {
 		t.Fatalf("GET removed catalog extension status = %d, want %d", removed.Code, http.StatusNotFound)
 	}

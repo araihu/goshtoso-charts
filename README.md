@@ -157,6 +157,30 @@ Keep exact values in nearby text or a table when readers need them.
 Interactive components expose only typed Goshtoso Charts configs. Renderer
 types and callbacks are implementation details and cannot cross the public API.
 
+Interactive charts require one browser runtime tag. Local, vendored delivery is
+the default:
+
+```go
+import chartassets "github.com/araihu/goshtoso-charts/assets"
+
+mux.Handle("GET "+chartassets.Prefix, chartassets.Handler())
+```
+
+```templ
+import "github.com/araihu/goshtoso-charts/components/dependencies"
+
+templ Layout() {
+	<head>
+		@dependencies.Dependencies()
+	</head>
+}
+```
+
+Mount `assets.Handler()` directly; it already removes `/charts/assets/`.
+Applications choosing third-party delivery must opt in explicitly with
+`dependencies.WithCDN()`. See [interactive chart dependencies](docs/dependencies.md)
+for custom paths, SRI, CSP, and load-order details.
+
 ```templ
 @interactive.Bar(interactive.BarConfig{
 	Label: "Weekly deployments",
@@ -188,7 +212,7 @@ git diff --exit-code
 
 ## Demo site
 
-`site/` is a separate consumer module, shaped after the Goshtoso component demo catalog. It mounts Goshtoso assets at `/assets/` and uses `head.Dependencies()`.
+`site/` is a separate consumer module, shaped after the Goshtoso component demo catalog. It mounts Goshtoso assets at `/assets/`, Goshtoso Charts assets at `/charts/assets/`, and uses both dependency components.
 
 ```bash
 cd site

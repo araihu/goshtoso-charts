@@ -43,11 +43,14 @@ const (
 	KindInteractiveGauge Kind = "interactive-gauge"
 	// KindInteractiveFunnel identifies a browser-rendered funnel chart.
 	KindInteractiveFunnel Kind = "interactive-funnel"
+	// KindDependencies identifies the browser runtime dependency set.
+	KindDependencies Kind = "dependencies"
 )
 
 var allKinds = []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel}
 
-// AllKinds returns supported component kinds in stable order.
+// AllKinds returns supported chart kinds in stable order. Document-level
+// dependency components are intentionally excluded.
 func AllKinds() []Kind {
 	return slices.Clone(allKinds)
 }

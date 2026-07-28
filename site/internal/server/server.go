@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	shellassets "github.com/araihu/goshtoso-app-shells/componentdocshell/assets"
+	chartassets "github.com/araihu/goshtoso-charts/assets"
 	"github.com/araihu/goshtoso-charts/site/internal/brand"
-	"github.com/araihu/goshtoso-charts/site/internal/echartsassets"
 	"github.com/araihu/goshtoso-charts/site/internal/pages"
 	"github.com/araihu/goshtoso-charts/site/internal/searchassets"
 	"github.com/araihu/goshtoso/assets"
@@ -16,8 +16,8 @@ import (
 func New() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("GET /assets/", assets.Handler())
+	mux.Handle("GET "+chartassets.Prefix, chartassets.Handler())
 	mux.Handle("GET /brand/", http.StripPrefix("/brand/", brand.Handler()))
-	mux.Handle("GET /charts/echarts/", http.StripPrefix("/charts/echarts/", echartsassets.Handler()))
 	mux.Handle("GET /componentdocshell/assets/", shellassets.Handler())
 	mux.Handle("GET /search/assets/", http.StripPrefix("/search/assets/", searchassets.Handler()))
 	mux.HandleFunc("GET /", func(writer http.ResponseWriter, request *http.Request) {

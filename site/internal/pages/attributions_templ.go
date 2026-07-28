@@ -82,11 +82,11 @@ func attributionsContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = attributionCard("Apache ECharts", "Pinned local browser runtime used to render interactive charts; no runtime is loaded from a third-party origin.", "ECharts 4 runtime", "Apache-2.0", "https://echarts.apache.org/", "https://github.com/apache/echarts/blob/4.9.0/LICENSE.txt").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = attributionCard("Apache ECharts", "Pinned local browser runtime used to render interactive charts; this site does not opt into CDN delivery.", "5.4.3", "Apache-2.0", "https://echarts.apache.org/", "https://github.com/apache/echarts/blob/5.4.3/LICENSE").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</section><section class=\"max-w-3xl rounded-radius border border-outline bg-surface-alt p-4 text-sm text-on-surface-muted dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark-muted\"><h2 class=\"font-title text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Local runtime notice</h2><p class=\"mt-2\">The private interactive runtime is pinned in this repository. Its checksum and redistribution notes live in <code>site/internal/echartsassets/NOTICE.md</code>.</p></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</section><section class=\"max-w-3xl rounded-radius border border-outline bg-surface-alt p-4 text-sm text-on-surface-muted dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark-muted\"><h2 class=\"font-title text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Local runtime notice</h2><p class=\"mt-2\">The private interactive runtime is pinned in this repository. Its checksum and redistribution notes live in <code>assets/NOTICE.md</code>.</p></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
