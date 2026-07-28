@@ -28,3 +28,11 @@ The first extraction treated a component documentation shell as a generic
 catalog shell. Those are different navigation and content patterns. The public
 API was renamed to `componentdocshell` before release, repeated component-page
 composition moved to `componentpage`, and `catalogshell` remains unclaimed.
+
+## 2026-07-28: component preview overlay revision
+
+The Charts site had pinned `goshtoso-app-shells` before the merged rounded
+preview overlay fix. Production review requires the shell-owned preview
+outline, rather than an application-local border workaround, so consumer sites
+must update to the revision containing `3ca565d` and verify the transparent
+layout border plus `::after` outline in light and dark themes.
