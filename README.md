@@ -185,6 +185,24 @@ rendering instead of creating dead controls. Expand, collapse, and fullscreen
 preserve chart DOM, interaction state, and live SSE instances.
 See the [capability matrix, layout contract, and pending integration checks](docs/chart-controls.md).
 
+## Candlestick
+
+`candlestick.Candlestick` renders typed OHLC data as accessible SSR SVG. Each
+datum must satisfy `Low <= Open/Close <= High`; an adjacent table exposes exact
+values and increase/decrease text without relying on color.
+
+```templ
+@candlestick.Candlestick(candlestick.Config{
+	Label:      "Seven-day stock price",
+	Title:      "Candlestick Chart",
+	SeriesName: "Stock Price",
+	Data: []candlestick.Datum{
+		{Label: "Day 1", Open: 100, High: 110, Low: 95, Close: 105},
+		{Label: "Day 2", Open: 105, High: 115, Low: 100, Close: 112},
+	},
+})
+```
+
 ## Interactive components
 
 Interactive components expose only typed Goshtoso Charts configs. Renderer

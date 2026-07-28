@@ -5,6 +5,7 @@ import (
 	"math/rand"
 
 	"github.com/araihu/goshtoso-charts/components/bar"
+	"github.com/araihu/goshtoso-charts/components/candlestick"
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	"github.com/araihu/goshtoso-charts/components/line"
@@ -105,6 +106,26 @@ func sampleBasicRadar() radar.Config {
 		},
 		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "basic-radar-chart"},
+	}
+}
+
+func sampleBasicCandlestick() candlestick.Config {
+	return candlestick.Config{
+		Label:      "Seven-day stock price",
+		Caption:    "Daily open, high, low, and close values; Day 4 decreases while the other days increase.",
+		Title:      "Candlestick Chart",
+		SeriesName: "Stock Price",
+		Data: []candlestick.Datum{
+			{Label: "Day 1", Open: 100, High: 110, Low: 95, Close: 105},
+			{Label: "Day 2", Open: 105, High: 115, Low: 100, Close: 112},
+			{Label: "Day 3", Open: 112, High: 118, Low: 108, Close: 115},
+			{Label: "Day 4", Open: 115, High: 120, Low: 104, Close: 108},
+			{Label: "Day 5", Open: 108, High: 113, Low: 105, Close: 109},
+			{Label: "Day 6", Open: 109, High: 116, Low: 106, Close: 114},
+			{Label: "Day 7", Open: 114, High: 121, Low: 111, Close: 119},
+		},
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "basic-candlestick-chart"},
 	}
 }
 
@@ -252,4 +273,21 @@ cfg.Style = charttheme.Style{
   Class: "my-radar",
 }
 @radar.Radar(cfg)`
+}
+
+func candlestickCode() string {
+	return `@candlestick.Candlestick(candlestick.Config{
+  Label: "Seven-day stock price",
+  Title: "Candlestick Chart",
+  SeriesName: "Stock Price",
+  Data: []candlestick.Datum{
+    {Label: "Day 1", Open: 100, High: 110, Low: 95, Close: 105},
+    {Label: "Day 2", Open: 105, High: 115, Low: 100, Close: 112},
+    {Label: "Day 3", Open: 112, High: 118, Low: 108, Close: 115},
+    {Label: "Day 4", Open: 115, High: 120, Low: 104, Close: 108},
+    {Label: "Day 5", Open: 108, High: 113, Low: 105, Close: 109},
+    {Label: "Day 6", Open: 109, High: 116, Low: 106, Close: 114},
+    {Label: "Day 7", Open: 114, High: 121, Low: 111, Close: 119},
+  },
+})`
 }

@@ -634,6 +634,131 @@ test("Sunburst drill-down and back survive modal, theme, resize, and fullscreen 
   }
 });
 
+test("Treemap focus and native breadcrumb back survive collapse, modal, theme, resize, and fullscreen on one instance", async () => {
+  const page = await pageAt("/components/interactive/treemap");
+  try {
+    const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    const host = wrapper.locator("[_echarts_instance_]");
+    await host.scrollIntoViewIfNeeded();
+    await wrapper.evaluate((element) => {
+      const chartHost = element.querySelector("[_echarts_instance_]");
+      element.__treemapInstance = window.echarts.getInstanceByDom(chartHost);
+    });
+    await host.click({ position: { x: 100, y: 188 } });
+    await page.waitForFunction(() => {
+      const chartHost = document.querySelector("[_echarts_instance_]");
+      return window.echarts.getInstanceByDom(chartHost).getModel().getSeriesByIndex(0).getViewRoot().name === "d1";
+    });
+    const measure = () => wrapper.evaluate((element) => {
+      const chartHost = element.querySelector("[_echarts_instance_]");
+      const instance = window.echarts.getInstanceByDom(chartHost);
+      return {
+        sameInstance: instance === element.__treemapInstance,
+        viewRoot: instance.getModel().getSeriesByIndex(0).getViewRoot().name,
+        hostWidth: chartHost.clientWidth,
+        chartWidth: instance.getWidth(),
+        canvasWidth: Math.round(chartHost.querySelector("canvas").getBoundingClientRect().width),
+      };
+    });
+
+	const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
+	await collapse.click();
+	await collapse.click();
+	await page.waitForTimeout(350);
+	let state = await measure();
+	assert.equal(state.sameInstance, true);
+	assert.equal(state.viewRoot, "d1");
+	assert.deepEqual({ chart: state.chartWidth, canvas: state.canvasWidth }, { chart: state.hostWidth, canvas: state.hostWidth });
+
+    await wrapper.locator("[data-goshtoso-chart-expand] > div > button").first().click();
+    const dialog = wrapper.getByRole("dialog", { name: "Basic treemap example" });
+    await dialog.waitFor({ state: "visible" });
+    await page.evaluate(() => document.documentElement.classList.add("dark"));
+    await page.waitForTimeout(450);
+	state = await measure();
+    assert.equal(state.sameInstance, true);
+    assert.equal(state.viewRoot, "d1");
+    assert.deepEqual({ chart: state.chartWidth, canvas: state.canvasWidth }, { chart: state.hostWidth, canvas: state.hostWidth });
+    await page.keyboard.press("Escape");
+    await dialog.waitFor({ state: "hidden" });
+
+    await wrapper.evaluate((element) => { element.style.width = "607px"; });
+    await page.waitForFunction(() => {
+      const chartHost = document.querySelector("[_echarts_instance_]");
+      const instance = window.echarts.getInstanceByDom(chartHost);
+      return chartHost.clientWidth === 607 && instance.getWidth() === 607 &&
+        Math.round(chartHost.querySelector("canvas").getBoundingClientRect().width) === 607;
+    });
+    state = await measure();
+    assert.deepEqual(state, { sameInstance: true, viewRoot: "d1", hostWidth: 607, chartWidth: 607, canvasWidth: 607 });
+
+    await wrapper.getByRole("button", { name: /^Enter fullscreen / }).click();
+    await page.waitForFunction(() => document.fullscreenElement !== null);
+    await page.waitForTimeout(350);
+    state = await measure();
+    assert.equal(state.sameInstance, true);
+    assert.equal(state.viewRoot, "d1");
+    assert.deepEqual({ chart: state.chartWidth, canvas: state.canvasWidth }, { chart: state.hostWidth, canvas: state.hostWidth });
+    await page.evaluate(() => document.exitFullscreen());
+    await page.waitForFunction(() => document.fullscreenElement === null);
+    await page.waitForTimeout(350);
+
+    const back = await wrapper.evaluate((element) => {
+      const instance = window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]"));
+      const rootBreadcrumb = instance.getZr().storage.getDisplayList().find((item) => item.z2 === 100000 && item.cursor === "pointer");
+      if (!rootBreadcrumb || typeof rootBreadcrumb.onclick !== "function") throw new Error("native root breadcrumb not found");
+      rootBreadcrumb.onclick();
+      return { sameInstance: instance === element.__treemapInstance, nativePointer: rootBreadcrumb.cursor };
+    });
+    assert.deepEqual(back, { sameInstance: true, nativePointer: "pointer" });
+    await page.waitForFunction(() => {
+      const chartHost = document.querySelector("[_echarts_instance_]");
+      return window.echarts.getInstanceByDom(chartHost).getModel().getSeriesByIndex(0).getViewRoot().name === "Basic treemap example";
+    });
+
+    const expected = await measure();
+    assert.equal(await page.getByRole("button", { name: /Basic treemap example as SVG/ }).count(), 0);
+    const png = await download(page, "Download Basic treemap example as PNG");
+    assert.equal(png.filename, "basic-treemap-example.png");
+    assert.equal(png.types.at(-1), "image/png");
+    assert.deepEqual([...png.bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    const metadata = await sharp(png.bytes).metadata();
+    assert.deepEqual({ width: metadata.width, height: metadata.height }, { width: expected.chartWidth, height: 500 });
+    const pixels = await sharp(png.bytes).ensureAlpha().raw().toBuffer();
+    for (let index = 3; index < pixels.length; index += 4) assert.equal(pixels[index], 255);
+  } finally {
+    await page.close();
+  }
+});
+
+test("Candlestick shared controls export exact 600x400 opaque SVG and PNG artifacts", async () => {
+  const page = await pageAt("/components/candlestick");
+  try {
+    const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    assert.deepEqual(await wrapper.locator("tbody tr").count(), 7);
+	assert.deepEqual(await wrapper.locator("tbody").getByText("Decrease", { exact: false }).count(), 1);
+    const svg = await download(page, "Download Seven-day stock price as SVG");
+    assert.equal(svg.filename, "basic-candlestick-chart.svg");
+    assert.equal(svg.types.at(-1), "image/svg+xml;charset=utf-8");
+    const markup = svg.bytes.toString("utf8");
+    assert.match(markup, /^<svg\b/);
+    assert.match(markup, /width="600"/);
+    assert.match(markup, /height="400"/);
+    assert.doesNotMatch(markup, /var\(/);
+
+    const png = await download(page, "Download Seven-day stock price as PNG");
+    assert.equal(png.filename, "basic-candlestick-chart.png");
+    assert.equal(png.types.at(-1), "image/png");
+    assert.deepEqual([...png.bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+    const metadata = await sharp(png.bytes).metadata();
+    assert.deepEqual({ width: metadata.width, height: metadata.height }, { width: 600, height: 400 });
+    const pixels = await sharp(png.bytes).ensureAlpha().raw().toBuffer();
+    for (let index = 3; index < pixels.length; index += 4) assert.equal(pixels[index], 255);
+  } finally {
+    await page.close();
+  }
+});
+
 for (const mode of ["light", "dark"]) {
   test(`static SVG and PNG exports contain resolved ${mode} artifacts`, async () => {
     const page = await pageAt("/components/line");
@@ -916,6 +1041,83 @@ for (const width of [390, 1440]) {
           assert.deepEqual(errors, []);
         } finally {
           await page.close();
+        }
+      });
+    }
+  }
+}
+
+for (const width of [390, 1440]) {
+  for (const theme of ["goshtoso", "araihu"]) {
+    for (const mode of ["light", "dark"]) {
+      test(`${width}px ${theme} ${mode} keeps Candlestick and Treemap contained and theme-legible`, async () => {
+        for (const route of ["/components/candlestick", "/components/interactive/treemap"]) {
+          const page = await pageAt(route, { width, height: 900 });
+          const errors = [];
+          page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+          page.on("pageerror", (error) => errors.push(error.message));
+          try {
+            await page.evaluate(({ selected, dark }) => {
+              document.documentElement.dataset.theme = selected;
+              document.documentElement.classList.toggle("dark", dark);
+            }, { selected: theme, dark: mode === "dark" });
+            await page.waitForTimeout(350);
+            assert.deepEqual(await page.evaluate(() => ({
+              client: document.documentElement.clientWidth,
+              scroll: document.documentElement.scrollWidth,
+            })), { client: width, scroll: width });
+
+            if (route.includes("candlestick")) {
+              const result = await page.evaluate(() => {
+				const colorCanvas = document.createElement("canvas");
+				colorCanvas.width = 1;
+				colorCanvas.height = 1;
+				const colorContext = colorCanvas.getContext("2d", { willReadFrequently: true });
+				const rgb = (value) => {
+				  colorContext.clearRect(0, 0, 1, 1);
+				  colorContext.fillStyle = value;
+				  colorContext.fillRect(0, 0, 1, 1);
+				  return [...colorContext.getImageData(0, 0, 1, 1).data.slice(0, 3)];
+				};
+                const luminance = (color) => rgb(color).map((channel) => {
+                  const value = channel / 255;
+                  return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+                }).reduce((sum, value, index) => sum + value * [0.2126, 0.7152, 0.0722][index], 0);
+                const contrast = (foreground, background) => {
+                  const values = [luminance(foreground), luminance(background)].sort((a, b) => b - a);
+                  return (values[0] + 0.05) / (values[1] + 0.05);
+                };
+                const surface = getComputedStyle(document.body).backgroundColor;
+                const increasing = getComputedStyle(document.querySelector(".goshtoso-charts-candlestick__direction--increasing")).color;
+                const decreasing = getComputedStyle(document.querySelector(".goshtoso-charts-candlestick__direction--decreasing")).color;
+                const viewport = document.querySelector(".goshtoso-charts-candlestick__viewport");
+                return {
+                  increasingContrast: contrast(increasing, surface),
+                  decreasingContrast: contrast(decreasing, surface),
+                  localOverflow: getComputedStyle(viewport).overflowX,
+                  locallyContained: viewport.scrollWidth >= viewport.clientWidth,
+                };
+              });
+              assert.ok(result.increasingContrast >= 3, `increasing contrast ${result.increasingContrast}`);
+              assert.ok(result.decreasingContrast >= 3, `decreasing contrast ${result.decreasingContrast}`);
+              assert.equal(result.localOverflow, "auto");
+              assert.equal(result.locallyContained, true);
+            } else {
+			  const geometry = await page.locator("[data-goshtoso-chart-wrapper]").first().evaluate((element) => {
+                const host = element.querySelector("[_echarts_instance_]");
+                const instance = window.echarts.getInstanceByDom(host);
+                return {
+                  host: host.clientWidth,
+                  chart: instance.getWidth(),
+                  canvas: Math.round(host.querySelector("canvas").getBoundingClientRect().width),
+                };
+			  });
+			  assert.deepEqual({ chart: geometry.chart, canvas: geometry.canvas }, { chart: geometry.host, canvas: geometry.host });
+            }
+            assert.deepEqual(errors, []);
+          } finally {
+            await page.close();
+          }
         }
       });
     }

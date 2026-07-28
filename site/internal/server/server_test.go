@@ -27,6 +27,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/pie", "Pie chart"},
 		{"/components/scatter", "Scatter chart"},
 		{"/components/radar", "Radar chart"},
+		{"/components/candlestick", "Candlestick"},
 		{"/components/interactive/bar", "Interactive bar"},
 		{"/components/interactive/line", "Interactive line"},
 		{"/components/interactive/scatter", "Interactive scatter"},
@@ -40,6 +41,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/interactive/sankey", "Interactive Sankey"},
 		{"/components/interactive/tree", "Interactive tree"},
 		{"/components/interactive/sunburst", "Interactive sunburst"},
+		{"/components/interactive/treemap", "Interactive treemap"},
 		{"/examples/live-availability", "Live availability"},
 	} {
 		recorder := httptest.NewRecorder()
@@ -72,6 +74,32 @@ func TestRadarDocumentationPreservesUpstreamBasicExampleWithoutEngineBranding(t 
 		if strings.Contains(body, unwanted) {
 			t.Errorf("radar component page contains non-neutral content %q", unwanted)
 		}
+	}
+}
+
+func TestCandlestickDocumentationPreservesUpstreamBasicExampleWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/candlestick", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Candlestick Chart", "Stock Price", "Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7",
+		"100", "110", "95", "105", "115", "112", "118", "108", "120", "104", "113", "109", "116", "106", "114", "121", "111", "119",
+		"Exact OHLC values", "Increase", "Decrease", "Low &lt;= Open/Close &lt;= High", "components.KindCandlestickChart",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("candlestick documentation missing upstream example content %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-analyze", "examples/1-Painter/candlestick_chart-1-basic/main.go", "infrastructure", "operations"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("candlestick component page contains non-neutral content %q", unwanted)
+		}
+	}
+	attributions := httptest.NewRecorder()
+	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	if !strings.Contains(attributions.Body.String(), "examples/1-Painter/candlestick_chart-1-basic/main.go") {
+		t.Error("central attributions missing official candlestick source path")
 	}
 }
 
@@ -123,6 +151,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		"go-analyze/charts", "v0.6.0", "go-echarts", "v2.7.2", "Apache ECharts", "v5.4.3",
 		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 		"examples/1-Painter/radar_chart-1-basic/main.go",
+		"examples/1-Painter/candlestick_chart-1-basic/main.go",
 		`href="https://github.com/araihu/goshtoso"`, `href="https://github.com/go-echarts/go-echarts"`,
 		`href="https://echarts.apache.org/"`, `href="https://github.com/apache/echarts/blob/5.4.3/LICENSE"`,
 		`bg-primary/10`, "MIT", "Apache-2.0",
@@ -146,7 +175,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		t.Error("attributions page claims removed optional extensions are still pinned")
 	}
 
-	for _, path := range []string{"/components/scatter", "/components/radar", "/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter", "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap", "/components/interactive/boxplot", "/components/interactive/gauge", "/components/interactive/funnel", "/components/interactive/graph", "/components/interactive/sankey", "/components/interactive/sunburst"} {
+	for _, path := range []string{"/components/scatter", "/components/radar", "/components/candlestick", "/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter", "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap", "/components/interactive/boxplot", "/components/interactive/gauge", "/components/interactive/funnel", "/components/interactive/graph", "/components/interactive/sankey", "/components/interactive/sunburst"} {
 		page := httptest.NewRecorder()
 		handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, path, nil))
 		for _, unwanted := range []string{"backed by go-echarts", "with go-echarts options", ">go-echarts catalog<", "go-analyze"} {
@@ -179,6 +208,34 @@ func TestSunburstDocumentationPreservesOfficialBasicExample(t *testing.T) {
 	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
 	if !strings.Contains(attributions.Body.String(), "examples/sunburst.go") {
 		t.Error("central attributions missing official sunburst source path")
+	}
+}
+
+func TestTreemapDocumentationPreservesOfficialBasicExample(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/treemap", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Basic treemap example", "File system usage", "d1", "d2", "d3", "f39",
+		"1000", "450", "Exact hierarchy and values", "typed recursive Nodes",
+		"breadcrumb", "same chart", `style="width:100%;height:500px;"`,
+		`aria-label="Basic treemap example"`, `"leafDepth":1`, "LeafDepth",
+		"Interactive / Relationships",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("treemap documentation missing upstream example content %q", want)
+		}
+	}
+	for _, unwanted := range []string{"service ownership", "infrastructure", "ECharts", "go-echarts", "examples/treemap.go"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("treemap documentation contains forbidden framing or API branding %q", unwanted)
+		}
+	}
+	attributions := httptest.NewRecorder()
+	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	if !strings.Contains(attributions.Body.String(), "examples/treemap.go") {
+		t.Error("central attributions missing official treemap source path")
 	}
 }
 

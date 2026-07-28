@@ -135,3 +135,22 @@ body or slot. Chart Expand still uses `modal.Modal` for its labeled dialog,
 Escape handling, focus trap, scroll lock, backdrop, and focus restoration; the
 private controls runtime relocates the same chart content node into the Modal
 body while open, then restores it without recreating renderer state.
+
+## 2026-07-28: Treemap hierarchy data exceeds the adapter's node shape
+
+go-echarts v2.7.2 exposes `opts.TreeMapNode.Value` as `int` and omits per-node
+color or semantic metadata, while its series model accepts arbitrary private
+data. The Treemap component validates renderer-neutral `float64` values and
+recursive ownership, then replaces the private series data with an internal
+JSON shape carrying leaf values, optional `className`, and optional item color.
+Parent values stay omitted and must be zero in the public contract because
+child values determine parent area.
+
+The same adapter exposes no breadcrumb field even though the bundled browser
+runtime supports it. Treemap serializes a validated typed breadcrumb into the
+private series option; no raw maps or renderer types cross the public API.
+Native `leafDepth: 1` is required to turn the upstream two-level file-system
+sample's top-level directories into focusable roots. Browser checks confirmed
+root-to-directory and breadcrumb-back transitions retain the same chart
+instance. The focused depth intentionally presents the selected root while the
+bounded adjacent table remains the exact descendant-value source.

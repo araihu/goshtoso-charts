@@ -106,8 +106,10 @@ func TestThemeRuntimeUsesIdentityPreservingImmediateSilentMerge(t *testing.T) {
 		`requestAnimationFrame(function ()`,
 		`if (!explicitColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] }`,
 		`gaugeScale.stops.map`, `observedHosts`,
-		`series.type === "tree" || series.type === "sunburst"`,
+		`series.type === "tree" || series.type === "sunburst" || series.type === "treemap"`,
+		`Never`, `partial Treemap levels`,
 		`eachSeriesByType("sunburst"`, `type: "sunburstRootToNode"`,
+		`eachSeriesByType("treemap"`, `type: "treemapRootToNode"`,
 	} {
 		if !strings.Contains(themeRuntimeMarkup, want) {
 			t.Errorf("immediate identity-preserving theme runtime missing %q", want)

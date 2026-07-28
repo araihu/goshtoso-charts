@@ -27,6 +27,8 @@ const (
 	KindScatterChart Kind = "scatter-chart"
 	// KindRadarChart identifies a server-rendered multivariate radar chart.
 	KindRadarChart Kind = "radar-chart"
+	// KindCandlestickChart identifies a server-rendered OHLC candlestick chart.
+	KindCandlestickChart Kind = "candlestick-chart"
 	// KindInteractiveBar identifies a browser-rendered bar chart.
 	KindInteractiveBar Kind = "interactive-bar"
 	// KindInteractiveLine identifies a browser-rendered line chart.
@@ -55,9 +57,11 @@ const (
 	KindInteractiveTree Kind = "interactive-tree"
 	// KindInteractiveSunburst identifies a browser-rendered radial hierarchy.
 	KindInteractiveSunburst Kind = "interactive-sunburst"
+	// KindInteractiveTreemap identifies a browser-rendered space-filling hierarchy.
+	KindInteractiveTreemap Kind = "interactive-treemap"
 )
 
-var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst}
+var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindCandlestickChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst, KindInteractiveTreemap}
 
 // AllKinds returns supported chart kinds in stable order. Document-level
 // dependency components are intentionally excluded.

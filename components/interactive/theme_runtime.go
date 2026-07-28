@@ -133,10 +133,11 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
         splitArea: { areaStyle: { color: [surface, surfaceAlt] } }
       };
 			var themedSeries = (current.series || []).map(function (series, index) {
-				// Tree disclosure and Sunburst view-root state live inside their series
+				// Tree disclosure, Sunburst view-root, and Treemap view-root/layout state live inside their series
 				// models. Presentation-only series updates can rebuild those models.
-				// Global palette and text/background tokens still theme both.
-				if (series.type === "tree" || series.type === "sunburst") return null;
+				// Global palette and text/background tokens still theme all three. Never
+				// re-supply partial Treemap levels while native navigation state is active.
+				if (series.type === "tree" || series.type === "sunburst" || series.type === "treemap") return null;
 				var themedItem = {
           id: series.id,
           name: series.name,
@@ -200,6 +201,11 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 				var viewRoot = seriesModel.getViewRoot && seriesModel.getViewRoot();
 				if (viewRoot) sunburstViewRoots.push({ seriesIndex: seriesModel.seriesIndex, dataIndex: viewRoot.dataIndex });
 			});
+			var treemapViewRoots = [];
+			chart.getModel().eachSeriesByType("treemap", function (seriesModel) {
+				var viewRoot = seriesModel.getViewRoot && seriesModel.getViewRoot();
+				if (viewRoot) treemapViewRoots.push({ seriesIndex: seriesModel.seriesIndex, dataIndex: viewRoot.dataIndex });
+			});
       if (!explicitColors) {
         themed.color = seriesColors;
       }
@@ -219,6 +225,11 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 				var seriesModel = chart.getModel().getSeriesByIndex(state.seriesIndex);
 				var targetNode = seriesModel && seriesModel.getData().tree.getNodeByDataIndex(state.dataIndex);
 				if (targetNode) chart.dispatchAction({ type: "sunburstRootToNode", seriesIndex: state.seriesIndex, targetNode: targetNode });
+			});
+			treemapViewRoots.forEach(function (state) {
+				var seriesModel = chart.getModel().getSeriesByIndex(state.seriesIndex);
+				var targetNode = seriesModel && seriesModel.getData().tree.getNodeByDataIndex(state.dataIndex);
+				if (targetNode) chart.dispatchAction({ type: "treemapRootToNode", seriesIndex: state.seriesIndex, targetNode: targetNode });
 			});
     };
     var refresh = function () {

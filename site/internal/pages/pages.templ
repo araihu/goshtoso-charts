@@ -4,6 +4,7 @@ import (
 	"github.com/araihu/goshtoso/components/codeblock"
 	"github.com/araihu/goshtoso-app-shells/componentpage"
 	"github.com/araihu/goshtoso-charts/components/bar"
+	"github.com/araihu/goshtoso-charts/components/candlestick"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
@@ -86,6 +87,10 @@ templ ScatterPage(fragment bool) {
 
 templ RadarPage(fragment bool) {
 	@layout("Radar chart", "radar", radarContent(), fragment)
+}
+
+templ CandlestickPage(fragment bool) {
+	@layout("Candlestick", "candlestick", candlestickContent(), fragment)
 }
 
 templ InteractiveBarPage(fragment bool) {
@@ -267,6 +272,23 @@ templ InteractiveSunburstPage(fragment bool) {
 	@layout("Interactive sunburst", "interactive-sunburst", interactiveSunburstContent(), fragment)
 }
 
+templ InteractiveTreemapPage(fragment bool) {
+	@layout("Interactive treemap", "interactive-treemap", interactiveTreemapContent(), fragment)
+}
+
+templ interactiveTreemapContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive treemap",
+		Description: "Reusable space-filling hierarchy for comparing weighted branches and focusing nested rectangles under one renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Explore weighted recursive hierarchies while using area to compare leaves and branch totals.", "Primitive", "interactive.Treemap", "Kind", "components.KindInteractiveTreemap", "Configuration", "Label, Caption, typed recursive Nodes, semantic class or color, drill-down navigation, roam, breadcrumb, labels, borders and gaps, optional leaf depth, levels, size, renderer-neutral chart options, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded adjacent table preserves node paths, parents, computed branch totals, leaf values, and semantic classes."),
+			Preview: sampleInteractiveTreemap(),
+			Code: interactiveTreemapCode(),
+		},
+		After: demoNote("Hierarchy contract", "Leaf values must be finite and nonnegative. Parent values stay zero because child values determine parent area. Drill-down and breadcrumb back-navigation update the same chart instance."),
+	})
+}
+
 templ interactiveSunburstContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive sunburst",
@@ -350,6 +372,19 @@ templ radarContent() {
 			},
 		},
 		After: demoNote("Radar contract", "Indicators define caller order and positive maxima. Every named series supplies one finite, non-negative value per indicator and may not exceed that indicator maximum."),
+	})
+}
+
+templ candlestickContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Candlestick",
+		Description: "SSR SVG for ordered open-high-low-close observations, using conventional increase and decrease treatments.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare open, high, low, and close values across ordered categories or times without browser rendering.", "Primitive", "candlestick.Candlestick", "Kind", "components.KindCandlestickChart", "Configuration", "Label, Caption, renderer-neutral Title and Axis labels, SeriesName, typed OHLC Data, Width, Height, root class and attributes, and chart palette.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent disclosure states direction in text and preserves every exact OHLC value."),
+			Preview: candlestick.Candlestick(sampleBasicCandlestick()),
+			Code: candlestickCode(),
+		},
+		After: demoNote("OHLC contract", "Each finite datum satisfies Low <= Open/Close <= High. Close greater than or equal to open is stated as Increase; a lower close is stated as Decrease, so meaning never depends on color alone."),
 	})
 }
 

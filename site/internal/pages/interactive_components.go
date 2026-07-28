@@ -257,6 +257,66 @@ func sampleInteractiveSunburst() interactive.Instance {
 	})
 }
 
+func sampleInteractiveTreemap() interactive.Instance {
+	d3Children := make([]*interactive.TreemapNode, 40)
+	for index := range d3Children {
+		d3Children[index] = &interactive.TreemapNode{
+			Name:  fmt.Sprintf("f%d", index),
+			Value: float64(5 + (index*7+3)%10),
+			Class: "file",
+		}
+	}
+	return interactive.Treemap(interactive.TreemapConfig{
+		Label:   "Basic treemap example",
+		Caption: "File system usage in KB. Select a directory to focus it in the same chart; use the breadcrumb to return.",
+		Nodes: []*interactive.TreemapNode{
+			{
+				Name: "d1", Class: "directory",
+				Children: []*interactive.TreemapNode{{Name: "f1", Value: 1000, Class: "file"}},
+			},
+			{
+				Name: "d2", Class: "directory",
+				Children: []*interactive.TreemapNode{
+					{Name: "f1", Value: 100, Class: "file"},
+					{Name: "f2", Value: 300, Class: "file"},
+					{Name: "f3", Value: 200, Class: "file"},
+				},
+			},
+			{Name: "d3", Class: "directory", Children: d3Children},
+			{Name: "f1", Value: 450, Class: "file"},
+		},
+		Navigation: interactive.TreemapNavigationDrillDown,
+		Roam:       interactive.TreemapRoamEnabled,
+		LabelOptions: &interactive.LabelOptions{
+			Show: interactive.Bool(true), Position: "inside", FontSize: 11,
+		},
+		UpperLabel: &interactive.LabelOptions{Show: interactive.Bool(true), FontSize: 12},
+		Breadcrumb: &interactive.TreemapBreadcrumb{Show: interactive.Bool(true), Height: 24, ItemGap: 8},
+		NodeStyle:  interactive.TreemapNodeStyle{BorderWidth: 1, GapWidth: 1},
+		LeafDepth:  interactive.Int(1),
+		Levels: []interactive.TreemapLevel{
+			{
+				UpperLabel: &interactive.LabelOptions{Show: interactive.Bool(true)},
+				NodeStyle:  interactive.TreemapNodeStyle{BorderWidth: 1, GapWidth: 1},
+			},
+			{NodeStyle: interactive.TreemapNodeStyle{BorderWidth: 2, GapWidth: 1}},
+			{
+				NodeStyle:       interactive.TreemapNodeStyle{GapWidth: 1},
+				ColorSaturation: &interactive.TreemapColorRange{Min: 0.35, Max: 0.5},
+			},
+		},
+		Width:  "100%",
+		Height: "500px",
+		Options: interactive.ChartOptions{
+			Title:    &interactive.TitleOptions{Text: "Basic treemap example", Subtitle: "File system usage", Left: "center"},
+			Legend:   &interactive.LegendOptions{Show: interactive.Bool(false)},
+			Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "item"},
+			Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Export:   &chartcontrol.ExportOptions{Filename: "basic-treemap-example"},
+		},
+	})
+}
+
 func liveAvailabilityBar(label, caption string, states []int) interactive.BarConfig {
 	categories := availabilityCategories(len(states))
 	series := []interactive.BarSeries{
@@ -517,5 +577,31 @@ func interactiveSunburstCode() string {
   Height: "32rem",
   Style: charttheme.Style{Class: "max-w-full"},
   RootAttrs: templ.Attributes{"data-chart-purpose": "hierarchy"},
+})`
+}
+
+func interactiveTreemapCode() string {
+	return `@interactive.Treemap(interactive.TreemapConfig{
+  Label: "Basic treemap example",
+  Caption: "File system usage in KB. Select a directory; use the breadcrumb to return.",
+  Nodes: []*interactive.TreemapNode{
+    {Name: "d1", Class: "directory", Children: []*interactive.TreemapNode{
+      {Name: "f1", Value: 1000, Class: "file"},
+    }},
+    {Name: "d2", Class: "directory", Children: []*interactive.TreemapNode{
+      {Name: "f1", Value: 100}, {Name: "f2", Value: 300}, {Name: "f3", Value: 200},
+    }},
+    {Name: "d3", Class: "directory", Children: deterministicFiles},
+    {Name: "f1", Value: 450, Class: "file"},
+  },
+  Navigation: interactive.TreemapNavigationDrillDown,
+  Roam: interactive.TreemapRoamEnabled,
+  LabelOptions: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "inside"},
+  UpperLabel: &interactive.LabelOptions{Show: interactive.Bool(true)},
+  Breadcrumb: &interactive.TreemapBreadcrumb{Show: interactive.Bool(true)},
+  NodeStyle: interactive.TreemapNodeStyle{BorderWidth: 1, GapWidth: 1},
+  LeafDepth: interactive.Int(1),
+  Width: "100%",
+  Height: "500px",
 })`
 }

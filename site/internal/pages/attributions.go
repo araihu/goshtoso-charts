@@ -16,8 +16,8 @@ var foundationAttributions = []attribution{
 }
 
 var chartAttributions = []attribution{
-	{Name: "go-analyze/charts", Version: "v0.6.0", ProjectURL: "https://github.com/go-analyze/charts", License: "MIT", LicenseURL: "https://github.com/go-analyze/charts/blob/v0.6.0/LICENSE", UsedFor: "Go-native SVG rendering behind static/vector components. Documentation adapts examples/1-Painter/scatter_chart-3-dense_data/main.go and examples/1-Painter/radar_chart-1-basic/main.go."},
-	{Name: "go-echarts", Version: "v2.7.2", ProjectURL: "https://github.com/go-echarts/go-echarts", License: "MIT", LicenseURL: "https://github.com/go-echarts/go-echarts/blob/v2.7.2/LICENSE", UsedFor: "Private Go adapter behind renderer-neutral interactive components. Sunburst documentation adapts examples/sunburst.go."},
+	{Name: "go-analyze/charts", Version: "v0.6.0", ProjectURL: "https://github.com/go-analyze/charts", License: "MIT", LicenseURL: "https://github.com/go-analyze/charts/blob/v0.6.0/LICENSE", UsedFor: "Go-native SVG rendering behind static/vector components. Documentation adapts examples/1-Painter/scatter_chart-3-dense_data/main.go, examples/1-Painter/radar_chart-1-basic/main.go, and examples/1-Painter/candlestick_chart-1-basic/main.go."},
+	{Name: "go-echarts", Version: "v2.7.2", ProjectURL: "https://github.com/go-echarts/go-echarts", License: "MIT", LicenseURL: "https://github.com/go-echarts/go-echarts/blob/v2.7.2/LICENSE", UsedFor: "Private Go adapter behind renderer-neutral interactive components. Hierarchy documentation adapts examples/sunburst.go and examples/treemap.go at bda428480a82d6d77ebb9fa939cf8d52528453dd."},
 }
 
 var runtimeAttributions = []attribution{
