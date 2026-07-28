@@ -21,6 +21,8 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/line", "Line chart"},
 		{"/components/bar", "Bar chart"},
 		{"/components/pie", "Pie chart"},
+		{"/components/echarts/bar", "ECharts bar"},
+		{"/components/echarts/line", "ECharts line"},
 		{"/examples/status-page", "Status page example"},
 		{"/examples/go-echarts", "go-echarts catalog"},
 		{"/examples/go-echarts/bar-basic", "Basic bar"},
@@ -121,7 +123,7 @@ func TestComponentDocsNavigationHasSearchGroupsAndComponentContract(t *testing.T
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/heartbeat", nil))
 	body := recorder.Body.String()
-	for _, want := range []string{"Search docs...", "Components", "Examples", "component-doc-shell__sidebar", "components.KindHeartbeat", "Bar chart", "Pie chart", "Accessibility", "lg:grid-cols-2"} {
+	for _, want := range []string{"Search docs...", "Server-rendered", "Interactive / Cartesian", "Examples", "component-doc-shell__sidebar", "components.KindHeartbeat", "Bar chart", "Pie chart", "Accessibility", "lg:grid-cols-2"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("component docs page missing %q", want)
 		}

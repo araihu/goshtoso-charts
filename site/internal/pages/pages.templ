@@ -91,6 +91,38 @@ templ PiePage(fragment bool) {
 	@layout("Pie chart", "pie", pieContent(), fragment)
 }
 
+templ EChartsBarPage(fragment bool) {
+	@layout("ECharts bar", "echarts-bar", eChartsBarContent(), fragment)
+}
+
+templ eChartsBarContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "ECharts bar",
+		Description: "Reusable interactive bar component backed by go-echarts.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Interactive categorical comparisons with go-echarts options.", "Primitive", "echarts.Bar", "Kind", "components.KindEChartsBar", "Configuration", "Label, Caption, XAxis, typed Series, size, global options, and series options.", "Accessibility", "Figure name comes from Label; Caption stays visible."),
+			Preview: interactive.Bar(sampleEChartsBar()),
+			Code: eChartsBarCode(),
+		},
+	})
+}
+
+templ EChartsLinePage(fragment bool) {
+	@layout("ECharts line", "echarts-line", eChartsLineContent(), fragment)
+}
+
+templ eChartsLineContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "ECharts line",
+		Description: "Reusable interactive line component backed by go-echarts.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Interactive ordered trends with go-echarts options.", "Primitive", "echarts.Line", "Kind", "components.KindEChartsLine", "Configuration", "Label, Caption, XAxis, typed Series, size, global options, and series options.", "Accessibility", "Figure name comes from Label; Caption stays visible."),
+			Preview: interactive.Line(sampleEChartsLine()),
+			Code: eChartsLineCode(),
+		},
+	})
+}
+
 templ pieContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Pie chart",

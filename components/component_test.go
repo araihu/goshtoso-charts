@@ -4,7 +4,7 @@ import "testing"
 
 func TestAllKinds(t *testing.T) {
 	t.Parallel()
-	want := []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart, KindInteractiveECharts}
+	want := []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart, KindInteractiveECharts, KindEChartsBar, KindEChartsLine}
 	got := AllKinds()
 	if len(got) != len(want) {
 		t.Fatalf("AllKinds() = %v, want %v", got, want)

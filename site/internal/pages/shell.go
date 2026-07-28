@@ -34,7 +34,7 @@ func shellPage(title string, active string, content templ.Component) componentdo
 		Active:        active,
 		Content:       content,
 		Head:          brand.Head(),
-		EnableTOC:     active == "heartbeat" || active == "line" || active == "bar" || active == "pie" || active == "go-echarts",
+		EnableTOC:     active == "heartbeat" || active == "line" || active == "bar" || active == "pie" || active == "echarts-bar" || active == "echarts-line" || active == "go-echarts",
 	}
 }
 
@@ -53,12 +53,19 @@ func shellConfig() componentdocshell.Config {
 			SectionsTitle: "Documentation",
 			Sections: []sidebar.Section{
 				{
-					Title: "Components",
+					Title: "Server-rendered",
 					Items: []sidebar.Item{
 						{ID: "heartbeat", Label: "Heartbeat", Href: "/components/heartbeat"},
 						{ID: "line", Label: "Line chart", Href: "/components/line"},
 						{ID: "bar", Label: "Bar chart", Href: "/components/bar"},
 						{ID: "pie", Label: "Pie chart", Href: "/components/pie"},
+					},
+				},
+				{
+					Title: "Interactive / Cartesian",
+					Items: []sidebar.Item{
+						{ID: "echarts-bar", Label: "Bar", Href: "/components/echarts/bar"},
+						{ID: "echarts-line", Label: "Line", Href: "/components/echarts/line"},
 					},
 				},
 				{

@@ -2,7 +2,10 @@
 
 SSR SVG charts for Go applications using [Goshtoso](https://github.com/araihu/goshtoso). Initial product driver: monitor detail and public status pages in Xisnove. Public API remains product-neutral.
 
-`goshtoso-charts` renders chart markup during the Go request. No Node process, browser chart runtime, hydration, CDN asset, or runtime fetch is required.
+`goshtoso-charts` provides Go/templ chart components in two layers: lightweight
+SSR SVG primitives and opt-in interactive components backed by go-echarts. No
+Node process or CDN asset is required; interactive consumers serve a pinned
+ECharts runtime from their own application.
 
 ## Install
 
@@ -109,6 +112,25 @@ Use pie charts for a small categorical distribution that is meaningful as parts 
 ```
 
 Keep exact values in nearby text or a table when readers need them.
+
+## Interactive ECharts components
+
+Interactive components expose typed Goshtoso configs while retaining advanced
+go-echarts options. Bar and Line form the first public Cartesian pair.
+
+```templ
+@echarts.Bar(echarts.BarConfig{
+	Label: "Weekly deployments",
+	XAxis: []string{"Mon", "Tue"},
+	Series: []echarts.BarSeries{{
+		Name: "Production",
+		Data: []opts.BarData{{Value: 3}, {Value: 5}},
+	}},
+})
+```
+
+Use application-owned values only. go-echarts supports executable option
+functions, so request- or user-controlled data must not enter raw options.
 
 ## Roadmap
 

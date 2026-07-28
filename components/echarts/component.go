@@ -22,17 +22,32 @@ type Config struct {
 }
 
 // Instance is a renderable interactive go-echarts figure.
-type Instance struct{ cfg Config }
+type Instance struct {
+	cfg  Config
+	kind chartcomponents.Kind
+	err  error
+}
+
+func newInstance(kind chartcomponents.Kind, cfg Config) Instance {
+	return Instance{cfg: cfg, kind: kind}
+}
+
+func newInvalidInstance(kind chartcomponents.Kind, err error) Instance {
+	return Instance{kind: kind, err: err}
+}
 
 // EChart returns a Goshtoso-wrapped go-echarts chart.
-func EChart(cfg Config) Instance { return Instance{cfg: cfg} }
+func EChart(cfg Config) Instance { return newInstance(chartcomponents.KindInteractiveECharts, cfg) }
 
 // Kind identifies the interactive chart boundary.
-func (Instance) Kind() chartcomponents.Kind { return chartcomponents.KindInteractiveECharts }
+func (instance Instance) Kind() chartcomponents.Kind { return instance.kind }
 
 // Render writes a figure containing go-echarts' element and initialization
 // script. The site must serve its pinned local ECharts asset before this output.
 func (instance Instance) Render(ctx context.Context, writer io.Writer) error {
+	if instance.err != nil {
+		return instance.err
+	}
 	if instance.cfg.Label == "" {
 		return fmt.Errorf("interactive chart label is required")
 	}
