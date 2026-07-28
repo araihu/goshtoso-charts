@@ -21,7 +21,7 @@ func shellPage(title string, active string, content templ.Component) componentdo
 		Active:        active,
 		Content:       content,
 		Head:          brand.Head(),
-		EnableTOC:     active == "heartbeat" || active == "line" || active == "bar" || active == "pie",
+		EnableTOC:     active == "heartbeat" || active == "line" || active == "bar" || active == "pie" || active == "go-echarts",
 	}
 }
 
@@ -52,6 +52,7 @@ func shellConfig() componentdocshell.Config {
 					Title: "Examples",
 					Items: []sidebar.Item{
 						{ID: "status-page", Label: "Status page", Href: "/examples/status-page"},
+						{ID: "go-echarts", Label: "go-echarts catalog", Href: "/examples/go-echarts"},
 					},
 				},
 			},

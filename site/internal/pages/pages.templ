@@ -5,10 +5,12 @@ import (
 	"github.com/araihu/goshtoso/components/panel"
 	"github.com/araihu/goshtoso-app-shells/componentpage"
 	"github.com/araihu/goshtoso-charts/components/bar"
+	interactive "github.com/araihu/goshtoso-charts/components/echarts"
 	"github.com/araihu/goshtoso-charts/components/heartbeat"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/site/internal/brand"
+	"github.com/araihu/goshtoso-charts/site/internal/echartsexamples"
 )
 
 templ OverviewPage(fragment bool) {
@@ -117,6 +119,41 @@ templ lineContent() {
 
 templ StatusPageExample(fragment bool) {
 	@layout("Status page example", "status-page", statusPageContent(), fragment)
+}
+
+templ EChartsCatalogPage(examples []echartsexamples.Example, fragment bool) {
+	@layout("go-echarts catalog", "go-echarts", eChartsCatalogContent(examples), fragment)
+}
+
+templ eChartsCatalogContent(examples []echartsexamples.Example) {
+	<section class="space-y-2">
+		<p class="text-sm font-semibold text-primary dark:text-primary-dark">Interactive examples</p>
+		<h1 class="font-title text-3xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">go-echarts catalog</h1>
+		<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">Direct ports of upstream examples. Interactive charts use pinned local ECharts assets; SSR primitives remain available separately.</p>
+	</section>
+	<section class="grid gap-3 md:grid-cols-2" aria-label="go-echarts examples">
+		for _, example := range examples {
+			<a class="rounded-radius border border-outline bg-surface p-4 no-underline hover:bg-surface-alt dark:border-outline-dark dark:bg-surface-dark dark:hover:bg-surface-dark-alt" href={ "/examples/go-echarts/" + example.Slug }>
+				<p class="text-xs font-semibold uppercase tracking-wide text-primary dark:text-primary-dark">{ example.Group }</p>
+				<h2 class="mt-1 text-base font-bold text-on-surface-strong dark:text-on-surface-dark-strong">{ example.Title }</h2>
+				<p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">{ example.Source }</p>
+			</a>
+		}
+	</section>
+}
+
+templ EChartsExamplePage(example echartsexamples.Example, fragment bool) {
+	@layout(example.Title, "go-echarts", eChartsExampleContent(example), fragment)
+}
+
+templ eChartsExampleContent(example echartsexamples.Example) {
+	<section class="space-y-2">
+		<p class="text-sm font-semibold text-primary dark:text-primary-dark">{ example.Group }</p>
+		<h1 class="font-title text-3xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">{ example.Title }</h1>
+		<a class="text-sm text-primary underline dark:text-primary-dark" href={ example.Source }>Upstream source</a>
+	</section>
+	@panel.Panel(panel.Config{Body: interactive.EChart(interactive.Config{Label: example.Title, Caption: "Interactive go-echarts port using a pinned local runtime.", Chart: example.Build()})})
+	<p><a class="text-sm text-primary underline dark:text-primary-dark" href="/examples/go-echarts">All go-echarts examples</a></p>
 }
 
 templ statusPageContent() {

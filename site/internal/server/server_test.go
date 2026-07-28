@@ -20,6 +20,8 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/bar", "Bar chart"},
 		{"/components/pie", "Pie chart"},
 		{"/examples/status-page", "Status page example"},
+		{"/examples/go-echarts", "go-echarts catalog"},
+		{"/examples/go-echarts/bar-basic", "Basic bar"},
 	} {
 		recorder := httptest.NewRecorder()
 		handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, test.path, nil))
@@ -29,6 +31,15 @@ func TestDemoRoutesRender(t *testing.T) {
 		if !strings.Contains(recorder.Body.String(), test.want) {
 			t.Errorf("GET %s missing %q", test.path, test.want)
 		}
+	}
+}
+
+func TestUnknownEChartsExampleIsNotFound(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/examples/go-echarts/not-real", nil))
+	if recorder.Code != http.StatusNotFound {
+		t.Fatalf("GET unknown example = %d, want 404", recorder.Code)
 	}
 }
 
@@ -59,6 +70,15 @@ func TestAssetsAreMountedWithoutStripPrefix(t *testing.T) {
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/assets/styles.css", nil))
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("GET /assets/styles.css status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+}
+
+func TestEChartsRuntimeIsLocal(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/charts/echarts/echarts.min.js", nil))
+	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), "Apache") {
+		t.Fatalf("GET local ECharts runtime status/body = %d/%q", recorder.Code, recorder.Body.String()[:min(80, recorder.Body.Len())])
 	}
 }
 

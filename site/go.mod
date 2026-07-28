@@ -7,6 +7,7 @@ require (
 	github.com/araihu/goshtoso v0.0.13
 	github.com/araihu/goshtoso-app-shells v0.0.0-20260728002904-3ca565d36c2d
 	github.com/araihu/goshtoso-charts v0.0.0
+	github.com/go-echarts/go-echarts/v2 v2.7.2
 )
 
 require (

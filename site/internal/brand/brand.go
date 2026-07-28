@@ -48,7 +48,7 @@ func Head() templ.Component {
 .component-doc-shell__brand-logo.component-doc-shell__brand-logo--goshtoso svg { display: block; }
 .goshtoso-charts-brand { display: block; width: min(20rem, 100%); }
 .goshtoso-charts-brand svg { display: block; width: 100%; height: auto; }
-</style>`)
+</style><script src="/charts/echarts/echarts.min.js"></script>`)
 }
 
 // LandingLogo returns the same inline v11 wordmark used in the product header.

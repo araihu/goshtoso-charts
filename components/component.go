@@ -25,9 +25,11 @@ const (
 	KindBarChart Kind = "bar-chart"
 	// KindPieChart identifies a categorical proportional breakdown chart.
 	KindPieChart Kind = "pie-chart"
+	// KindInteractiveECharts identifies a browser-rendered go-echarts chart.
+	KindInteractiveECharts Kind = "interactive-echarts"
 )
 
-var allKinds = []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart}
+var allKinds = []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart, KindInteractiveECharts}
 
 // AllKinds returns supported component kinds in stable order.
 func AllKinds() []Kind {
