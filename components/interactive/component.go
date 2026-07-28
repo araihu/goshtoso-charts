@@ -34,6 +34,8 @@ type renderConfig struct {
 	ThemeSeriesItems []int
 	// GaugeScale is private JSON consumed by the shared theme runtime.
 	GaugeScale string
+	// CandlestickStyles is private JSON consumed by the shared theme runtime.
+	CandlestickStyles string
 	// ScriptReplacements restore values that the private renderer cannot
 	// distinguish from omitted zero values.
 	ScriptReplacements []scriptReplacement

@@ -53,7 +53,10 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			probe.className = className;
 			figure.appendChild(probe);
 			var value = getComputedStyle(probe).color;
+			probe.className = "";
+			var inherited = getComputedStyle(probe).color;
 			probe.remove();
+			if (value === inherited) return rendererColor(fallback, fallback);
 			return rendererColor(value, fallback);
 		};
 		var classColorOrFallback = function (figure, className, fallback) {
@@ -116,6 +119,8 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			var managesSeriesItem = function (index) { return themeSeriesItems.indexOf(index) !== -1; };
 			var gaugeScale = null;
 			try { gaugeScale = JSON.parse(figure.getAttribute("data-goshtoso-charts-gauge-scale") || "null"); } catch (_) {}
+			var candlestickStyles = [];
+			try { candlestickStyles = JSON.parse(figure.getAttribute("data-goshtoso-charts-candlestick-styles") || "[]"); } catch (_) {}
 			var gaugeColors = gaugeScale && (gaugeScale.stops || []).map(function (stop) {
 				if (stop.token === "low") return scaleLow;
 				if (stop.token === "mid") return scaleMid;
@@ -179,6 +184,27 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
         if (series.type === "boxplot" && managesSeriesItem(index)) {
           themedItem.itemStyle = { color: palette[index % palette.length], borderColor: palette[index % palette.length] };
         }
+			if (series.type === "candlestick") {
+				var candleStyle = candlestickStyles[index] || {};
+				var riseBase = candleStyle.riseColor
+					? rendererColor(candleStyle.riseColor, "#15803d")
+					: cssColor(figure, "--color-chart-increasing", "#15803d");
+				var fallBase = candleStyle.fallColor
+					? rendererColor(candleStyle.fallColor, "#b91c1c")
+					: cssColor(figure, "--color-chart-decreasing", "#b91c1c");
+				var rise = candleStyle.riseClass
+					? classColor(figure, candleStyle.riseClass, riseBase)
+					: riseBase;
+				var fall = candleStyle.fallClass
+					? classColor(figure, candleStyle.fallClass, fallBase)
+					: fallBase;
+				var riseBorder = candleStyle.riseBorderColor ? rendererColor(candleStyle.riseBorderColor, rise) : rise;
+				var fallBorder = candleStyle.fallBorderColor ? rendererColor(candleStyle.fallBorderColor, fall) : fall;
+				themedItem.itemStyle = {
+					color: rise, color0: fall, borderColor: riseBorder, borderColor0: fallBorder,
+					borderWidth: candleStyle.borderWidth || 0
+				};
+			}
 			if (series.type === "gauge") {
 				themedItem.axisLine = { lineStyle: { width: 20, color: gaugeScale ? gaugeScale.stops.map(function (stop, stopIndex) { return [stop.position, gaugeColors[stopIndex]]; }) : [[1, surfaceAlt]] } };
           themedItem.axisLabel = { color: muted };

@@ -22,7 +22,7 @@ func shellPage(title string, active string, content templ.Component) componentdo
 		Active:        active,
 		Content:       content,
 		Head:          templ.Join(brand.Head(), dependencies.Dependencies()),
-		EnableTOC:     active == "getting-started" || active == "line" || active == "bar" || active == "pie" || active == "scatter" || active == "radar" || active == "candlestick" || active == "funnel" || active == "heatmap" || active == "table" || active == "violin" || active == "interactive-bar" || active == "interactive-line" || active == "interactive-tree" || active == "interactive-sunburst" || active == "interactive-treemap" || active == "interactive-parallel" || active == "interactive-theme-river" || active == "interactive-word-cloud" || active == "live-availability",
+		EnableTOC:     active == "getting-started" || active == "line" || active == "bar" || active == "pie" || active == "scatter" || active == "radar" || active == "candlestick" || active == "funnel" || active == "heatmap" || active == "table" || active == "violin" || active == "interactive-bar" || active == "interactive-line" || active == "interactive-candlestick" || active == "interactive-tree" || active == "interactive-sunburst" || active == "interactive-treemap" || active == "interactive-parallel" || active == "interactive-theme-river" || active == "interactive-word-cloud" || active == "live-availability",
 	}
 }
 
@@ -73,6 +73,7 @@ func shellNavigation() componentdocshell.Navigation {
 					{ID: "interactive-bar", Label: "Bar", Href: "/components/interactive/bar"},
 					{ID: "interactive-line", Label: "Line", Href: "/components/interactive/line"},
 					{ID: "interactive-scatter", Label: "Scatter", Href: "/components/interactive/scatter"},
+					{ID: "interactive-candlestick", Label: "Candlestick", Href: "/components/interactive/candlestick"},
 					{ID: "interactive-heatmap", Label: "Heatmap", Href: "/components/interactive/heatmap"},
 				},
 			},

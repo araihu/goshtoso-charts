@@ -216,6 +216,31 @@ templ InteractiveBoxPlotPage(fragment bool) {
 	@layout("Interactive box plot", "interactive-boxplot", interactiveChartBoxPlotContent(), fragment)
 }
 
+templ InteractiveCandlestickPage(fragment bool) {
+	@layout("Interactive candlestick", "interactive-candlestick", interactiveCandlestickContent(), fragment)
+}
+
+templ interactiveCandlestickContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive candlestick",
+		Description: "Reusable interactive candlestick component for inspecting aligned open, close, low, and high observations with typed zoom and reference marks.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Inspect OHLC movement across ordered dates with inside and slider zoom.", "Primitive", "interactive.Candlestick", "Kind", "components.KindInteractiveCandlestick", "Configuration", "Label, Caption, aligned Categories and named Series of typed Candle values, rise/fall semantic classes or colors, geometry, highest/lowest marks, typed chart, axis, tooltip and data-zoom options, size, controls, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded adjacent table preserves exact OHLC values, direction text, and semantic classes without relying on candle color."),
+			Preview: sampleInteractiveCandlestick(),
+			Code: interactiveCandlestickCode(),
+		},
+		Sections: []componentpage.Example{
+			{
+				Title: "Explicit direction style",
+				Description: "Caller colors, border colors, and semantic classes preserve the pinned source treatment while remaining renderer-neutral typed options on the same component.",
+				Preview: sampleInteractiveCandlestickUpstreamStyle(),
+				Code: interactiveCandlestickStyleCode(),
+			},
+		},
+		After: demoNote("OHLC and interaction contract", "Every finite Candle satisfies Low <= Open/Close <= High. Slider, inside, combined X-axis, and Y-axis zoom remain typed variants on the same component. Rise/fall classes and colors are optional; Goshtoso and AraiHu light/dark semantic defaults remain readable and distinct."),
+	})
+}
+
 templ interactiveChartBoxPlotContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive box plot",

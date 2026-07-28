@@ -203,3 +203,13 @@ the canonical checkout. The site pins Playwright and Sharp exactly in
 a valid gate. Run browser tests with `NODE_PATH` pointed at the canonical
 checkout's installed `site/node_modules`, or use an ignored symlink. Do not
 generate or commit a lockfile as part of a component lane.
+
+## 2026-07-28: semantic classes may not define a color
+
+The interactive theme runtime originally treated any caller semantic class as
+a color utility. A class used only for meaning inherits the figure text color,
+which made Candlestick rise and fall treatments identical. The shared class
+probe now compares the classed computed color with its unclassed inherited
+color and retains the typed color or theme-token fallback when the class does
+not actually set color. This keeps `Class` useful for application semantics
+without silently overriding readable light/dark defaults.

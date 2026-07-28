@@ -59,6 +59,10 @@ type AxisOptions struct {
 	Max           *float64
 	Show          *bool
 	ShowSplitLine *bool
+	// SplitNumber recommends a number of numeric-axis segments. Zero preserves the renderer default.
+	SplitNumber int
+	// Scale excludes zero when useful for tightly bounded numeric data.
+	Scale *bool
 	// LabelInterval fixes category-label cadence. Zero shows every label; N shows one label after N skipped labels.
 	LabelInterval *int
 	// ShowFirstLabel and ShowLastLabel keep category-axis endpoint labels visible.
@@ -151,8 +155,23 @@ func finiteNumber(value float64) bool { return !math.IsNaN(value) && !math.IsInf
 
 func validateChartOptions(options ChartOptions) error {
 	for name, axis := range map[string]*AxisOptions{"x": options.XAxis, "y": options.YAxis} {
-		if axis != nil && axis.LabelInterval != nil && *axis.LabelInterval < 0 {
+		if axis == nil {
+			continue
+		}
+		if axis.LabelInterval != nil && *axis.LabelInterval < 0 {
 			return fmt.Errorf("%s axis label interval must be nonnegative", name)
+		}
+		if axis.SplitNumber < 0 {
+			return fmt.Errorf("%s axis split number must be nonnegative", name)
+		}
+		if axis.Min != nil && !finiteNumber(*axis.Min) {
+			return fmt.Errorf("%s axis minimum must be finite", name)
+		}
+		if axis.Max != nil && !finiteNumber(*axis.Max) {
+			return fmt.Errorf("%s axis maximum must be finite", name)
+		}
+		if axis.Min != nil && axis.Max != nil && *axis.Min > *axis.Max {
+			return fmt.Errorf("%s axis minimum must not exceed maximum", name)
 		}
 	}
 	return nil
@@ -302,7 +321,10 @@ func rendererTooltip(value *TooltipOptions) opts.Tooltip {
 }
 
 func rendererXAxis(value *AxisOptions) opts.XAxis {
-	result := opts.XAxis{Name: value.Name, Type: value.Type}
+	result := opts.XAxis{Name: value.Name, Type: value.Type, SplitNumber: value.SplitNumber}
+	if value.Scale != nil {
+		result.Scale = opts.Bool(*value.Scale)
+	}
 	if value.Show != nil {
 		result.Show = opts.Bool(*value.Show)
 	}
@@ -333,7 +355,10 @@ func rendererXAxis(value *AxisOptions) opts.XAxis {
 }
 
 func rendererYAxis(value *AxisOptions) opts.YAxis {
-	result := opts.YAxis{Name: value.Name, Type: value.Type}
+	result := opts.YAxis{Name: value.Name, Type: value.Type, SplitNumber: value.SplitNumber}
+	if value.Scale != nil {
+		result.Scale = opts.Bool(*value.Scale)
+	}
 	if value.Show != nil {
 		result.Show = opts.Bool(*value.Show)
 	}

@@ -248,6 +248,35 @@ func TestThemeRiverDocumentationPreservesPinnedUpstreamExampleWithoutEngineBrand
 	}
 }
 
+func TestInteractiveCandlestickDocumentationPreservesPinnedUpstreamExampleWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/candlestick", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Interactive candlestick", "Candlestick example", "2018/1/24", "2018/6/13",
+		"2320.26", "2287.3", "2362.94", "2148.35", "2126.22", "2190.1",
+		"Exact OHLC values", "Rise", "Fall", "components.KindInteractiveCandlestick",
+		`"type":"inside"`, `"start":50`, `"end":100`, `"valueDim":"highest"`, `"valueDim":"lowest"`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("interactive candlestick documentation missing upstream example content %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-echarts", "examples/kline.go", "Kline", "infrastructure", "operations"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("interactive candlestick component page contains non-neutral content %q", unwanted)
+		}
+	}
+	attributions := httptest.NewRecorder()
+	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	for _, want := range []string{"examples/kline.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd"} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("central attributions missing interactive candlestick source evidence %q", want)
+		}
+	}
+}
+
 func TestGettingStartedReplacesChartCardOverview(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()
@@ -777,6 +806,7 @@ func TestEveryCurrentChartPageUsesSharedControlsAndCapabilityGating(t *testing.T
 		{path: "/components/interactive/pie"},
 		{path: "/components/interactive/radar"},
 		{path: "/components/interactive/boxplot"},
+		{path: "/components/interactive/candlestick"},
 		{path: "/components/interactive/gauge"},
 		{path: "/components/interactive/funnel"},
 		{path: "/components/interactive/graph"},

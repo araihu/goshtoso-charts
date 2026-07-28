@@ -87,6 +87,9 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/interactive/boxplot", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.InteractiveBoxPlotPage(isFragment(request)))
 	})
+	mux.HandleFunc("GET /components/interactive/candlestick", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.InteractiveCandlestickPage(isFragment(request)))
+	})
 	mux.HandleFunc("GET /components/interactive/gauge", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.InteractiveGaugePage(isFragment(request)))
 	})
@@ -117,7 +120,7 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/interactive/word-cloud", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.InteractiveWordCloudPage(isFragment(request)))
 	})
-	for _, component := range []string{"bar", "line", "scatter", "pie", "radar", "heatmap", "boxplot", "gauge", "funnel", "graph", "sankey", "tree", "word-cloud"} {
+	for _, component := range []string{"bar", "line", "scatter", "pie", "radar", "heatmap", "boxplot", "candlestick", "gauge", "funnel", "graph", "sankey", "tree", "word-cloud"} {
 		mux.HandleFunc("GET /components/echarts/"+component, func(writer http.ResponseWriter, request *http.Request) {
 			http.Redirect(writer, request, "/components/interactive/"+component, http.StatusPermanentRedirect)
 		})

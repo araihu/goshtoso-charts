@@ -1,6 +1,8 @@
 package pages
 
 import (
+	"crypto/sha256"
+	"fmt"
 	"math"
 	"math/rand"
 	"reflect"
@@ -50,6 +52,26 @@ func TestBasicFunnelDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 		if stage.Label != wantLabels[index] || stage.Value != wantValues[index] {
 			t.Fatalf("stage %d = (%q, %g), want (%q, %g)", index, stage.Label, stage.Value, wantLabels[index], wantValues[index])
 		}
+	}
+}
+
+func TestInteractiveCandlestickDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if interactiveCandlestickUpstreamPath != "examples/kline.go" {
+		t.Fatalf("upstream path = %q", interactiveCandlestickUpstreamPath)
+	}
+	if interactiveCandlestickUpstreamRevision != "bda428480a82d6d77ebb9fa939cf8d52528453dd" {
+		t.Fatalf("upstream revision = %q", interactiveCandlestickUpstreamRevision)
+	}
+	if len(interactiveCandlestickUpstreamData) != 88 {
+		t.Fatalf("candlestick datum count = %d, want 88", len(interactiveCandlestickUpstreamData))
+	}
+	hash := sha256.New()
+	for _, datum := range interactiveCandlestickUpstreamData {
+		fmt.Fprintf(hash, "%s|%g|%g|%g|%g\n", datum.Category, datum.Candle.Open, datum.Candle.Close, datum.Candle.Low, datum.Candle.High)
+	}
+	if got := fmt.Sprintf("%x", hash.Sum(nil)); got != "03fd8007530e739fbfce31cbe3e3e2f59e174ddaece06a7a144a30ec225f3c4f" {
+		t.Fatalf("normalized pinned upstream OHLC SHA-256 = %s", got)
 	}
 }
 
