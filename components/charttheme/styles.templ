@@ -23,6 +23,17 @@ templ Styles() {
 		.goshtoso-charts-candlestick__viewport > svg {
 			min-width: 37.5rem;
 		}
+		.goshtoso-charts-table__viewport > svg {
+			display: block;
+			width: 100%;
+			height: auto;
+			min-width: 50.625rem;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-table__viewport {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
 		.goshtoso-charts-candlestick__direction--increasing { color: var(--color-chart-increasing, var(--color-green-700, #15803d)); }
 		.goshtoso-charts-candlestick__direction--decreasing { color: var(--color-chart-decreasing, var(--color-red-700, #b91c1c)); }
 		.dark .goshtoso-charts-candlestick__direction--increasing { color: var(--color-chart-increasing, var(--color-green-300, #86efac)); }

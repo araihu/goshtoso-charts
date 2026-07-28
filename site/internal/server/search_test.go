@@ -22,6 +22,7 @@ func TestDocumentationSearchIndexesCategorizedNavigation(t *testing.T) {
 		`data-search="radar chart static / vector radar"`,
 		`data-search="candlestick static / vector candlestick"`,
 		`data-search="heat map static / vector heatmap"`,
+		`data-search="table static / vector table"`,
 		`data-search="bar interactive / cartesian interactive-bar"`,
 		`data-search="scatter interactive / cartesian interactive-scatter"`,
 		`data-search="pie interactive / statistical interactive-pie"`,

@@ -29,6 +29,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/radar", "Radar chart"},
 		{"/components/candlestick", "Candlestick"},
 		{"/components/heatmap", "Heat map"},
+		{"/components/table", "Table"},
 		{"/components/interactive/bar", "Interactive bar"},
 		{"/components/interactive/line", "Interactive line"},
 		{"/components/interactive/scatter", "Interactive scatter"},
@@ -76,6 +77,37 @@ func TestHeatMapDocumentationPreservesUpstreamBasicExampleWithoutEngineBranding(
 	for _, unwanted := range []string{"go-analyze", "examples/1-Painter/heat_map-1-basic/main.go", "infrastructure", "operations", "raw map"} {
 		if strings.Contains(body, unwanted) {
 			t.Errorf("heat-map component page contains non-neutral content %q", unwanted)
+		}
+	}
+}
+
+func TestTableDocumentationPreservesOfficialExampleWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/table", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"People directory", "Name", "Age", "Address", "Tag", "Action",
+		"John Brown", "32", "New York No. 1 Lake Park", "nice, developer", "Send Mail",
+		"Jim Green", "42", "London No. 1 Lake Park", "wow",
+		"Joe Black", "Sidney No. 1 Lake Park", "cool, teacher",
+		"Market changes", "Datadog Inc", "97.32", "-7.49%", "Hashicorp Inc", "28.66", "-9.25%", "Gitlab Inc", "51.63", "+4.32%",
+		"Accessible data table", "components.KindTable", "Explicit presentation overrides",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("table documentation missing upstream example content %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-analyze", "examples/1-Painter/table-1/main.go", "infrastructure", "operations"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("table component page contains non-neutral content %q", unwanted)
+		}
+	}
+	attributions := httptest.NewRecorder()
+	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	for _, want := range []string{"examples/1-Painter/table-1/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2"} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("central attributions missing pinned table source %q", want)
 		}
 	}
 }
@@ -177,6 +209,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 		"examples/1-Painter/radar_chart-1-basic/main.go",
 		"examples/1-Painter/candlestick_chart-1-basic/main.go", "examples/1-Painter/heat_map-1-basic/main.go", "examples/parallel.go",
+		"examples/1-Painter/table-1/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2",
 		`href="https://github.com/araihu/goshtoso"`, `href="https://github.com/go-echarts/go-echarts"`,
 		`href="https://echarts.apache.org/"`, `href="https://github.com/apache/echarts/blob/5.4.3/LICENSE"`,
 		`bg-primary/10`, "MIT", "Apache-2.0",
@@ -200,7 +233,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		t.Error("attributions page claims removed optional extensions are still pinned")
 	}
 
-	for _, path := range []string{"/components/scatter", "/components/radar", "/components/candlestick", "/components/heatmap", "/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter", "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap", "/components/interactive/boxplot", "/components/interactive/gauge", "/components/interactive/funnel", "/components/interactive/graph", "/components/interactive/sankey", "/components/interactive/sunburst", "/components/interactive/parallel"} {
+	for _, path := range []string{"/components/scatter", "/components/radar", "/components/candlestick", "/components/heatmap", "/components/table", "/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter", "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap", "/components/interactive/boxplot", "/components/interactive/gauge", "/components/interactive/funnel", "/components/interactive/graph", "/components/interactive/sankey", "/components/interactive/sunburst", "/components/interactive/parallel"} {
 		page := httptest.NewRecorder()
 		handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, path, nil))
 		for _, unwanted := range []string{"backed by go-echarts", "with go-echarts options", ">go-echarts catalog<", "go-analyze"} {

@@ -31,6 +31,8 @@ const (
 	KindCandlestickChart Kind = "candlestick-chart"
 	// KindHeatMapChart identifies a server-rendered categorical heat map.
 	KindHeatMapChart Kind = "heatmap-chart"
+	// KindTable identifies a server-rendered data table.
+	KindTable Kind = "table"
 	// KindInteractiveBar identifies a browser-rendered bar chart.
 	KindInteractiveBar Kind = "interactive-bar"
 	// KindInteractiveLine identifies a browser-rendered line chart.
@@ -65,7 +67,7 @@ const (
 	KindInteractiveParallel Kind = "interactive-parallel"
 )
 
-var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindCandlestickChart, KindHeatMapChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst, KindInteractiveTreemap, KindInteractiveParallel}
+var allKinds = []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindCandlestickChart, KindHeatMapChart, KindTable, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst, KindInteractiveTreemap, KindInteractiveParallel}
 
 // AllKinds returns supported chart kinds in stable order. Document-level
 // dependency components are intentionally excluded.

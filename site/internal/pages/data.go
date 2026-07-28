@@ -3,6 +3,7 @@ package pages
 import (
 	"fmt"
 	"math/rand"
+	"strings"
 
 	"github.com/araihu/goshtoso-charts/components/bar"
 	"github.com/araihu/goshtoso-charts/components/candlestick"
@@ -13,6 +14,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/components/radar"
 	"github.com/araihu/goshtoso-charts/components/scatter"
+	charttable "github.com/araihu/goshtoso-charts/components/table"
 	"github.com/araihu/goshtoso/components/codeblock"
 )
 
@@ -127,6 +129,57 @@ func sampleBasicCandlestick() candlestick.Config {
 		},
 		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "basic-candlestick-chart"},
+	}
+}
+
+func samplePeopleTable() charttable.Config {
+	return charttable.Config{
+		Label:   "People directory",
+		Caption: "Three people, their age, address, tags, and available action.",
+		Columns: []charttable.Column{
+			{Header: "Name", Span: 2},
+			{Header: "Age", Span: 1},
+			{Header: "Address", Span: 3},
+			{Header: "Tag", Span: 2},
+			{Header: "Action", Span: 2},
+		},
+		Rows: [][]string{
+			{"John Brown", "32", "New York No. 1 Lake Park", "nice, developer", "Send Mail"},
+			{"Jim Green", "42", "London No. 1 Lake Park", "wow", "Send Mail"},
+			{"Joe Black", "32", "Sidney No. 1 Lake Park", "cool, teacher", "Send Mail"},
+		},
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "people-directory"},
+	}
+}
+
+func sampleMarketTable() charttable.Config {
+	return charttable.Config{
+		Label: "Market changes",
+		Columns: []charttable.Column{
+			{Header: "Name"},
+			{Header: "Price", Align: charttable.AlignEnd},
+			{Header: "Change", Align: charttable.AlignEnd},
+		},
+		Rows: [][]string{
+			{"Datadog Inc", "97.32", "-7.49%"},
+			{"Hashicorp Inc", "28.66", "-9.25%"},
+			{"Gitlab Inc", "51.63", "+4.32%"},
+		},
+		Colors: charttable.Colors{
+			Surface: "#1c1c20", HeaderBackground: "#505050", HeaderText: "#ffffff",
+			Text: "#ffffff", RowBackgrounds: []string{"#1c1c20"},
+		},
+		CellStyle: func(cell charttable.Cell) charttable.CellAppearance {
+			if cell.Column != 2 {
+				return charttable.CellAppearance{}
+			}
+			if strings.HasPrefix(cell.Value, "+") {
+				return charttable.CellAppearance{BackgroundColor: "#b33514"}
+			}
+			return charttable.CellAppearance{BackgroundColor: "#217c32"}
+		},
+		Export: &chartcontrol.ExportOptions{Filename: "market-changes"},
 	}
 }
 
@@ -320,6 +373,46 @@ func candlestickCode() string {
     {Label: "Day 7", Open: 114, High: 121, Low: 111, Close: 119},
   },
 })`
+}
+
+func tableCode() string {
+	return `@table.Table(table.Config{
+  Label: "People directory",
+  Columns: []table.Column{
+    {Header: "Name", Span: 2},
+    {Header: "Age"},
+    {Header: "Address", Span: 3},
+    {Header: "Tag", Span: 2},
+    {Header: "Action", Span: 2},
+  },
+  Rows: [][]string{
+    {"John Brown", "32", "New York No. 1 Lake Park", "nice, developer", "Send Mail"},
+    {"Jim Green", "42", "London No. 1 Lake Park", "wow", "Send Mail"},
+    {"Joe Black", "32", "Sidney No. 1 Lake Park", "cool, teacher", "Send Mail"},
+  },
+})`
+}
+
+func marketTableCode() string {
+	return `cfg := table.Config{
+  Label: "Market changes",
+  Columns: []table.Column{
+    {Header: "Name"},
+    {Header: "Price", Align: table.AlignEnd},
+    {Header: "Change", Align: table.AlignEnd},
+  },
+  Rows: [][]string{
+    {"Datadog Inc", "97.32", "-7.49%"},
+    {"Hashicorp Inc", "28.66", "-9.25%"},
+    {"Gitlab Inc", "51.63", "+4.32%"},
+  },
+  Colors: table.Colors{
+    Surface: "#1c1c20", HeaderBackground: "#505050",
+    HeaderText: "#ffffff", Text: "#ffffff",
+  },
+  CellStyle: marketChangeStyle,
+}
+@table.Table(cfg)`
 }
 
 func heatMapCode() string {

@@ -54,6 +54,9 @@ func New() http.Handler {
 	mux.HandleFunc("GET /components/heatmap", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.HeatMapPage(isFragment(request)))
 	})
+	mux.HandleFunc("GET /components/table", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.TablePage(isFragment(request)))
+	})
 	mux.HandleFunc("GET /components/interactive/bar", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.InteractiveBarPage(isFragment(request)))
 	})

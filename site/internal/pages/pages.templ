@@ -11,6 +11,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/components/radar"
 	"github.com/araihu/goshtoso-charts/components/scatter"
+	charttable "github.com/araihu/goshtoso-charts/components/table"
 )
 
 templ GettingStartedPage(fragment bool) {
@@ -92,6 +93,10 @@ templ RadarPage(fragment bool) {
 
 templ CandlestickPage(fragment bool) {
 	@layout("Candlestick", "candlestick", candlestickContent(), fragment)
+}
+
+templ TablePage(fragment bool) {
+	@layout("Table", "table", tableContent(), fragment)
 }
 
 templ HeatMapPage(fragment bool) {
@@ -428,6 +433,27 @@ templ heatMapContent() {
 			},
 		},
 		After: demoNote("Matrix contract", "Rows use Y-major order and contain one finite value for every X label. Indexed Cells cover the same complete matrix exactly once. The zero-value gradient is theme-aware cold to warm; every value remains inside the explicit range."),
+	})
+}
+
+templ tableContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Table",
+		Description: "SSR SVG for compact tabular presentation with weighted columns, alignment, semantic theme colors, and typed per-cell presentation.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Present aligned text values in a static vector table without browser rendering.", "Primitive", "table.Table", "Kind", "components.KindTable", "Configuration", "Label, Caption, typed Columns with width spans and alignment, Rows, optional Width, Padding, FontSize, semantic Colors, CellStyle, root class and attributes.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent semantic HTML table preserves headers and every cell value."),
+			Preview: charttable.Table(samplePeopleTable()),
+			Code: tableCode(),
+		},
+		Sections: []componentpage.Example{
+			{
+				Title: "Explicit presentation overrides",
+				Description: "Caller colors, numeric alignment, and typed per-cell backgrounds remain options on the same Table component.",
+				Preview: charttable.Table(sampleMarketTable()),
+				Code: marketTableCode(),
+			},
+		},
+		After: demoNote("Table contract", "Every row supplies exactly one string value per named column. Span controls relative width, alignment is typed, and cell meaning remains available in the adjacent semantic table without depending on color."),
 	})
 }
 
