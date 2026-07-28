@@ -2,9 +2,10 @@
 
 Static vector charts need no browser runtime. Interactive charts need the
 version-matched scripts emitted by `components/dependencies`. The dependency
-set includes the small word-cloud extension and pinned geographic resources
-after the core runtime, so every public interactive component shares one
-document-level dependency contract.
+set includes the word-cloud and liquid-gauge extensions plus pinned geographic
+resources. They load in stable order after core: word cloud, liquid, national
+geometry, then regional geometry. Every public interactive component shares
+one document-level dependency contract.
 
 ## Recommended: embedded local runtime
 
@@ -52,8 +53,8 @@ Opt in only when third-party delivery is acceptable:
 @dependencies.Dependencies(dependencies.WithCDN())
 ```
 
-`WithCDN` uses pinned 5.4.3 core, 2.1.0 word-cloud, and commit
-`41f247b1cbb649b029a2d3fffb04f469de372aa7` geometry jsDelivr URLs with
+`WithCDN` uses pinned 5.4.3 core, 2.1.0 word-cloud, 3.1.0 liquid-gauge, and
+commit `41f247b1cbb649b029a2d3fffb04f469de372aa7` geometry jsDelivr URLs with
 SHA-384 Subresource Integrity and `crossorigin="anonymous"`. It does not
 silently fall back to local assets. Allow the CDN origin in `script-src` when
 enforcing CSP.
@@ -66,6 +67,6 @@ Implementation asset names stay confined to this dependency package, the asset
 package, and dependency documentation. Public chart configs remain
 renderer-neutral.
 
-Map resources load after core and word-cloud scripts. Local paths, immutable
-source revision, SHA-256 values, licenses, CDN URLs, and SRI values live in
-`assets/NOTICE.md` and `assets/assets.go`.
+Map resources load after core, word-cloud, and liquid-gauge scripts. Local
+paths, immutable versions or source revisions, SHA-256 values, licenses, CDN
+URLs, and SRI values live in `assets/NOTICE.md` and `assets/assets.go`.
