@@ -36,6 +36,8 @@ type renderConfig struct {
 	GaugeScale string
 	// CandlestickStyles is private JSON consumed by the shared theme runtime.
 	CandlestickStyles string
+	// Liquid is private paint metadata consumed by the shared theme runtime.
+	Liquid string
 	// ScriptReplacements restore values that the private renderer cannot
 	// distinguish from omitted zero values.
 	ScriptReplacements []scriptReplacement

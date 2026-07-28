@@ -31,6 +31,12 @@ func TestDependenciesDefaultsToVendoredRuntime(t *testing.T) {
 	if strings.Index(out, assets.RuntimeURL) > strings.Index(out, assets.WordCloudRuntimeURL) {
 		t.Fatalf("word-cloud runtime loaded before core runtime\n%s", out)
 	}
+	if !strings.Contains(out, `src="`+assets.LiquidRuntimeURL+`"`) {
+		t.Fatalf("Dependencies() missing local liquid runtime %q\n%s", assets.LiquidRuntimeURL, out)
+	}
+	if strings.Index(out, assets.WordCloudRuntimeURL) > strings.Index(out, assets.LiquidRuntimeURL) {
+		t.Fatalf("liquid runtime loaded before word-cloud runtime\n%s", out)
+	}
 }
 
 func TestDependenciesCDNIsExplicitAndPinned(t *testing.T) {
@@ -42,6 +48,8 @@ func TestDependenciesCDNIsExplicitAndPinned(t *testing.T) {
 		`integrity="` + assets.RuntimeCDNIntegrity + `"`,
 		`src="` + assets.WordCloudRuntimeCDNURL + `"`,
 		`integrity="` + assets.WordCloudRuntimeCDNIntegrity + `"`,
+		`src="` + assets.LiquidRuntimeCDNURL + `"`,
+		`integrity="` + assets.LiquidRuntimeCDNIntegrity + `"`,
 		`crossorigin="anonymous"`,
 	} {
 		if !strings.Contains(out, want) {
@@ -53,6 +61,12 @@ func TestDependenciesCDNIsExplicitAndPinned(t *testing.T) {
 	}
 	if strings.Contains(out, assets.WordCloudRuntimeURL) {
 		t.Fatalf("CDN option retained local word-cloud runtime URL\n%s", out)
+	}
+	if strings.Contains(out, assets.LiquidRuntimeURL) {
+		t.Fatalf("CDN option retained local liquid runtime URL\n%s", out)
+	}
+	if !(strings.Index(out, assets.RuntimeCDNURL) < strings.Index(out, assets.WordCloudRuntimeCDNURL) && strings.Index(out, assets.WordCloudRuntimeCDNURL) < strings.Index(out, assets.LiquidRuntimeCDNURL)) {
+		t.Fatalf("CDN dependencies not ordered core, word-cloud, liquid\n%s", out)
 	}
 }
 
@@ -70,6 +84,9 @@ func TestDependenciesAllowsApplicationOwnedLocalPath(t *testing.T) {
 	}
 	if !strings.Contains(out, `src="`+assets.WordCloudRuntimeURL+`"`) {
 		t.Fatalf("custom core path removed local word-cloud runtime\n%s", out)
+	}
+	if !strings.Contains(out, `src="`+assets.LiquidRuntimeURL+`"`) {
+		t.Fatalf("custom core path removed local liquid runtime\n%s", out)
 	}
 }
 
@@ -101,8 +118,8 @@ func TestDependenciesPropagatesTemplNonce(t *testing.T) {
 	if !strings.Contains(out, `nonce="chart-nonce"`) {
 		t.Fatalf("dependency script missing templ nonce\n%s", out)
 	}
-	if strings.Count(out, `nonce="chart-nonce"`) != 2 {
-		t.Fatalf("dependency scripts did not both receive templ nonce\n%s", out)
+	if strings.Count(out, `nonce="chart-nonce"`) != 3 {
+		t.Fatalf("dependency scripts did not all receive templ nonce\n%s", out)
 	}
 }
 

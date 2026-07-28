@@ -129,6 +129,30 @@ func sampleInteractiveGauge() interactive.GaugeConfig {
 	}
 }
 
+func sampleInteractiveLiquidGauge(title string, shape interactive.GaugeLiquidShape, showLabel, showOutline bool, animate *bool) interactive.GaugeConfig {
+	liquid := interactive.GaugeLiquidTreatment{Shape: shape, Animate: animate}
+	if showLabel {
+		liquid.Label = &interactive.GaugeLiquidLabel{Show: interactive.Bool(true)}
+	}
+	if showOutline {
+		liquid.Outline = &interactive.GaugeLiquidOutline{Show: interactive.Bool(true)}
+	}
+	return interactive.GaugeConfig{
+		Label: title, Caption: "Readings: 0.3, 0.4, and 0.5 in range 0 to 1.",
+		Variant: interactive.GaugeVariantLiquid, Max: 1, Height: "320px", Liquid: liquid,
+		Series:  []interactive.GaugeSeries{{Name: "liquid", Data: sampleLiquidGaugeData()}},
+		Options: controlledOptions(title, title),
+	}
+}
+
+func sampleLiquidGaugeData() []interactive.GaugeData {
+	return []interactive.GaugeData{
+		{Name: "Wave 1", Value: .3},
+		{Name: "Wave 2", Value: .4},
+		{Name: "Wave 3", Value: .5},
+	}
+}
+
 func sampleInteractiveFunnel() interactive.FunnelConfig {
 	return interactive.FunnelConfig{
 		Label: "Release pipeline", Caption: "Builds progressing through release stages.",
@@ -670,6 +694,28 @@ func interactiveChartGaugeCode() string {
     Name: "Rollout",
     Data: []interactive.GaugeData{{Name: "Complete", Value: 73}},
   }},
+})`
+}
+
+func interactiveGaugeLiquidCode() string {
+	return `@interactive.Gauge(interactive.GaugeConfig{
+  Label: "Bounded fill",
+  Variant: interactive.GaugeVariantLiquid,
+  Min: 0,
+  Max: 1,
+  Series: []interactive.GaugeSeries{{
+    Name: "liquid",
+    Data: []interactive.GaugeData{
+      {Name: "Wave 1", Value: .3},
+      {Name: "Wave 2", Value: .4},
+      {Name: "Wave 3", Value: .5},
+    },
+  }},
+  Liquid: interactive.GaugeLiquidTreatment{
+    Shape: interactive.GaugeLiquidShapeDiamond,
+    Animate: interactive.Bool(true),
+    Label: &interactive.GaugeLiquidLabel{Show: interactive.Bool(true)},
+  },
 })`
 }
 

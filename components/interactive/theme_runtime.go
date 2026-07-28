@@ -121,6 +121,8 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			try { gaugeScale = JSON.parse(figure.getAttribute("data-goshtoso-charts-gauge-scale") || "null"); } catch (_) {}
 			var candlestickStyles = [];
 			try { candlestickStyles = JSON.parse(figure.getAttribute("data-goshtoso-charts-candlestick-styles") || "[]"); } catch (_) {}
+			var liquidGauge = null;
+			try { liquidGauge = JSON.parse(figure.getAttribute("data-goshtoso-charts-liquid") || "null"); } catch (_) {}
 			var gaugeColors = gaugeScale && (gaugeScale.stops || []).map(function (stop) {
 				if (stop.token === "low") return scaleLow;
 				if (stop.token === "mid") return scaleMid;
@@ -180,6 +182,35 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 					: (item.className ? classColorOrFallback(figure, item.className, palette[itemIndex % palette.length]) : palette[itemIndex % palette.length]);
 				return Object.assign({}, item, { textStyle: Object.assign({}, item.textStyle || {}, { color: wordColor }) });
 			});
+		}
+		if (series.type === "liquidFill") {
+			var liquidPaint = function (paint, fallback) {
+				if (!paint) return fallback;
+				if (paint.class) return classColorOrFallback(figure, paint.class, fallback);
+				if (paint.color) return rendererColor(paint.color, fallback);
+				return fallback;
+			};
+			var wavePaint = liquidGauge && liquidGauge.style;
+			var waveColor = liquidPaint(wavePaint, palette[index % palette.length]);
+			themedItem.color = (series.data || []).map(function (_, waveIndex) {
+				return wavePaint && (wavePaint.color || wavePaint.class) ? waveColor : palette[waveIndex % palette.length];
+			});
+			if (wavePaint && wavePaint.opacity !== undefined) themedItem.itemStyle = { opacity: wavePaint.opacity };
+			var liquidOutline = liquidGauge && liquidGauge.outline;
+			themedItem.outline = { itemStyle: {
+				borderColor: liquidPaint(liquidOutline, outline),
+				borderWidth: liquidOutline && liquidOutline.width !== undefined ? liquidOutline.width : 8
+			} };
+			var liquidBackground = liquidGauge && liquidGauge.background;
+			themedItem.backgroundStyle = {
+				color: liquidPaint(liquidBackground, surfaceAlt),
+				borderColor: liquidBackground && liquidBackground.borderClass
+					? classColorOrFallback(figure, liquidBackground.borderClass, outline)
+					: rendererColor(liquidBackground && liquidBackground.borderColor, outline),
+				borderWidth: liquidBackground && liquidBackground.borderWidth !== undefined ? liquidBackground.borderWidth : 0
+			};
+			var liquidLabel = liquidGauge && liquidGauge.label;
+			themedItem.label = { color: liquidPaint(liquidLabel, strong) };
 		}
         if (series.type === "boxplot" && managesSeriesItem(index)) {
           themedItem.itemStyle = { color: palette[index % palette.length], borderColor: palette[index % palette.length] };

@@ -167,3 +167,17 @@ func TestWordCloudDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 		}
 	}
 }
+
+func TestLiquidGaugeDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	data := sampleLiquidGaugeData()
+	want := []float64{.3, .4, .5}
+	if len(data) != len(want) {
+		t.Fatalf("liquid reading count = %d, want %d", len(data), len(want))
+	}
+	for index := range want {
+		if data[index].Name != fmt.Sprintf("Wave %d", index+1) || data[index].Value != want[index] {
+			t.Fatalf("liquid reading %d = (%q, %g), want (Wave %d, %g)", index, data[index].Name, data[index].Value, index+1, want[index])
+		}
+	}
+}

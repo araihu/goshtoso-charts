@@ -400,6 +400,47 @@ func TestParallelDocumentationPreservesOfficialMultiSeriesExampleWithoutEngineBr
 	}
 }
 
+func TestGaugeDocumentationConsolidatesOfficialLiquidVariantsWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	handler := New()
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/gauge", nil))
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", recorder.Code, http.StatusOK)
+	}
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Interactive gauge", "interactive.Gauge", "components.KindInteractiveGauge", "GaugeVariantLiquid",
+		"basic liquid example", "show label", "show outline", "disable wave animation",
+		"shape(Diamond)", "shape(Pin)", "shape(Arrow)", "shape(Triangle)",
+		"Wave 1", "0.3", "Wave 2", "0.4", "Wave 3", "0.5", "Range: 0 to 1",
+		`data-gauge-variant="progress"`, `data-gauge-liquid-variants`, `data-gauge-liquid-variant="diamond"`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("gauge documentation missing liquid content %q", want)
+		}
+	}
+	if count := strings.Count(body, `data-goshtoso-gauge-liquid-values`); count != 8 {
+		t.Errorf("liquid exact-summary count = %d, want 8", count)
+	}
+	for _, unwanted := range []string{"go-echarts", "echarts-liquidfill", "Apache ECharts", "examples/liquid.go", "infrastructure", "operations"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("gauge component page contains private or invented framing %q", unwanted)
+		}
+	}
+	if strings.Contains(body, "/components/interactive/liquid") || strings.Contains(body, "KindInteractiveLiquid") {
+		t.Fatal("liquid treatment created a separate public component identity")
+	}
+
+	attributions := httptest.NewRecorder()
+	handler.ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	for _, want := range []string{"examples/liquid.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd", "v3.1.0", "BSD-3-Clause"} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("central attributions missing liquid source evidence %q", want)
+		}
+	}
+}
+
 func TestWordCloudDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()

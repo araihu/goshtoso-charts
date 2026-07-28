@@ -9,6 +9,7 @@ type config struct {
 	initialized bool
 	core        scriptConfig
 	wordCloud   scriptConfig
+	liquid      scriptConfig
 	nonce       string
 }
 
@@ -33,6 +34,7 @@ func WithCDN() Option {
 	return optionFunc(func(cfg *config) {
 		cfg.core = scriptConfig{url: assets.RuntimeCDNURL, integrity: assets.RuntimeCDNIntegrity, crossorigin: "anonymous"}
 		cfg.wordCloud = scriptConfig{url: assets.WordCloudRuntimeCDNURL, integrity: assets.WordCloudRuntimeCDNIntegrity, crossorigin: "anonymous"}
+		cfg.liquid = scriptConfig{url: assets.LiquidRuntimeCDNURL, integrity: assets.LiquidRuntimeCDNIntegrity, crossorigin: "anonymous"}
 	})
 }
 
@@ -63,6 +65,7 @@ func newConfig(options []Option) config {
 		initialized: true,
 		core:        scriptConfig{url: assets.RuntimeURL},
 		wordCloud:   scriptConfig{url: assets.WordCloudRuntimeURL},
+		liquid:      scriptConfig{url: assets.LiquidRuntimeURL},
 	}
 	for _, option := range options {
 		if option != nil {
@@ -73,7 +76,7 @@ func newConfig(options []Option) config {
 }
 
 func (cfg config) scripts() []scriptConfig {
-	return []scriptConfig{cfg.core, cfg.wordCloud}
+	return []scriptConfig{cfg.core, cfg.wordCloud, cfg.liquid}
 }
 
 func (cfg config) attributes(script scriptConfig) templ.Attributes {

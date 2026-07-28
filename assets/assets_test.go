@@ -69,3 +69,37 @@ func TestHandlerServesVersionedWordCloudRuntime(t *testing.T) {
 		}
 	}
 }
+
+func TestHandlerServesVersionedLiquidRuntime(t *testing.T) {
+	t.Parallel()
+
+	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodGet, assets.LiquidRuntimeURL, nil)
+	assets.Handler().ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("GET %s status = %d, want %d", assets.LiquidRuntimeURL, recorder.Code, http.StatusOK)
+	}
+	for _, want := range []string{"liquidFill", "waveAnimation", "backgroundStyle"} {
+		if !strings.Contains(recorder.Body.String(), want) {
+			t.Errorf("liquid runtime missing %q", want)
+		}
+	}
+}
+
+func TestHandlerServesLiquidRuntimeLicense(t *testing.T) {
+	t.Parallel()
+
+	recorder := httptest.NewRecorder()
+	request := httptest.NewRequest(http.MethodGet, assets.LiquidLicenseURL, nil)
+	assets.Handler().ServeHTTP(recorder, request)
+
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("GET %s status = %d, want %d", assets.LiquidLicenseURL, recorder.Code, http.StatusOK)
+	}
+	for _, want := range []string{"BSD 3-Clause License", "Copyright (c) 2020, Baidu Inc.", "Redistribution and use"} {
+		if !strings.Contains(recorder.Body.String(), want) {
+			t.Errorf("liquid runtime license missing %q", want)
+		}
+	}
+}

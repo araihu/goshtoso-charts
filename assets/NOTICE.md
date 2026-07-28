@@ -30,3 +30,20 @@ license notice.
 - Release source: `https://github.com/ecomfe/echarts-wordcloud/tree/2.1.0`
 - Published package: `https://www.npmjs.com/package/echarts-wordcloud/v/2.1.0`
 - Bundled MIT notice: `https://github.com/ecomfe/echarts-wordcloud/blob/2.1.0/dist/echarts-wordcloud.min.js.LICENSE.txt`
+
+## Liquid-gauge extension
+
+Goshtoso Charts embeds `echarts-liquidfill` 3.1.0 for the liquid Gauge
+treatment. Version 3 declares compatibility with ECharts 5; its peer range is
+`^5.0.1`, which includes the bundled 5.4.3 runtime. Package metadata declares
+MIT while the distributed `license.md` contains BSD-3-Clause terms. The
+embedded distribution is therefore attributed under BSD-3-Clause.
+
+- Local path: `js/runtime/liquid/3.1.0/runtime.min.js`
+- Bundled license: `js/runtime/liquid/3.1.0/LICENSE.md`
+- License SHA-256: `7fdf029806a89db319a8f2a68b3cac9f36fc798b3207037152a38a2031fa4d05`
+- Local/CDN SHA-256: `7925141a342a2e92fb6223d94a47d8d39534cb40d70f1b28410e9933a8ac840b`
+- Local/CDN SHA-384 SRI: `sha384-+LS91q88WjMob2zpAaAPTyASiqV4HPo9zJHsEwjcukMZevj//sFrxBXdAHe1t2CL`
+- Release source: `https://github.com/ecomfe/echarts-liquidfill/tree/v3.1.0`
+- Published package: `https://www.npmjs.com/package/echarts-liquidfill/v/3.1.0`
+- Distributed license: `https://github.com/ecomfe/echarts-liquidfill/blob/v3.1.0/license.md`

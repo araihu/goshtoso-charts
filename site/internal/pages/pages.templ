@@ -261,14 +261,37 @@ templ InteractiveGaugePage(fragment bool) {
 templ interactiveChartGaugeContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive gauge",
-		Description: "Reusable interactive gauge component for bounded readings, with standard and progress treatments under one stable component contract.",
+		Description: "Reusable interactive gauge component for bounded readings, with standard, progress, and liquid treatments under one stable component contract.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Show one or more current readings against an explicit bounded range.", "Primitive", "interactive.Gauge", "Kind", "components.KindInteractiveGauge", "Configuration", "Label, Caption, standard or progress Variant, Min and Max, typed Series/readings, thermal/reversed/custom/single-color Scale, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Cold-to-warm communicates magnitude, never success/failure; state current values and the range in adjacent color-independent content."),
-			Preview: interactive.Gauge(sampleInteractiveGauge()),
+			AbovePreview: componentContract("Purpose", "Show one or more current readings against an explicit bounded range.", "Primitive", "interactive.Gauge", "Kind", "components.KindInteractiveGauge", "Configuration", "Label, Caption, standard, progress, or liquid Variant, Min and Max, typed Series/readings, dial Scale, typed Liquid wave, shape, outline, background, label, and style options, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Liquid variants include an adjacent exact reading and range summary; every treatment remains color-independent."),
+			Preview: interactiveGaugeVariants(),
 			Code: interactiveChartGaugeCode(),
 		},
-		After: demoNote("Variant contract", "GaugeVariantStandard is the zero-value default and Max defaults to 100. GaugeVariantProgress changes the visual treatment while the constructor, config, Instance, and stable Kind remain the same."),
+		After: interactiveGaugeUsage(),
 	})
+}
+
+templ interactiveGaugeVariants() {
+	<div class="space-y-8">
+		<div data-gauge-variant="progress">@interactive.Gauge(sampleInteractiveGauge())</div>
+		<div class="flex flex-wrap gap-6" data-gauge-liquid-variants>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="basic">@interactive.Gauge(sampleInteractiveLiquidGauge("basic liquid example", interactive.GaugeLiquidShapeCircle, false, false, interactive.Bool(true)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="label">@interactive.Gauge(sampleInteractiveLiquidGauge("show label", interactive.GaugeLiquidShapeCircle, true, false, interactive.Bool(true)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="outline">@interactive.Gauge(sampleInteractiveLiquidGauge("show outline", interactive.GaugeLiquidShapeCircle, true, true, interactive.Bool(true)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="static">@interactive.Gauge(sampleInteractiveLiquidGauge("disable wave animation", interactive.GaugeLiquidShapeCircle, true, true, interactive.Bool(false)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="diamond">@interactive.Gauge(sampleInteractiveLiquidGauge("shape(Diamond)", interactive.GaugeLiquidShapeDiamond, false, false, interactive.Bool(true)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="pin">@interactive.Gauge(sampleInteractiveLiquidGauge("shape(Pin)", interactive.GaugeLiquidShapePin, false, false, interactive.Bool(true)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="arrow">@interactive.Gauge(sampleInteractiveLiquidGauge("shape(Arrow)", interactive.GaugeLiquidShapeArrow, false, false, interactive.Bool(true)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="triangle">@interactive.Gauge(sampleInteractiveLiquidGauge("shape(Triangle)", interactive.GaugeLiquidShapeTriangle, false, false, interactive.Bool(true)))</div>
+		</div>
+	</div>
+}
+
+templ interactiveGaugeUsage() {
+	<div class="space-y-4">
+		@demoNote("Variant contract", "GaugeVariantStandard is the zero-value default and Max defaults to 100. Progress and liquid change visual treatment while Gauge, GaugeConfig, Instance, route, navigation entry, and stable Kind remain the same. Liquid readings normalize privately from Min and Max; wave count equals reading count.")
+		@codeblock.CodeBlock(gettingStartedCodeBlock("templ", "Liquid Gauge usage", interactiveGaugeLiquidCode()))
+	</div>
 }
 
 templ InteractiveFunnelPage(fragment bool) {
