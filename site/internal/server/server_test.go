@@ -30,6 +30,27 @@ func TestDemoRoutesRender(t *testing.T) {
 	}
 }
 
+func TestV11GoshtosoBrandAssetsAndMetadataRender(t *testing.T) {
+	t.Parallel()
+	handler := New()
+	for _, test := range []struct {
+		path string
+		want string
+	}{
+		{"/brand/goshtoso-logo-transparent.svg", "class=\"araihu-brand-v11\""},
+		{"/brand/goshtoso-icon-transparent.svg", "class=\"araihu-brand-v11\""},
+		{"/", `<link rel="icon" href="/brand/goshtoso-icon-transparent.svg">`},
+		{"/", `<title>Overview · Goshtoso Charts</title>`},
+		{"/", `aria-label="Goshtoso Charts"`},
+	} {
+		recorder := httptest.NewRecorder()
+		handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, test.path, nil))
+		if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), test.want) {
+			t.Errorf("GET %s status/body = %d/%q, want %q", test.path, recorder.Code, recorder.Body.String(), test.want)
+		}
+	}
+}
+
 func TestAssetsAreMountedWithoutStripPrefix(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()

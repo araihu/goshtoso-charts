@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	shellassets "github.com/araihu/goshtoso-app-shells/componentdocshell/assets"
+	"github.com/araihu/goshtoso-charts/site/internal/brand"
 	"github.com/araihu/goshtoso-charts/site/internal/pages"
 	"github.com/araihu/goshtoso/assets"
 )
@@ -13,6 +14,7 @@ import (
 func New() http.Handler {
 	mux := http.NewServeMux()
 	mux.Handle("GET /assets/", assets.Handler())
+	mux.Handle("GET /brand/", http.StripPrefix("/brand/", brand.Handler()))
 	mux.Handle("GET /componentdocshell/assets/", shellassets.Handler())
 	mux.HandleFunc("GET /", func(writer http.ResponseWriter, request *http.Request) {
 		if request.URL.Path != "/" {

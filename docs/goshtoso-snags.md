@@ -36,3 +36,11 @@ preview overlay fix. Production review requires the shell-owned preview
 outline, rather than an application-local border workaround, so consumer sites
 must update to the revision containing `3ca565d` and verify the transparent
 layout border plus `::after` outline in light and dark themes.
+
+## 2026-07-28: v11 consumer-brand boundary
+
+`componentdocshell.Brand` accepts a custom logo component and favicon URL, but
+does not serve consumer-owned identity assets. The Charts site therefore mounts
+the approved v11 SVGs itself at `/brand/` and supplies the logo surface, ink,
+and signal variables for Goshtoso's existing `.dark` state. This keeps the
+shell reusable and preserves the upstream SVG geometry unchanged.

@@ -6,6 +6,7 @@ import (
 	"github.com/araihu/goshtoso-app-shells/componentpage"
 	"github.com/araihu/goshtoso-charts/components/heartbeat"
 	"github.com/araihu/goshtoso-charts/components/line"
+	"github.com/araihu/goshtoso-charts/site/internal/brand"
 )
 
 templ OverviewPage(fragment bool) {
@@ -14,7 +15,10 @@ templ OverviewPage(fragment bool) {
 
 templ overviewContent() {
 	<section class="max-w-3xl space-y-4">
-		<p class="text-sm font-semibold text-primary dark:text-primary-dark">Goshtoso Charts</p>
+		<div class="flex flex-wrap items-end gap-x-3 gap-y-1" aria-label="Goshtoso Charts">
+			@brand.LandingLogo()
+			<p class="pb-1 text-sm font-semibold uppercase tracking-wide text-primary dark:text-primary-dark">Charts</p>
+		</div>
 		<h1 class="font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong">SSR charts for Goshtoso</h1>
 		<p class="max-w-2xl text-lg text-on-surface-muted dark:text-on-surface-dark-muted">Generic Go and templ chart components. First driver: Xisnove monitor detail and public status pages. No browser renderer, hydration, or chart-runtime assets.</p>
 	</section>
