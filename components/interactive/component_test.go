@@ -65,7 +65,8 @@ func TestThemeRuntimeUsesIdentityPreservingImmediateSilentMerge(t *testing.T) {
 		`notMerge: false`, `lazyUpdate: false`, `silent: true`,
 		`explicitAnimation === "default"`, `themed.animation = false`,
 		`subtree: false`,
-		`resizeObserver.observe(figure)`,
+		`resizeObserver.observe(host)`,
+		`requestAnimationFrame(function ()`,
 		`if (!explicitColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] }`,
 	} {
 		if !strings.Contains(themeRuntimeMarkup, want) {
@@ -81,23 +82,27 @@ func TestThemeRuntimeResizesCanvasAfterConsumerHostShrinks(t *testing.T) {
 	// wrapper and responsive layout changes without replacing the chart instance.
 	for _, want := range []string{
 		`var resizeObserver = window.ResizeObserver ? new ResizeObserver`,
-		`entries.forEach(function (entry) { resize(entry.target); });`,
-		`if (resizeObserver) resizeObserver.observe(figure);`,
-		`resize(figure);`,
+		`entries.forEach(function (entry) { scheduleResize(entry.target); });`,
+		`if (resizeObserver && host) resizeObserver.observe(host);`,
+		`scheduleResize(host);`,
+		`window.echarts.getInstanceByDom(host)`,
 		`chart.resize();`,
 	} {
 		if !strings.Contains(themeRuntimeMarkup, want) {
 			t.Errorf("responsive theme runtime missing %q", want)
 		}
 	}
-	observe := strings.Index(themeRuntimeMarkup, `resizeObserver.observe(figure)`)
+	observe := strings.Index(themeRuntimeMarkup, `resizeObserver.observe(host)`)
 	if observe < 0 {
-		t.Fatal("interactive registration must observe consumer figure size")
+		t.Fatal("interactive registration must observe chart host size")
 	}
-	resize := strings.Index(themeRuntimeMarkup[observe:], `resize(figure)`)
+	resize := strings.Index(themeRuntimeMarkup[observe:], `scheduleResize(host)`)
 	apply := strings.Index(themeRuntimeMarkup[observe:], `apply(figure)`)
 	if resize < 0 || apply < 0 || resize > apply {
-		t.Fatal("interactive registration must observe and resize before applying theme options")
+		t.Fatal("interactive registration must observe and schedule resize before applying theme options")
+	}
+	if strings.Contains(themeRuntimeMarkup, `echarts.init(`) {
+		t.Fatal("shared runtime must resize the existing instance without reinitializing it")
 	}
 }
 

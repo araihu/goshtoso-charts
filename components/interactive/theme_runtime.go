@@ -49,16 +49,23 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
     var repeat = function (items, value) {
       return (items && items.length ? items : []).map(function () { return value; });
     };
-    var resize = function (figure) {
-      if (!figure.isConnected || !window.echarts) return;
-      var host = figure.querySelector("[_echarts_instance_]");
-      if (!host) return;
+    var resize = function (host) {
+      if (!host.isConnected || !window.echarts) return;
       var chart = window.echarts.getInstanceByDom(host);
       if (!chart) return;
       chart.resize();
     };
+    var pendingResizeHosts = new WeakSet();
+    var scheduleResize = function (host) {
+      if (!host || pendingResizeHosts.has(host)) return;
+      pendingResizeHosts.add(host);
+      requestAnimationFrame(function () {
+        pendingResizeHosts.delete(host);
+        resize(host);
+      });
+    };
     var resizeObserver = window.ResizeObserver ? new ResizeObserver(function (entries) {
-      entries.forEach(function (entry) { resize(entry.target); });
+      entries.forEach(function (entry) { scheduleResize(entry.target); });
     }) : null;
     var apply = function (figure) {
       if (!figure.isConnected || !window.echarts) return;
@@ -192,8 +199,9 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
     runtime = window[key] = {
       register: function (figure) {
         figures.add(figure);
-        if (resizeObserver) resizeObserver.observe(figure);
-        resize(figure);
+        var host = figure.querySelector("[_echarts_instance_]");
+        if (resizeObserver && host) resizeObserver.observe(host);
+        scheduleResize(host);
         apply(figure);
       },
       refresh: refresh
