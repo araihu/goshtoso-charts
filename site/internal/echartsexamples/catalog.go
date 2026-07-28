@@ -15,11 +15,13 @@ type Example struct {
 
 // All returns every currently ported upstream example in stable catalog order.
 func All() []Example {
-	result := make([]Example, 0, len(CartesianExamples)+len(HierarchyExamples)+len(StatisticalExamples)+len(ExtensionExamples))
+	result := make([]Example, 0, len(CartesianExamples)+len(HierarchyExamples)+len(StatisticalExamples)+len(ExtensionExamples)+len(WebGLExamples)+len(SupportExamples))
 	result = append(result, CartesianExamples...)
 	result = append(result, HierarchyExamples...)
 	result = append(result, StatisticalExamples...)
 	result = append(result, ExtensionExamples...)
+	result = append(result, WebGLExamples...)
+	result = append(result, SupportExamples...)
 	return result
 }
 

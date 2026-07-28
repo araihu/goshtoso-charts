@@ -7,7 +7,7 @@ import (
 	"net/http"
 )
 
-//go:embed assets/echarts.min.js
+//go:embed assets/*.js assets/maps/*.js
 var files embed.FS
 
 // Handler serves ECharts without any third-party runtime origin.

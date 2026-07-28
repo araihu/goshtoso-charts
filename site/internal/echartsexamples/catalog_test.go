@@ -8,8 +8,8 @@ import (
 func TestCatalogPortsEveryCurrent2DExampleVariation(t *testing.T) {
 	t.Parallel()
 	examples := All()
-	if len(examples) != 94 {
-		t.Fatalf("catalog entries = %d, want 94", len(examples))
+	if len(examples) != 121 {
+		t.Fatalf("catalog entries = %d, want 121", len(examples))
 	}
 	seen := make(map[string]bool, len(examples))
 	for _, example := range examples {

@@ -75,10 +75,12 @@ func TestAssetsAreMountedWithoutStripPrefix(t *testing.T) {
 
 func TestEChartsRuntimeIsLocal(t *testing.T) {
 	t.Parallel()
-	recorder := httptest.NewRecorder()
-	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/charts/echarts/echarts.min.js", nil))
-	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), "Apache") {
-		t.Fatalf("GET local ECharts runtime status/body = %d/%q", recorder.Code, recorder.Body.String()[:min(80, recorder.Body.Len())])
+	for _, path := range []string{"/charts/echarts/echarts@4.min.js", "/charts/echarts/echarts-gl.min.js", "/charts/echarts/echarts-liquidfill.min.js", "/charts/echarts/echarts-wordcloud.min.js", "/charts/echarts/maps/china.js", "/charts/echarts/maps/guangdong.js"} {
+		recorder := httptest.NewRecorder()
+		New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, path, nil))
+		if recorder.Code != http.StatusOK || recorder.Body.Len() == 0 {
+			t.Fatalf("GET %s status/body = %d/%d", path, recorder.Code, recorder.Body.Len())
+		}
 	}
 }
 
