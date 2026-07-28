@@ -140,6 +140,27 @@ func TestComponentDocsShellAssetsRender(t *testing.T) {
 	}
 }
 
+func TestAraiHuThemeIsCurrentAndDefault(t *testing.T) {
+	t.Parallel()
+	handler := New()
+
+	page := httptest.NewRecorder()
+	handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, "/", nil))
+	for _, want := range []string{`"theme":"araihu"`, `/componentdocshell/assets/araihu.css`} {
+		if !strings.Contains(page.Body.String(), want) {
+			t.Errorf("charts demo default theme missing %q", want)
+		}
+	}
+
+	theme := httptest.NewRecorder()
+	handler.ServeHTTP(theme, httptest.NewRequest(http.MethodGet, "/componentdocshell/assets/araihu.css", nil))
+	for _, want := range []string{`--araihu-logo-surface`, `--araihu-logo-ink`, `--araihu-logo-signal`, `.dark [data-theme="araihu"]`} {
+		if !strings.Contains(theme.Body.String(), want) {
+			t.Errorf("charts demo theme missing V11 contract %q", want)
+		}
+	}
+}
+
 func TestHTMXNavigationRendersContentAndSidebarFragment(t *testing.T) {
 	t.Parallel()
 	request := httptest.NewRequest(http.MethodGet, "/components/line", nil)
