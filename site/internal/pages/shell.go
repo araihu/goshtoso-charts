@@ -22,7 +22,7 @@ func shellPage(title string, active string, content templ.Component) componentdo
 		Active:        active,
 		Content:       content,
 		Head:          templ.Join(brand.Head(), dependencies.Dependencies()),
-		EnableTOC:     active == "getting-started" || active == "line" || active == "bar" || active == "pie" || active == "scatter" || active == "radar" || active == "candlestick" || active == "funnel" || active == "heatmap" || active == "table" || active == "violin" || active == "interactive-bar" || active == "interactive-line" || active == "interactive-scatter-3d" || active == "interactive-bar-3d" || active == "interactive-candlestick" || active == "interactive-tree" || active == "interactive-sunburst" || active == "interactive-treemap" || active == "interactive-parallel" || active == "interactive-theme-river" || active == "interactive-word-cloud" || active == "interactive-map" || active == "interactive-geo" || active == "live-availability",
+		EnableTOC:     active == "getting-started" || active == "line" || active == "bar" || active == "pie" || active == "scatter" || active == "radar" || active == "candlestick" || active == "funnel" || active == "heatmap" || active == "table" || active == "violin" || active == "interactive-bar" || active == "interactive-line" || active == "interactive-scatter-3d" || active == "interactive-bar-3d" || active == "interactive-surface-3d" || active == "interactive-candlestick" || active == "interactive-tree" || active == "interactive-sunburst" || active == "interactive-treemap" || active == "interactive-parallel" || active == "interactive-theme-river" || active == "interactive-word-cloud" || active == "interactive-map" || active == "interactive-geo" || active == "live-availability",
 	}
 }
 
@@ -82,6 +82,7 @@ func shellNavigation() componentdocshell.Navigation {
 				Items: []sidebar.Item{
 					{ID: "interactive-scatter-3d", Label: "Scatter 3D", Href: "/components/interactive/scatter-3d"},
 					{ID: "interactive-bar-3d", Label: "Bar 3D", Href: "/components/interactive/bar-3d"},
+					{ID: "interactive-surface-3d", Label: "Surface 3D", Href: "/components/interactive/surface-3d"},
 				},
 			},
 			{

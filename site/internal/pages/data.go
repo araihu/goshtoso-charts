@@ -29,6 +29,9 @@ const (
 	doughnutUpstreamPath          = "examples/1-Painter/doughnut_chart-1-basic/main.go"
 	doughnutUpstreamRevision      = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
 	doughnutUpstreamSHA256        = "b97bca2322e90e2f03ab49aa77f683d0c58e027846b939e5a61100602dad1ebf"
+	dualAxisLineUpstreamPath      = "examples/1-Painter/line_chart-8-dual_y_axis/main.go"
+	dualAxisLineUpstreamRevision  = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
+	dualAxisLineUpstreamSHA256    = "78a3edd9aa356dc798c367b40cc5abecdb765b634795c38767f34bf266b805af"
 )
 
 type deterministicLCG struct{ state uint64 }
@@ -86,6 +89,35 @@ func sampleLatency() line.Config {
 		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "https-monitor-latency"},
 	}
+}
+
+func sampleDualAxisLine() line.Config {
+	return line.Config{
+		Label:   "Dual Axis Line",
+		Caption: "Two series retain independent left and right scales.",
+		Title:   line.Title{Text: "Dual Axis Line"},
+		Labels:  []string{"A", "B", "C", "D", "E", "F", "G"},
+		Series: []line.Series{
+			{Name: "Left Series", Values: []float64{120, 132, 101, 134, 90, 230, 210}},
+			{Name: "Right Series", Values: []float64{820, 932, 901, 934, 1290, 1330, 1320}, YAxisIndex: 1},
+		},
+		YAxes:    []line.Axis{{}, {}},
+		Width:    600,
+		Height:   400,
+		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "dual-axis-line"},
+	}
+}
+
+func sampleDualAxisLineOverrides() line.Config {
+	cfg := sampleDualAxisLine()
+	cfg.Label = "Dual Axis Line caller presentation overrides"
+	cfg.Series[0].Color = "#14532d"
+	cfg.Series[1].Class = "caller-right-series"
+	cfg.YAxes[0].Class = "caller-left-axis"
+	cfg.YAxes[1].Color = "#7e22ce"
+	cfg.Export = &chartcontrol.ExportOptions{Filename: "dual-axis-line-overrides"}
+	return cfg
 }
 
 func sampleDeployments() bar.Config {
@@ -476,6 +508,31 @@ func lineCode() string {
   Labels: []string{"08:00", "08:01", "08:02"},
   Series: []line.Series{{Name: "Latency (ms)", Values: []float64{42, 47, 51}}},
 })`
+}
+
+func dualAxisLineCode() string {
+	return `@line.Line(line.Config{
+  Label: "Dual Axis Line",
+  Title: line.Title{Text: "Dual Axis Line"},
+  Labels: []string{"A", "B", "C", "D", "E", "F", "G"},
+  Series: []line.Series{
+    {Name: "Left Series", Values: []float64{120, 132, 101, 134, 90, 230, 210}},
+    {Name: "Right Series", Values: []float64{820, 932, 901, 934, 1290, 1330, 1320}, YAxisIndex: 1},
+  },
+  YAxes: []line.Axis{{}, {}},
+  Width: 600,
+  Height: 400,
+})`
+}
+
+func dualAxisLineOverridesCode() string {
+	return `cfg := dualAxisLineConfig()
+cfg.Series[0].Color = "#14532d"
+cfg.Series[1].Class = "caller-right-series"
+cfg.YAxes[0].Class = "caller-left-axis"
+cfg.YAxes[1].Color = "#7e22ce"
+
+@line.Line(cfg)`
 }
 
 func barCode() string {

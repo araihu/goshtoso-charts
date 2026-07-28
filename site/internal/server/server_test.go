@@ -37,6 +37,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/components/interactive/scatter", "Interactive scatter"},
 		{"/components/interactive/scatter-3d", "Interactive scatter 3D"},
 		{"/components/interactive/bar-3d", "Interactive bar 3D"},
+		{"/components/interactive/surface-3d", "Interactive surface 3D"},
 		{"/components/interactive/pie", "Interactive pie"},
 		{"/components/interactive/radar", "Interactive radar"},
 		{"/components/interactive/heatmap", "Interactive heatmap"},
@@ -59,6 +60,44 @@ func TestDemoRoutesRender(t *testing.T) {
 		}
 		if !strings.Contains(recorder.Body.String(), test.want) {
 			t.Errorf("GET %s missing %q", test.path, test.want)
+		}
+	}
+}
+
+func TestLinePageIncludesPinnedDualAxisTreatmentWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	handler := New()
+	page := httptest.NewRecorder()
+	handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, "/components/line", nil))
+	body := page.Body.String()
+	for _, want := range []string{
+		"Dual Y-axis treatment", "Dual Axis Line", "Left Series", "Right Series",
+		"120", "132", "101", "134", "90", "230", "210",
+		"820", "932", "901", "934", "1290", "1330", "1320",
+		"Left Y axis", "Right Y axis", "Exact series values", "Y axis mapping",
+		`data-goshtoso-candidate="line-dual-axis-78a3edd9aa356dc7"`,
+		"line.Line", "components.KindLineChart", "YAxes", "YAxisIndex",
+		"Presentation overrides", "caller-right-series", "caller-left-axis",
+		"Expand", "SVG", "PNG",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("Line page missing %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-analyze", "line_chart-8-dual_y_axis/main.go", "infrastructure", "operations", "raw map"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("Line page contains non-neutral content %q", unwanted)
+		}
+	}
+
+	attributions := httptest.NewRecorder()
+	handler.ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	for _, want := range []string{
+		"examples/1-Painter/line_chart-8-dual_y_axis/main.go",
+		"1fe31b06b8a82e00df877ff4417a75858547c1c2",
+	} {
+		if !strings.Contains(attributions.Body.String(), want) {
+			t.Errorf("central attribution missing pinned Line source %q", want)
 		}
 	}
 }
@@ -617,6 +656,44 @@ func TestBar3DDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *tes
 	for _, want := range []string{"examples/bar3d.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd", "Three-dimensional chart extension", "v2.0.9", "a3cb1c6bf0f6", "BSD-3-Clause"} {
 		if !strings.Contains(attributions, want) {
 			t.Errorf("central attributions missing Bar3D evidence %q", want)
+		}
+	}
+}
+
+func TestSurface3DDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/surface-3d", nil))
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("GET surface-3d status = %d", recorder.Code)
+	}
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Interactive surface 3D", "interactive.Surface3D", "components.KindInteractiveSurface3D", "Interactive / 3D",
+		"basic surface3D example", "Rose style", "14400 ordered points", "3600 ordered points",
+		"y = i / 60", "x = j / 60", "y = i / 10", "x = j / 10",
+		"Download all exact points as CSV", "Surface3DPaletteColdToWarm",
+		`data-surface3d-variant="base"`, `data-surface3d-variant="rose"`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("surface-3d documentation missing %q", want)
+		}
+	}
+	if count := strings.Count(body, "<tr"); count != 0 {
+		t.Errorf("surface-3d initial DOM table rows = %d, want 0", count)
+	}
+	for _, unwanted := range []string{"go-echarts", "Apache ECharts", "echarts-gl", "operations", "infrastructure"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("surface-3d component page contains private or invented framing %q", unwanted)
+		}
+	}
+
+	recorder = httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/attributions", nil))
+	attributions := recorder.Body.String()
+	for _, want := range []string{"examples/surface3d.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd", "Three-dimensional chart extension", "v2.0.9", "a3cb1c6bf0f6", "BSD-3-Clause"} {
+		if !strings.Contains(attributions, want) {
+			t.Errorf("central attributions missing Surface3D evidence %q", want)
 		}
 	}
 }

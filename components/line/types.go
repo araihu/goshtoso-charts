@@ -3,15 +3,37 @@ package line
 
 import (
 	"fmt"
+	"math"
+	"strings"
 
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
 
+// Title controls the visible chart title.
+type Title struct {
+	Text string
+}
+
+// Axis controls one numeric Y axis. Unit is a suggested positive tick step.
+// Min and Max optionally bound the axis and its assigned values. Color and
+// Class are mutually exclusive presentation overrides.
+type Axis struct {
+	Title string
+	Unit  float64
+	Min   *float64
+	Max   *float64
+	Color string
+	Class string
+}
+
 // Series is one labeled sequence of values. Values must align with Config.Labels.
 type Series struct {
-	Name   string
-	Values []float64
+	Name       string
+	Values     []float64
+	YAxisIndex int
+	Color      string
+	Class      string
 }
 
 // Config describes an SSR SVG line chart.
@@ -22,11 +44,15 @@ type Series struct {
 type Config struct {
 	Label   string
 	Caption string
+	Title   Title
 	Labels  []string
 	Series  []Series
-	Width   int
-	Height  int
-	Style   charttheme.Style
+	// YAxes optionally configures one or two numeric axes. Its zero value keeps
+	// the original single-axis Line rendering byte-for-byte.
+	YAxes  []Axis
+	Width  int
+	Height int
+	Style  charttheme.Style
 	// Controls configures shared controls; Expand defaults on while fullscreen and collapse default off.
 	Controls chartcontrol.Options
 	// Export customizes or disables default SVG and PNG export.
@@ -34,7 +60,7 @@ type Config struct {
 }
 
 func (cfg Config) validate() error {
-	if cfg.Label == "" {
+	if strings.TrimSpace(cfg.Label) == "" {
 		return fmt.Errorf("line chart label is required")
 	}
 	if len(cfg.Labels) == 0 {
@@ -43,16 +69,111 @@ func (cfg Config) validate() error {
 	if len(cfg.Series) == 0 {
 		return fmt.Errorf("line chart needs at least one series")
 	}
+	if cfg.Width < 0 {
+		return fmt.Errorf("line chart width cannot be negative")
+	}
+	if cfg.Height < 0 {
+		return fmt.Errorf("line chart height cannot be negative")
+	}
+	if len(cfg.YAxes) > 2 {
+		return fmt.Errorf("line chart supports at most two Y axes")
+	}
+	axisCount := len(cfg.YAxes)
+	if axisCount == 0 {
+		axisCount = 1
+	}
+	labels := make(map[string]struct{}, len(cfg.Labels))
+	for index, label := range cfg.Labels {
+		label = strings.TrimSpace(label)
+		if label == "" {
+			return fmt.Errorf("line chart label %d cannot be empty", index+1)
+		}
+		if _, exists := labels[label]; exists {
+			return fmt.Errorf("line chart label %q is duplicated", label)
+		}
+		labels[label] = struct{}{}
+	}
+	seriesNames := make(map[string]struct{}, len(cfg.Series))
+	usedAxes := make([]bool, axisCount)
+	for index, axis := range cfg.YAxes {
+		if !finite(axis.Unit) || axis.Unit < 0 {
+			return fmt.Errorf("line chart Y axis %d unit must be finite and non-negative", index)
+		}
+		if axis.Min != nil && !finite(*axis.Min) {
+			return fmt.Errorf("line chart Y axis %d minimum must be finite", index)
+		}
+		if axis.Max != nil && !finite(*axis.Max) {
+			return fmt.Errorf("line chart Y axis %d maximum must be finite", index)
+		}
+		if axis.Min != nil && axis.Max != nil && *axis.Min >= *axis.Max {
+			return fmt.Errorf("line chart Y axis %d minimum must be less than maximum", index)
+		}
+		if strings.TrimSpace(axis.Color) != "" && strings.TrimSpace(axis.Class) != "" {
+			return fmt.Errorf("line chart Y axis %d cannot set both color and class", index)
+		}
+		if unsafeCSS(axis.Color) {
+			return fmt.Errorf("line chart Y axis %d color is unsafe", index)
+		}
+		if unsafeClass(axis.Class) {
+			return fmt.Errorf("line chart Y axis %d class is unsafe", index)
+		}
+	}
 	for index, series := range cfg.Series {
-		if series.Name == "" {
+		name := strings.TrimSpace(series.Name)
+		if name == "" {
 			return fmt.Errorf("line chart series %d needs a name", index+1)
 		}
+		if _, exists := seriesNames[name]; exists {
+			return fmt.Errorf("line chart series name %q is duplicated", name)
+		}
+		seriesNames[name] = struct{}{}
 		if len(series.Values) != len(cfg.Labels) {
 			return fmt.Errorf("line chart series %q has %d values; need %d", series.Name, len(series.Values), len(cfg.Labels))
+		}
+		if series.YAxisIndex < 0 || series.YAxisIndex >= axisCount {
+			return fmt.Errorf("line chart series %q Y axis index %d is out of bounds for %d axes", series.Name, series.YAxisIndex, axisCount)
+		}
+		usedAxes[series.YAxisIndex] = true
+		if strings.TrimSpace(series.Color) != "" && strings.TrimSpace(series.Class) != "" {
+			return fmt.Errorf("line chart series %q cannot set both color and class", series.Name)
+		}
+		if unsafeCSS(series.Color) {
+			return fmt.Errorf("line chart series %q color is unsafe", series.Name)
+		}
+		if unsafeClass(series.Class) {
+			return fmt.Errorf("line chart series %q class is unsafe", series.Name)
+		}
+		for valueIndex, value := range series.Values {
+			if !finite(value) {
+				return fmt.Errorf("line chart series %q value %d must be finite", series.Name, valueIndex)
+			}
+			if len(cfg.YAxes) > 0 {
+				axis := cfg.YAxes[series.YAxisIndex]
+				if axis.Min != nil && value < *axis.Min {
+					return fmt.Errorf("line chart series %q value %d is below Y axis %d minimum", series.Name, valueIndex, series.YAxisIndex)
+				}
+				if axis.Max != nil && value > *axis.Max {
+					return fmt.Errorf("line chart series %q value %d is above Y axis %d maximum", series.Name, valueIndex, series.YAxisIndex)
+				}
+			}
+		}
+	}
+	for index := range cfg.YAxes {
+		if !usedAxes[index] {
+			return fmt.Errorf("line chart Y axis %d has no assigned series", index)
 		}
 	}
 	return nil
 }
+
+func finite(value float64) bool { return !math.IsNaN(value) && !math.IsInf(value, 0) }
+
+func unsafeCSS(value string) bool {
+	value = strings.ToLower(strings.TrimSpace(value))
+	return strings.ContainsAny(value, ";{}<>\\\"") || strings.Contains(value, "url(") || strings.Contains(value, "expression(")
+}
+
+func unsafeClass(value string) bool { return strings.ContainsAny(value, "\"'<>;") }
 
 func (cfg Config) width() int {
 	if cfg.Width > 0 {

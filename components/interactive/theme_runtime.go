@@ -138,6 +138,9 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			var bar3DPaints = [];
 			try { bar3DPaints = JSON.parse(figure.getAttribute("data-goshtoso-charts-bar3d-paints") || "[]"); } catch (_) {}
 			var bar3DColdToWarm = figure.getAttribute("data-goshtoso-charts-bar3d-cold-to-warm") === "true";
+			var surface3DPaints = [];
+			try { surface3DPaints = JSON.parse(figure.getAttribute("data-goshtoso-charts-surface3d-paints") || "[]"); } catch (_) {}
+			var surface3DColdToWarm = figure.getAttribute("data-goshtoso-charts-surface3d-cold-to-warm") === "true";
 			var gaugeColors = gaugeScale && (gaugeScale.stops || []).map(function (stop) {
 				if (stop.token === "low") return scaleLow;
 				if (stop.token === "mid") return scaleMid;
@@ -291,6 +294,23 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 				return Object.assign({}, item, { itemStyle: Object.assign({}, item.itemStyle || {}, { color: cellColor }) });
 			});
 		}
+		if (series.type === "surface") {
+			var surface3DPaint = surface3DPaints[index] || {};
+			var surface3DSeriesColor = surface3DPaint.class
+				? classColorOrFallback(figure, surface3DPaint.class, palette[index % palette.length])
+				: (surface3DPaint.color
+					? rendererColor(surface3DPaint.color, palette[index % palette.length])
+					: palette[index % palette.length]);
+			themedItem.itemStyle = Object.assign({}, series.itemStyle || {}, { color: surface3DSeriesColor });
+			themedItem.data = (series.data || []).map(function (item) {
+				if (!item || typeof item !== "object") return item;
+				var pointColor = item.sourceColor
+					? rendererColor(item.sourceColor, surface3DSeriesColor)
+					: (item.className ? classColorOrFallback(figure, item.className, surface3DSeriesColor) : "");
+				if (!pointColor) return item;
+				return Object.assign({}, item, { itemStyle: Object.assign({}, item.itemStyle || {}, { color: pointColor }) });
+			});
+		}
         if (series.type === "boxplot" && managesSeriesItem(index)) {
           themedItem.itemStyle = { color: palette[index % palette.length], borderColor: palette[index % palette.length] };
         }
@@ -332,7 +352,7 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			}).filter(Boolean);
       var themedVisualMaps = (current.visualMap || []).map(function () {
         var visualMap = { textStyle: { color: text } };
-        if (scatter3DColdToWarm || bar3DColdToWarm) {
+        if (scatter3DColdToWarm || bar3DColdToWarm || surface3DColdToWarm) {
           visualMap.inRange = { color: Array.from({ length: 10 }, function (_, index) {
             return cssColor(figure, "--color-chart-scatter3d-" + (index + 1), scatter3DColdToWarmFallbacks[index]);
           }) };

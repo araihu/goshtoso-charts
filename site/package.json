@@ -12,7 +12,9 @@
     "test:funnel": "node --test browser/funnel.test.cjs",
     "test:gauge-liquid": "node --test browser/gauge_liquid.test.cjs",
     "test:geo": "node --test browser/geo.test.cjs",
+    "test:line-dual-axis": "node --test browser/line_dual_axis.test.cjs",
     "test:pie": "node --test browser/pie.test.cjs",
+    "test:surface3d": "node --test browser/surface3d.test.cjs",
     "test:table": "node --test browser/table.test.cjs",
     "test:word-cloud": "node --test browser/word_cloud.test.cjs"
   }

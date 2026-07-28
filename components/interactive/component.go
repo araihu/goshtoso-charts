@@ -50,6 +50,9 @@ type renderConfig struct {
 	// Bar3DPaints and Bar3DColdToWarm are private paint metadata.
 	Bar3DPaints     string
 	Bar3DColdToWarm bool
+	// Surface3DPaints and Surface3DColdToWarm are private paint metadata.
+	Surface3DPaints     string
+	Surface3DColdToWarm bool
 	// ScriptReplacements restore values that the private renderer cannot
 	// distinguish from omitted zero values.
 	ScriptReplacements []scriptReplacement

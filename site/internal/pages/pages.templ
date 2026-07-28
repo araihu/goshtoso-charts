@@ -198,6 +198,30 @@ templ InteractiveBar3DPage(fragment bool) {
 	@layout("Interactive bar 3D", "interactive-bar-3d", interactiveBar3DContent(), fragment)
 }
 
+templ InteractiveSurface3DPage(fragment bool) {
+	@layout("Interactive surface 3D", "interactive-surface-3d", interactiveSurface3DContent(), fragment)
+}
+
+templ interactiveSurface3DContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive surface 3D",
+		Description: "Reusable three-dimensional mathematical surface with typed points, axes, visual range, grid, view, caller paint, responsive sizing, and deterministic exact-data access.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Explore a sampled mathematical surface across two input dimensions and one output dimension.", "Primitive", "interactive.Surface3D", "Kind", "components.KindInteractiveSurface3D", "Configuration", "Label, Caption, typed Point3D series, named three-axis options, visual range and palette, grid and view options, shading, caller Color or Class, renderer-neutral chart options, exact-data formula, size, root attributes, controls, export, and chart style.", "Accessibility", "Figure name comes from Label and formula remains visible. Each variant reports exact count and domains, then offers an adjacent user-triggered CSV containing every ordered point without adding 18,000 table rows to the initial DOM."),
+			Preview: interactiveSurface3DVariants(),
+			Code: interactiveSurface3DCode(),
+		},
+		After: demoNote("Variant contract", "The base grid and Rose style preserve their formulas, loop order, domains, visual range, and ten-color scale as two datasets on one Surface3D component, route, Instance, and stable Kind."),
+	})
+}
+
+templ interactiveSurface3DVariants() {
+	<div class="space-y-10" data-surface3d-variants>
+		<div data-surface3d-variant="base">@sampleInteractiveSurface3D("basic surface3D example", interactiveSurface3DBaseFormula, "basic-surface3d-example", interactiveSurface3DBasePoints)</div>
+		<div data-surface3d-variant="rose">@sampleInteractiveSurface3D("Rose style", interactiveSurface3DRoseFormula, "rose-style", interactiveSurface3DRosePoints)</div>
+	</div>
+}
+
 templ interactiveBar3DContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive bar 3D",
@@ -729,12 +753,32 @@ templ lineContent() {
 		Title: "Line chart",
 		Description: "Quantitative SSR SVG for latency, queue depth, or any ordered numeric series. Renderer stays Go-native; surrounding panel stays application-owned.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Summarize one or more ordered numeric series without browser rendering.", "Primitive", "line.Line", "Kind", "components.KindLineChart", "Configuration", "Label, Caption, axis Labels, named Series, optional Width, and Height.", "Accessibility", "Figure name comes from Label; Caption stays visible. Keep an adjacent table or text summary when exact values are needed."),
+			AbovePreview: componentContract("Purpose", "Summarize one or more ordered numeric series without browser rendering.", "Primitive", "line.Line", "Kind", "components.KindLineChart", "Configuration", "Label, Caption, typed Title, axis Labels, named Series, optional one or two YAxes with finite ranges and units, Width, Height, chart palette, and shared controls/export.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent table maps every exact value to its named series and Y axis."),
 			Preview: line.Line(sampleLatency()),
 			Code: lineCode(),
 		},
+		Sections: []componentpage.Example{
+			{
+				Title: "Dual Y-axis treatment",
+				Description: "Two series retain independent theme-matched left and right scales while remaining one Line component.",
+				Preview: dualAxisLineCandidate(),
+				Code: dualAxisLineCode(),
+			},
+			{
+				Title: "Presentation overrides",
+				Description: "Series and axes accept either a caller color or semantic class at each boundary.",
+				Preview: line.Line(sampleDualAxisLineOverrides()),
+				Code: dualAxisLineOverridesCode(),
+			},
+		},
 		After: demoNote("Theme contract", "Static line charts resolve Goshtoso semantic CSS tokens at display time. One SSR response follows every built-in theme and its dark mode; no browser chart renderer is involved."),
 	})
+}
+
+templ dualAxisLineCandidate() {
+	<div data-goshtoso-candidate="line-dual-axis-78a3edd9aa356dc7">
+		@line.Line(sampleDualAxisLine())
+	</div>
 }
 
 templ LiveAvailabilityExample(fragment bool) {

@@ -1,5 +1,19 @@
 # Goshtoso integration snags
 
+## 2026-07-28: dual-axis SVG classes and browser color spaces need private resolution
+
+The static renderer accepts per-axis colors but has no semantic-class hook that
+can cover the axis spine, ticks, labels, and title together. The Line adapter
+therefore assigns private unique placeholder colors, decorates only matching
+SVG elements with caller classes, then replaces placeholders with
+renderer-neutral Goshtoso tokens or validated caller colors. None of those
+renderer details escape the public API.
+
+Modern browser computed styles may preserve theme colors as `oklch(...)`
+instead of returning `rgb(...)`. Browser contrast checks cannot parse those
+strings with an RGB-only helper. Resolve the computed color by painting one
+pixel to a canvas and reading its RGB channels before calculating luminance.
+
 ## 2026-07-28: ThemeRiver boundary-gap adapter gap
 
 The pinned private interactive-chart adapter can serialize ThemeRiver data and
@@ -251,3 +265,19 @@ require 4.5:1 chart-text contrast, 3:1 mark-boundary contrast, distinct series
 fills, and the adjacent exact-value table across Goshtoso and AraiHu light/dark
 modes. This avoids a component-local palette fork and keeps meaning independent
 of color.
+
+## 2026-07-28: Surface3D adapter serializes the wrong series type
+
+go-echarts v2.7.2 `charts.Surface3D.AddSeries` passes the Scatter3D series type
+to its shared 3D-series builder. The resulting option registers `scatter3D`
+instead of the required `surface`, even though `Surface3D.Type()` reports the
+surface chart type. The Surface3D component repairs only the private serialized
+series discriminator after using the typed adapter. Public configuration stays
+renderer-neutral, and component plus browser tests assert the final series type.
+
+Dense mathematical grids expose a second integration constraint: 18,000 exact
+points cannot become initial-DOM table rows. Surface3D keeps the formula, point
+count, and computed X/Y/Z domains visible, then provides an adjacent,
+user-triggered deterministic CSV download containing every point in plot order.
+The browser gate verifies CSV counts and endpoints alongside independent Go and
+browser serialization hashes.

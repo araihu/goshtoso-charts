@@ -14,6 +14,31 @@ import (
 	"github.com/araihu/goshtoso-charts/components/pie"
 )
 
+func TestDualAxisLineSampleMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if dualAxisLineUpstreamPath != "examples/1-Painter/line_chart-8-dual_y_axis/main.go" ||
+		dualAxisLineUpstreamRevision != "1fe31b06b8a82e00df877ff4417a75858547c1c2" ||
+		dualAxisLineUpstreamSHA256 != "78a3edd9aa356dc798c367b40cc5abecdb765b634795c38767f34bf266b805af" {
+		t.Fatalf("dual-axis upstream source = %s@%s SHA-256 %s", dualAxisLineUpstreamPath, dualAxisLineUpstreamRevision, dualAxisLineUpstreamSHA256)
+	}
+	cfg := sampleDualAxisLine()
+	if cfg.Label != "Dual Axis Line" || cfg.Title.Text != "Dual Axis Line" || cfg.Width != 600 || cfg.Height != 400 {
+		t.Fatalf("dual-axis title/geometry = %q %#v %dx%d", cfg.Label, cfg.Title, cfg.Width, cfg.Height)
+	}
+	if !reflect.DeepEqual(cfg.Labels, []string{"A", "B", "C", "D", "E", "F", "G"}) {
+		t.Fatalf("dual-axis labels = %#v", cfg.Labels)
+	}
+	if len(cfg.Series) != 2 || len(cfg.YAxes) != 2 ||
+		cfg.Series[0].Name != "Left Series" || cfg.Series[1].Name != "Right Series" ||
+		cfg.Series[0].YAxisIndex != 0 || cfg.Series[1].YAxisIndex != 1 {
+		t.Fatalf("dual-axis series/axes = %#v / %#v", cfg.Series, cfg.YAxes)
+	}
+	if !reflect.DeepEqual(cfg.Series[0].Values, []float64{120, 132, 101, 134, 90, 230, 210}) ||
+		!reflect.DeepEqual(cfg.Series[1].Values, []float64{820, 932, 901, 934, 1290, 1330, 1320}) {
+		t.Fatalf("dual-axis values = %#v", cfg.Series)
+	}
+}
+
 func TestDoughnutSampleMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 	t.Parallel()
 	if doughnutUpstreamPath != "examples/1-Painter/doughnut_chart-1-basic/main.go" ||
