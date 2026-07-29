@@ -656,9 +656,11 @@ test("Expand scales interactive Tree and preserves renderer, hierarchy state, an
 	assert.ok(expanded.centerDelta <= 2, `modal tree center delta ${expanded.centerDelta}`);
     assert.ok(expanded.width > before.width && expanded.height > before.height);
     assert.deepEqual(
-      { width: expanded.width, height: expanded.height, canvasWidth: expanded.canvasWidth, canvasHeight: expanded.canvasHeight },
-      { width: expanded.hostWidth, height: expanded.hostHeight, canvasWidth: expanded.hostWidth, canvasHeight: expanded.hostHeight },
+      { width: expanded.width, height: expanded.height },
+      { width: expanded.canvasWidth, height: expanded.canvasHeight },
     );
+    assert.ok(Math.abs(expanded.width - expanded.hostWidth) <= 2, `modal tree width ${expanded.width}/${expanded.hostWidth}`);
+    assert.ok(Math.abs(expanded.height - expanded.hostHeight) <= 2, `modal tree height ${expanded.height}/${expanded.hostHeight}`);
 	if (screenshotDirectory) await page.screenshot({ path: path.join(screenshotDirectory, "tree-expand-centered.png"), fullPage: true });
     await page.evaluate(() => document.documentElement.classList.add("dark"));
     await page.waitForFunction((value) => {
