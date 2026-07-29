@@ -13,6 +13,8 @@ jobs:
     name: Trigger Fly deploy
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v6
+
       - name: Resolve deployment version
         id: version
         env:
@@ -22,7 +24,7 @@ jobs:
           set -euo pipefail
           version=development
           if [ "$REF_TYPE" = "tag" ]; then
-            if ! [[ "$REF_NAME" =~ ^v[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z][0-9A-Za-z.-]*)?(\+[0-9A-Za-z][0-9A-Za-z.-]*)?$ ]]; then
+            if ! scripts/validate-release-version.sh "$REF_NAME"; then
               echo "ref tag is not a supported semantic version" >&2
               exit 1
             fi
