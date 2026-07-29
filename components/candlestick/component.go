@@ -117,13 +117,22 @@ func aggregatedConfig(cfg Config) Config {
 }
 
 func candlestickOptions(cfg Config) chart.CandlestickChartOption {
-	data := make([]chart.OHLCData, len(cfg.Data))
-	labels := make([]string, len(cfg.Data))
-	for index, datum := range cfg.Data {
-		labels[index] = datum.Label
-		data[index] = chart.OHLCData{Open: datum.Open, High: datum.High, Low: datum.Low, Close: datum.Close}
+	resolved := cfg.resolvedSeries()
+	series := make(chart.CandlestickSeriesList, len(resolved))
+	labels := make([]string, len(resolved[0].Data))
+	for seriesIndex, candidate := range resolved {
+		data := make([]chart.OHLCData, len(candidate.Data))
+		for index, datum := range candidate.Data {
+			if seriesIndex == 0 {
+				labels[index] = datum.Label
+			}
+			data[index] = chart.OHLCData{Open: datum.Open, High: datum.High, Low: datum.Low, Close: datum.Close}
+		}
+		series[seriesIndex] = chart.CandlestickSeries{
+			Name: candidate.Name, Data: data, CandleStyle: chartBodyStyle(candidate.BodyStyle), ShowWicks: candidate.ShowWicks,
+		}
 	}
-	options := chart.NewCandlestickOptionWithData(data)
+	options := chart.NewCandlestickOptionWithSeries(series...)
 	options.Theme = tokenPalette()
 	options.Title.Text = cfg.Title
 	if cfg.Options.TitleFontSize > 0 {
@@ -133,25 +142,53 @@ func candlestickOptions(cfg Config) chart.CandlestickChartOption {
 	options.XAxis.Title = cfg.XAxis.Title
 	options.YAxis[0].Title = cfg.YAxis.Title
 	options.YAxis[0].Unit = cfg.Options.YUnit
-	options.Legend.SeriesNames = []string{cfg.SeriesName}
+	options.Legend.SeriesNames = make([]string, len(resolved))
+	for index := range resolved {
+		options.Legend.SeriesNames[index] = resolved[index].Name
+	}
 	options.Legend.Show = chart.Ptr(!cfg.Options.LegendHidden)
-	options.SeriesList[0].Name = cfg.SeriesName
-	options.SeriesList[0].CloseTrendLine = chartTrendLines(cfg.TrendLines)
-	options.SeriesList[0].PatternConfig = chartPatternConfig(cfg.Patterns)
-	options.SeriesList[0].CloseMarkLine = chartCloseReferences(cfg.Patterns.References)
+	if len(resolved) == 1 {
+		options.SeriesList[0].CloseTrendLine = chartTrendLines(cfg.TrendLines)
+		options.SeriesList[0].PatternConfig = chartPatternConfig(cfg.Patterns)
+		options.SeriesList[0].CloseMarkLine = chartCloseReferences(cfg.Patterns.References)
+	}
+	geometry := cfg.Options.Geometry
+	if geometry.CandleWidth > 0 {
+		options.CandleWidth = geometry.CandleWidth
+	}
+	if geometry.WickWidth > 0 {
+		options.WickWidth = geometry.WickWidth
+	}
+	options.CandleMargin = geometry.SeriesGap
+	options.ShowWicks = geometry.ShowWicks
 	if cfg.Options.Padding != (Padding{}) {
 		options.Padding = chart.NewBox(cfg.Options.Padding.Left, cfg.Options.Padding.Top, cfg.Options.Padding.Right, cfg.Options.Padding.Bottom)
 	}
 	return options
 }
 
+func chartBodyStyle(style BodyStyle) string {
+	switch style {
+	case BodyStyleTraditional:
+		return chart.CandleStyleTraditional
+	case BodyStyleOutline:
+		return chart.CandleStyleOutline
+	default:
+		return chart.CandleStyleFilled
+	}
+}
+
 func chartPatternConfig(options PatternOptions) *chart.CandlestickPatternConfig {
-	if options.Selection == "" {
+	if options.Selection == "" && len(options.Enabled) == 0 {
 		return nil
 	}
 	config := &chart.CandlestickPatternConfig{
 		PreferPatternLabels: options.PreferLabels,
-		EnabledPatterns:     chartPatternTypes(options.Selection),
+		EnabledPatterns:     chartPatternTypes(options),
+		DojiThreshold:       options.DojiThreshold,
+		ShadowTolerance:     options.ShadowTolerance,
+		ShadowRatio:         options.ShadowRatio,
+		EngulfingMinSize:    options.EngulfingMinSize,
 	}
 	config.PatternFormatter = func(patterns []chart.PatternDetectionResult, _ string, _ float64) (string, *chart.LabelStyle) {
 		if len(patterns) == 0 {
@@ -177,8 +214,11 @@ func chartPatternConfig(options PatternOptions) *chart.CandlestickPatternConfig 
 	return config
 }
 
-func chartPatternTypes(selection PatternSelection) []string {
-	types := patternSelections[selection]
+func chartPatternTypes(options PatternOptions) []string {
+	types := options.Enabled
+	if options.Selection != "" {
+		types = patternSelections[options.Selection]
+	}
 	result := make([]string, len(types))
 	for index, kind := range types {
 		result[index] = strings.ReplaceAll(string(kind), "-", "_")
@@ -350,11 +390,15 @@ type trendValue struct {
 }
 
 func computedTrendValues(cfg Config) [][]trendValue {
-	closeValues := make([]float64, len(cfg.Data))
-	for index, datum := range cfg.Data {
+	series := cfg.resolvedSeries()
+	if len(series) == 0 {
+		return nil
+	}
+	closeValues := make([]float64, len(series[0].Data))
+	for index, datum := range series[0].Data {
 		closeValues[index] = datum.Close
 	}
-	rows := make([][]trendValue, len(cfg.Data))
+	rows := make([][]trendValue, len(series[0].Data))
 	for _, trend := range cfg.TrendLines {
 		values := centeredTrend(closeValues, trend)
 		for index, value := range values {
@@ -399,7 +443,21 @@ func exactValuesSummary(cfg Config) string {
 	if cfg.Aggregation.WindowSize > 0 {
 		return "Exact source and aggregated OHLC values"
 	}
+	if len(cfg.resolvedSeries()) > 1 {
+		return "Exact OHLC values for all series"
+	}
 	return "Exact OHLC values"
+}
+
+func bodyStyleLabel(style BodyStyle) string {
+	switch style {
+	case BodyStyleTraditional:
+		return "Traditional"
+	case BodyStyleOutline:
+		return "Outline"
+	default:
+		return "Filled"
+	}
 }
 func formatTrendValue(value float64) string {
 	return strconv.FormatFloat(value, 'f', 6, 64)

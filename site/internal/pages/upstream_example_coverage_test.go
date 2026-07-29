@@ -172,6 +172,31 @@ func TestInteractiveScatterCoverageUsesCanonicalLedgerWithoutLostEntries(t *test
 	}
 }
 
+func TestInteractiveCandlestickCoverageUsesCanonicalLedgerWithoutLostEntries(t *testing.T) {
+	t.Parallel()
+	data, err := os.ReadFile("../../../docs/upstream-example-coverage.md")
+	if err != nil {
+		t.Fatalf("read canonical upstream coverage ledger: %v", err)
+	}
+	section := canonicalLedgerSection(t, string(data), "## Interactive Candlestick")
+	for _, want := range []string{
+		interactiveCandlestickUpstreamRevision, interactiveCandlestickUpstreamPath, interactiveCandlestickUpstreamSHA256,
+		"all five dedicated behavior functions", "all 88 ordered OHLC observations",
+		"Unsupported dedicated Candlestick behaviors: none",
+	} {
+		if !strings.Contains(section, want) {
+			t.Errorf("canonical ledger missing interactive Candlestick evidence %q", want)
+		}
+	}
+	for _, span := range interactiveCandlestickUpstreamInventory {
+		for _, want := range []string{"`" + span.SHA256 + "`", "`" + span.Name + "`"} {
+			if count := strings.Count(section, want); count != 1 {
+				t.Errorf("Candlestick span evidence %q occurs %d times, want 1", want, count)
+			}
+		}
+	}
+}
+
 func canonicalLedgerSection(t *testing.T, document, heading string) string {
 	t.Helper()
 	start := strings.Index(document, heading)

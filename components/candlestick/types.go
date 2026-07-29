@@ -51,6 +51,25 @@ type CandleStyle struct {
 	Class string
 }
 
+// BodyStyle selects how candle bodies are painted. Its zero value uses filled
+// bodies. Values describe visual intent and do not expose renderer constants.
+type BodyStyle string
+
+const (
+	BodyStyleFilled      BodyStyle = "filled"
+	BodyStyleTraditional BodyStyle = "traditional"
+	BodyStyleOutline     BodyStyle = "outline"
+)
+
+// Series is one named, aligned OHLC population. ShowWicks overrides the
+// chart-level wick setting when non-nil.
+type Series struct {
+	Name      string
+	Data      []Datum
+	BodyStyle BodyStyle
+	ShowWicks *bool
+}
+
 // PatternType identifies a supported candlestick formation. Values are stable
 // renderer-neutral identifiers, not names from a drawing package.
 type PatternType string
@@ -76,9 +95,12 @@ const (
 type PatternSelection string
 
 const (
-	PatternSelectionAll     PatternSelection = "all"
-	PatternSelectionCore    PatternSelection = "core"
-	PatternSelectionBullish PatternSelection = "bullish"
+	PatternSelectionAll      PatternSelection = "all"
+	PatternSelectionCore     PatternSelection = "core"
+	PatternSelectionBullish  PatternSelection = "bullish"
+	PatternSelectionBearish  PatternSelection = "bearish"
+	PatternSelectionReversal PatternSelection = "reversal"
+	PatternSelectionTrend    PatternSelection = "trend"
 )
 
 // PatternLabelText selects safe, built-in text formatting for visual labels.
@@ -112,10 +134,15 @@ const (
 // PatternOptions configures detection and annotation as one Candlestick
 // behavior variant. Its zero value leaves pattern detection disabled.
 type PatternOptions struct {
-	Selection    PatternSelection
-	PreferLabels bool
-	Label        PatternLabelStyle
-	References   []CloseReferenceType
+	Selection        PatternSelection
+	Enabled          []PatternType
+	PreferLabels     bool
+	Label            PatternLabelStyle
+	References       []CloseReferenceType
+	DojiThreshold    float64
+	ShadowTolerance  float64
+	ShadowRatio      float64
+	EngulfingMinSize float64
 }
 
 // AggregationOptions compares source candles with candles grouped into fixed
@@ -138,6 +165,16 @@ type PatternResult struct {
 // Padding controls chart inset in pixels. Its zero value keeps renderer defaults.
 type Padding struct{ Top, Right, Bottom, Left int }
 
+// Geometry controls finite chart-specific candle geometry. Zero values keep
+// upstream defaults: 0.8 body width and 1-pixel wicks. Pointer fields retain
+// the distinction between an automatic default and an explicit false or zero.
+type Geometry struct {
+	CandleWidth float64
+	WickWidth   float64
+	SeriesGap   *float64
+	ShowWicks   *bool
+}
+
 // Options controls renderer-neutral candlestick presentation.
 type Options struct {
 	TitleFontSize float64
@@ -146,15 +183,19 @@ type Options struct {
 	Padding       Padding
 	Increasing    CandleStyle
 	Decreasing    CandleStyle
+	Geometry      Geometry
 }
 
 // Config describes an SSR SVG candlestick chart.
 type Config struct {
-	Label       string
-	Caption     string
-	Title       string
-	SeriesName  string
-	Data        []Datum
+	Label      string
+	Caption    string
+	Title      string
+	SeriesName string
+	Data       []Datum
+	// Series provides multiple aligned OHLC populations. It cannot be combined
+	// with legacy single-series SeriesName, Data, TrendLines, or Patterns fields.
+	Series      []Series
 	TrendLines  []TrendLine
 	Patterns    PatternOptions
 	Aggregation AggregationOptions
@@ -175,11 +216,21 @@ func (cfg Config) validate() error {
 	if strings.TrimSpace(cfg.Label) == "" {
 		return fmt.Errorf("candlestick chart label is required")
 	}
-	if strings.TrimSpace(cfg.SeriesName) == "" {
+	if len(cfg.Series) > 0 && (strings.TrimSpace(cfg.SeriesName) != "" || len(cfg.Data) > 0 || len(cfg.TrendLines) > 0 || patternOptionsConfigured(cfg.Patterns)) {
+		return fmt.Errorf("candlestick chart cannot combine Series with single-series SeriesName, Data, TrendLines, or Patterns")
+	}
+	series := cfg.resolvedSeries()
+	if len(series) == 0 {
+		return fmt.Errorf("candlestick chart needs at least one series")
+	}
+	if len(cfg.Series) == 0 && strings.TrimSpace(cfg.SeriesName) == "" {
 		return fmt.Errorf("candlestick chart series name is required")
 	}
-	if len(cfg.Data) == 0 {
+	if len(cfg.Series) == 0 && len(cfg.Data) == 0 {
 		return fmt.Errorf("candlestick chart needs at least one datum")
+	}
+	if len(series) > 1 && cfg.Aggregation.WindowSize > 0 {
+		return fmt.Errorf("candlestick chart aggregation supports a single series")
 	}
 	if cfg.Width < 0 {
 		return fmt.Errorf("candlestick chart width cannot be negative")
@@ -195,6 +246,9 @@ func (cfg Config) validate() error {
 	}
 	if negativePadding(cfg.Options.Padding) {
 		return fmt.Errorf("candlestick chart padding cannot be negative")
+	}
+	if err := validateGeometry(cfg.Options.Geometry); err != nil {
+		return err
 	}
 	if cfg.Aggregation.WindowSize == 1 || cfg.Aggregation.WindowSize < 0 {
 		return fmt.Errorf("candlestick chart aggregation window size must be zero or at least 2")
@@ -215,25 +269,21 @@ func (cfg Config) validate() error {
 			}
 		}
 	}
-	labels := make(map[string]struct{}, len(cfg.Data))
-	for index, datum := range cfg.Data {
-		if strings.TrimSpace(datum.Label) == "" {
-			return fmt.Errorf("candlestick chart datum %d needs a label", index+1)
-		}
-		if _, exists := labels[datum.Label]; exists {
-			return fmt.Errorf("candlestick chart datum label %q is duplicated", datum.Label)
-		}
-		labels[datum.Label] = struct{}{}
-		for name, value := range map[string]float64{"open": datum.Open, "high": datum.High, "low": datum.Low, "close": datum.Close} {
-			if !finite(value) {
-				return fmt.Errorf("candlestick chart datum %q %s must be finite", datum.Label, name)
+	for index, candidate := range series {
+		if strings.TrimSpace(candidate.Name) == "" {
+			if len(cfg.Series) == 0 {
+				return fmt.Errorf("candlestick chart series name is required")
 			}
+			return fmt.Errorf("candlestick chart series %d name is required", index+1)
 		}
-		if datum.Low > datum.Open || datum.Low > datum.Close {
-			return fmt.Errorf("candlestick chart datum %q low must be less than or equal to open and close", datum.Label)
+		if err := validateBodyStyle(index, candidate.BodyStyle); err != nil {
+			return err
 		}
-		if datum.High < datum.Open || datum.High < datum.Close {
-			return fmt.Errorf("candlestick chart datum %q high must be greater than or equal to open and close", datum.Label)
+		if err := validateData(candidate.Data); err != nil {
+			return err
+		}
+		if index > 0 && !labelsAlign(series[0].Data, candidate.Data) {
+			return fmt.Errorf("candlestick chart series %d labels must align with series 1", index+1)
 		}
 	}
 	trendTypes := make(map[TrendType]int, len(cfg.TrendLines))
@@ -244,7 +294,7 @@ func (cfg Config) validate() error {
 		default:
 			return fmt.Errorf("candlestick chart trend line %d type %q is unsupported", index+1, trend.Type)
 		}
-		if trend.Period < 2 || trend.Period > len(cfg.Data) {
+		if trend.Period < 2 || trend.Period > len(series[0].Data) {
 			return fmt.Errorf("candlestick chart trend line %q period must be between 2 and datum count", trend.Type)
 		}
 		if _, exists := trendTypes[trend.Type]; exists {
@@ -274,14 +324,27 @@ func (cfg Config) validate() error {
 }
 
 func validatePatternOptions(options PatternOptions) error {
-	if options.Selection == "" {
-		if len(options.References) > 0 || options.PreferLabels || options.Label != (PatternLabelStyle{}) {
+	if options.Selection == "" && len(options.Enabled) == 0 {
+		if patternOptionsConfiguredExceptSelection(options) {
 			return fmt.Errorf("candlestick chart pattern options need a selection")
 		}
 		return nil
 	}
-	if !validPatternSelection(options.Selection) {
+	if options.Selection != "" && len(options.Enabled) > 0 {
+		return fmt.Errorf("candlestick chart patterns must use either selection or enabled patterns")
+	}
+	if options.Selection != "" && !validPatternSelection(options.Selection) {
 		return fmt.Errorf("candlestick chart pattern selection %q is unsupported", options.Selection)
+	}
+	seenPatterns := make(map[PatternType]struct{}, len(options.Enabled))
+	for _, pattern := range options.Enabled {
+		if _, exists := patternNames[pattern]; !exists {
+			return fmt.Errorf("candlestick chart pattern %q is unsupported", pattern)
+		}
+		if _, exists := seenPatterns[pattern]; exists {
+			return fmt.Errorf("candlestick chart pattern %q is duplicated", pattern)
+		}
+		seenPatterns[pattern] = struct{}{}
 	}
 	if options.Label.Text != "" && options.Label.Text != PatternLabelTextName && options.Label.Text != PatternLabelTextNameWithCount {
 		return fmt.Errorf("candlestick chart pattern label text %q is unsupported", options.Label.Text)
@@ -291,6 +354,18 @@ func validatePatternOptions(options PatternOptions) error {
 	}
 	if options.Label.CornerRadius < 0 {
 		return fmt.Errorf("candlestick chart pattern label corner radius cannot be negative")
+	}
+	if !finite(options.DojiThreshold) || options.DojiThreshold < 0 || options.DojiThreshold > 1 {
+		return fmt.Errorf("candlestick chart doji threshold must be finite and between 0 and 1")
+	}
+	if !finite(options.ShadowTolerance) || options.ShadowTolerance < 0 || options.ShadowTolerance > 1 {
+		return fmt.Errorf("candlestick chart shadow tolerance must be finite and between 0 and 1")
+	}
+	if !finite(options.ShadowRatio) || options.ShadowRatio < 0 {
+		return fmt.Errorf("candlestick chart shadow ratio must be finite and non-negative")
+	}
+	if !finite(options.EngulfingMinSize) || options.EngulfingMinSize < 0 {
+		return fmt.Errorf("candlestick chart engulfing minimum size must be finite and non-negative")
 	}
 	for name, value := range map[string]string{"color": options.Label.Color, "class": options.Label.Class, "background color": options.Label.BackgroundColor} {
 		if (strings.Contains(name, "color") && unsafeCSS(value)) || (strings.Contains(name, "class") && unsafeClass(value)) {
@@ -311,7 +386,93 @@ func validatePatternOptions(options PatternOptions) error {
 }
 
 func validPatternSelection(selection PatternSelection) bool {
-	return selection == PatternSelectionAll || selection == PatternSelectionCore || selection == PatternSelectionBullish
+	switch selection {
+	case PatternSelectionAll, PatternSelectionCore, PatternSelectionBullish, PatternSelectionBearish, PatternSelectionReversal, PatternSelectionTrend:
+		return true
+	default:
+		return false
+	}
+}
+
+func patternOptionsConfigured(options PatternOptions) bool {
+	return options.Selection != "" || len(options.Enabled) > 0 || patternOptionsConfiguredExceptSelection(options)
+}
+
+func patternOptionsConfiguredExceptSelection(options PatternOptions) bool {
+	return len(options.References) > 0 || options.PreferLabels || options.Label != (PatternLabelStyle{}) ||
+		options.DojiThreshold != 0 || options.ShadowTolerance != 0 || options.ShadowRatio != 0 || options.EngulfingMinSize != 0
+}
+
+func validateGeometry(geometry Geometry) error {
+	if !finite(geometry.CandleWidth) || geometry.CandleWidth < 0 || geometry.CandleWidth > 1 {
+		return fmt.Errorf("candlestick chart candle width must be finite and between 0 and 1")
+	}
+	if !finite(geometry.WickWidth) || geometry.WickWidth < 0 {
+		return fmt.Errorf("candlestick chart wick width must be finite and non-negative")
+	}
+	if geometry.SeriesGap != nil && (!finite(*geometry.SeriesGap) || *geometry.SeriesGap < 0 || *geometry.SeriesGap > 1) {
+		return fmt.Errorf("candlestick chart series gap must be finite and between 0 and 1")
+	}
+	return nil
+}
+
+func validateBodyStyle(index int, style BodyStyle) error {
+	switch style {
+	case "", BodyStyleFilled, BodyStyleTraditional, BodyStyleOutline:
+		return nil
+	default:
+		return fmt.Errorf("candlestick chart series %d body style %q is unsupported", index+1, style)
+	}
+}
+
+func validateData(data []Datum) error {
+	if len(data) == 0 {
+		return fmt.Errorf("candlestick chart needs at least one datum")
+	}
+	labels := make(map[string]struct{}, len(data))
+	for index, datum := range data {
+		if strings.TrimSpace(datum.Label) == "" {
+			return fmt.Errorf("candlestick chart datum %d needs a label", index+1)
+		}
+		if _, exists := labels[datum.Label]; exists {
+			return fmt.Errorf("candlestick chart datum label %q is duplicated", datum.Label)
+		}
+		labels[datum.Label] = struct{}{}
+		for name, value := range map[string]float64{"open": datum.Open, "high": datum.High, "low": datum.Low, "close": datum.Close} {
+			if !finite(value) {
+				return fmt.Errorf("candlestick chart datum %q %s must be finite", datum.Label, name)
+			}
+		}
+		if datum.Low > datum.Open || datum.Low > datum.Close {
+			return fmt.Errorf("candlestick chart datum %q low must be less than or equal to open and close", datum.Label)
+		}
+		if datum.High < datum.Open || datum.High < datum.Close {
+			return fmt.Errorf("candlestick chart datum %q high must be greater than or equal to open and close", datum.Label)
+		}
+	}
+	return nil
+}
+
+func labelsAlign(reference, candidate []Datum) bool {
+	if len(reference) != len(candidate) {
+		return false
+	}
+	for index := range reference {
+		if reference[index].Label != candidate[index].Label {
+			return false
+		}
+	}
+	return true
+}
+
+func (cfg Config) resolvedSeries() []Series {
+	if len(cfg.Series) > 0 {
+		return cfg.Series
+	}
+	if strings.TrimSpace(cfg.SeriesName) == "" && len(cfg.Data) == 0 {
+		return nil
+	}
+	return []Series{{Name: cfg.SeriesName, Data: cfg.Data}}
 }
 
 func validateCandleStyle(name string, style CandleStyle) error {

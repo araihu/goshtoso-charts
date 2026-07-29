@@ -16,22 +16,27 @@ templ candlestickTemplate(cfg Config, chart templ.Component) {
 		if cfg.Aggregation.WindowSize > 0 {
 			<h3 class="mt-3 font-semibold">Source observations</h3>
 		}
-		@candlestickValuesTable(cfg)
+		for _, series := range cfg.resolvedSeries() {
+			if len(cfg.resolvedSeries()) > 1 {
+				<h3 class="mt-3 font-semibold">{ series.Name } observations <span class="font-normal text-on-surface-muted dark:text-on-surface-dark-muted">({ bodyStyleLabel(series.BodyStyle) } bodies)</span></h3>
+			}
+			@candlestickValuesTable(cfg, series)
+		}
 		if cfg.Aggregation.WindowSize > 0 {
 			<h3 class="mt-4 font-semibold">Aggregated observations</h3>
-			@candlestickValuesTable(aggregatedConfig(cfg))
+			@candlestickValuesTable(aggregatedConfig(cfg), aggregatedConfig(cfg).resolvedSeries()[0])
 		}
 	</details>
 }
 
-templ candlestickValuesTable(cfg Config) {
+templ candlestickValuesTable(cfg Config, series Series) {
 		<div class="mt-2 overflow-x-auto rounded-radius border border-outline dark:border-outline-dark">
-			<table class="min-w-full border-collapse text-left" aria-label={ cfg.SeriesName + " exact OHLC values" }>
+			<table class="min-w-full border-collapse text-left" aria-label={ series.Name + " exact OHLC values" }>
 				<thead><tr>
 					<th class="px-3 py-2" scope="col">Period</th><th class="px-3 py-2" scope="col">Direction</th>
 					<th class="px-3 py-2" scope="col">Open</th><th class="px-3 py-2" scope="col">High</th>
 					<th class="px-3 py-2" scope="col">Low</th><th class="px-3 py-2" scope="col">Close</th>
-					if cfg.Patterns.Selection != "" {
+					if patternOptionsConfigured(cfg.Patterns) {
 						<th class="px-3 py-2" scope="col">Detected patterns</th>
 					}
 					for _, trend := range cfg.TrendLines {
@@ -39,13 +44,13 @@ templ candlestickValuesTable(cfg Config) {
 					}
 				</tr></thead>
 				<tbody>
-					for index, datum := range cfg.Data {
+					for index, datum := range series.Data {
 						<tr class="border-t border-outline dark:border-outline-dark">
 							<th class="px-3 py-2 font-semibold" scope="row">{ datum.Label }</th>
 							<td class="px-3 py-2 font-semibold"><span class={ rowDirectionClass(cfg, datum) } aria-hidden="true">●</span> { direction(datum) }</td>
 							<td class="px-3 py-2 tabular-nums">{ formatValue(datum.Open) }</td><td class="px-3 py-2 tabular-nums">{ formatValue(datum.High) }</td>
 							<td class="px-3 py-2 tabular-nums">{ formatValue(datum.Low) }</td><td class="px-3 py-2 tabular-nums">{ formatValue(datum.Close) }</td>
-							if cfg.Patterns.Selection != "" {
+							if patternOptionsConfigured(cfg.Patterns) {
 								<td class="px-3 py-2">{ patternNamesAt(cfg, index) }</td>
 							}
 							for _, trend := range computedTrendValues(cfg)[index] {

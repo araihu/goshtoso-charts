@@ -201,6 +201,54 @@ test("source OHLC hash, period-five bands, title, legend, padding, and default e
   }
 });
 
+test("both upstream basic constructions and corrected multiple-series styles stay exact", async () => {
+  const { page, failures } = await chartPage();
+  try {
+    const extended = page.locator('figure[aria-label="Eight-day stock price"]');
+    await extended.waitFor();
+    assert.equal(await extended.locator("svg").getAttribute("viewBox"), "0 0 800 600");
+    const extendedTable = extended.locator('xpath=following-sibling::details[1]//table[@aria-label="Stock Price exact OHLC values"]');
+    assert.equal(await extendedTable.locator("tbody tr").count(), 8);
+    assert.deepEqual(await extendedTable.locator("tbody tr").last().locator("th,td").allTextContents(),
+      ["Day 8", "● Increase", "119", "125", "116", "122"]);
+
+    const multiple = page.locator('figure[aria-label="Three aligned stock series"]');
+    await multiple.waitFor();
+    const tables = multiple.locator("xpath=following-sibling::details[1]//table");
+    assert.equal(await tables.count(), 3);
+    assert.deepEqual(await tables.evaluateAll((items) => items.map((table) => ({
+      label: table.getAttribute("aria-label"),
+      rows: table.querySelectorAll("tbody tr").length,
+      day4: [...table.querySelectorAll("tbody tr:nth-child(4) th, tbody tr:nth-child(4) td")].map((cell) => cell.textContent.trim()),
+    }))), [
+      { label: "Stock A exact OHLC values", rows: 5, day4: ["Day 4", "● Decrease", "115", "120", "104", "108"] },
+      { label: "Stock B exact OHLC values", rows: 5, day4: ["Day 4", "● Decrease", "165", "170", "154", "158"] },
+      { label: "Stock C exact OHLC values", rows: 5, day4: ["Day 4", "● Decrease", "215", "220", "204", "208"] },
+    ]);
+    const detailsText = await multiple.locator("xpath=following-sibling::details[1]").textContent();
+    for (const style of ["Stock A observations (Filled bodies)", "Stock B observations (Traditional bodies)", "Stock C observations (Outline bodies)"]) {
+      assert.match(detailsText, new RegExp(style.replace(/[()]/g, "\\$&")));
+    }
+    const legend = await multiple.locator("svg text").allTextContents();
+    for (const name of ["Stock A", "Stock B", "Stock C"]) assert.ok(legend.includes(name));
+    if (screenshotDirectory) {
+      await fs.mkdir(screenshotDirectory, { recursive: true });
+      await multiple.screenshot({ path: path.join(screenshotDirectory, "candlestick-multiple-1440-light.png") });
+      await page.evaluate(() => document.documentElement.classList.add("dark"));
+      await multiple.screenshot({ path: path.join(screenshotDirectory, "candlestick-multiple-1440-dark.png") });
+      await page.evaluate(() => document.documentElement.classList.remove("dark"));
+    }
+
+    const geometry = page.locator('figure[aria-label="Candlestick geometry controls"]');
+    await geometry.waitFor();
+    assert.equal(await geometry.locator("svg").getAttribute("viewBox"), "0 0 1000 700");
+    assert.equal(await geometry.locator("xpath=following-sibling::details[1]//table").count(), 3);
+    assert.deepEqual(failures, []);
+  } finally {
+    await page.close();
+  }
+});
+
 for (const width of [390, 1440]) {
   for (const dark of [false, true]) {
     test(`${width}px ${dark ? "dark" : "light"} aggregation preserves both charts, exact windows, and responsive containment`, async () => {

@@ -338,7 +338,7 @@ func TestCandlestickPatternSelectionsAndValidation(t *testing.T) {
 		name, want string
 		edit       func(*Config)
 	}{
-		{"selection", "unsupported", func(c *Config) { c.Patterns.Selection = "bearish" }},
+		{"selection", "unsupported", func(c *Config) { c.Patterns.Selection = "momentum" }},
 		{"label text", "label text", func(c *Config) { c.Patterns.Label.Text = "raw" }},
 		{"font", "font size", func(c *Config) { c.Patterns.Label.FontSize = math.NaN() }},
 		{"reference", "close reference", func(c *Config) { c.Patterns.References = []CloseReferenceType{"median"} }},

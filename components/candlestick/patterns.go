@@ -10,6 +10,13 @@ var patternSelections = map[PatternSelection][]PatternType{
 	},
 	PatternSelectionCore:    {PatternTypeBullishEngulfing, PatternTypeBearishEngulfing, PatternTypeHammer, PatternTypeShootingStar, PatternTypeMorningStar, PatternTypeEveningStar},
 	PatternSelectionBullish: {PatternTypeHammer, PatternTypeInvertedHammer, PatternTypeDragonflyDoji, PatternTypeBullishMarubozu, PatternTypeBullishEngulfing, PatternTypePiercingLine, PatternTypeMorningStar},
+	PatternSelectionBearish: {PatternTypeShootingStar, PatternTypeGravestoneDoji, PatternTypeBearishMarubozu, PatternTypeBearishEngulfing, PatternTypeDarkCloudCover, PatternTypeEveningStar},
+	PatternSelectionReversal: {
+		PatternTypeHammer, PatternTypeShootingStar, PatternTypeDragonflyDoji, PatternTypeGravestoneDoji,
+		PatternTypeBullishEngulfing, PatternTypeBearishEngulfing, PatternTypePiercingLine, PatternTypeDarkCloudCover,
+		PatternTypeMorningStar, PatternTypeEveningStar,
+	},
+	PatternSelectionTrend: {PatternTypeBullishMarubozu, PatternTypeBearishMarubozu},
 }
 
 var patternNames = map[PatternType]string{
@@ -24,7 +31,7 @@ func DetectPatterns(data []Datum, options PatternOptions) ([]PatternResult, erro
 	if err := validatePatternOptions(options); err != nil {
 		return nil, err
 	}
-	if options.Selection == "" {
+	if options.Selection == "" && len(options.Enabled) == 0 {
 		return nil, nil
 	}
 	for index, datum := range data {
@@ -33,9 +40,13 @@ func DetectPatterns(data []Datum, options PatternOptions) ([]PatternResult, erro
 		}
 	}
 	var results []PatternResult
+	patterns := options.Enabled
+	if options.Selection != "" {
+		patterns = patternSelections[options.Selection]
+	}
 	for index := range data {
-		for _, kind := range patternSelections[options.Selection] {
-			if patternMatches(kind, data, index) {
+		for _, kind := range patterns {
+			if patternMatches(kind, data, index, options) {
 				results = append(results, PatternResult{Index: index, Label: data[index].Label, Type: kind, Name: patternNames[kind]})
 			}
 		}
@@ -64,28 +75,28 @@ func itoa(value int) string {
 	return string(digits[i:])
 }
 
-func patternMatches(kind PatternType, data []Datum, i int) bool {
+func patternMatches(kind PatternType, data []Datum, i int, options PatternOptions) bool {
 	switch kind {
 	case PatternTypeDoji:
-		return doji(data[i])
+		return doji(data[i], options)
 	case PatternTypeHammer:
-		return hammer(data[i])
+		return hammer(data[i], options)
 	case PatternTypeInvertedHammer:
-		return invertedHammer(data[i])
+		return invertedHammer(data[i], options)
 	case PatternTypeShootingStar:
-		return shootingStar(data[i])
+		return shootingStar(data[i], options)
 	case PatternTypeGravestoneDoji:
-		return gravestone(data[i])
+		return gravestone(data[i], options)
 	case PatternTypeDragonflyDoji:
-		return dragonfly(data[i])
+		return dragonfly(data[i], options)
 	case PatternTypeBullishMarubozu:
-		return marubozu(data[i], true)
+		return marubozu(data[i], true, options)
 	case PatternTypeBearishMarubozu:
-		return marubozu(data[i], false)
+		return marubozu(data[i], false, options)
 	case PatternTypeBullishEngulfing:
-		return i > 0 && engulfing(data[i-1], data[i], true)
+		return i > 0 && engulfing(data[i-1], data[i], true, options)
 	case PatternTypeBearishEngulfing:
-		return i > 0 && engulfing(data[i-1], data[i], false)
+		return i > 0 && engulfing(data[i-1], data[i], false, options)
 	case PatternTypePiercingLine:
 		return i > 0 && piercing(data[i-1], data[i])
 	case PatternTypeDarkCloudCover:
@@ -99,30 +110,61 @@ func patternMatches(kind PatternType, data []Datum, i int) bool {
 	}
 }
 
-func body(d Datum) float64        { return math.Abs(d.Close - d.Open) }
-func lower(d Datum) float64       { return math.Min(d.Open, d.Close) - d.Low }
-func upper(d Datum) float64       { return d.High - math.Max(d.Open, d.Close) }
-func doji(d Datum) bool           { r := d.High - d.Low; return r != 0 && body(d)/r <= .05 }
-func hammer(d Datum) bool         { return lower(d) >= 2*body(d) && upper(d) <= lower(d)*.3 }
-func invertedHammer(d Datum) bool { return upper(d) >= 2*body(d) && lower(d) <= upper(d)*.3 }
-func shootingStar(d Datum) bool {
+func body(d Datum) float64  { return math.Abs(d.Close - d.Open) }
+func lower(d Datum) float64 { return math.Min(d.Open, d.Close) - d.Low }
+func upper(d Datum) float64 { return d.High - math.Max(d.Open, d.Close) }
+func dojiThreshold(options PatternOptions) float64 {
+	if options.DojiThreshold > 0 {
+		return options.DojiThreshold
+	}
+	return .05
+}
+func shadowRatio(options PatternOptions) float64 {
+	if options.ShadowRatio > 0 {
+		return options.ShadowRatio
+	}
+	return 2
+}
+func shadowTolerance(options PatternOptions) float64 {
+	if options.ShadowTolerance > 0 {
+		return options.ShadowTolerance
+	}
+	return .01
+}
+func engulfingMinSize(options PatternOptions) float64 {
+	if options.EngulfingMinSize > 0 {
+		return options.EngulfingMinSize
+	}
+	return 1
+}
+func doji(d Datum, options PatternOptions) bool {
 	r := d.High - d.Low
-	return r != 0 && invertedHammer(d) && (math.Min(d.Open, d.Close)-d.Low)/r <= .33
+	return r != 0 && body(d)/r <= dojiThreshold(options)
 }
-func gravestone(d Datum) bool {
+func hammer(d Datum, options PatternOptions) bool {
+	return lower(d) >= shadowRatio(options)*body(d) && upper(d) <= lower(d)*.3
+}
+func invertedHammer(d Datum, options PatternOptions) bool {
+	return upper(d) >= shadowRatio(options)*body(d) && lower(d) <= upper(d)*.3
+}
+func shootingStar(d Datum, options PatternOptions) bool {
+	r := d.High - d.Low
+	return r != 0 && invertedHammer(d, options) && (math.Min(d.Open, d.Close)-d.Low)/r <= .33
+}
+func gravestone(d Datum, options PatternOptions) bool {
 	mid := (d.Open + d.Close) / 2
-	return doji(d) && d.High-mid >= 2*body(d) && mid-d.Low <= (d.High-mid)*.3
+	return doji(d, options) && d.High-mid >= shadowRatio(options)*body(d) && mid-d.Low <= (d.High-mid)*.3
 }
-func dragonfly(d Datum) bool {
+func dragonfly(d Datum, options PatternOptions) bool {
 	mid := (d.Open + d.Close) / 2
-	return doji(d) && mid-d.Low >= 2*body(d) && d.High-mid <= (mid-d.Low)*.3
+	return doji(d, options) && mid-d.Low >= shadowRatio(options)*body(d) && d.High-mid <= (mid-d.Low)*.3
 }
-func marubozu(d Datum, bullish bool) bool {
+func marubozu(d Datum, bullish bool, options PatternOptions) bool {
 	total := d.High - d.Low
-	return total != 0 && body(d) != 0 && (upper(d)+lower(d))/total <= .01 && (d.Close > d.Open) == bullish
+	return total != 0 && body(d) != 0 && (upper(d)+lower(d))/total <= shadowTolerance(options) && (d.Close > d.Open) == bullish
 }
-func engulfing(prev, current Datum, bullish bool) bool {
-	return math.Max(current.Open, current.Close) > math.Max(prev.Open, prev.Close) && math.Min(current.Open, current.Close) < math.Min(prev.Open, prev.Close) && body(current) >= body(prev) && (prev.Close < prev.Open) == bullish && (current.Close > current.Open) == bullish
+func engulfing(prev, current Datum, bullish bool, options PatternOptions) bool {
+	return math.Max(current.Open, current.Close) > math.Max(prev.Open, prev.Close) && math.Min(current.Open, current.Close) < math.Min(prev.Open, prev.Close) && body(current) >= engulfingMinSize(options)*body(prev) && (prev.Close < prev.Open) == bullish && (current.Close > current.Open) == bullish
 }
 func piercing(prev, current Datum) bool {
 	return prev.Close < prev.Open && current.Close > current.Open && current.Open < prev.Close && current.Close > (prev.Open+prev.Close)/2 && current.Close < prev.Open

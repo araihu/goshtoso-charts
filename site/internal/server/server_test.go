@@ -390,13 +390,15 @@ func TestCandlestickDocumentationPreservesUpstreamBasicExampleWithoutEngineBrand
 	for _, want := range []string{
 		"Candlestick Chart", "Stock Price", "Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7",
 		"100", "110", "95", "105", "115", "112", "118", "108", "120", "104", "113", "109", "116", "106", "114", "121", "111", "119",
-		"Exact OHLC values", "Increase", "Decrease", "Reading price movement",
+		"Purpose", "Use when", "Avoid when", "Equivalent data",
+		"Exact OHLC values", "Increase", "Decrease", "Static/vector behavior",
+		"Open v0.0.1 API", "chart controls", "static/vector and interactive capabilities",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("candlestick documentation missing upstream example content %q", want)
 		}
 	}
-	for _, unwanted := range []string{"go-analyze", "examples/1-Painter/candlestick_chart-1-basic/main.go", "infrastructure", "operations"} {
+	for _, unwanted := range []string{"go-analyze", "examples/1-Painter/candlestick_chart-1-basic/main.go", "PRIMITIVE", "KIND", "CONFIGURATION", "Component contract", "infrastructure", "operations"} {
 		if strings.Contains(body, unwanted) {
 			t.Errorf("candlestick component page contains non-neutral content %q", unwanted)
 		}
@@ -463,14 +465,24 @@ func TestInteractiveCandlestickDocumentationPreservesPinnedUpstreamExampleWithou
 	for _, want := range []string{
 		"Interactive candlestick", "Candlestick example", "2018/1/24", "2018/6/13",
 		"2320.26", "2287.3", "2362.94", "2148.35", "2126.22", "2190.1",
+		"Purpose", "Use when", "Avoid when", "Equivalent data",
 		"Exact OHLC values", "Rise", "Fall", "Ranges and zoom",
-		`"type":"inside"`, `"start":50`, `"end":100`, `"valueDim":"highest"`, `"valueDim":"lowest"`,
+		"Inside zoom", "Inside and slider zoom", "Y-axis slider zoom", "Direction style and extrema",
+		`data-candlestick-variant="baseline"`, `data-candlestick-variant="inside"`,
+		`data-candlestick-variant="inside-slider"`, `data-candlestick-variant="y-axis"`,
+		`data-candlestick-variant="style"`,
+		`"type":"inside"`, `"start":50`, `"end":100`, `"orient":"vertical"`,
+		`"xAxisIndex":[0]`, `"yAxisIndex":[0]`, `"valueDim":"highest"`, `"valueDim":"lowest"`,
+		"Open v0.0.1 API", "chart controls", "static/vector and interactive capabilities",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("interactive candlestick documentation missing upstream example content %q", want)
 		}
 	}
-	for _, unwanted := range []string{"go-echarts", "examples/kline.go", "Kline", "infrastructure", "operations"} {
+	if count := strings.Count(body, `data-candlestick-variant=`); count != 5 {
+		t.Errorf("interactive candlestick variant count = %d, want 5", count)
+	}
+	for _, unwanted := range []string{"go-echarts", "examples/kline.go", "Kline", "PRIMITIVE", "KIND", "CONFIGURATION", "infrastructure", "operations", "#ec0000", "#00da3c"} {
 		if strings.Contains(body, unwanted) {
 			t.Errorf("interactive candlestick component page contains non-neutral content %q", unwanted)
 		}

@@ -1,6 +1,7 @@
 package pages
 
 import (
+	"github.com/a-h/templ"
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	"github.com/araihu/goshtoso-charts/components/interactive"
@@ -9,7 +10,23 @@ import (
 const (
 	interactiveCandlestickUpstreamPath     = "examples/kline.go"
 	interactiveCandlestickUpstreamRevision = "bda428480a82d6d77ebb9fa939cf8d52528453dd"
+	interactiveCandlestickUpstreamSHA256   = "712b738662e87ceaab96fe9a3b39cc2591184db4de519a34f628ccee067f0489"
 )
+
+type candlestickUpstreamSpan struct {
+	Name, Kind, Lines, SHA256 string
+}
+
+var interactiveCandlestickUpstreamInventory = []candlestickUpstreamSpan{
+	{Name: "klineData", Kind: "data helper", Lines: "12-15", SHA256: "844d53233a5d826fdde0d8286bc328d24c1a89066507a30d9505e124f9dc67bc"},
+	{Name: "kd", Kind: "dataset", Lines: "17-106", SHA256: "94baedf445f705b38028f2b9f91997d924be7ed7eac046a25cba1d1bb20e4143"},
+	{Name: "klineBase", Kind: "behavior", Lines: "108-137", SHA256: "83380beaca22d81cce6a0d38facb27ae206d96ccc715b48c647460ad4ac026da"},
+	{Name: "klineDataZoomInside", Kind: "behavior", Lines: "139-169", SHA256: "d8197311ea2164c43384921c37b0a60a4e7860c1c81489f2c6b16b8a3808325d"},
+	{Name: "klineDataZoomBoth", Kind: "behavior", Lines: "171-207", SHA256: "a8291af22b113f59db07c8d09b81fe4ba3e8b5f5914e0769d3fb2a3efecf5fab"},
+	{Name: "klineDataZoomYAxis", Kind: "behavior", Lines: "209-239", SHA256: "c60b43ac2b542c04cb041bba90c7cc980e484c06bb6e297dcc0663174f160db3"},
+	{Name: "klineStyle", Kind: "behavior", Lines: "241-293", SHA256: "671aa66b391c119d3b8c3e8bd5da4f064bdb0341c1e4882ab57988b2138574c9"},
+	{Name: "KlineExamples.Examples", Kind: "page aggregation", Lines: "295-313", SHA256: "d32f020d851c51f971b46e4cd9fa04cb1c76b12e392b2f18df18d28191d3255a"},
+}
 
 type candlestickSampleDatum struct {
 	Category string
@@ -108,17 +125,57 @@ var interactiveCandlestickUpstreamData = []candlestickSampleDatum{
 }
 
 func sampleInteractiveCandlestick() interactive.Instance {
-	return interactive.Candlestick(interactiveCandlestickConfig())
+	cfg := interactiveCandlestickConfig()
+	cfg.RootAttrs = templ.Attributes{"data-candlestick-variant": "baseline"}
+	return interactive.Candlestick(cfg)
+}
+
+func sampleInteractiveCandlestickInsideZoom() interactive.Instance {
+	cfg := interactiveCandlestickConfig()
+	cfg.Label = "Inside zoom"
+	cfg.Caption = "Drag or scroll inside the plot to inspect the same 50–100% date window."
+	cfg.DataZoom = []interactive.CandlestickDataZoom{{Type: interactive.CandlestickDataZoomInside, StartPercent: 50, EndPercent: 100}}
+	cfg.Options.Title.Text = cfg.Label
+	cfg.RootAttrs = templ.Attributes{"data-candlestick-variant": "inside"}
+	return interactive.Candlestick(cfg)
+}
+
+func sampleInteractiveCandlestickBothZooms() interactive.Instance {
+	cfg := interactiveCandlestickConfig()
+	cfg.Label = "Inside and slider zoom"
+	cfg.Caption = "Inside gestures and the visible slider share the same 50–100% date window."
+	cfg.DataZoom = []interactive.CandlestickDataZoom{
+		{Type: interactive.CandlestickDataZoomInside, StartPercent: 50, EndPercent: 100},
+		{StartPercent: 50, EndPercent: 100},
+	}
+	cfg.Options.Title.Text = cfg.Label
+	cfg.RootAttrs = templ.Attributes{"data-candlestick-variant": "inside-slider"}
+	return interactive.Candlestick(cfg)
+}
+
+func sampleInteractiveCandlestickYAxisZoom() interactive.Instance {
+	cfg := interactiveCandlestickConfig()
+	cfg.Label = "Y-axis slider zoom"
+	cfg.Caption = "A vertical slider narrows the visible value range from 50% to 100%."
+	cfg.DataZoom = []interactive.CandlestickDataZoom{{Axis: interactive.CandlestickDataZoomYAxis, StartPercent: 50, EndPercent: 100}}
+	cfg.Options.Title.Text = cfg.Label
+	cfg.RootAttrs = templ.Attributes{"data-candlestick-variant": "y-axis"}
+	return interactive.Candlestick(cfg)
 }
 
 func sampleInteractiveCandlestickUpstreamStyle() interactive.Instance {
 	cfg := interactiveCandlestickConfig()
+	cfg.Label = "Direction style and extrema"
+	cfg.Caption = "Theme tokens reverse the direction treatment and mark the highest and lowest ranges."
 	cfg.Series[0].Options.Rise = interactive.CandlestickDirectionStyle{
-		Color: "#ec0000", Class: "price-rise", BorderColor: "#8a0000",
+		Class: "goshtoso-charts-candlestick__direction--decreasing",
 	}
 	cfg.Series[0].Options.Fall = interactive.CandlestickDirectionStyle{
-		Color: "#00da3c", Class: "price-fall", BorderColor: "#008f28",
+		Class: "goshtoso-charts-candlestick__direction--increasing",
 	}
+	cfg.Series[0].Options.Marks = interactive.CandlestickMarkOptions{Highest: true, Lowest: true, ShowLabel: interactive.Bool(true)}
+	cfg.Options.Title.Text = cfg.Label
+	cfg.RootAttrs = templ.Attributes{"data-candlestick-variant": "style"}
 	return interactive.Candlestick(cfg)
 }
 
@@ -134,21 +191,16 @@ func interactiveCandlestickConfig() interactive.CandlestickConfig {
 		Caption:    "Open, close, low, and high values from 24 January through 13 June 2018.",
 		Categories: categories,
 		Series: []interactive.CandlestickSeries{{
-			Name: "Candlestick",
+			Name: "OHLC",
 			Data: candles,
-			Options: interactive.CandlestickSeriesOptions{
-				Marks: interactive.CandlestickMarkOptions{
-					Highest: true, Lowest: true, ShowLabel: interactive.Bool(true),
-				},
-			},
 		}},
 		DataZoom: []interactive.CandlestickDataZoom{
-			{Type: interactive.CandlestickDataZoomInside, StartPercent: 50, EndPercent: 100},
 			{StartPercent: 50, EndPercent: 100},
 		},
 		Width: "100%", Height: "500px",
 		Options: interactive.ChartOptions{
-			Title:    &interactive.TitleOptions{Text: "Candlestick example"},
+			Title:    &interactive.TitleOptions{Text: "Candlestick example", Left: "center", Top: "4%"},
+			Legend:   &interactive.LegendOptions{Left: "center", Top: "12%"},
 			Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "axis"},
 			XAxis:    &interactive.AxisOptions{Type: "category", SplitNumber: 20},
 			YAxis:    &interactive.AxisOptions{Type: "value", Scale: interactive.Bool(true)},
@@ -169,23 +221,46 @@ func interactiveCandlestickCode() string {
       {Open: 2320.26, Close: 2320.26, Low: 2287.3, High: 2362.94},
       // Remaining observations stay aligned with Categories.
     },
-    Options: interactive.CandlestickSeriesOptions{
-      Marks: interactive.CandlestickMarkOptions{Highest: true, Lowest: true},
-    },
   }},
   DataZoom: []interactive.CandlestickDataZoom{
-    {Type: interactive.CandlestickDataZoomInside, StartPercent: 50, EndPercent: 100},
     {StartPercent: 50, EndPercent: 100},
   },
 })`
 }
 
+func interactiveCandlestickInsideZoomCode() string {
+	return `cfg.DataZoom = []interactive.CandlestickDataZoom{{
+  Type: interactive.CandlestickDataZoomInside,
+  StartPercent: 50, EndPercent: 100,
+}}
+@interactive.Candlestick(cfg)`
+}
+
+func interactiveCandlestickBothZoomsCode() string {
+	return `cfg.DataZoom = []interactive.CandlestickDataZoom{
+  {Type: interactive.CandlestickDataZoomInside, StartPercent: 50, EndPercent: 100},
+  {StartPercent: 50, EndPercent: 100},
+}
+@interactive.Candlestick(cfg)`
+}
+
+func interactiveCandlestickYAxisZoomCode() string {
+	return `cfg.DataZoom = []interactive.CandlestickDataZoom{{
+  Axis: interactive.CandlestickDataZoomYAxis,
+  StartPercent: 50, EndPercent: 100,
+}}
+@interactive.Candlestick(cfg)`
+}
+
 func interactiveCandlestickStyleCode() string {
 	return `cfg.Series[0].Options.Rise = interactive.CandlestickDirectionStyle{
-  Color: "#ec0000", Class: "price-rise", BorderColor: "#8a0000",
+  Class: "goshtoso-charts-candlestick__direction--decreasing",
 }
 cfg.Series[0].Options.Fall = interactive.CandlestickDirectionStyle{
-  Color: "#00da3c", Class: "price-fall", BorderColor: "#008f28",
+  Class: "goshtoso-charts-candlestick__direction--increasing",
+}
+cfg.Series[0].Options.Marks = interactive.CandlestickMarkOptions{
+  Highest: true, Lowest: true, ShowLabel: interactive.Bool(true),
 }
 @interactive.Candlestick(cfg)`
 }

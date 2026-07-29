@@ -79,7 +79,8 @@ func TestCandlestickDefaultsToSemanticThemeAndSharedWrapper(t *testing.T) {
 	markup := renderCandlestick(t, Candlestick(validCandlestickConfig()))
 	for _, want := range []string{
 		`width:100%;height:500px`, `goshtoso-charts-interactive-candlestick`,
-		`aspect-ratio: 9 / 5`, `--color-chart-increasing`, `--color-chart-decreasing`,
+		`aspect-ratio: 9 / 5`, `"top":"24%"`, `"right":"4%"`, `"bottom":"15%"`, `"left":"4%"`, `"containLabel":true`,
+		`--color-chart-increasing`, `--color-chart-decreasing`,
 		`series.type === "candlestick"`, `data-goshtoso-chart-expand`,
 		`exportFromMenu($el, &#34;png&#34;)`, `>rise</td>`, `>fall</td>`,
 	} {
@@ -97,6 +98,93 @@ func TestCandlestickDefaultsToSemanticThemeAndSharedWrapper(t *testing.T) {
 	}
 	if strings.Count(markup, `data-goshtoso-charts-theme-runtime`) != 1 {
 		t.Fatal("Candlestick did not use exactly one shared theme runtime")
+	}
+}
+
+func TestCandlestickCoversPinnedZoomAndStyleBehaviors(t *testing.T) {
+	t.Parallel()
+	tests := []struct {
+		name       string
+		configure  func(*CandlestickConfig)
+		want       []string
+		wantAbsent []string
+	}{
+		{
+			name: "x axis slider",
+			configure: func(cfg *CandlestickConfig) {
+				cfg.DataZoom = []CandlestickDataZoom{{StartPercent: 50, EndPercent: 100}}
+			},
+			want:       []string{`"start":50,"end":100,"xAxisIndex":[0]`},
+			wantAbsent: []string{`"type":"inside"`, `"yAxisIndex":[0]`},
+		},
+		{
+			name: "x axis inside",
+			configure: func(cfg *CandlestickConfig) {
+				cfg.DataZoom = []CandlestickDataZoom{{Type: CandlestickDataZoomInside, StartPercent: 50, EndPercent: 100}}
+			},
+			want:       []string{`"type":"inside","start":50,"end":100,"xAxisIndex":[0]`},
+			wantAbsent: []string{`"yAxisIndex":[0]`},
+		},
+		{
+			name: "x axis inside and slider",
+			configure: func(cfg *CandlestickConfig) {
+				cfg.DataZoom = []CandlestickDataZoom{
+					{Type: CandlestickDataZoomInside, StartPercent: 50, EndPercent: 100},
+					{StartPercent: 50, EndPercent: 100},
+				}
+			},
+			want: []string{
+				`"type":"inside","start":50,"end":100,"xAxisIndex":[0]`,
+				`"start":50,"end":100,"xAxisIndex":[0]`,
+			},
+			wantAbsent: []string{`"yAxisIndex":[0]`},
+		},
+		{
+			name: "y axis slider",
+			configure: func(cfg *CandlestickConfig) {
+				cfg.DataZoom = []CandlestickDataZoom{{Axis: CandlestickDataZoomYAxis, StartPercent: 50, EndPercent: 100}}
+			},
+			want:       []string{`"start":50,"end":100,"orient":"vertical","yAxisIndex":[0]`},
+			wantAbsent: []string{`"xAxisIndex":[0]`, `"type":"inside"`},
+		},
+		{
+			name: "direction classes and extrema",
+			configure: func(cfg *CandlestickConfig) {
+				cfg.Series[0].Options = CandlestickSeriesOptions{
+					Rise:  CandlestickDirectionStyle{Class: "goshtoso-charts-candlestick__direction--decreasing"},
+					Fall:  CandlestickDirectionStyle{Class: "goshtoso-charts-candlestick__direction--increasing"},
+					Marks: CandlestickMarkOptions{Highest: true, Lowest: true, ShowLabel: Bool(true)},
+				}
+			},
+			want: []string{
+				`"name":"highest value","type":"max","valueDim":"highest"`,
+				`"name":"lowest value","type":"min","valueDim":"lowest"`,
+				`"right":"14%"`,
+				`goshtoso-charts-candlestick__direction--decreasing`,
+				`goshtoso-charts-candlestick__direction--increasing`,
+			},
+			wantAbsent: []string{`#ec0000`, `#00da3c`, `#8A0000`, `#008F28`},
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			cfg := validCandlestickConfig()
+			cfg.Options.XAxis = &AxisOptions{Type: "category", SplitNumber: 20}
+			cfg.Options.YAxis = &AxisOptions{Type: "value", Scale: Bool(true)}
+			test.configure(&cfg)
+			markup := renderCandlestick(t, Candlestick(cfg))
+			for _, want := range append([]string{`"splitNumber":20`, `"scale":true`}, test.want...) {
+				if !strings.Contains(markup, want) {
+					t.Errorf("rendered markup missing %q", want)
+				}
+			}
+			for _, unwanted := range test.wantAbsent {
+				if strings.Contains(markup, unwanted) {
+					t.Errorf("rendered markup contains %q", unwanted)
+				}
+			}
+		})
 	}
 }
 

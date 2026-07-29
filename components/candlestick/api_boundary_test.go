@@ -13,6 +13,7 @@ func TestPublicAPIDoesNotExposeRendererTypes(t *testing.T) {
 	publicTypes := []reflect.Type{
 		reflect.TypeOf(candlestick.Axis{}), reflect.TypeOf(candlestick.Config{}), reflect.TypeOf(candlestick.Datum{}),
 		reflect.TypeOf(candlestick.AggregationOptions{}),
+		reflect.TypeOf(candlestick.BodyStyle("")), reflect.TypeOf(candlestick.Series{}), reflect.TypeOf(candlestick.Geometry{}),
 		reflect.TypeOf(candlestick.CandleStyle{}), reflect.TypeOf(candlestick.Options{}), reflect.TypeOf(candlestick.Padding{}),
 		reflect.TypeOf(candlestick.TrendLine{}), reflect.TypeOf(candlestick.TrendType("")),
 		reflect.TypeOf(candlestick.PatternOptions{}), reflect.TypeOf(candlestick.PatternResult{}), reflect.TypeOf(candlestick.PatternLabelStyle{}),
