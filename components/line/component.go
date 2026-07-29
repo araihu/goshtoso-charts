@@ -61,6 +61,7 @@ func renderSVG(cfg Config) (string, error) {
 	if err := painter.LineChart(options); err != nil {
 		return "", fmt.Errorf("render line chart: %w", err)
 	}
+	renderTextAnnotations(painter, cfg)
 	data, err := painter.Bytes()
 	if err != nil {
 		return "", fmt.Errorf("encode line chart SVG: %w", err)
@@ -72,19 +73,42 @@ func lineOptions(cfg Config) chart.LineChartOption {
 	values := make([][]float64, 0, len(cfg.Series))
 	names := make([]string, 0, len(cfg.Series))
 	for _, series := range cfg.Series {
-		values = append(values, series.Values)
+		values = append(values, rendererSeriesValues(series))
 		names = append(names, series.Name)
 	}
 	options := chart.NewLineChartOptionWithData(values)
 	options.XAxis.Labels = cfg.Labels
 	options.XAxis.BoundaryGap = cfg.XAxis.BoundaryGap
 	options.Legend.SeriesNames = names
+	if cfg.Legend.Hidden {
+		options.Legend.Show = chart.Ptr(false)
+	}
 	if cfg.Legend.Padding != (Padding{}) {
 		padding := cfg.Legend.Padding
 		options.Legend.Padding = chart.NewBox(padding.Left, padding.Top, padding.Right, padding.Bottom)
 	}
 	options.Theme = tokenPalette()
 	options.Title.Text = cfg.Title.Text
+	options.Title.Subtext = cfg.Title.Subtext
+	options.Title.Offset = placementOffset(cfg.Title.Placement)
+	if cfg.Title.FontSize > 0 {
+		options.Title.FontStyle = chart.NewFontStyleWithSize(cfg.Title.FontSize)
+	}
+	if cfg.Padding != (Padding{}) {
+		options.Padding = rendererPadding(cfg.Padding)
+	}
+	options.Symbol = rendererSymbol(cfg.Symbol)
+	options.LineStrokeWidth = cfg.StrokeWidth
+	options.StrokeSmoothingTension = cfg.SmoothingTension
+	if cfg.Stacked {
+		options.StackSeries = chart.Ptr(true)
+	}
+	options.XAxis.Unit = cfg.XAxis.Unit
+	options.XAxis.LabelCount = cfg.XAxis.LabelCount
+	options.XAxis.LabelRotation = cfg.XAxis.LabelRotation * math.Pi / 180
+	if cfg.XAxis.LabelFontSize > 0 {
+		options.XAxis.LabelFontStyle = chart.NewFontStyleWithSize(cfg.XAxis.LabelFontSize)
+	}
 	if cfg.Area.Enabled {
 		options.FillArea = chart.Ptr(true)
 		if cfg.Area.Opacity > 0 {
@@ -94,6 +118,9 @@ func lineOptions(cfg Config) chart.LineChartOption {
 	for index, series := range cfg.Series {
 		options.SeriesList[index].YAxisIndex = series.YAxisIndex
 		options.SeriesList[index].Name = series.Name
+		options.SeriesList[index].Symbol = rendererSymbol(series.Symbol)
+		options.SeriesList[index].Label = rendererDataLabels(series)
+		applyReferences(&options.SeriesList[index], series.References)
 	}
 	if len(cfg.YAxes) > 0 {
 		options.YAxis = make([]chart.YAxisOption, len(cfg.YAxes))
@@ -105,9 +132,173 @@ func lineOptions(cfg Config) chart.LineChartOption {
 				Max:   axis.Max,
 				Theme: axisTokenPalette(index),
 			}
+			if axis.Hidden {
+				options.YAxis[index].Show = chart.Ptr(false)
+			}
+			options.YAxis[index].LabelCount = axis.LabelCount
+			if axis.LabelFontSize > 0 {
+				options.YAxis[index].LabelFontStyle = chart.NewFontStyleWithSize(axis.LabelFontSize)
+			}
+			if axis.TitleFontSize > 0 {
+				options.YAxis[index].TitleFontStyle = chart.NewFontStyleWithSize(axis.TitleFontSize)
+			}
+			if axis.SpineLine {
+				options.YAxis[index].SpineLineShow = chart.Ptr(true)
+			}
 		}
 	}
 	return options
+}
+
+func rendererSeriesValues(series Series) []float64 {
+	if series.Points == nil {
+		return series.Values
+	}
+	values := make([]float64, len(series.Points))
+	for index, point := range series.Points {
+		if point.Missing {
+			values[index] = chart.GetNullValue()
+		} else {
+			values[index] = point.Value
+		}
+	}
+	return values
+}
+
+func rendererPadding(padding Padding) chart.Box {
+	return chart.Box{Top: padding.Top, Right: padding.Right, Bottom: padding.Bottom, Left: padding.Left}
+}
+
+func placementOffset(placement Placement) chart.OffsetStr {
+	switch placement {
+	case PlacementCenter:
+		return chart.OffsetCenter
+	case PlacementRight:
+		return chart.OffsetRight
+	default:
+		return chart.OffsetStr{}
+	}
+}
+
+func rendererSymbol(symbol Symbol) chart.Symbol {
+	shape := chart.SymbolShape(symbol.Shape)
+	return chart.Symbol{Shape: shape, Size: symbol.Size}
+}
+
+func rendererDataLabels(series Series) chart.SeriesLabel {
+	labels := series.Labels
+	if labels == (DataLabelOptions{}) {
+		return chart.SeriesLabel{}
+	}
+	result := chart.SeriesLabel{Show: chart.Ptr(labels.Show)}
+	if labels.FontSize > 0 {
+		result.FontStyle = chart.NewFontStyleWithSize(labels.FontSize)
+	}
+	if labels.ColorScale == LabelColorScaleColdToWarm {
+		minimum, maximum := seriesExtent(series)
+		result.LabelFormatter = func(_ int, _ string, value float64) (string, *chart.LabelStyle) {
+			return formatWithDecimals(value, labels.Format, labels.Decimals, labels.TrailingZeros), &chart.LabelStyle{
+				FontStyle: chart.FontStyle{FontColor: gradientLabelSentinel(value, minimum, maximum)},
+			}
+		}
+	} else if labels.Format != ValueFormatDefault || labels.Decimals > 0 {
+		result.ValueFormatter = func(value float64) string {
+			return formatWithDecimals(value, labels.Format, labels.Decimals, labels.TrailingZeros)
+		}
+	}
+	return result
+}
+
+func applyReferences(series *chart.LineSeries, references References) {
+	if references.Average {
+		series.MarkLine.AddLines(chart.SeriesMarkTypeAverage)
+		series.MarkLine.ValueFormatter = referenceFormatter(references, false)
+	}
+	marks := make([]string, 0, 2)
+	if references.Maximum {
+		marks = append(marks, chart.SeriesMarkTypeMax)
+	}
+	if references.Minimum {
+		marks = append(marks, chart.SeriesMarkTypeMin)
+	}
+	if len(marks) > 0 {
+		series.MarkPoint.AddPoints(marks...)
+		series.MarkPoint.SymbolSize = references.PointSize
+		series.MarkPoint.ValueFormatter = referenceFormatter(references, true)
+	}
+}
+
+func referenceFormatter(references References, point bool) chart.ValueFormatter {
+	return func(value float64) string {
+		prefix := ""
+		if point {
+			prefix = references.PointPrefix
+		}
+		return prefix + formatWithDecimals(value, references.Format, references.Decimals, false)
+	}
+}
+
+func formatWithDecimals(value float64, format ValueFormat, decimals int, trailingZeros bool) string {
+	if format == ValueFormatHumanized {
+		return chart.FormatValueHumanizeShort(value, decimals, trailingZeros)
+	}
+	if decimals > 0 {
+		return strconv.FormatFloat(value, 'f', decimals, 64)
+	}
+	return formatValue(value)
+}
+
+func seriesExtent(series Series) (float64, float64) {
+	minimum, maximum := math.Inf(1), math.Inf(-1)
+	for index, value := range resolvedSeriesValues(series) {
+		if series.Points != nil && series.Points[index].Missing {
+			continue
+		}
+		minimum, maximum = math.Min(minimum, value), math.Max(maximum, value)
+	}
+	return minimum, maximum
+}
+
+func gradientLabelSentinel(value, minimum, maximum float64) chart.Color {
+	factor := 0.0
+	if maximum > minimum {
+		factor = (value - minimum) / (maximum - minimum)
+	}
+	factor = math.Max(0, math.Min(1, factor))
+	encoded := uint16(math.Round(factor * 65535))
+	return chart.Color{R: 123, G: uint8(encoded >> 8), B: uint8(encoded), A: 255}
+}
+
+func gradientLabelCSS(value, minimum, maximum float64) string {
+	factor := 0.0
+	if maximum > minimum {
+		factor = (value - minimum) / (maximum - minimum)
+	}
+	factor = math.Max(0, math.Min(1, factor))
+	if factor <= .5 {
+		mid := factor * 200
+		return fmt.Sprintf("color-mix(in srgb, var(--color-chart-scale-low) %.6f%%, var(--color-chart-scale-mid) %.6f%%)", 100-mid, mid)
+	}
+	high := (factor - .5) * 200
+	return fmt.Sprintf("color-mix(in srgb, var(--color-chart-scale-mid) %.6f%%, var(--color-chart-scale-high) %.6f%%)", 100-high, high)
+}
+
+func renderTextAnnotations(painter *chart.Painter, cfg Config) {
+	for index, annotation := range cfg.Annotations {
+		fontSize := annotation.FontSize
+		if fontSize == 0 {
+			fontSize = 12
+		}
+		painter.Text(annotation.Text, annotation.X, annotation.Y, 0, chart.FontStyle{
+			Font: chart.GetDefaultFont(), FontSize: fontSize,
+			FontColor: annotationSentinel(index),
+		})
+	}
+}
+
+func annotationSentinel(index int) chart.Color {
+	encoded := uint16(index)
+	return chart.Color{R: 124, G: uint8(encoded >> 8), B: uint8(encoded), A: 255}
 }
 
 // tokenPalette uses unique placeholder colors that become Goshtoso CSS tokens
@@ -163,6 +354,22 @@ func tokenizedSVG(svg string, cfg Config) string {
 		}
 		replacements = append(replacements, colorSentinel(5+index), html.EscapeString(seriesColor(cfg, index)))
 	}
+	for _, series := range cfg.Series {
+		if series.Labels.ColorScale != LabelColorScaleColdToWarm {
+			continue
+		}
+		minimum, maximum := seriesExtent(series)
+		for pointIndex, value := range resolvedSeriesValues(series) {
+			if series.Points != nil && series.Points[pointIndex].Missing {
+				continue
+			}
+			sentinel := gradientLabelSentinel(value, minimum, maximum)
+			replacements = append(replacements, colorRGB(sentinel), gradientLabelCSS(value, minimum, maximum))
+		}
+	}
+	for index, annotation := range cfg.Annotations {
+		replacements = append(replacements, colorRGB(annotationSentinel(index)), html.EscapeString(annotationColor(cfg, annotation)))
+	}
 	for index := range cfg.YAxes {
 		replacements = append(replacements, colorSentinel(21+index), html.EscapeString(axisColor(cfg, index)))
 	}
@@ -194,6 +401,18 @@ func colorSentinel(value int) string {
 	return fmt.Sprintf("rgb(%d,%d,%d)", value, value, value)
 }
 
+func colorRGB(color chart.Color) string {
+	r, g, b, _ := color.RGBA()
+	return fmt.Sprintf("rgb(%d,%d,%d)", r>>8, g>>8, b>>8)
+}
+
+func annotationColor(cfg Config, annotation TextAnnotation) string {
+	if strings.TrimSpace(annotation.Color) != "" {
+		return annotation.Color
+	}
+	return seriesColor(cfg, annotation.SeriesIndex)
+}
+
 var coloredSVGElement = regexp.MustCompile(`<(?:path|circle|rect|line|polyline|polygon|text)\b[^>]*>`)
 
 func decorateSVG(svg string, cfg Config) string {
@@ -203,6 +422,9 @@ func decorateSVG(svg string, cfg Config) string {
 	}
 	for index, axis := range cfg.YAxes {
 		svg = addClassToColoredElements(svg, colorSentinel(21+index), axis.Class)
+	}
+	for index, annotation := range cfg.Annotations {
+		svg = addClassToColoredElements(svg, colorRGB(annotationSentinel(index)), annotation.Class)
 	}
 	return svg
 }
@@ -230,6 +452,60 @@ func addClassToColoredElements(svg, color, class string) string {
 
 func formatValue(value float64) string {
 	return strconv.FormatFloat(value, 'f', -1, 64)
+}
+
+func formatSeriesValue(series Series, index int) string {
+	if series.Points != nil {
+		if series.Points[index].Missing {
+			return "Unavailable"
+		}
+		return formatValue(series.Points[index].Value)
+	}
+	return formatValue(series.Values[index])
+}
+
+type lineReferenceSummary struct {
+	Average      float64
+	Minimum      float64
+	Maximum      float64
+	MinimumIndex int
+	MaximumIndex int
+}
+
+func summarizeLineReferences(series Series) lineReferenceSummary {
+	values := resolvedSeriesValues(series)
+	summary := lineReferenceSummary{Minimum: math.Inf(1), Maximum: math.Inf(-1)}
+	count := 0
+	for index, value := range values {
+		if series.Points != nil && series.Points[index].Missing {
+			continue
+		}
+		summary.Average += value
+		count++
+		if value < summary.Minimum {
+			summary.Minimum, summary.MinimumIndex = value, index
+		}
+		if value > summary.Maximum {
+			summary.Maximum, summary.MaximumIndex = value, index
+		}
+	}
+	if count > 0 {
+		summary.Average /= float64(count)
+	}
+	return summary
+}
+
+func formatReferenceValue(value float64, references References) string {
+	return formatWithDecimals(value, references.Format, references.Decimals, false)
+}
+
+func (cfg Config) hasReferences() bool {
+	for _, series := range cfg.Series {
+		if series.References.Average || series.References.Minimum || series.References.Maximum {
+			return true
+		}
+	}
+	return false
 }
 
 func axisName(cfg Config, index int) string {
