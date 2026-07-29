@@ -44,6 +44,33 @@ func TestBarRendersSSRAccessibleSVG(t *testing.T) {
 	}
 }
 
+func TestBarPropagatesSharedWrapperLifecycle(t *testing.T) {
+	t.Parallel()
+	base := Config{
+		Label: "Deployments", Labels: []string{"Development"},
+		Series: []Series{{Name: "Successful", Values: []float64{14}}},
+	}
+	base.Controls.Mode = chartcontrol.WrapperModeHidden
+	var hidden bytes.Buffer
+	if err := Bar(base).Render(context.Background(), &hidden); err != nil {
+		t.Fatalf("hidden Render() error = %v", err)
+	}
+	if !strings.Contains(hidden.String(), `data-goshtoso-chart-wrapper-mode="hidden"`) ||
+		!strings.Contains(hidden.String(), `hidden inert aria-hidden="true"`) {
+		t.Fatalf("static chart did not propagate hidden wrapper mode")
+	}
+
+	base.Controls.Mode = chartcontrol.WrapperModeOmitted
+	var omitted bytes.Buffer
+	if err := Bar(base).Render(context.Background(), &omitted); err != nil {
+		t.Fatalf("omitted Render() error = %v", err)
+	}
+	if strings.Contains(omitted.String(), "data-goshtoso-chart-wrapper") ||
+		!strings.Contains(omitted.String(), `class="goshtoso-charts-bar`) {
+		t.Fatalf("static chart did not propagate omitted wrapper mode")
+	}
+}
+
 func TestBarRejectsMisalignedSeries(t *testing.T) {
 	t.Parallel()
 	_, err := renderSVG(Config{Label: "Deployments", Labels: []string{"Development", "Production"}, Series: []Series{{Name: "Successful", Values: []float64{14}}}})

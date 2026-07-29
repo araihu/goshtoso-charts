@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
 
@@ -83,6 +84,35 @@ func TestBarRendersConfiguredChart(t *testing.T) {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
 		}
+	}
+}
+
+func TestInteractiveBarPropagatesSharedWrapperLifecycle(t *testing.T) {
+	t.Parallel()
+	base := BarConfig{
+		Label: "Revenue", XAxis: []string{"Q1"},
+		Series: []BarSeries{{Name: "Hardware", Data: []BarData{{Value: 12}}}},
+	}
+	base.Options.Controls.Mode = chartcontrol.WrapperModeDisabled
+	var disabled bytes.Buffer
+	if err := Bar(base).Render(context.Background(), &disabled); err != nil {
+		t.Fatalf("disabled Render() error = %v", err)
+	}
+	if !strings.Contains(disabled.String(), `data-goshtoso-chart-wrapper-mode="disabled"`) ||
+		!strings.Contains(disabled.String(), `data-goshtoso-chart-actions-fieldset disabled aria-disabled="true"`) ||
+		!strings.Contains(disabled.String(), `_echarts_instance_`) {
+		t.Fatalf("interactive chart did not propagate disabled wrapper mode")
+	}
+
+	base.Options.Controls.Mode = chartcontrol.WrapperModeOmitted
+	var omitted bytes.Buffer
+	if err := Bar(base).Render(context.Background(), &omitted); err != nil {
+		t.Fatalf("omitted Render() error = %v", err)
+	}
+	if strings.Contains(omitted.String(), `class="goshtoso-charts-control-wrapper"`) ||
+		!strings.Contains(omitted.String(), `goshtoso-charts-interactive`) ||
+		!strings.Contains(omitted.String(), `_echarts_instance_`) {
+		t.Fatalf("interactive chart did not propagate omitted wrapper mode")
 	}
 }
 

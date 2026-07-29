@@ -11,13 +11,28 @@ templ wrapperTemplate(cfg WrapperConfig, formats []ExportFormat, chart templ.Com
 	<div
 		class="goshtoso-charts-control-wrapper"
 		data-goshtoso-chart-wrapper
+		data-goshtoso-chart-wrapper-mode={ wrapperMode(cfg.Controls) }
 		data-goshtoso-chart-capability={ string(cfg.Capability) }
 		data-goshtoso-chart-export-filename={ exportFilename(cfg) }
 		data-goshtoso-chart-export-background={ exportBackground(cfg) }
 		data-goshtoso-chart-export-pixel-ratio={ exportPixelRatio(cfg) }
+		if wrapperHidden(cfg.Controls) {
+			hidden
+			inert
+			aria-hidden="true"
+		}
 	>
 		if cfg.Controls.Fullscreen || expandEnabled(cfg.Controls) || len(formats) > 0 {
-			@actiongroup.ActionGroup(chartActions(cfg, formats))
+			<fieldset
+				class="m-0 min-w-0 border-0 p-0"
+				data-goshtoso-chart-actions-fieldset
+				if wrapperDisabled(cfg.Controls) {
+					disabled
+					aria-disabled="true"
+				}
+			>
+				@actiongroup.ActionGroup(chartActions(cfg, formats))
+			</fieldset>
 		}
 		if expandEnabled(cfg.Controls) {
 			<div class="goshtoso-charts-expand-control goshtoso-charts-hidden-expand-modal" data-goshtoso-chart-expand>

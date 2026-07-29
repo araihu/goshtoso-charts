@@ -56,7 +56,11 @@ func TestHandlerServesVersionedChartControlRuntime(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("GET %s status = %d, want %d", assets.ControlRuntimeURL, recorder.Code, http.StatusOK)
 	}
-	for _, want := range []string{"requestFullscreen", "getDataURL", "goshtoso-charts:resize", "expandFromMenu", "toggleFullscreen"} {
+	for _, want := range []string{
+		"requestFullscreen", "getDataURL", "goshtoso-charts:resize", "expandFromMenu", "toggleFullscreen",
+		"goshtoso-charts:set-wrapper-mode", "goshtoso-charts:wrapper-mode-change",
+		"MutationObserver", "htmx:load", "htmx:afterSwap", "goshtosoChartWrapperMode",
+	} {
 		if !strings.Contains(recorder.Body.String(), want) {
 			t.Errorf("control runtime missing %q", want)
 		}
@@ -74,7 +78,7 @@ func TestHandlerServesVersionedChartControlRuntime(t *testing.T) {
 func TestHandlerKeepsPreviousChartControlRuntimesAvailable(t *testing.T) {
 	t.Parallel()
 
-	for _, version := range []string{"1", "2"} {
+	for _, version := range []string{"1", "2", "3"} {
 		recorder := httptest.NewRecorder()
 		request := httptest.NewRequest(http.MethodGet, "/charts/assets/js/controls/"+version+"/controls.js", nil)
 		assets.Handler().ServeHTTP(recorder, request)
