@@ -208,8 +208,8 @@ Supplementary Bar-adjacent evidence at the same revision:
 - Deterministic adaptation: ambient random values are replaced by the recorded
   local seed-1 sequence in original behavior-function and series-call order.
   Six categories or players, series names, integer values in `[0,100)`, and
-  standard point geometry remain unchanged. The upstream `Shooting ` trailing
-  space is corrected to `Shooting`.
+  standard point geometry remain unchanged. The upstream `Shooting` label has
+  one trailing space; Goshtoso corrects it to `Shooting`.
 
 | Upstream behavior function | Coverage | Goshtoso Charts treatment |
 | --- | --- | --- |

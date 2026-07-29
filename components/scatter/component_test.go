@@ -200,6 +200,25 @@ func TestScatterIntegerValueFormatMatchesWholeNumberLabels(t *testing.T) {
 	}
 }
 
+func TestScatterSeriesValueFormatDoesNotOverrideChartFormatter(t *testing.T) {
+	t.Parallel()
+	cfg := Config{
+		Label: "Mixed formats", Categories: []string{"A"},
+		Series: []Series{
+			{Name: "Humanized", Values: [][]float64{{1240}}},
+			{Name: "Integer", Values: [][]float64{{42.6}}, Options: Options{ValueFormat: ValueFormatInteger}},
+		},
+		Options: Options{ValueFormat: ValueFormatHumanized},
+	}
+	options := scatterOptions(cfg)
+	if got := options.ValueFormatter(1240); got != "1k" {
+		t.Fatalf("chart value formatter = %q, want global humanized format", got)
+	}
+	if got := options.SeriesList[1].Label.ValueFormatter(42.6); got != "43" {
+		t.Fatalf("series value formatter = %q, want integer override", got)
+	}
+}
+
 func TestScatterTopNLabelsSelectExactlyNWithStableTiesForDenseAndSparseData(t *testing.T) {
 	t.Parallel()
 	for _, series := range []Series{
