@@ -317,7 +317,7 @@ func chartControlsContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></section><section class=\"space-y-4\"><h2 id=\"client-transitions\" data-toc-heading class=\"scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Client transitions</h2><p class=\"max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted\">Dispatch the stable bubbling <code class=\"font-mono\">goshtoso-charts:set-wrapper-mode</code> event on a wrapper or any descendant. Its detail is <code class=\"font-mono\">&#123; mode, focusReturn? &#125;</code>; mode accepts <code class=\"font-mono\">enabled</code>, <code class=\"font-mono\">disabled</code>, or <code class=\"font-mono\">hidden</code>. A connected <code class=\"font-mono\">HTMLElement</code> in <code class=\"font-mono\">focusReturn</code> receives focus after hiding or closing transient UI.</p><div class=\"grid gap-6 xl:grid-cols-2\"><div class=\"min-w-0 space-y-3\"><h3 class=\"font-title text-lg font-semibold\">Plain JavaScript</h3>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "</div></section><section class=\"space-y-4\"><h2 id=\"client-transitions\" data-toc-heading class=\"scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Client transitions</h2><p class=\"max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted\">Dispatch the stable bubbling <code class=\"font-mono\">goshtoso-charts:set-wrapper-mode</code> event on a wrapper or any descendant. Its detail is <code class=\"font-mono\">&#123; mode, focusReturn? &#125;</code>; mode accepts <code class=\"font-mono\">enabled</code>, <code class=\"font-mono\">disabled</code>, or <code class=\"font-mono\">hidden</code>. After transient UI closes, a connected external <code class=\"font-mono\">HTMLElement</code> in <code class=\"font-mono\">focusReturn</code> receives focus only when focus remains inside the wrapper. Focus already outside the wrapper is preserved; focus still inside without a valid external target is blurred.</p><div class=\"grid gap-6 xl:grid-cols-2\"><div class=\"min-w-0 space-y-3\"><h3 class=\"font-title text-lg font-semibold\">Plain JavaScript</h3>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -353,7 +353,7 @@ func chartControlsContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = controlFact("Transient UI and focus", "Disabling or hiding closes open menus, modal expansion, and fullscreen state first, then checks where focus actually settled. If focus remains inside, a connected external focusReturn is honored; otherwise the active element is blurred. Hidden content leaves focus and accessibility traversal.").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = controlFact("Transient UI and focus", "Disabling or hiding closes open menus, modal expansion, and fullscreen state first, then checks where focus actually settled. If focus remains inside, a connected external focusReturn is honored or the active element is blurred. Focus already outside is preserved. Hidden content leaves focus and accessibility traversal.").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

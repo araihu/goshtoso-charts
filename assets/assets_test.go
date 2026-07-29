@@ -84,7 +84,7 @@ func TestHandlerServesVersionedChartControlRuntime(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("GET %s status = %d, want %d", assets.ControlRuntimeURL, recorder.Code, http.StatusOK)
 	}
-	const wantSHA256 = "951881bd0a8c87955047dd64e4ebdf47193ed30151ca88a123c691d988b60bbf"
+	const wantSHA256 = "18b87e685e16788b30fb879dd73e084262e0dd94495e884884435e185237d0a0"
 	if got := fmt.Sprintf("%x", sha256.Sum256(recorder.Body.Bytes())); got != wantSHA256 {
 		t.Fatalf("GET %s SHA-256 = %s, want immutable v5 %s", assets.ControlRuntimeURL, got, wantSHA256)
 	}

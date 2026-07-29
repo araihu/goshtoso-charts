@@ -8,7 +8,8 @@
   var lifecycleObserver = null;
 
   function wrapperFor(element) {
-    return element && element.closest("[data-goshtoso-chart-wrapper]");
+    return element && typeof element.closest === "function"
+      ? element.closest("[data-goshtoso-chart-wrapper]") : null;
   }
 
   function chartLabel(wrapper) {
@@ -99,11 +100,12 @@
       label.textContent = text;
       return;
     }
-    Array.from(action.childNodes).some(function (node) {
+    var replaced = Array.from(action.childNodes).some(function (node) {
       if (node.nodeType !== Node.TEXT_NODE || !node.textContent.trim()) return false;
       node.textContent = text;
       return true;
     });
+    if (replaced) return;
     var nested = action.querySelector("span > span:last-child");
     if (nested) nested.textContent = text;
   }
@@ -154,7 +156,8 @@
     var wrapper = wrapperFor(button);
     if (!wrapper || wrapperMode(wrapper) !== "enabled") return;
     if (document.fullscreenElement === wrapper) {
-      document.exitFullscreen();
+      var exit = document.exitFullscreen();
+      if (exit && typeof exit.catch === "function") exit.catch(function () {});
       return;
     }
     if (fallbackWrapper === wrapper) {
@@ -528,18 +531,20 @@
   }
 
   document.addEventListener("click", function (event) {
-    var control = event.target.closest("[data-goshtoso-chart-control]");
+    var target = event.target;
+    if (!target || typeof target.closest !== "function") return;
+    var control = target.closest("[data-goshtoso-chart-control]");
     if (control) {
       if (control.dataset.goshtosoChartControl === "fullscreen") toggleFullscreen(control);
       return;
     }
-    var exporter = event.target.closest("[data-goshtoso-chart-export]");
+    var exporter = target.closest("[data-goshtoso-chart-export]");
     if (exporter) exportChart(exporter);
-    var expand = event.target.closest("[data-goshtoso-chart-expand]");
+    var expand = target.closest("[data-goshtoso-chart-expand]");
     if (expand) {
       var wrapper = wrapperFor(expand);
       var parts = expandParts(wrapper);
-      if (event.target.closest("button") === parts.trigger) {
+      if (target.closest("button") === parts.trigger) {
         prepareExpand(wrapper);
         requestAnimationFrame(function () { openExpand(wrapper); });
         setTimeout(function () { openExpand(wrapper); }, 50);
@@ -577,12 +582,13 @@
   });
 
   document.addEventListener("keydown", function (event) {
-    if (event.key === "Escape") {
+    if (event.key !== "Escape") return;
+    if (event.target && typeof event.target.closest === "function") {
       var menu = event.target.closest('[role="menu"]');
       var trigger = menu && menu.parentElement && menu.parentElement.querySelector(":scope > button");
       if (trigger) setTimeout(function () { trigger.focus(); }, 50);
     }
-    if (event.key === "Escape" && fallbackWrapper) leaveFallback(true);
+    if (fallbackWrapper) leaveFallback(true);
   });
 
   window.__goshtosoChartsControls = {

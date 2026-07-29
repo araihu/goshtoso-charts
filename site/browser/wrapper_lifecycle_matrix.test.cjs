@@ -246,6 +246,16 @@ test("actionless wrapper state runtime works under strict CSP and normalizes the
     await page.waitForFunction(() => document.querySelector("[data-goshtoso-chart-wrapper]")?.dataset.goshtosoChartWrapperInitialized === "true");
     assert.equal(await wrapper.locator('script[src="/charts/assets/js/controls/5/controls.js"]').count(), 1);
 
+    await page.evaluate(() => {
+      document.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      document.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+      const text = document.createTextNode("event target probe");
+      document.body.append(text);
+      text.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      text.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+      text.remove();
+    });
+
     const state = await wrapper.evaluate((element) => {
       const changes = [];
       element.addEventListener("goshtoso-charts:wrapper-mode-change", (event) => changes.push(event.detail));

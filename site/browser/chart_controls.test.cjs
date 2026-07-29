@@ -726,7 +726,22 @@ test("native fullscreen enters and exits, preserves instance, resizes, and retur
     assert.equal(full.chartHeight, full.hostHeight);
     assert.equal(full.canvasWidth, full.hostWidth);
     assert.equal(full.canvasHeight, full.hostHeight);
-    await page.evaluate(() => document.exitFullscreen());
+    await page.evaluate(() => {
+      globalThis.__fullscreenExitRejections = [];
+      globalThis.__nativeExitFullscreen = document.exitFullscreen.bind(document);
+      window.addEventListener("unhandledrejection", (event) => {
+        globalThis.__fullscreenExitRejections.push(String(event.reason));
+        event.preventDefault();
+      });
+      document.exitFullscreen = () => Promise.reject(new Error("expected fullscreen exit rejection"));
+    });
+    await button.click();
+    await page.waitForTimeout(100);
+    assert.deepEqual(await page.evaluate(() => globalThis.__fullscreenExitRejections), []);
+    await page.evaluate(() => {
+      document.exitFullscreen = globalThis.__nativeExitFullscreen;
+      return document.exitFullscreen();
+    });
     await page.waitForFunction(() => !document.fullscreenElement);
     await page.waitForTimeout(350);
     const restored = await wrapper.evaluate((element) => ({
