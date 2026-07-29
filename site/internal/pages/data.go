@@ -26,6 +26,9 @@ const (
 	horizontalBarUpstreamPath     = "examples/1-Painter/horizontal_bar_chart-1-basic/main.go"
 	horizontalBarUpstreamRevision = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
 	horizontalBarUpstreamSHA256   = "735240dd8433bd2494ae019f272840a8ff2fcf5572166b78269e23cbff7111a0"
+	barReferencesUpstreamPath     = "examples/1-Painter/bar_chart-4-mark/main.go"
+	barReferencesUpstreamRevision = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
+	barReferencesUpstreamSHA256   = "544fea22c29db4225c7b10bb6d12137d484a4ca9b6c647dc29730a61ce4ced4c"
 	doughnutUpstreamPath          = "examples/1-Painter/doughnut_chart-1-basic/main.go"
 	doughnutUpstreamRevision      = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
 	doughnutUpstreamSHA256        = "b97bca2322e90e2f03ab49aa77f683d0c58e027846b939e5a61100602dad1ebf"
@@ -177,6 +180,22 @@ func sampleHorizontalWorldPopulation() bar.Config {
 		Height:   400,
 		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "world-population"},
+	}
+}
+
+func sampleBarReferences() bar.Config {
+	annotations := bar.References{Average: true, Minimum: true, Maximum: true, Format: bar.ValueFormatHumanized}
+	return bar.Config{
+		Label:   "Monthly rainfall and evaporation reference annotations",
+		Caption: "Monthly values with average lines and minimum and maximum reference points; adjacent evidence lists every value and computed reference.",
+		Labels:  []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"},
+		Series: []bar.Series{
+			{Name: "Rainfall", Values: []float64{2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3}, References: annotations},
+			{Name: "Evaporation", Values: []float64{2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3}, References: annotations},
+		},
+		Width: 600, Height: 400,
+		Controls: chartcontrol.Options{Fullscreen: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "monthly-rainfall-and-evaporation"},
 	}
 }
 
@@ -674,6 +693,23 @@ func horizontalBarCode() string {
     {Name: "2012", Values: []float64{20, 40, 60, 80, 100, 120, 140}},
   },
   Padding: bar.Padding{Top: 20, Right: 40, Bottom: 20, Left: 20},
+  Width: 600, Height: 400,
+})`
+}
+
+func barReferencesCode() string {
+	return `references := bar.References{
+  Average: true, Minimum: true, Maximum: true,
+  Format: bar.ValueFormatHumanized,
+}
+
+@bar.Bar(bar.Config{
+  Label: "Monthly rainfall and evaporation reference annotations",
+  Labels: []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"},
+  Series: []bar.Series{
+    {Name: "Rainfall", Values: rainfall, References: references},
+    {Name: "Evaporation", Values: evaporation, References: references},
+  },
   Width: 600, Height: 400,
 })`
 }

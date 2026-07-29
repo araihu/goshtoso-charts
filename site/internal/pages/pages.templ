@@ -73,7 +73,7 @@ templ barContent() {
 		Title: "Bar chart",
 		Description: "Categorical SSR SVG for vertical or horizontal comparisons. Set Stacked for composition within each category.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Compare named values across categories, including stacked outcomes and horizontal treatments.", "Primitive", "bar.Bar", "Kind", "components.KindBarChart", "Configuration", "Label, Caption, Title, category Labels, named Series, Stacked, typed Orientation and Padding, optional Width, and Height.", "Accessibility", "Figure name comes from Label and Caption stays visible. Horizontal charts include an exact category-value table."),
+			AbovePreview: componentContract("Purpose", "Compare named values across categories, including stacked outcomes, horizontal treatments, and per-series statistical references.", "Primitive", "bar.Bar", "Kind", "components.KindBarChart", "Configuration", "Label, Caption, Title, category Labels, named Series, Stacked, typed Orientation and Padding, References with average/minimum/maximum, value format and safe style controls, optional Width, and Height.", "Accessibility", "Figure name comes from Label and Caption stays visible. Horizontal charts include exact category values; reference variants include all values and computed average/minimum/maximum evidence."),
 			Preview: bar.Bar(sampleDeployments()),
 			Code: barCode(),
 		},
@@ -84,8 +84,14 @@ templ barContent() {
 				Preview: bar.Bar(sampleHorizontalWorldPopulation()),
 				Code: horizontalBarCode(),
 			},
+			{
+				Title: "Statistical reference annotations",
+				Description: "Average lines and minimum/maximum points stay typed per series. Exact values and computed references remain adjacent to chart without relying on color.",
+				Preview: bar.Bar(sampleBarReferences()),
+				Code: barReferencesCode(),
+			},
 		},
-		After: demoNote("Orientation contract", "Vertical is the zero-value default. Horizontal changes axis treatment on the same Bar component and preserves exact values in an adjacent table."),
+		After: demoNote("Behavior variants", "Vertical is the zero-value default. Horizontal changes axis treatment on this Bar component; typed references add average lines and minimum/maximum points with adjacent exact evidence."),
 	})
 }
 
@@ -150,6 +156,13 @@ templ interactiveChartLineContent() {
 			Preview: interactive.Line(sampleInteractiveLine()),
 			Code: interactiveChartLineCode(),
 		},
+		Sections: []componentpage.Example{{
+			Title: "Temporal X-axis treatment",
+			Description: "Typed UTC timestamps preserve one ordered time series with a fixed lower bound and an adjacent exact-data table.",
+			Preview: interactive.Line(sampleInteractiveLineTime()),
+			Code: interactiveLineTimeCode(),
+		}},
+		After: demoNote("Axis contract", "LineConfig accepts exactly one X-axis representation: categorical XAxis or typed TimeAxis. TimeAxis values are non-zero, within the declared lower bound, and strictly chronological. Its optional SplitNumber recommends tick density; zero defaults to four readable temporal segments. LiveData remains categorical because its complete snapshot contract carries categories."),
 	})
 }
 

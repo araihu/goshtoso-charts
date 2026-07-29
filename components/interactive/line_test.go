@@ -6,6 +6,7 @@ import (
 	"math"
 	"strings"
 	"testing"
+	"time"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
 )
@@ -53,6 +54,38 @@ func TestLineRendersConfiguredChart(t *testing.T) {
 	}
 }
 
+func TestLineRendersTypedTemporalAxisAndExactValues(t *testing.T) {
+	t.Parallel()
+	minimum := time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC)
+	instance := Line(LineConfig{
+		Label: "Temporal values", Caption: "UTC evidence.",
+		TimeAxis: &LineTimeAxis{Minimum: minimum, Values: []time.Time{
+			time.Date(2025, time.February, 0, 0, 0, 0, 0, time.FixedZone("other", -3*60*60)),
+			time.Date(2025, time.February, 1, 0, 0, 0, 0, time.UTC),
+		}},
+		Series: []LineSeries{{Name: "Category A", Data: []LineData{{Value: 107}, {Value: 118}}}},
+		Options: ChartOptions{
+			Title:   &TitleOptions{Text: "temporal X axis", Subtitle: "time.Date as X axis values"},
+			Tooltip: &TooltipOptions{Show: Bool(true), Trigger: "axis"},
+			YAxis:   &AxisOptions{Min: Float(0), Max: Float(200)},
+		},
+	})
+	var output bytes.Buffer
+	if err := instance.Render(context.Background(), &output); err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	markup := output.String()
+	for _, want := range []string{
+		`"type":"time"`, `"min":"2025-01-01T00:00:00Z"`, `"splitNumber":4`, `"hideOverlap":true`, `"showMinLabel":true`, `"showMaxLabel":true`, `"min":0,"max":200`,
+		`"trigger":"axis"`, `"value":["2025-01-31T03:00:00Z",107]`,
+		"Exact time and values", "UTC timestamps.", "2025-01-31T03:00:00Z", "2025-02-01T00:00:00Z", ">118</td>",
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("rendered temporal markup missing %q", want)
+		}
+	}
+}
+
 func TestLineRejectsInvalidDataContract(t *testing.T) {
 	t.Parallel()
 	tests := map[string]struct {
@@ -89,6 +122,30 @@ func TestLineRejectsInvalidDataContract(t *testing.T) {
 		"nonfinite value": {
 			cfg:       LineConfig{Label: "Traffic", XAxis: []string{"Mon"}, Series: []LineSeries{{Name: "API", Data: []LineData{{Value: math.Inf(1)}}}}},
 			wantError: `line chart series "API" data point 0 value must be finite`,
+		},
+		"mixed axes": {
+			cfg:       LineConfig{Label: "Traffic", XAxis: []string{"Mon"}, TimeAxis: &LineTimeAxis{Minimum: time.Now(), Values: []time.Time{time.Now()}}, Series: []LineSeries{{Name: "API", Data: []LineData{{Value: 12}}}}},
+			wantError: "line chart x axis and time axis are mutually exclusive",
+		},
+		"missing time minimum": {
+			cfg:       LineConfig{Label: "Traffic", TimeAxis: &LineTimeAxis{Values: []time.Time{time.Now()}}, Series: []LineSeries{{Name: "API", Data: []LineData{{Value: 12}}}}},
+			wantError: "line chart time axis minimum is required",
+		},
+		"time before minimum": {
+			cfg:       LineConfig{Label: "Traffic", TimeAxis: &LineTimeAxis{Minimum: time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC), Values: []time.Time{time.Date(2025, 1, 31, 0, 0, 0, 0, time.UTC)}}, Series: []LineSeries{{Name: "API", Data: []LineData{{Value: 12}}}}},
+			wantError: "line chart time axis value 0 precedes minimum",
+		},
+		"duplicate time": {
+			cfg:       LineConfig{Label: "Traffic", TimeAxis: &LineTimeAxis{Minimum: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC), Values: []time.Time{time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC), time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC)}}, Series: []LineSeries{{Name: "API", Data: []LineData{{Value: 12}, {Value: 13}}}}},
+			wantError: "line chart time axis values must be strictly chronological",
+		},
+		"time live data": {
+			cfg:       LineConfig{Label: "Traffic", TimeAxis: &LineTimeAxis{Minimum: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC), Values: []time.Time{time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC)}}, Live: &LiveData{URL: "/events"}, Series: []LineSeries{{Name: "API", Data: []LineData{{Value: 12}}}}},
+			wantError: "line chart live data supports categorical x axis only",
+		},
+		"negative time split number": {
+			cfg:       LineConfig{Label: "Traffic", TimeAxis: &LineTimeAxis{Minimum: time.Date(2025, 1, 1, 0, 0, 0, 0, time.UTC), Values: []time.Time{time.Date(2025, 2, 1, 0, 0, 0, 0, time.UTC)}, SplitNumber: -1}, Series: []LineSeries{{Name: "API", Data: []LineData{{Value: 12}}}}},
+			wantError: "line chart time axis split number must be nonnegative",
 		},
 	}
 

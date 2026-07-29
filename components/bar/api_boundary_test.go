@@ -12,6 +12,7 @@ func TestPublicAPIDoesNotExposeRendererTypes(t *testing.T) {
 	t.Parallel()
 	publicTypes := []reflect.Type{
 		reflect.TypeOf(bar.Orientation("")), reflect.TypeOf(bar.Padding{}),
+		reflect.TypeOf(bar.ValueFormat("")), reflect.TypeOf(bar.ReferenceStyle{}), reflect.TypeOf(bar.References{}),
 		reflect.TypeOf(bar.Series{}), reflect.TypeOf(bar.Config{}),
 		reflect.TypeOf(bar.Instance{}), reflect.TypeOf(bar.Bar),
 	}

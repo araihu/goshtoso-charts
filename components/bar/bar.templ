@@ -50,4 +50,42 @@ templ barTemplate(cfg Config, chart templ.Component) {
 			</div>
 		</details>
 	}
+	if cfg.hasReferences() {
+		<details class="mt-3 max-w-full text-sm text-on-surface dark:text-on-surface-dark" open>
+			<summary class="cursor-pointer font-semibold">Exact values and reference annotations</summary>
+			<div class="mt-2 overflow-x-auto rounded-radius border border-outline dark:border-outline-dark">
+				<table class="min-w-full border-collapse text-left" aria-label={ cfg.Label + " exact values and reference annotations" }>
+					<thead><tr><th class="px-3 py-2" scope="col">Category</th>
+						for _, series := range cfg.Series {
+							<th class="px-3 py-2" scope="col">{ series.Name }</th>
+						}
+					</tr></thead>
+					<tbody>
+						for categoryIndex, label := range cfg.Labels {
+							<tr class="border-t border-outline dark:border-outline-dark"><th class="px-3 py-2 font-semibold" scope="row">{ label }</th>
+								for _, series := range cfg.Series {
+									<td class="px-3 py-2 tabular-nums">{ formatReferenceValue(series.Values[categoryIndex], series.References.Format) }</td>
+								}
+							</tr>
+						}
+					</tbody>
+				</table>
+				<table class="min-w-full border-collapse text-left" aria-label={ cfg.Label + " computed reference annotations" }>
+					<thead><tr><th class="px-3 py-2" scope="col">Series</th><th class="px-3 py-2" scope="col">Average</th><th class="px-3 py-2" scope="col">Maximum</th><th class="px-3 py-2" scope="col">Minimum</th></tr></thead>
+					<tbody>
+						for _, series := range cfg.Series {
+							if series.References.Average || series.References.Maximum || series.References.Minimum {
+								{{ summary := summarizeReferences(series.Values) }}
+								<tr class={ "border-t border-outline dark:border-outline-dark " + series.References.Style.Class }><th class="px-3 py-2 font-semibold" scope="row">{ series.Name }</th>
+									<td class="px-3 py-2 tabular-nums">{ formatReferenceValue(summary.Average, series.References.Format) }</td>
+									<td class="px-3 py-2 tabular-nums">{ formatReferenceValue(summary.Maximum, series.References.Format) + " at " + cfg.Labels[summary.MaximumIndex] }</td>
+									<td class="px-3 py-2 tabular-nums">{ formatReferenceValue(summary.Minimum, series.References.Format) + " at " + cfg.Labels[summary.MinimumIndex] }</td>
+								</tr>
+							}
+						}
+					</tbody>
+				</table>
+			</div>
+		</details>
+	}
 }

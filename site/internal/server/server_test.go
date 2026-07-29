@@ -200,6 +200,14 @@ func TestBarDocumentationPreservesHorizontalExampleWithoutEngineBranding(t *test
 			t.Errorf("bar documentation missing horizontal example content %q", want)
 		}
 	}
+	for _, want := range []string{
+		"Statistical reference annotations", "Rainfall", "Evaporation", "Jan", "Dec", "136", "182",
+		"ValueFormatHumanized", "Average", "Minimum", "Maximum", "Exact values and reference annotations", "600", "400",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("bar documentation missing reference example content %q", want)
+		}
+	}
 	for _, unwanted := range []string{"go-analyze", "horizontal_bar_chart-1-basic/main.go", "infrastructure", "operations", "raw map"} {
 		if strings.Contains(body, unwanted) {
 			t.Errorf("bar component page contains non-neutral content %q", unwanted)
@@ -207,7 +215,7 @@ func TestBarDocumentationPreservesHorizontalExampleWithoutEngineBranding(t *test
 	}
 	attributions := httptest.NewRecorder()
 	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
-	for _, want := range []string{"examples/1-Painter/horizontal_bar_chart-1-basic/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2"} {
+	for _, want := range []string{"examples/1-Painter/horizontal_bar_chart-1-basic/main.go", "examples/1-Painter/bar_chart-4-mark/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2"} {
 		if !strings.Contains(attributions.Body.String(), want) {
 			t.Errorf("central attribution missing pinned horizontal bar source %q", want)
 		}

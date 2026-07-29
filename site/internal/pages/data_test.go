@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/araihu/goshtoso-charts/components/bar"
 	"github.com/araihu/goshtoso-charts/components/candlestick"
 	"github.com/araihu/goshtoso-charts/components/interactive"
 	"github.com/araihu/goshtoso-charts/components/pie"
@@ -135,6 +136,23 @@ func TestHorizontalBarMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 	for index, series := range cfg.Series {
 		if series.Name != wantNames[index] || !reflect.DeepEqual(series.Values, wantValues[index]) {
 			t.Fatalf("series %d = %q %v, want %q %v", index, series.Name, series.Values, wantNames[index], wantValues[index])
+		}
+	}
+}
+
+func TestBarReferencesMechanicallyMatchPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if barReferencesUpstreamPath != "examples/1-Painter/bar_chart-4-mark/main.go" || barReferencesUpstreamRevision != "1fe31b06b8a82e00df877ff4417a75858547c1c2" || barReferencesUpstreamSHA256 != "544fea22c29db4225c7b10bb6d12137d484a4ca9b6c647dc29730a61ce4ced4c" {
+		t.Fatalf("bar reference upstream source = %s@%s SHA-256 %s", barReferencesUpstreamPath, barReferencesUpstreamRevision, barReferencesUpstreamSHA256)
+	}
+	cfg := sampleBarReferences()
+	if cfg.Width != 600 || cfg.Height != 400 || !reflect.DeepEqual(cfg.Labels, []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}) {
+		t.Fatalf("reference bar geometry/categories drifted: %dx%d %v", cfg.Width, cfg.Height, cfg.Labels)
+	}
+	want := [][]float64{{2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3}, {2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3}}
+	for index, series := range cfg.Series {
+		if !reflect.DeepEqual(series.Values, want[index]) || !series.References.Average || !series.References.Minimum || !series.References.Maximum || series.References.Format != bar.ValueFormatHumanized {
+			t.Fatalf("series %d drifted: %#v", index, series)
 		}
 	}
 }
