@@ -9,6 +9,7 @@ const { chromium } = require("playwright");
 let baseURL;
 let browser;
 let server;
+const goExecutable = "go";
 
 async function randomPort() {
   return new Promise((resolve, reject) => {
@@ -37,11 +38,16 @@ before(async () => {
   assert.notEqual(port, 8091);
   assert.notEqual(port, 8096);
   baseURL = `http://127.0.0.1:${port}`;
-  server = spawn("/opt/homebrew/bin/go", ["run", "./cmd/server", "-port", String(port)], {
+  server = spawn(goExecutable, ["run", "./cmd/server", "-port", String(port)], {
     cwd: path.resolve(__dirname, ".."), detached: true, stdio: "pipe",
   });
   await ready();
   browser = await chromium.launch({ headless: true });
+});
+
+test("interactive Radar browser harness resolves Go from PATH", () => {
+  assert.equal(path.isAbsolute(goExecutable), false);
+  assert.equal(goExecutable, "go");
 });
 
 after(async () => {

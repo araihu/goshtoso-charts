@@ -753,20 +753,39 @@ func radarCode() string {
 
 func radarReadableCode() string {
 	return `cfg := sampleBasicRadar()
+cfg.Label = "Readable radar values and compact layout"
+cfg.Caption = "The same budget comparison uses typed labels, compact formatting, logical placement, and caller colors."
+cfg.Indicators[0].Min = 1000
+for index := range cfg.Indicators {
+  cfg.Indicators[index].Label.FontSize = 10
+}
 cfg.Options = radar.Options{
   RadiusPercent: 44,
   ValueLabels: radar.ValueLabelsShown,
   ValueFormat: radar.ValueFormatHumanized,
 }
 cfg.Series[0].Options.LabelFontSize = 9
-cfg.Series[1].Options = radar.SeriesOptions{ValueLabels: radar.ValueLabelsHidden}
-cfg.Title = radar.TitleOptions{Text: "Basic Radar Chart", Horizontal: radar.PlacementCenter}
-cfg.Legend = radar.LegendOptions{Orientation: radar.LegendVertical, Horizontal: radar.PlacementEnd}
+cfg.Series[1].Options = radar.SeriesOptions{
+  ValueLabels: radar.ValueLabelsHidden,
+  ValueFormat: radar.ValueFormatInteger,
+}
+cfg.Title = radar.TitleOptions{
+  Text: "Basic Radar Chart", Subtext: "Values at each vertex",
+  Horizontal: radar.PlacementCenter, FontSize: 16, SubtextFontSize: 12,
+}
+cfg.Legend = radar.LegendOptions{
+  Orientation: radar.LegendVertical, Horizontal: radar.PlacementEnd,
+  Alignment: radar.AlignmentEnd, FontSize: 10, Overlay: true,
+}
 cfg.Padding = radar.Padding{Top: 24, Right: 84, Bottom: 24, Left: 24}
 cfg.Style = charttheme.Style{
   Palette: charttheme.PaletteAraiHu,
   Colors: []string{"#365314", "#c2410c"},
-  Class: "my-radar",
+  Class: "radar-explicit-override",
+}
+cfg.Export = &chartcontrol.ExportOptions{
+  Filename: "readable-radar-values",
+  Background: chartcontrol.ExportBackgroundTransparent,
 }
 @radar.Radar(cfg)`
 }

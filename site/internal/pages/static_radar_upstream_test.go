@@ -74,6 +74,29 @@ func TestStaticRadarTypedOptionsExerciseRelevantUpstreamSurface(t *testing.T) {
 	}
 }
 
+func TestStaticRadarReadableSnippetMatchesPreviewOptions(t *testing.T) {
+	t.Parallel()
+	code := radarReadableCode()
+	for _, want := range []string{
+		`cfg.Label = "Readable radar values and compact layout"`,
+		`cfg.Indicators[0].Min = 1000`,
+		`cfg.Indicators[index].Label.FontSize = 10`,
+		`ValueFormat: radar.ValueFormatHumanized`,
+		`ValueFormat: radar.ValueFormatInteger`,
+		`Subtext: "Values at each vertex"`,
+		`SubtextFontSize: 12`,
+		`Alignment: radar.AlignmentEnd`,
+		`FontSize: 10, Overlay: true`,
+		`Class: "radar-explicit-override"`,
+		`Filename: "readable-radar-values"`,
+		`Background: chartcontrol.ExportBackgroundTransparent`,
+	} {
+		if !strings.Contains(code, want) {
+			t.Errorf("readable Radar snippet missing preview option %q", want)
+		}
+	}
+}
+
 func TestStaticRadarPageDocumentsDecisionsAccessibilityAndCanonicalAPI(t *testing.T) {
 	t.Parallel()
 	source, err := os.ReadFile("pages.templ")

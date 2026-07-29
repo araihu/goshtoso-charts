@@ -25,6 +25,7 @@
     "test:line3d": "node --test browser/line3d.test.cjs",
     "test:pie": "node --test browser/pie.test.cjs",
     "test:radar": "node --test browser/static_radar_upstream_exhaustion.test.cjs",
+    "test:radar-all": "npm run test:radar && npm run test:interactive-radar",
     "test:scatter": "node --test browser/scatter_upstream_exhaustion.test.cjs",
     "test:surface3d": "node --test browser/surface3d.test.cjs",
     "test:table": "node --test browser/table.test.cjs",
