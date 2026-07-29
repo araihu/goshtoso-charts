@@ -129,6 +129,7 @@ func TestCandlestickNewOptionValidation(t *testing.T) {
 		{"mixed legacy and series", func(cfg *Config) { cfg.Series = multipleSeriesConfig().Series }, "cannot combine"},
 		{"empty series", func(cfg *Config) { cfg.SeriesName, cfg.Data = "", nil; cfg.Series = []Series{} }, "at least one series"},
 		{"series name", func(cfg *Config) { *cfg = multipleSeriesConfig(); cfg.Series[0].Name = "" }, "series 1 name"},
+		{"duplicate series name", func(cfg *Config) { *cfg = multipleSeriesConfig(); cfg.Series[1].Name = " Stock A " }, `series name "Stock A" is duplicated`},
 		{"series labels", func(cfg *Config) { *cfg = multipleSeriesConfig(); cfg.Series[1].Data[1].Label = "Other" }, "labels must align"},
 		{"body style", func(cfg *Config) { *cfg = multipleSeriesConfig(); cfg.Series[0].BodyStyle = "gradient" }, "body style"},
 		{"aggregation multi", func(cfg *Config) { *cfg = multipleSeriesConfig(); cfg.Aggregation.WindowSize = 2 }, "single series"},

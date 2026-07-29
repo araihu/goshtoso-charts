@@ -134,11 +134,15 @@ const (
 // PatternOptions configures detection and annotation as one Candlestick
 // behavior variant. Its zero value leaves pattern detection disabled.
 type PatternOptions struct {
-	Selection        PatternSelection
-	Enabled          []PatternType
-	PreferLabels     bool
-	Label            PatternLabelStyle
-	References       []CloseReferenceType
+	Selection    PatternSelection
+	Enabled      []PatternType
+	PreferLabels bool
+	Label        PatternLabelStyle
+	References   []CloseReferenceType
+	// Threshold zero values preserve the pinned renderer defaults: 0.05 for
+	// doji bodies, 0.01 for shadow tolerance, 2 for shadow ratio, and 1 for
+	// engulfing size. The upstream API treats every non-positive value as its
+	// default, so explicit zero is not a distinct supported setting.
 	DojiThreshold    float64
 	ShadowTolerance  float64
 	ShadowRatio      float64
@@ -269,13 +273,19 @@ func (cfg Config) validate() error {
 			}
 		}
 	}
+	seriesNames := make(map[string]struct{}, len(series))
 	for index, candidate := range series {
-		if strings.TrimSpace(candidate.Name) == "" {
+		name := strings.TrimSpace(candidate.Name)
+		if name == "" {
 			if len(cfg.Series) == 0 {
 				return fmt.Errorf("candlestick chart series name is required")
 			}
 			return fmt.Errorf("candlestick chart series %d name is required", index+1)
 		}
+		if _, exists := seriesNames[name]; exists {
+			return fmt.Errorf("candlestick chart series name %q is duplicated", name)
+		}
+		seriesNames[name] = struct{}{}
 		if err := validateBodyStyle(index, candidate.BodyStyle); err != nil {
 			return err
 		}
