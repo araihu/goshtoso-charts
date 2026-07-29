@@ -103,8 +103,11 @@ func TestStaticScatterPageDocumentsDecisionsAccessibilityAndCanonicalAPI(t *test
 	}
 	page := string(source)
 	start := strings.Index(page, "templ scatterContent")
+	if start < 0 {
+		t.Fatal("cannot isolate static Scatter page")
+	}
 	end := strings.Index(page[start:], "templ radarContent")
-	if start < 0 || end < 0 {
+	if end < 0 {
 		t.Fatal("cannot isolate static Scatter page")
 	}
 	scatterPage := page[start : start+end]

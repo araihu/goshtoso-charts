@@ -135,6 +135,9 @@ func scatterOptions(cfg Config) chart.ScatterChartOption {
 	if cfg.YAxis.LabelFontSize > 0 {
 		options.YAxis[0].LabelFontStyle = chart.NewFontStyleWithSize(cfg.YAxis.LabelFontSize)
 	}
+	if formatter := scatterValueFormatter(cfg.Options.ValueFormat); formatter != nil {
+		options.ValueFormatter = formatter
+	}
 	for index, series := range cfg.Series {
 		resolved := series.Options.resolved(cfg.Options)
 		options.SeriesList[index].Name = series.Name
@@ -149,7 +152,6 @@ func scatterOptions(cfg Config) chart.ScatterChartOption {
 			formatter := scatterValueFormatter(resolved.ValueFormat)
 			options.SeriesList[index].Label.ValueFormatter = formatter
 			options.SeriesList[index].MarkLine.ValueFormatter = formatter
-			options.ValueFormatter = formatter
 		}
 		if resolved.TopNLabels.Count > 0 {
 			values := seriesValues(cfg.Categories, series)

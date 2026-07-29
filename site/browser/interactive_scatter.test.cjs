@@ -40,7 +40,7 @@ before(async () => {
   assert.notEqual(port, 8096);
   baseURL = `http://127.0.0.1:${port}`;
   server = spawn("go", ["run", "./cmd/server", "-port", String(port)], {
-    cwd: path.resolve(__dirname, ".."), detached: true, stdio: "pipe",
+    cwd: path.resolve(__dirname, ".."), detached: true, stdio: "ignore",
   });
   await ready();
   browser = await chromium.launch({ headless: true });

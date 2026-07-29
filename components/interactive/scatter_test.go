@@ -113,6 +113,9 @@ func TestScatterRendersPerSeriesRippleOverrides(t *testing.T) {
 			t.Errorf("effect variant markup missing %q", want)
 		}
 	}
+	if strings.Contains(markup, `"period":8,"scale":2`) {
+		t.Error("shared ripple was not overridden by per-series ripple")
+	}
 }
 
 func TestInteractiveScatterPropagatesSharedWrapperLifecycle(t *testing.T) {

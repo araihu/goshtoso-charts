@@ -43,7 +43,7 @@ before(async () => {
   assert.notEqual(port, 8096);
   baseURL = `http://127.0.0.1:${port}`;
   server = spawn("go", ["run", "./cmd/server", "-port", String(port)], {
-    cwd: path.resolve(__dirname, ".."), detached: true, stdio: "pipe",
+    cwd: path.resolve(__dirname, ".."), detached: true, stdio: "ignore",
   });
   await ready();
   browser = await chromium.launch({ headless: true });
@@ -186,10 +186,10 @@ test("dense Scatter opens a centered contained modal at 390px", async () => {
     await openExpand(wrapper);
     const dialog = wrapper.getByRole("dialog", { name: "Dense scatter data" });
     await dialog.waitFor({ state: "visible" });
-	await dialog.locator(".goshtoso-charts-scatter__viewport svg").waitFor({ state: "visible" });
+    await dialog.locator(".goshtoso-charts-scatter__viewport svg").waitFor({ state: "visible" });
     const geometry = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((panel) => {
-		  const svg = panel.querySelector(".goshtoso-charts-scatter__viewport svg");
-		  const body = svg.closest(".goshtoso-charts-control-content");
+      const svg = panel.querySelector(".goshtoso-charts-scatter__viewport svg");
+      const body = svg.closest(".goshtoso-charts-control-content");
       const panelRect = panel.getBoundingClientRect();
       const bodyRect = body.getBoundingClientRect();
       const svgRect = svg.getBoundingClientRect();

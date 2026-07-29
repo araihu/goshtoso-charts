@@ -141,32 +141,46 @@ func TestInteractiveScatterCoverageUsesCanonicalLedgerWithoutLostEntries(t *test
 		t.Fatalf("read canonical upstream coverage ledger: %v", err)
 	}
 	ledger := string(data)
+	section := canonicalLedgerSection(t, ledger, "## Interactive Scatter")
 	for _, want := range []string{
 		"## Interactive Scatter", interactiveScatterUpstreamRevision,
 		interactiveScatterUpstreamPath, interactiveScatterUpstreamSHA256,
 		interactiveEffectScatterUpstreamPath, interactiveEffectScatterUpstreamSHA256,
 		"all five upstream behavior functions", "renderer-neutral `interactive.Scatter` component",
 	} {
-		if !strings.Contains(ledger, want) {
+		if !strings.Contains(section, want) {
 			t.Errorf("canonical ledger missing interactive Scatter evidence %q", want)
 		}
 	}
 	for _, entry := range interactiveScatterUpstreamCoverage() {
-		if count := strings.Count(ledger, "| `"+entry.Name+"` | Example |"); count != 1 {
+		if count := strings.Count(section, "| `"+entry.Name+"` | Example |"); count != 1 {
 			t.Errorf("interactive Scatter behavior row %q occurs %d times, want 1", entry.Name, count)
 		}
 	}
 	for _, function := range interactiveScatterSourceFunctions() {
-		if !strings.Contains(ledger, "`"+function.Name+"`") {
+		if !strings.Contains(section, "`"+function.Name+"`") {
 			t.Errorf("interactive Scatter function inventory missing %q", function.Name)
 		}
-		if count := strings.Count(ledger, "`"+function.SHA256+"`"); count != 1 {
+		if count := strings.Count(section, "`"+function.SHA256+"`"); count != 1 {
 			t.Errorf("interactive Scatter function hash %q occurs %d times, want 1", function.SHA256, count)
 		}
 	}
 	for _, phrase := range []string{"visual", "maps or pieces", "dataset transforms", "data zoom", "statistical references"} {
-		if !strings.Contains(ledger, phrase) {
+		if !strings.Contains(section, phrase) {
 			t.Errorf("interactive Scatter scope boundary missing %q", phrase)
 		}
 	}
+}
+
+func canonicalLedgerSection(t *testing.T, document, heading string) string {
+	t.Helper()
+	start := strings.Index(document, heading)
+	if start < 0 {
+		t.Fatalf("canonical ledger missing section %q", heading)
+	}
+	section := document[start:]
+	if next := strings.Index(section[len(heading):], "\n## "); next >= 0 {
+		section = section[:len(heading)+next]
+	}
+	return section
 }
