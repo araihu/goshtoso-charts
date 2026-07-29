@@ -75,6 +75,50 @@ function horizontalWrapper(page) {
     .locator("xpath=ancestor::*[@data-goshtoso-chart-wrapper][1]");
 }
 
+for (const width of [390, 1440]) {
+  for (const mode of ["light", "dark"]) {
+    test(`${width}px ${mode} renders every upstream Bar treatment without overflow`, async () => {
+      const page = await barPage({ width, height: 900 });
+      const errors = [];
+      page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+      page.on("pageerror", (error) => errors.push(error.message));
+      try {
+        await page.evaluate((dark) => document.documentElement.classList.toggle("dark", dark), mode === "dark");
+        const figures = page.locator("figure.goshtoso-charts-bar");
+        assert.equal(await figures.count(), 14);
+        const layout = await figures.evaluateAll((elements) => ({
+          documentClient: document.documentElement.clientWidth,
+          documentScroll: document.documentElement.scrollWidth,
+          figures: elements.map((figure) => {
+            const svg = figure.querySelector("svg");
+            const figureBox = figure.getBoundingClientRect();
+            const svgBox = svg.getBoundingClientRect();
+            return {
+              label: figure.getAttribute("aria-label"),
+              figureWidth: figureBox.width,
+              svgWidth: svgBox.width,
+              svgHeight: svgBox.height,
+              contained: svgBox.left >= figureBox.left - 1 && svgBox.right <= figureBox.right + 1,
+            };
+          }),
+        }));
+        assert.equal(layout.documentScroll, layout.documentClient);
+        for (const figure of layout.figures) {
+          assert.ok(figure.label);
+          assert.ok(figure.figureWidth > 0 && figure.svgWidth > 0 && figure.svgHeight > 0, figure.label);
+          assert.equal(figure.contained, true, `${figure.label} SVG escapes its figure`);
+        }
+        assert.deepEqual(errors, []);
+        if (screenshotDirectory) {
+          await page.screenshot({ path: path.join(screenshotDirectory, `bar-upstream-${width}-${mode}.png`), fullPage: true });
+        }
+      } finally {
+        await page.close();
+      }
+    });
+  }
+}
+
 async function openExpand(wrapper) {
   const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
   const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));

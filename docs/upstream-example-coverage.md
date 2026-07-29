@@ -4,6 +4,34 @@ This is the central source ledger for examples adapted into Goshtoso Charts.
 Component pages stay renderer-neutral; backing-library attribution and immutable
 source evidence live here and on the Attributions page.
 
+## Static/vector Bar
+
+- Source repository: `github.com/go-analyze/charts`
+- Revision: `1fe31b06b8a82e00df877ff4417a75858547c1c2`
+- Status: all eleven dedicated Bar-family files at that revision are covered by
+  the one renderer-neutral `bar.Bar` component. They contain nine distinct
+  visual behaviors; the two option-function examples repeat the corresponding
+  basic vertical and horizontal treatments through a second upstream API style.
+
+| Upstream example | SHA-256 | Goshtoso coverage | Adaptation note |
+| --- | --- | --- | --- |
+| `examples/1-Painter/bar_chart-1-basic/main.go` | `30f03d99e6f1394096d18ebed5edc04210096945c163719ce38fdd4c97368383` | Basic vertical comparison | Preserves twelve monthly rainfall and evaporation values, right-side overlay legend, title, and 600x400 geometry. |
+| `examples/1-Painter/bar_chart-2-size_margin/main.go` | `fc0d426db8e09dc2032bd0c8f6bf67dbcdd66668bac0547821e4094006a55c7b` | Vertical thickness and group gap comparison | Preserves the direct automatic, 15%-thickness, and zero-gap comparison over the first six months. |
+| `examples/1-Painter/bar_chart-3-label_position-round_caps/main.go` | `b29d5387ab867885d627c565ce11c2284dd046272a43a86dabb83549363696ce` | Rounded caps and start/end value labels | Physical top/bottom positions become orientation-neutral value-end and category-axis-start anchors. |
+| `examples/1-Painter/bar_chart-4-mark/main.go` | `544fea22c29db4225c7b10bb6d12137d484a4ca9b6c647dc29730a61ce4ced4c` | Statistical references | Preserves average lines and minimum/maximum points with adjacent exact evidence. |
+| `examples/1-Painter/bar_chart-5-stacked/main.go` | `d35e6866b6e4d4071d3e09e26db77165fbd9aecefecf0e6e880bb35752e23119` | Stacked totals and references | Preserves contributions, maximum line, global maximum point with `Sum:` prefix, point size, padding, and right-side overlay legend. |
+| `examples/1-Painter/horizontal_bar_chart-1-basic/main.go` | `735240dd8433bd2494ae019f272840a8ff2fcf5572166b78269e23cbff7111a0` | Basic horizontal comparison | Preserves the seven categories, two reporting series, title, padding, and 600x400 geometry. |
+| `examples/1-Painter/horizontal_bar_chart-2-size_margin/main.go` | `34d9f682f5168830cfac75a4f35a4bcc2e8216ea25024142be892bc7784597da` | Horizontal thickness and group gap comparison | Preserves automatic, 15%-thickness, and zero-gap treatments. The upstream type-invalid month labels on the numeric value axis are corrected to categorical labels. |
+| `examples/1-Painter/horizontal_bar_chart-3-mark/main.go` | `c2bd6eaf3f47d8bce333186aa0212204fe3c6ff67cc66236fc6fe1040d180cb4` | Horizontal maximum reference lines | Preserves maximum lines on both reporting series. |
+| `examples/1-Painter/horizontal_bar_chart-4-stacked/main.go` | `82ff73196a355aeda6ddb12b4e6d6cfc2d191dc32dfcd6e1830eb69a321b7b24` | Stacked horizontal labels | Preserves stacking, visible exact segment labels, hidden numeric axis, title, and padding. |
+| `examples/2-OptionFunc/bar_chart-1-basic/main.go` | `eeff9689b6279ecbbdf9475a8034e8f57aa582c29e8d74db74f34cf78b385ca8` | Basic vertical and statistical examples | Same dataset and reference semantics as the Painter basic and mark examples; no renderer-specific option-function API enters the public component. |
+| `examples/2-OptionFunc/horizontal_bar_chart-1-basic/main.go` | `84268867a32a2a4ff81cf29d2a56a48174d7c1d46c5edc8ac20a82c07e13fea4` | Basic horizontal example | Same dataset and geometry as the Painter horizontal basic example; covered once in the page. |
+
+No dedicated Bar example at this revision requires a raw renderer option or
+engine-specific public type. Generic multi-chart and web examples exercise page
+composition rather than additional Bar-family behavior and remain outside this
+component coverage count.
+
 ## Static/vector Line
 
 - Source repository: `github.com/go-analyze/charts`

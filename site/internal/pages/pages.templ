@@ -72,13 +72,37 @@ templ BarPage(fragment bool) {
 templ barContent() {
 	@componentpage.Page(componentpage.Config{
 		Title:       "Bar chart",
-		Description: "Categorical comparisons in vertical, horizontal, grouped, or stacked layouts.",
+		Description: "Static/vector categorical comparisons in vertical, horizontal, grouped, or stacked layouts.",
 		Primary: componentpage.Example{
-			AbovePreview: visualizationGuide("Compare named values across categories, including stacked outcomes and per-series reference markers.", "Use for a small set of discrete categories, especially when bar length makes rank and difference easy to scan.", "Avoid when categories are numerous, labels need rotation, or the key task is showing change over continuous time.", "The examples include exact category values and reference evidence; keep equivalent values in text or a table when users must compare precisely."),
-			Preview:      bar.Bar(sampleDeployments()),
-			Code:         barCode(),
+			AbovePreview: visualizationGuide("Compare and rank named values across discrete categories, including grouped and stacked totals.", "Use when bar length makes difference, order, or contribution easy to scan; choose horizontal bars for longer category labels.", "Avoid when the key task is showing continuous change, dense distributions, or precise point-to-point relationships.", "Exact labels, category tables, and reference evidence accompany treatments that require precise reading without color alone."),
+			Preview:      bar.Bar(sampleBasicBar()),
+			Code:         basicBarCode(),
 		},
 		Sections: []componentpage.Example{
+			{
+				Title:       "Thickness and group spacing",
+				Description: "Compare automatic geometry, bars using 15% of each allotted slot, and grouped bars without an inter-series gap.",
+				Preview:     barGeometryComparison(false),
+				Code:        geometryBarCode(false),
+			},
+			{
+				Title:       "Rounded caps and value-label anchors",
+				Description: "Rounded value-end caps work with exact labels at either the value end or category-axis start.",
+				Preview:     roundedBarLabelComparison(),
+				Code:        roundedBarLabelsCode(),
+			},
+			{
+				Title:       "Statistical reference annotations",
+				Description: "Average lines and minimum/maximum points add context. Exact values and computed references remain adjacent without relying on color.",
+				Preview:     bar.Bar(sampleBarReferences()),
+				Code:        barReferencesCode(),
+			},
+			{
+				Title:       "Stacked totals",
+				Description: "Stacked bars preserve component contributions while a maximum line and global maximum point identify the largest total.",
+				Preview:     bar.Bar(sampleStackedBar()),
+				Code:        stackedBarCode(),
+			},
 			{
 				Title:       "Horizontal orientation",
 				Description: "Use horizontal bars when category labels read more naturally beside values. Vertical remains the default.",
@@ -86,14 +110,42 @@ templ barContent() {
 				Code:        horizontalBarCode(),
 			},
 			{
-				Title:       "Statistical reference annotations",
-				Description: "Average lines and minimum/maximum points add context. Exact values and computed references remain adjacent to the chart without relying on color.",
-				Preview:     bar.Bar(sampleBarReferences()),
-				Code:        barReferencesCode(),
+				Title:       "Horizontal thickness and group spacing",
+				Description: "The same automatic, thin, and no-gap geometry options apply after changing orientation.",
+				Preview:     barGeometryComparison(true),
+				Code:        geometryBarCode(true),
+			},
+			{
+				Title:       "Horizontal maximum references",
+				Description: "Maximum reference lines remain aligned with the numeric axis after orientation changes.",
+				Preview:     bar.Bar(sampleHorizontalBarReferences()),
+				Code:        horizontalBarReferencesCode(),
+			},
+			{
+				Title:       "Stacked horizontal values",
+				Description: "Stacked horizontal bars can show exact segment labels and hide the redundant numeric axis.",
+				Preview:     bar.Bar(sampleHorizontalStackedBar()),
+				Code:        horizontalStackedBarCode(),
 			},
 		},
-		After: chartDocumentation("Interpretation", "Vertical and horizontal layouts communicate the same comparisons. Choose horizontal bars when labels are long; use reference markers to provide context, not as a substitute for exact values.", "bar"),
+		After: chartDocumentation("Static/vector behavior", "Bar renders inline SVG on the server, supports SVG and PNG download through the shared wrapper, and remains useful in print or no-JavaScript output. Review the shared chart-mode and control guides for delivery and wrapper choices.", "bar"),
 	})
+}
+
+templ barGeometryComparison(horizontal bool) {
+	{{ automatic, thin, noGap := sampleBarGeometryComparison(horizontal) }}
+	<div class="grid min-w-0 gap-4 xl:grid-cols-3">
+		<div class="min-w-0">@bar.Bar(automatic)</div>
+		<div class="min-w-0">@bar.Bar(thin)</div>
+		<div class="min-w-0">@bar.Bar(noGap)</div>
+	</div>
+}
+
+templ roundedBarLabelComparison() {
+	<div class="grid min-w-0 gap-4 lg:grid-cols-2">
+		<div class="min-w-0">@bar.Bar(sampleRoundedBarLabels(bar.DataLabelPositionEnd))</div>
+		<div class="min-w-0">@bar.Bar(sampleRoundedBarLabels(bar.DataLabelPositionStart))</div>
+	</div>
 }
 
 templ PiePage(fragment bool) {

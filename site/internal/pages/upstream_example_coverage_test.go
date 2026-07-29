@@ -51,3 +51,27 @@ func TestLineCoverageUsesOneCanonicalLedgerWithoutLostEntries(t *testing.T) {
 		}
 	}
 }
+
+func TestStaticBarCoverageUsesCanonicalLedgerWithoutLostEntries(t *testing.T) {
+	t.Parallel()
+
+	data, err := os.ReadFile("../../../docs/upstream-example-coverage.md")
+	if err != nil {
+		t.Fatalf("read canonical upstream coverage ledger: %v", err)
+	}
+	ledger := string(data)
+	if !strings.Contains(ledger, "## Static/vector Bar") || !strings.Contains(ledger, staticBarUpstreamRevision) {
+		t.Fatal("canonical ledger is missing the pinned static Bar section or revision")
+	}
+	for _, entry := range staticBarUpstreamCoverage() {
+		if count := strings.Count(ledger, "`"+entry.Path+"`"); count != 1 {
+			t.Errorf("static Bar coverage row %q occurs %d times, want 1", entry.Path, count)
+		}
+		if !strings.Contains(ledger, "`"+entry.SHA256+"`") {
+			t.Errorf("static Bar coverage row %q is missing SHA-256 %s", entry.Path, entry.SHA256)
+		}
+	}
+	if !strings.Contains(ledger, "eleven dedicated") || !strings.Contains(ledger, "nine distinct") {
+		t.Error("static Bar ledger must state both file and distinct-behavior coverage counts")
+	}
+}
