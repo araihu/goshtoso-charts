@@ -13,6 +13,7 @@
     "test:static-candlestick": "node --test browser/static_candlestick_bollinger.test.cjs",
     "test:funnel": "node --test browser/funnel.test.cjs",
     "test:gauge-liquid": "node --test browser/gauge_liquid.test.cjs",
+    "test:guides": "node --test browser/guides.test.cjs",
     "test:geo": "node --test browser/geo.test.cjs",
     "test:interactive-heatmap": "node --test browser/interactive_heatmap_layout.test.cjs",
     "test:interactive-pie": "node --test browser/interactive_pie.test.cjs",
