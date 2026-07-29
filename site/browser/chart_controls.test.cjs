@@ -634,7 +634,15 @@ test("Expand scales interactive Tree and preserves renderer, hierarchy state, an
     await openExpand(wrapper);
     const dialog = wrapper.getByRole("dialog", { name: "Basic tree example" });
     await dialog.waitFor({ state: "visible" });
-    await page.waitForTimeout(350);
+    await page.waitForFunction((initial) => {
+      const host = document.querySelector("[data-goshtoso-chart-wrapper] [_echarts_instance_]");
+      const instance = host && window.echarts.getInstanceByDom(host);
+      return instance
+        && instance.getWidth() > initial.width
+        && instance.getHeight() > initial.height
+        && Math.abs(instance.getWidth() - host.clientWidth) <= 2
+        && Math.abs(instance.getHeight() - host.clientHeight) <= 2;
+    }, { width: before.width, height: before.height });
     const expanded = await wrapper.evaluate((element) => {
       const host = element.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);
