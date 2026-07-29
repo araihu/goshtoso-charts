@@ -40,6 +40,42 @@ func TestScatterSupportsSharedControlsAndExport(t *testing.T) {
 	}
 }
 
+func TestScatterPreservesSharedWrapperLifecycleModes(t *testing.T) {
+	t.Parallel()
+	base := Config{
+		Label: "Samples", Categories: []string{"A"},
+		Series: []Series{{Name: "Values", Values: [][]float64{{1}}}},
+	}
+	for _, test := range []struct {
+		name      string
+		mode      chartcontrol.WrapperMode
+		want      []string
+		forbidden string
+	}{
+		{name: "disabled", mode: chartcontrol.WrapperModeDisabled, want: []string{`data-goshtoso-chart-wrapper-mode="disabled"`, `fieldset disabled aria-disabled="true"`}},
+		{name: "hidden", mode: chartcontrol.WrapperModeHidden, want: []string{`data-goshtoso-chart-wrapper-mode="hidden"`, `hidden inert aria-hidden="true"`}},
+		{name: "omitted", mode: chartcontrol.WrapperModeOmitted, want: []string{`aria-label="Samples"`}, forbidden: `data-goshtoso-chart-wrapper`},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			cfg := base
+			cfg.Controls.Mode = test.mode
+			var output bytes.Buffer
+			if err := Scatter(cfg).Render(context.Background(), &output); err != nil {
+				t.Fatalf("Render() error = %v", err)
+			}
+			for _, want := range test.want {
+				if !strings.Contains(output.String(), want) {
+					t.Errorf("mode %q markup missing %q", test.mode, want)
+				}
+			}
+			if test.forbidden != "" && strings.Contains(output.String(), test.forbidden) {
+				t.Errorf("mode %q markup contains %q", test.mode, test.forbidden)
+			}
+		})
+	}
+}
+
 func TestScatterRendersSSRAccessibleSVG(t *testing.T) {
 	t.Parallel()
 	instance := Scatter(Config{
@@ -63,7 +99,7 @@ func TestScatterRendersSSRAccessibleSVG(t *testing.T) {
 	markup := output.String()
 	for _, want := range []string{
 		`<figure class="goshtoso-charts-scatter goshtoso-charts-palette goshtoso-charts-palette-araihu mx-auto" role="img" aria-label="Latency by request rate"`,
-		`id="latency-scatter"`, `data-chart-purpose="correlation"`, `class="goshtoso-charts-scatter__viewport"`, "<svg",
+		`id="latency-scatter"`, `data-chart-purpose="correlation"`, `class="goshtoso-charts-scatter__viewport mx-auto max-w-full overflow-x-auto"`, ".goshtoso-charts-scatter__viewport > svg", "min-width: 0", "<svg",
 		"Each point is one service sample.", "#123456", "var(--color-chart-surface)",
 		"var(--font-paragraph), sans-serif",
 	} {
@@ -118,8 +154,8 @@ func TestScatterMapsDenseAlignedDataAndRendererNeutralOptions(t *testing.T) {
 			{Name: "Two", Values: [][]float64{{20}, {21}, {22}}},
 		},
 		Options: Options{Size: .5, Trend: TrendLine{Kind: TrendSimpleMovingAverage, Period: 2}, ValueFormat: ValueFormatHumanized},
-		Title:   TitleOptions{Text: "Dense Scatter Chart Demo", Subtext: "samples", Placement: PlacementCenter},
-		Legend:  LegendOptions{Hidden: true, Orientation: LegendVertical, Placement: PlacementRight, Alignment: AlignmentRight, FontSize: 6},
+		Title:   TitleOptions{Text: "Dense Scatter Chart Demo", Subtext: "samples", Placement: PlacementCenter, FontSize: 16},
+		Legend:  LegendOptions{Hidden: true, Orientation: LegendVertical, Placement: PlacementRight, Alignment: AlignmentRight, FontSize: 6, Padding: Padding{Left: 100}},
 		XAxis:   CategoryAxisOptions{BoundaryGap: &gap, LabelCount: 10, LabelFontSize: 6, LabelRotation: 45},
 		YAxis:   ValueAxisOptions{Min: &minimum, Max: &maximum, Unit: 10, LabelSkip: 1, LabelFontSize: 6},
 		Padding: Padding{Top: 16, Right: 32, Bottom: 16, Left: 16},
@@ -140,11 +176,27 @@ func TestScatterMapsDenseAlignedDataAndRendererNeutralOptions(t *testing.T) {
 	if options.YAxis[0].Min == nil || *options.YAxis[0].Min != 0 || options.YAxis[0].Max == nil || *options.YAxis[0].Max != 280 || options.YAxis[0].Unit != 10 || options.YAxis[0].LabelSkipCount != 1 {
 		t.Fatalf("y axis = %#v", options.YAxis[0])
 	}
-	if options.Title.Text != "Dense Scatter Chart Demo" || options.Title.Subtext != "samples" || options.Title.Offset.Left != chart.PositionCenter || options.Legend.Show == nil || *options.Legend.Show || options.Legend.Offset.Left != chart.PositionRight || options.Legend.Vertical == nil || !*options.Legend.Vertical {
+	if options.Title.Text != "Dense Scatter Chart Demo" || options.Title.Subtext != "samples" || options.Title.Offset.Left != chart.PositionCenter || options.Title.FontStyle.FontSize != 16 || options.Legend.Show == nil || *options.Legend.Show || options.Legend.Offset.Left != chart.PositionRight || options.Legend.Vertical == nil || !*options.Legend.Vertical || options.Legend.Padding.Left != 100 {
 		t.Fatalf("title/legend options missing: %#v %#v", options.Title, options.Legend)
 	}
 	if options.Padding.Left != 16 || options.Padding.Right != 32 {
 		t.Fatalf("padding = %#v", options.Padding)
+	}
+}
+
+func TestScatterIntegerValueFormatMatchesWholeNumberLabels(t *testing.T) {
+	t.Parallel()
+	cfg := Config{
+		Label: "Whole values", Categories: []string{"A"},
+		Series:  []Series{{Name: "Values", Values: [][]float64{{42.6}}}},
+		Options: Options{ValueFormat: ValueFormatInteger},
+	}
+	options := scatterOptions(cfg)
+	if got := options.ValueFormatter(42.6); got != "43" {
+		t.Fatalf("integer value formatter = %q, want 43", got)
+	}
+	if got := options.SeriesList[0].Label.ValueFormatter(42.4); got != "42" {
+		t.Fatalf("series integer formatter = %q, want 42", got)
 	}
 }
 
@@ -249,6 +301,8 @@ func TestScatterValidation(t *testing.T) {
 		{name: "trend period", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Values: [][]float64{{1}}}}, Options: Options{Trend: TrendLine{Kind: TrendSimpleMovingAverage, Period: 2}}}, want: `trend period cannot exceed category count`},
 		{name: "axis range", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Values: [][]float64{{1}}}}, YAxis: ValueAxisOptions{Min: float64Pointer(2), Max: float64Pointer(1)}}, want: `minimum must be less than maximum`},
 		{name: "padding", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Values: [][]float64{{1}}}}, Padding: Padding{Right: -1}}, want: `padding cannot be negative`},
+		{name: "legend padding", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Values: [][]float64{{1}}}}, Legend: LegendOptions{Padding: Padding{Left: -1}}}, want: `legend padding cannot be negative`},
+		{name: "title font", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Values: [][]float64{{1}}}}, Title: TitleOptions{FontSize: -1}}, want: `title font size must be a finite non-negative number`},
 		{name: "category", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "B", Value: 2}}}}}, want: `references unknown category "B"`},
 		{name: "value", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: math.NaN()}}}}}, want: "must contain a finite value"},
 		{name: "symbol", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: 2}}}}, Options: Options{Symbol: "star"}}, want: `unsupported symbol "star"`},

@@ -309,14 +309,33 @@ templ InteractiveScatterPage(fragment bool) {
 templ interactiveChartScatterContent() {
 	@componentpage.Page(componentpage.Config{
 		Title:       "Interactive scatter",
-		Description: "Paired values for finding relationships, clusters, outliers, and exceptional points.",
+		Description: "Categorical or paired values with symbols, labels, axes, and optional ripple emphasis.",
 		Primary: componentpage.Example{
-			AbovePreview: visualizationGuidance("Reveal relationships, clusters, and outliers among paired values.", "You are comparing two quantitative measures and position conveys the relationship.", "Precise point lookup or many overlapping points is primary; use a table or summary too.", "Pair the chart with a table or text summary of points; animation is supplemental."),
-			Preview:      interactive.Scatter(sampleInteractiveScatter()),
+			AbovePreview: visualizationGuidance("Compare point values across named categories or reveal relationships between two quantitative measures.", "Position, symbol shape, or restrained ripple emphasis helps readers compare observations, clusters, or exceptional points.", "Heavy overlap, precise lookup, or a stable reading order dominates; use the exact-value table or another summary.", "Every example includes a keyboard-readable table with each category, series, and value; ripple motion adds no data."),
+			Preview:      interactiveScatterVariant("base", sampleInteractiveScatter()),
 			Code:         interactiveChartScatterCode(),
 		},
-		After: interactiveDocumentation(demoNote("Emphasis", "Ripple can call attention to points, but it does not add data. Keep it restrained so motion does not hide the relationship.")),
+		Sections: []componentpage.Example{
+			{Title: "Visible point labels", Description: "Right-positioned labels repeat every exact score while retaining the same round-rectangle symbol geometry.", Preview: interactiveScatterVariant("labels", sampleInteractiveScatterLabels()), Code: `SeriesOptions: interactive.SeriesOptions{Label: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "right"}}`},
+			{Title: "Named axes and split lines", Description: "Sports and Score axis names plus split lines support aligned reading across the original six categories.", Preview: interactiveScatterVariant("split-lines", sampleInteractiveScatterSplitLines()), Code: `Options: interactive.ChartOptions{XAxis: &interactive.AxisOptions{Name: "Sports", ShowSplitLine: interactive.Bool(true)}, YAxis: &interactive.AxisOptions{Name: "Score", ShowSplitLine: interactive.Bool(true)}}`},
+			{Title: "Effect variant", Description: "The same Scatter component can add a default ripple to the six player dunk values; reduced-motion preference disables chart animation.", Preview: interactiveScatterVariant("effect-base", sampleInteractiveEffectScatter()), Code: `Variant: interactive.ScatterVariantEffect`},
+			{Title: "Per-series ripple styles", Description: "Dunk uses period 4, scale 10, and stroke; Shoot uses period 3, scale 6, and fill. Both remain series in one Scatter component.", Preview: interactiveScatterVariant("effect-styles", sampleInteractiveEffectScatterStyles()), Code: `Ripple: &interactive.RippleOptions{Period: 4, Scale: 10, BrushType: "stroke"}`},
+		},
+		After: interactiveScatterDocumentation(),
 	})
+}
+
+templ interactiveScatterVariant(name string, config interactive.ScatterConfig) {
+	<div data-scatter-variant={ name }>
+		@interactive.Scatter(config)
+	</div>
+}
+
+templ interactiveScatterDocumentation() {
+	<div class="space-y-4">
+		@demoNote("Motion and emphasis", "Ripple can call attention to points, but it does not add data. Keep it restrained; reduced-motion users receive the same exact values without animation.")
+		@goAPIReference("interactive")
+	</div>
 }
 
 templ InteractiveScatter3DPage(fragment bool) {
@@ -912,19 +931,37 @@ templ scatterContent() {
 		Title:       "Scatter chart",
 		Description: "Repeated observations across an ordered set for trends, clusters, density, and outliers.",
 		Primary: componentpage.Example{
-			AbovePreview: visualizationGuide("Compare repeated observations, trends, clusters, and outliers across an ordered set of categories.", "Use when point position and density reveal variation that bars would hide.", "Avoid when readers need every observation in the initial page or categories lack a meaningful order.", "Top-value labels include exact values and selection state. For dense data, provide a table, download, or drill-down instead of expanding thousands of points into page text."),
-			Preview:      scatter.Scatter(sampleDenseScatter()),
-			Code:         scatterCode(),
+			AbovePreview: visualizationGuide("Compare repeated observations, trends, clusters, and outliers across an ordered set of categories.", "Use when point position, overlap, and density reveal variation that bars would hide.", "Avoid when categories lack meaningful order, values need a continuous numeric x-axis, or every observation must be read immediately.", "Names, captions, symbols, and selected-label summaries do not depend on color. For dense data, keep an equivalent caller-owned table, download, or drill-down instead of expanding thousands of values into page text."),
+			Preview:      scatter.Scatter(sampleBasicScatter()),
+			Code:         basicScatterCode(),
 		},
 		Sections: []componentpage.Example{
+			{
+				Title:       "Per-series symbols",
+				Description: "Circle, diamond, square, and filled-dot markers preserve the upstream four-series comparison and add a non-color channel for identification.",
+				Preview:     scatter.Scatter(sampleSymbolScatter()),
+				Code:        symbolScatterCode(),
+			},
+			{
+				Title:       "Dense multi-value observations",
+				Description: "Three deterministic 1,000-category bounded random walks retain repeated samples, SMA(100) trends, maximum reference lines, compact points, sampled and rotated axis labels, explicit bounds and units, right-side vertical legend, padding, and responsive theme tokens.",
+				Preview:     scatter.Scatter(sampleDenseScatter()),
+				Code:        scatterCode(),
+			},
 			{
 				Title:       "Top value labels",
 				Description: "Select exactly the highest N observations with deterministic input-order tie handling. Labels use chart-theme tokens by default; the accessible summary keeps every exact value and selection state available without color dependence.",
 				Preview:     scatter.Scatter(sampleTopNScatter()),
 				Code:        topNScatterCode(),
 			},
+			{
+				Title:       "Whole-number formatting",
+				Description: "The option-function source reuses the basic data with hollow circles and integer axis labels. Goshtoso expresses that visual result through typed options, without exposing callbacks or renderer option functions.",
+				Preview:     scatter.Scatter(sampleIntegerScatter()),
+				Code:        integerScatterCode(),
+			},
 		},
-		After: chartDocumentation("Reading dense data", "The primary example adapts `examples/1-Painter/scatter_chart-3-dense_data/main.go`; top labels adapt `examples/1-Painter/scatter_chart-4-top_n_labels/main.go`. Labels identify selected observations, not every point, so retain an equivalent data source for complete inspection.", "scatter"),
+		After: chartDocumentation("Static/vector behavior", "Scatter renders inline SVG on the server, follows Goshtoso and AraiHu tokens in light and dark mode, preserves print and no-JavaScript readability, and supports resolved SVG plus opaque or transparent PNG download through the shared wrapper. Wrapper lifecycle, modes, controls, export, and client events stay in the shared chart controls and chart modes guides.", "scatter"),
 	})
 }
 

@@ -133,3 +133,40 @@ func TestInteractivePieCoverageUsesCanonicalLedgerWithoutLostEntries(t *testing.
 		}
 	}
 }
+
+func TestInteractiveScatterCoverageUsesCanonicalLedgerWithoutLostEntries(t *testing.T) {
+	t.Parallel()
+	data, err := os.ReadFile("../../../docs/upstream-example-coverage.md")
+	if err != nil {
+		t.Fatalf("read canonical upstream coverage ledger: %v", err)
+	}
+	ledger := string(data)
+	for _, want := range []string{
+		"## Interactive Scatter", interactiveScatterUpstreamRevision,
+		interactiveScatterUpstreamPath, interactiveScatterUpstreamSHA256,
+		interactiveEffectScatterUpstreamPath, interactiveEffectScatterUpstreamSHA256,
+		"all five upstream behavior functions", "renderer-neutral `interactive.Scatter` component",
+	} {
+		if !strings.Contains(ledger, want) {
+			t.Errorf("canonical ledger missing interactive Scatter evidence %q", want)
+		}
+	}
+	for _, entry := range interactiveScatterUpstreamCoverage() {
+		if count := strings.Count(ledger, "| `"+entry.Name+"` | Example |"); count != 1 {
+			t.Errorf("interactive Scatter behavior row %q occurs %d times, want 1", entry.Name, count)
+		}
+	}
+	for _, function := range interactiveScatterSourceFunctions() {
+		if !strings.Contains(ledger, "`"+function.Name+"`") {
+			t.Errorf("interactive Scatter function inventory missing %q", function.Name)
+		}
+		if count := strings.Count(ledger, "`"+function.SHA256+"`"); count != 1 {
+			t.Errorf("interactive Scatter function hash %q occurs %d times, want 1", function.SHA256, count)
+		}
+	}
+	for _, phrase := range []string{"visual", "maps or pieces", "dataset transforms", "data zoom", "statistical references"} {
+		if !strings.Contains(ledger, phrase) {
+			t.Errorf("interactive Scatter scope boundary missing %q", phrase)
+		}
+	}
+}
