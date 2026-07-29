@@ -1,0 +1,34 @@
+package table
+
+import "github.com/araihu/goshtoso-charts/components/charttheme"
+
+templ tableTemplate(cfg Config, chart templ.Component) {
+	@charttheme.Styles()
+	<figure class={ cfg.Style.RootClasses("goshtoso-charts-table") } role="img" aria-label={ cfg.Label } { cfg.RootAttrs... }>
+		<div class="goshtoso-charts-table__viewport max-w-full overflow-x-auto">@chart</div>
+		if cfg.Caption != "" {
+			<figcaption class="mt-2 text-sm text-on-surface dark:text-on-surface-dark">{ cfg.Caption }</figcaption>
+		}
+	</figure>
+	<details class="mt-3 max-w-full text-sm text-on-surface dark:text-on-surface-dark">
+		<summary class="cursor-pointer font-semibold">Accessible data table</summary>
+		<div class="mt-2 overflow-x-auto rounded-radius border border-outline dark:border-outline-dark">
+			<table class="min-w-full border-collapse text-left" aria-label={ cfg.Label + " data" }>
+				<thead><tr>
+					for _, column := range cfg.Columns {
+						<th class="px-3 py-2" scope="col">{ column.Header }</th>
+					}
+				</tr></thead>
+				<tbody>
+					for _, row := range cfg.Rows {
+						<tr class="border-t border-outline dark:border-outline-dark">
+							for _, value := range row {
+								<td class="px-3 py-2">{ value }</td>
+							}
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</details>
+}

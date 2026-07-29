@@ -3,12 +3,154 @@ package line
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"fmt"
+	"math"
+	"reflect"
 	"strings"
 	"testing"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
+
+func dualAxisConfig() Config {
+	return Config{
+		Label:  "Dual Axis Line",
+		Title:  Title{Text: "Dual Axis Line"},
+		Labels: []string{"A", "B", "C", "D", "E", "F", "G"},
+		Series: []Series{
+			{Name: "Left Series", Values: []float64{120, 132, 101, 134, 90, 230, 210}},
+			{Name: "Right Series", Values: []float64{820, 932, 901, 934, 1290, 1330, 1320}, YAxisIndex: 1},
+		},
+		YAxes:  []Axis{{}, {}},
+		Width:  600,
+		Height: 400,
+	}
+}
+
+func areaConfig() Config {
+	minimum := 0.0
+	noGap := false
+	return Config{
+		Label:  "Line",
+		Title:  Title{Text: "Line"},
+		Labels: []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"},
+		Series: []Series{{Name: "Email", Values: []float64{120, 132, 101, 134, 90, 230, 210}}},
+		Area:   AreaOptions{Enabled: true, Opacity: 150.0 / 255.0},
+		XAxis:  CategoryAxisOptions{BoundaryGap: &noGap},
+		Legend: LegendOptions{Padding: Padding{Top: 5, Bottom: 10}},
+		YAxes:  []Axis{{Min: &minimum}},
+		Width:  600,
+		Height: 400,
+	}
+}
+
+func TestLineDefaultSVGCompatibilityHash(t *testing.T) {
+	t.Parallel()
+	svg, err := renderSVG(Config{
+		Label:  "Compatibility",
+		Labels: []string{"Mon", "Tue", "Wed"},
+		Series: []Series{{Name: "Value", Values: []float64{12, 18, 15}}},
+	})
+	if err != nil {
+		t.Fatalf("renderSVG() error = %v", err)
+	}
+	got := fmt.Sprintf("%x", sha256.Sum256([]byte(svg)))
+	const want = "da1c17f69cfc37e474c3d678f756d67782c2942e3901f8203c59c6e5d6e39063"
+	if got != want {
+		t.Fatalf("default SVG SHA-256 = %s, want %s", got, want)
+	}
+}
+
+func TestLineMechanicallyMapsFilledAreaTreatment(t *testing.T) {
+	t.Parallel()
+	cfg := areaConfig()
+	options := lineOptions(cfg)
+	if cfg.width() != 600 || cfg.height() != 400 || options.Title.Text != "Line" {
+		t.Fatalf("geometry/title = %dx%d %q", cfg.width(), cfg.height(), options.Title.Text)
+	}
+	if !reflect.DeepEqual(options.XAxis.Labels, []string{"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}) ||
+		!reflect.DeepEqual(options.Legend.SeriesNames, []string{"Email"}) {
+		t.Fatalf("labels/names = %#v / %#v", options.XAxis.Labels, options.Legend.SeriesNames)
+	}
+	if len(options.SeriesList) != 1 || !reflect.DeepEqual(options.SeriesList[0].Values, []float64{120, 132, 101, 134, 90, 230, 210}) {
+		t.Fatalf("series = %#v", options.SeriesList)
+	}
+	if options.FillArea == nil || !*options.FillArea || options.FillOpacity != 150 ||
+		options.XAxis.BoundaryGap == nil || *options.XAxis.BoundaryGap ||
+		options.Legend.Padding.Top != 5 || options.Legend.Padding.Bottom != 10 ||
+		len(options.YAxis) != 1 || options.YAxis[0].Min == nil || *options.YAxis[0].Min != 0 {
+		t.Fatalf("area options = fill %v opacity %d gap %v legend %#v y %#v", options.FillArea, options.FillOpacity, options.XAxis.BoundaryGap, options.Legend.Padding, options.YAxis)
+	}
+}
+
+func TestLineFilledAreaSVGUsesThemeTokenAndCallerPresentation(t *testing.T) {
+	t.Parallel()
+	cfg := areaConfig()
+	cfg.Series[0].Color = "#14532d"
+	svg, err := renderSVG(cfg)
+	if err != nil {
+		t.Fatalf("renderSVG() error = %v", err)
+	}
+	for _, want := range []string{"#14532d", "color-mix(in srgb, #14532d 58.823529%", `viewBox="0 0 600 400"`} {
+		if !strings.Contains(svg, want) {
+			t.Errorf("filled SVG missing %q", want)
+		}
+	}
+	if strings.Contains(svg, "rgba(5,5,5") {
+		t.Fatal("area fill sentinel leaked")
+	}
+
+	cfg = areaConfig()
+	cfg.Series[0].Class = "caller-area-series"
+	svg, err = renderSVG(cfg)
+	if err != nil {
+		t.Fatalf("renderSVG() class error = %v", err)
+	}
+	if !strings.Contains(svg, `class="caller-area-series"`) {
+		t.Fatal("caller series class missing from filled area")
+	}
+}
+
+func TestLineFilledAreaSVGHash(t *testing.T) {
+	t.Parallel()
+	svg, err := renderSVG(areaConfig())
+	if err != nil {
+		t.Fatalf("renderSVG() error = %v", err)
+	}
+	got := fmt.Sprintf("%x", sha256.Sum256([]byte(svg)))
+	const want = "8e4fc86cac88beeb67105a99870ab3b48dcbb3b528e0b12bf71c6ed86243649b"
+	if got != want {
+		t.Fatalf("area SVG SHA-256 = %s, want %s", got, want)
+	}
+}
+
+func TestLineSupportsSharedControlsAndExport(t *testing.T) {
+	t.Parallel()
+	instance := Line(Config{
+		Label:    "Latency",
+		Labels:   []string{"Mon"},
+		Series:   []Series{{Name: "p95", Values: []float64{12}}},
+		Controls: chartcontrol.Options{Fullscreen: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "latency"},
+	})
+	var output bytes.Buffer
+	if err := instance.Render(context.Background(), &output); err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	markup := output.String()
+	for _, want := range []string{
+		`-fullscreen-action`,
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`,
+		`>SVG</button>`, `>PNG</button>`,
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("markup missing %q", want)
+		}
+	}
+}
 
 func TestLineRendersSSRAccessibleSVG(t *testing.T) {
 	t.Parallel()
@@ -32,8 +174,8 @@ func TestLineRendersSSRAccessibleSVG(t *testing.T) {
 			t.Errorf("rendered markup missing %q:\n%s", want, markup)
 		}
 	}
-	if strings.Contains(markup, "<script") {
-		t.Errorf("SSR chart unexpectedly contains script: %s", markup)
+	if strings.Contains(markup, "echarts.init") {
+		t.Errorf("SSR chart unexpectedly contains interactive renderer initialization: %s", markup)
 	}
 }
 
@@ -66,5 +208,174 @@ func TestLineRejectsMisalignedSeries(t *testing.T) {
 	})
 	if err == nil || !strings.Contains(err.Error(), "has 1 values; need 2") {
 		t.Fatalf("renderSVG() error = %v, want value alignment error", err)
+	}
+}
+
+func TestLineMechanicallyMapsPinnedDualAxisExample(t *testing.T) {
+	t.Parallel()
+	cfg := dualAxisConfig()
+	if cfg.width() != 600 || cfg.height() != 400 {
+		t.Fatalf("dimensions = %dx%d, want 600x400", cfg.width(), cfg.height())
+	}
+	options := lineOptions(cfg)
+	if options.Title.Text != "Dual Axis Line" {
+		t.Fatalf("title = %q", options.Title.Text)
+	}
+	if !reflect.DeepEqual(options.XAxis.Labels, []string{"A", "B", "C", "D", "E", "F", "G"}) {
+		t.Fatalf("labels = %#v", options.XAxis.Labels)
+	}
+	if !reflect.DeepEqual(options.Legend.SeriesNames, []string{"Left Series", "Right Series"}) {
+		t.Fatalf("legend names = %#v", options.Legend.SeriesNames)
+	}
+	wantValues := [][]float64{
+		{120, 132, 101, 134, 90, 230, 210},
+		{820, 932, 901, 934, 1290, 1330, 1320},
+	}
+	if len(options.SeriesList) != 2 || len(options.YAxis) != 2 {
+		t.Fatalf("series/axis count = %d/%d, want 2/2", len(options.SeriesList), len(options.YAxis))
+	}
+	for index := range options.SeriesList {
+		if options.SeriesList[index].Name != options.Legend.SeriesNames[index] ||
+			options.SeriesList[index].YAxisIndex != index ||
+			!reflect.DeepEqual(options.SeriesList[index].Values, wantValues[index]) {
+			t.Fatalf("series %d = %#v", index, options.SeriesList[index])
+		}
+	}
+}
+
+func TestLineDualAxisSVGHash(t *testing.T) {
+	t.Parallel()
+	svg, err := renderSVG(dualAxisConfig())
+	if err != nil {
+		t.Fatalf("renderSVG() error = %v", err)
+	}
+	got := fmt.Sprintf("%x", sha256.Sum256([]byte(svg)))
+	const want = "191a64ba43b2267ade4622cd0bf79f5167e2452448ef0f21287d941c283461ed"
+	if got != want {
+		t.Fatalf("dual-axis SVG SHA-256 = %s, want %s", got, want)
+	}
+}
+
+func TestLineDualAxisRendersThemeMatchedAxesAndExactMapping(t *testing.T) {
+	t.Parallel()
+	cfg := dualAxisConfig()
+	cfg.Caption = "Two scales."
+	cfg.Controls = chartcontrol.Options{Fullscreen: true}
+	cfg.Export = &chartcontrol.ExportOptions{Filename: "dual-axis-line"}
+	var output bytes.Buffer
+	if err := Line(cfg).Render(context.Background(), &output); err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	markup := output.String()
+	for _, want := range []string{
+		`aria-label="Dual Axis Line"`, `viewBox="0 0 600 400"`, "Dual Axis Line",
+		"Left Series", "Right Series", "Left Y axis", "Right Y axis",
+		"var(--color-chart-series-1)", "var(--color-chart-series-2)",
+		`aria-label="Dual Axis Line exact series values and Y axis mapping"`,
+		"Exact series values", "Two scales.",
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`,
+		`>SVG</button>`, `>PNG</button>`,
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("rendered markup missing %q", want)
+		}
+	}
+	for _, unwanted := range []string{"rgb(21,21,21)", "rgb(22,22,22)", "go-analyze"} {
+		if strings.Contains(markup, unwanted) {
+			t.Errorf("rendered markup contains %q", unwanted)
+		}
+	}
+	for _, row := range []string{
+		"<th class=\"px-3 py-2 font-semibold\" scope=\"row\">A</th><td class=\"px-3 py-2\">Left Series</td><td class=\"px-3 py-2 \">Left Y axis</td><td class=\"px-3 py-2 tabular-nums\">120</td>",
+		"<th class=\"px-3 py-2 font-semibold\" scope=\"row\">G</th><td class=\"px-3 py-2\">Right Series</td><td class=\"px-3 py-2 \">Right Y axis</td><td class=\"px-3 py-2 tabular-nums\">1320</td>",
+	} {
+		if !strings.Contains(markup, row) {
+			t.Errorf("exact mapping row missing %q", row)
+		}
+	}
+}
+
+func TestLineCallerSeriesAndAxisPresentationOverrides(t *testing.T) {
+	t.Parallel()
+	cfg := dualAxisConfig()
+	cfg.Series[0].Color = "#14532d"
+	cfg.Series[1].Class = "caller-right-series"
+	cfg.YAxes[0].Class = "caller-left-axis"
+	cfg.YAxes[1].Color = "#7e22ce"
+	var output bytes.Buffer
+	if err := Line(cfg).Render(context.Background(), &output); err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	markup := output.String()
+	for _, want := range []string{"#14532d", "#7e22ce", "caller-right-series", "caller-left-axis"} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("caller override missing %q", want)
+		}
+	}
+	if strings.Contains(markup, "rgb(21,21,21)") || strings.Contains(markup, "rgb(22,22,22)") {
+		t.Fatal("axis placeholder leaked")
+	}
+}
+
+func TestLineValidation(t *testing.T) {
+	t.Parallel()
+	minimum, maximum := 0.0, 1500.0
+	tests := []struct {
+		name string
+		edit func(*Config)
+		want string
+	}{
+		{name: "label", edit: func(c *Config) { c.Label = "" }, want: "label is required"},
+		{name: "labels", edit: func(c *Config) { c.Labels = nil }, want: "at least one label"},
+		{name: "empty label", edit: func(c *Config) { c.Labels[0] = "" }, want: "label 1 cannot be empty"},
+		{name: "duplicate label", edit: func(c *Config) { c.Labels[1] = "A" }, want: `label "A" is duplicated`},
+		{name: "series", edit: func(c *Config) { c.Series = nil }, want: "at least one series"},
+		{name: "series name", edit: func(c *Config) { c.Series[0].Name = "" }, want: "series 1 needs a name"},
+		{name: "duplicate series", edit: func(c *Config) { c.Series[1].Name = "Left Series" }, want: `series name "Left Series" is duplicated`},
+		{name: "length", edit: func(c *Config) { c.Series[0].Values = c.Series[0].Values[:6] }, want: "has 6 values; need 7"},
+		{name: "nan", edit: func(c *Config) { c.Series[0].Values[0] = math.NaN() }, want: "value 0 must be finite"},
+		{name: "infinite", edit: func(c *Config) { c.Series[0].Values[0] = math.Inf(1) }, want: "value 0 must be finite"},
+		{name: "width", edit: func(c *Config) { c.Width = -1 }, want: "width cannot be negative"},
+		{name: "height", edit: func(c *Config) { c.Height = -1 }, want: "height cannot be negative"},
+		{name: "area opacity nan", edit: func(c *Config) { c.Area = AreaOptions{Enabled: true, Opacity: math.NaN()} }, want: "area opacity must be finite and between 0 and 1"},
+		{name: "area opacity negative", edit: func(c *Config) { c.Area = AreaOptions{Enabled: true, Opacity: -0.1} }, want: "area opacity must be finite and between 0 and 1"},
+		{name: "area opacity high", edit: func(c *Config) { c.Area = AreaOptions{Enabled: true, Opacity: 1.1} }, want: "area opacity must be finite and between 0 and 1"},
+		{name: "area opacity conflict", edit: func(c *Config) { c.Area = AreaOptions{Opacity: 0.5} }, want: "area opacity requires area fill"},
+		{name: "legend padding", edit: func(c *Config) { c.Legend.Padding.Top = -1 }, want: "legend padding cannot be negative"},
+		{name: "axis count", edit: func(c *Config) { c.YAxes = []Axis{{}, {}, {}} }, want: "at most two Y axes"},
+		{name: "axis index negative", edit: func(c *Config) { c.Series[0].YAxisIndex = -1 }, want: "Y axis index -1 is out of bounds"},
+		{name: "axis index high", edit: func(c *Config) { c.Series[1].YAxisIndex = 2 }, want: "Y axis index 2 is out of bounds"},
+		{name: "unused axis", edit: func(c *Config) { c.Series[1].YAxisIndex = 0 }, want: "Y axis 1 has no assigned series"},
+		{name: "unit nan", edit: func(c *Config) { c.YAxes[0].Unit = math.NaN() }, want: "unit must be finite and non-negative"},
+		{name: "unit negative", edit: func(c *Config) { c.YAxes[0].Unit = -1 }, want: "unit must be finite and non-negative"},
+		{name: "min nan", edit: func(c *Config) { value := math.NaN(); c.YAxes[0].Min = &value }, want: "minimum must be finite"},
+		{name: "max infinite", edit: func(c *Config) { value := math.Inf(1); c.YAxes[0].Max = &value }, want: "maximum must be finite"},
+		{name: "range", edit: func(c *Config) { c.YAxes[0].Min, c.YAxes[0].Max = &maximum, &minimum }, want: "minimum must be less than maximum"},
+		{name: "below bound", edit: func(c *Config) { value := 121.0; c.YAxes[0].Min = &value }, want: "below Y axis 0 minimum"},
+		{name: "above bound", edit: func(c *Config) { value := 1319.0; c.YAxes[1].Max = &value }, want: "above Y axis 1 maximum"},
+		{name: "series conflict", edit: func(c *Config) { c.Series[0].Color, c.Series[0].Class = "red", "custom" }, want: "cannot set both color and class"},
+		{name: "axis conflict", edit: func(c *Config) { c.YAxes[0].Color, c.YAxes[0].Class = "red", "custom" }, want: "cannot set both color and class"},
+		{name: "series unsafe color", edit: func(c *Config) { c.Series[0].Color = "red;stroke:black" }, want: "series \"Left Series\" color is unsafe"},
+		{name: "axis unsafe color", edit: func(c *Config) { c.YAxes[0].Color = "url(javascript:bad)" }, want: "Y axis 0 color is unsafe"},
+		{name: "series unsafe class", edit: func(c *Config) { c.Series[0].Class = `x" onclick="bad` }, want: "series \"Left Series\" class is unsafe"},
+		{name: "axis unsafe class", edit: func(c *Config) { c.YAxes[0].Class = "x;y" }, want: "Y axis 0 class is unsafe"},
+	}
+	for _, test := range tests {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			cfg := dualAxisConfig()
+			cfg.Labels = append([]string(nil), cfg.Labels...)
+			cfg.Series = append([]Series(nil), cfg.Series...)
+			for index := range cfg.Series {
+				cfg.Series[index].Values = append([]float64(nil), cfg.Series[index].Values...)
+			}
+			cfg.YAxes = append([]Axis(nil), cfg.YAxes...)
+			test.edit(&cfg)
+			err := cfg.validate()
+			if err == nil || !strings.Contains(err.Error(), test.want) {
+				t.Fatalf("validate() error = %v, want %q", err, test.want)
+			}
+		})
 	}
 }

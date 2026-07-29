@@ -1,0 +1,29 @@
+package pages
+
+type attribution struct {
+	Name       string
+	Version    string
+	ProjectURL string
+	License    string
+	LicenseURL string
+	UsedFor    string
+}
+
+var foundationAttributions = []attribution{
+	{Name: "Goshtoso", Version: "v0.0.14-0.20260729011747-809b903c1296", ProjectURL: "https://github.com/araihu/goshtoso", License: "MIT", LicenseURL: "https://github.com/araihu/goshtoso/blob/809b903c1296/LICENSE", UsedFor: "UI components, responsive ActionGroup controls, theme tokens, and shared browser assets."},
+	{Name: "Goshtoso App Shells", Version: "commit 4c4aa5ae787e", ProjectURL: "https://github.com/araihu/goshtoso-app-shells", License: "MIT", LicenseURL: "https://github.com/araihu/goshtoso-app-shells/blob/4c4aa5ae787e/LICENSE", UsedFor: "Documentation shell, categorized navigation, page structure, and responsive layout."},
+	{Name: "templ", Version: "v0.3.1020", ProjectURL: "https://github.com/a-h/templ", License: "MIT", LicenseURL: "https://github.com/a-h/templ/blob/v0.3.1020/LICENSE", UsedFor: "Type-safe Go templates for chart components and documentation pages."},
+}
+
+var chartAttributions = []attribution{
+	{Name: "go-analyze/charts", Version: "v0.6.0; example revision 1fe31b06b8a82e00df877ff4417a75858547c1c2", ProjectURL: "https://github.com/go-analyze/charts", License: "MIT", LicenseURL: "https://github.com/go-analyze/charts/blob/v0.6.0/LICENSE", UsedFor: "Go-native SVG rendering behind static/vector components. Documentation adapts examples/1-Painter/line_chart-5-area/main.go, examples/1-Painter/line_chart-8-dual_y_axis/main.go, examples/1-Painter/horizontal_bar_chart-1-basic/main.go, examples/1-Painter/doughnut_chart-1-basic/main.go, examples/1-Painter/scatter_chart-3-dense_data/main.go, examples/1-Painter/radar_chart-1-basic/main.go, examples/1-Painter/candlestick_chart-1-basic/main.go, examples/1-Painter/candlestick_chart-3-bollinger_bands/main.go, examples/1-Painter/funnel_chart-1-basic/main.go, examples/1-Painter/heat_map-1-basic/main.go, examples/1-Painter/table-1/main.go, and examples/1-Painter/violin_chart-2-samples/main.go."},
+	{Name: "go-echarts", Version: "v2.7.2", ProjectURL: "https://github.com/go-echarts/go-echarts", License: "MIT", LicenseURL: "https://github.com/go-echarts/go-echarts/blob/v2.7.2/LICENSE", UsedFor: "Private Go adapter behind renderer-neutral interactive components. Documentation adapts examples/kline.go, examples/scatter3d.go, examples/bar3d.go, examples/surface3d.go, examples/line3d.go, examples/sunburst.go, examples/treemap.go, examples/parallel.go, examples/themeriver.go, examples/wordcloud.go, examples/liquid.go, examples/map.go, and examples/geo.go from go-echarts/examples at bda428480a82d6d77ebb9fa939cf8d52528453dd. Scatter 3D replaces upstream time-seeded randomness with a local fixed seed in the same [0,100) domain; Bar 3D preserves the upstream X/Y index swap; Surface 3D preserves both ordered mathematical grids; Line 3D preserves the exact ordered parametric path and both view treatments; Geo uses fixed literals."},
+}
+
+var runtimeAttributions = []attribution{
+	{Name: "Apache ECharts", Version: "v5.4.3", ProjectURL: "https://echarts.apache.org/", License: "Apache-2.0", LicenseURL: "https://github.com/apache/echarts/blob/5.4.3/LICENSE", UsedFor: "Pinned browser runtime bundled for local interactive-chart rendering."},
+	{Name: "echarts-wordcloud", Version: "v2.1.0", ProjectURL: "https://github.com/ecomfe/echarts-wordcloud", License: "ISC", LicenseURL: "https://github.com/ecomfe/echarts-wordcloud/blob/2.1.0/package.json", UsedFor: "Pinned browser extension bundled for local interactive word-cloud rendering."},
+	{Name: "Liquid-fill extension", Version: "v3.1.0", ProjectURL: "https://github.com/ecomfe/echarts-liquidfill", License: "BSD-3-Clause", LicenseURL: "https://github.com/ecomfe/echarts-liquidfill/blob/v3.1.0/license.md", UsedFor: "Pinned browser extension bundled for the liquid Gauge treatment."},
+	{Name: "Three-dimensional chart extension", Version: "v2.0.9; npm git head a3cb1c6bf0f6", ProjectURL: "https://www.npmjs.com/package/echarts-gl/v/2.0.9", License: "BSD-3-Clause", LicenseURL: "https://github.com/ecomfe/echarts-gl/blob/a3cb1c6bf0f64bed9c8ca144096689defb8e1ce3/LICENSE", UsedFor: "Pinned browser extension bundled for three-dimensional interactive charts; package peer range echarts ^5.1.2 includes the bundled 5.4.3 runtime."},
+	{Name: "IBGE Malha Municipal Digital", Version: "IBGE-MMD-2025; Nota Metodológica 01/2026", ProjectURL: "https://www.ibge.gov.br/geociencias/organizacao-do-territorio/estrutura-territorial/15761-areas-dos-municipios.html?lang=pt-BR", License: "CC-BY-4.0", LicenseURL: "https://biblioteca.ibge.gov.br/visualizacao/livros/liv102268.pdf", UsedFor: "Official Brazil-state and São Paulo-municipality geometry, pinned by source SHA-256, mechanically simplified, and bundled for local interactive-map rendering."},
+}

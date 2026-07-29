@@ -14,6 +14,10 @@ Existing identity: Goshtoso design system. Density: standard. Motion: none.
 
 Visual direction: neutral figure, semantic series colors, restrained grid, no elevation or dashboard-card gallery.
 
-Chosen primitives: extension-owned `heartbeat` and `line`, rendered as native `figure` elements; Goshtoso `panel.Panel` supplied by consumer. No public Goshtoso chart primitive matched.
+Chosen primitives: extension-owned static/vector `line`, `bar`, `pie`, and
+categorical `scatter`
+figures plus renderer-neutral interactive components. Goshtoso `panel.Panel` is
+supplied by the consumer. Availability history is a Bar-chart example, not a
+domain-specific component.
 
 Invariant ledger: none; chart rendering is read-only. Consumer must retain a textual/table alternative for exact values and no-data state.

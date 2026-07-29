@@ -109,7 +109,8 @@ func HeatMap(cfg HeatMapConfig) Instance {
 	}
 
 	return newInstance(chartcomponents.KindInteractiveHeatMap, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export,
+		ResponsiveWidth: responsiveWidth(cfg.Width), ExplicitVisualMapColors: len(cfg.Style.Colors) > 0,
 	})
 }
 
@@ -119,6 +120,7 @@ func heatMapGlobalOptions(cfg HeatMapConfig) []charts.GlobalOpts {
 	}
 	if cfg.Coordinate == HeatMapCoordinateCartesian {
 		options = append(options,
+			charts.WithGridOpts(opts.Grid{Left: "52", Right: "0", Bottom: "56", ContainLabel: opts.Bool(true)}),
 			charts.WithXAxisOpts(opts.XAxis{Type: "category"}),
 			charts.WithYAxisOpts(opts.YAxis{Type: "category", Data: cfg.YAxis}),
 		)
@@ -153,6 +155,7 @@ func normalizeHeatMapVisualMap(chart *charts.HeatMap, cfg HeatMapConfig) {
 func heatMapVisualMap(cfg HeatMapConfig) opts.VisualMap {
 	return opts.VisualMap{
 		Min: float32(cfg.ValueRange.Min), Max: float32(cfg.ValueRange.Max),
+		Left: "8", Bottom: "24",
 		InRange: &opts.VisualMapInRange{Color: cfg.Style.ResolvedColors()},
 	}
 }

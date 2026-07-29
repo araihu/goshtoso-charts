@@ -68,7 +68,9 @@ func BoxPlot(cfg BoxPlotConfig) Instance {
 	}
 	chart.SetGlobalOptions(globalOptions...)
 	chart.SetXAxis(cfg.Categories)
-	for _, series := range cfg.Series {
+	palette := cfg.Style.ResolvedColors()
+	themeSeriesItems := make([]int, 0, len(cfg.Series))
+	for seriesIndex, series := range cfg.Series {
 		data := make([]opts.BoxPlotData, len(series.Data))
 		for index, summary := range series.Data {
 			data[index] = opts.BoxPlotData{Name: summary.Name, Value: [5]float64{summary.Min, summary.Q1, summary.Median, summary.Q3, summary.Max}}
@@ -88,15 +90,25 @@ func BoxPlot(cfg BoxPlotConfig) Instance {
 				data[index].Tooltip = &tooltip
 			}
 		}
-		chart.AddSeries(series.Name, data, mergeSeriesOptions(cfg.SeriesOptions, series.Options)...)
+		options := make([]charts.SeriesOpts, 0, 1+len(chartSeriesOptions(cfg.SeriesOptions))+len(chartSeriesOptions(series.Options)))
+		if cfg.SeriesOptions.ItemStyle == nil && series.Options.ItemStyle == nil {
+			color := palette[seriesIndex%len(palette)]
+			options = append(options, charts.WithItemStyleOpts(opts.ItemStyle{Color: color, BorderColor: color}))
+			themeSeriesItems = append(themeSeriesItems, seriesIndex)
+		}
+		options = append(options, mergeSeriesOptions(cfg.SeriesOptions, series.Options)...)
+		chart.AddSeries(series.Name, data, options...)
 	}
 
 	return newInstance(chartcomponents.KindInteractiveBoxPlot, renderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style,
+		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, ResponsiveWidth: responsiveWidth(cfg.Width), AxisLabelIntervals: axisLabelIntervals(cfg.Options), ThemeSeriesItems: themeSeriesItems,
 	})
 }
 
 func validateBoxPlotConfig(cfg BoxPlotConfig) error {
+	if err := validateChartOptions(cfg.Options); err != nil {
+		return err
+	}
 	if cfg.Label == "" {
 		return fmt.Errorf("box plot label is required")
 	}

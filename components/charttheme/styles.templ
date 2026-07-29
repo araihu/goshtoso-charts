@@ -2,6 +2,129 @@ package charttheme
 
 templ Styles() {
 	<style>
+		.goshtoso-charts-interactive > .container {
+			overflow-x: auto;
+		}
+		.goshtoso-charts-interactive > .container > .item {
+			margin-inline: auto;
+		}
+		.goshtoso-charts-interactive[data-goshtoso-charts-responsive-width="true"] > .container > .item {
+			box-sizing: border-box;
+			width: 100% !important;
+			max-width: 100%;
+			min-width: 0;
+		}
+		.goshtoso-charts-theme-river > .container > .item {
+			box-sizing: border-box;
+			width: 100% !important;
+			height: auto !important;
+			min-height: 18rem;
+			max-height: 31.25rem;
+			aspect-ratio: 9 / 5;
+		}
+		.goshtoso-charts-word-cloud > .container > .item,
+		.goshtoso-charts-interactive-candlestick > .container > .item {
+			box-sizing: border-box;
+			width: 100% !important;
+			height: auto !important;
+			min-height: 18rem;
+			max-height: 31.25rem;
+			aspect-ratio: 9 / 5;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-interactive-candlestick {
+			display: flex;
+			width: 100%;
+			height: 100%;
+			min-height: 0;
+			flex-direction: column;
+			justify-content: center;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-interactive-candlestick > .container,
+		.goshtoso-charts-expanded .goshtoso-charts-interactive-candlestick > .container > .item {
+			width: 100% !important;
+			height: auto !important;
+			min-height: 0;
+			max-height: 100%;
+			aspect-ratio: 9 / 5;
+		}
+		.goshtoso-charts-scatter__viewport {
+			overflow-x: auto;
+		}
+		.goshtoso-charts-scatter__viewport > svg {
+			min-width: 36rem;
+		}
+		.goshtoso-charts-radar__viewport {
+			overflow-x: auto;
+		}
+		.goshtoso-charts-radar__viewport > svg {
+			min-width: 36rem;
+		}
+		.goshtoso-charts-candlestick__viewport > svg {
+			min-width: 37.5rem;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-candlestick {
+			display: flex;
+			width: 100%;
+			height: 100%;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-candlestick__viewport {
+			display: flex;
+			width: 100%;
+			height: 100%;
+			min-height: 0;
+			flex: 1 1 auto;
+			align-items: center;
+			justify-content: center;
+			overflow: hidden;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-candlestick__viewport > svg {
+			width: min(100%, calc((100vh - 13rem) * 4 / 3));
+			height: auto;
+			min-width: 0;
+			max-height: 100%;
+			aspect-ratio: 4 / 3;
+		}
+		.goshtoso-charts-table__viewport > svg {
+			display: block;
+			width: 100%;
+			height: auto;
+			min-width: 50.625rem;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-table__viewport {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
+		.goshtoso-charts-candlestick__direction--increasing { color: var(--color-chart-increasing, var(--color-green-700, #15803d)); }
+		.goshtoso-charts-candlestick__direction--decreasing { color: var(--color-chart-decreasing, var(--color-red-700, #b91c1c)); }
+		.dark .goshtoso-charts-candlestick__direction--increasing { color: var(--color-chart-increasing, var(--color-green-300, #86efac)); }
+		.dark .goshtoso-charts-candlestick__direction--decreasing { color: var(--color-chart-decreasing, var(--color-red-300, #fca5a5)); }
+		.goshtoso-charts-heatmap__viewport {
+			overflow-x: auto;
+		}
+		.goshtoso-charts-heatmap__viewport > svg {
+			min-width: 36rem;
+		}
+		.goshtoso-charts-heatmap__scale-gradient {
+			background: linear-gradient(90deg, var(--color-chart-scale-low), var(--color-chart-scale-mid), var(--color-chart-scale-high));
+		}
+		.goshtoso-charts-heatmap[data-heatmap-reverse="true"] .goshtoso-charts-heatmap__scale-gradient {
+			background: linear-gradient(90deg, var(--color-chart-scale-high), var(--color-chart-scale-mid), var(--color-chart-scale-low));
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-heatmap__viewport {
+			display: flex;
+			width: 100%;
+			justify-content: center;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-heatmap__viewport > svg {
+			width: min(100%, calc(141vh - 21rem));
+			height: auto;
+			min-width: 0;
+			aspect-ratio: 3 / 2;
+		}
 		.goshtoso-charts-palette {
 			--color-chart-surface: var(--color-surface);
 			--color-chart-surface-alt: var(--color-surface-alt, var(--color-surface));
@@ -18,6 +141,14 @@ templ Styles() {
 			--color-chart-series-6: var(--color-cyan-600, #0891b2);
 			--color-chart-series-7: var(--color-pink-600, #db2777);
 			--color-chart-series-8: var(--color-lime-600, #65a30d);
+			--color-chart-scale-low: var(--color-cyan-300, #67e8f9);
+			--color-chart-scale-mid: var(--color-amber-400, #fbbf24);
+			--color-chart-scale-high: var(--color-red-600, #dc2626);
+			--color-chart-increasing: var(--color-green-700, #15803d);
+			--color-chart-decreasing: var(--color-red-700, #b91c1c);
+			--color-chart-bollinger-upper: var(--color-blue-700, #1d4ed8);
+			--color-chart-bollinger-middle: var(--color-amber-700, #b45309);
+			--color-chart-bollinger-lower: var(--color-violet-700, #6d28d9);
 			--goshtoso-charts-surface: var(--color-chart-surface);
 			--goshtoso-charts-surface-alt: var(--color-chart-surface-alt);
 			--goshtoso-charts-outline: var(--color-chart-outline);
@@ -34,6 +165,31 @@ templ Styles() {
 			--goshtoso-charts-series-7: var(--color-chart-series-7);
 			--goshtoso-charts-series-8: var(--color-chart-series-8);
 		}
+		.goshtoso-charts-scatter-3d,
+		.goshtoso-charts-bar-3d,
+		.goshtoso-charts-surface-3d {
+			--color-chart-scatter3d-1: #313695; --color-chart-scatter3d-2: #4575b4;
+			--color-chart-scatter3d-3: #74add1; --color-chart-scatter3d-4: #abd9e9;
+			--color-chart-scatter3d-5: #e0f3f8; --color-chart-scatter3d-6: #fee090;
+			--color-chart-scatter3d-7: #fdae61; --color-chart-scatter3d-8: #f46d43;
+			--color-chart-scatter3d-9: #d73027; --color-chart-scatter3d-10: #a50026;
+			width: min(100%, 76rem);
+			margin-inline: auto;
+		}
+		[data-theme="araihu"] .goshtoso-charts-scatter-3d,
+		[data-theme="araihu"] .goshtoso-charts-bar-3d,
+		[data-theme="araihu"] .goshtoso-charts-surface-3d {
+			--color-chart-scatter3d-1: color-mix(in srgb, var(--color-chart-scale-low) 92%, #313695 8%);
+			--color-chart-scatter3d-2: color-mix(in srgb, var(--color-chart-scale-low) 76%, var(--color-chart-scale-mid) 24%);
+			--color-chart-scatter3d-3: color-mix(in srgb, var(--color-chart-scale-low) 58%, var(--color-chart-scale-mid) 42%);
+			--color-chart-scatter3d-4: color-mix(in srgb, var(--color-chart-scale-low) 40%, var(--color-chart-scale-mid) 60%);
+			--color-chart-scatter3d-5: color-mix(in srgb, var(--color-chart-scale-low) 22%, var(--color-chart-scale-mid) 78%);
+			--color-chart-scatter3d-6: color-mix(in srgb, var(--color-chart-scale-mid) 78%, var(--color-chart-scale-high) 22%);
+			--color-chart-scatter3d-7: color-mix(in srgb, var(--color-chart-scale-mid) 60%, var(--color-chart-scale-high) 40%);
+			--color-chart-scatter3d-8: color-mix(in srgb, var(--color-chart-scale-mid) 42%, var(--color-chart-scale-high) 58%);
+			--color-chart-scatter3d-9: color-mix(in srgb, var(--color-chart-scale-mid) 24%, var(--color-chart-scale-high) 76%);
+			--color-chart-scatter3d-10: color-mix(in srgb, var(--color-chart-scale-high) 92%, #a50026 8%);
+		}
 		.dark .goshtoso-charts-palette {
 			--color-chart-surface: var(--color-surface-dark);
 			--color-chart-surface-alt: var(--color-surface-dark-alt, var(--color-surface-dark));
@@ -42,6 +198,14 @@ templ Styles() {
 			--color-chart-text: var(--color-on-surface-dark);
 			--color-chart-text-strong: var(--color-on-surface-dark-strong, var(--color-on-surface-dark));
 			--color-chart-text-muted: var(--color-on-surface-dark-muted, color-mix(in srgb, var(--color-on-surface-dark) 72%, var(--color-surface-dark) 28%));
+			--color-chart-scale-low: var(--color-cyan-700, #0e7490);
+			--color-chart-scale-mid: var(--color-amber-400, #fbbf24);
+			--color-chart-scale-high: var(--color-red-400, #f87171);
+			--color-chart-increasing: var(--color-green-300, #86efac);
+			--color-chart-decreasing: var(--color-red-300, #fca5a5);
+			--color-chart-bollinger-upper: var(--color-blue-300, #93c5fd);
+			--color-chart-bollinger-middle: var(--color-amber-300, #fcd34d);
+			--color-chart-bollinger-lower: var(--color-violet-300, #c4b5fd);
 		}
 		.dark .goshtoso-charts-palette-auto,
 		.dark .goshtoso-charts-palette-bold {
@@ -55,25 +219,50 @@ templ Styles() {
 			--color-chart-series-3: var(--color-gray-600, #4b5563); --color-chart-series-4: var(--color-gray-500, #6b7280);
 			--color-chart-series-5: var(--color-gray-400, #9ca3af); --color-chart-series-6: var(--color-gray-300, #d1d5db);
 			--color-chart-series-7: var(--color-stone-500, #78716c); --color-chart-series-8: var(--color-stone-400, #a8a29e);
+			--color-chart-scale-low: var(--color-gray-200, #e5e7eb); --color-chart-scale-mid: var(--color-gray-500, #6b7280); --color-chart-scale-high: var(--color-gray-900, #111827);
 		}
 		.dark .goshtoso-charts-palette-neutral {
 			--color-chart-series-1: var(--color-gray-50, #f9fafb); --color-chart-series-2: var(--color-gray-200, #e5e7eb);
 			--color-chart-series-3: var(--color-gray-300, #d1d5db); --color-chart-series-4: var(--color-gray-400, #9ca3af);
 			--color-chart-series-5: var(--color-gray-500, #6b7280); --color-chart-series-6: var(--color-gray-600, #4b5563);
 			--color-chart-series-7: var(--color-stone-300, #d6d3d1); --color-chart-series-8: var(--color-stone-400, #a8a29e);
+			--color-chart-scale-low: var(--color-gray-800, #1f2937); --color-chart-scale-mid: var(--color-gray-500, #6b7280); --color-chart-scale-high: var(--color-gray-100, #f3f4f6);
 		}
 		.goshtoso-charts-palette-pastel {
 			--color-chart-series-1: var(--color-blue-300, #93c5fd); --color-chart-series-2: var(--color-red-300, #fca5a5);
 			--color-chart-series-3: var(--color-green-300, #86efac); --color-chart-series-4: var(--color-amber-300, #fcd34d);
 			--color-chart-series-5: var(--color-violet-300, #c4b5fd); --color-chart-series-6: var(--color-cyan-300, #67e8f9);
 			--color-chart-series-7: var(--color-pink-300, #f9a8d4); --color-chart-series-8: var(--color-lime-300, #bef264);
+			--color-chart-scale-low: var(--color-sky-200, #bae6fd); --color-chart-scale-mid: var(--color-amber-200, #fde68a); --color-chart-scale-high: var(--color-rose-300, #fda4af);
+		}
+		.goshtoso-charts-palette-status {
+			--color-chart-series-1: color-mix(in srgb, var(--color-success, var(--color-green-600, #16a34a)) 80%, var(--color-on-surface-strong, #111827) 20%);
+			--color-chart-series-2: color-mix(in srgb, var(--color-warning, var(--color-amber-600, #d97706)) 80%, var(--color-on-surface-strong, #111827) 20%);
+			--color-chart-series-3: color-mix(in srgb, var(--color-danger, var(--color-red-600, #dc2626)) 80%, var(--color-on-surface-strong, #111827) 20%);
+		}
+		.dark .goshtoso-charts-palette-status {
+			--color-chart-series-1: color-mix(in srgb, var(--color-success, var(--color-green-400, #4ade80)) 80%, var(--color-on-surface-dark-strong, #f9fafb) 20%);
+			--color-chart-series-2: color-mix(in srgb, var(--color-warning, var(--color-amber-400, #fbbf24)) 80%, var(--color-on-surface-dark-strong, #f9fafb) 20%);
+			--color-chart-series-3: color-mix(in srgb, var(--color-danger, var(--color-red-400, #f87171)) 80%, var(--color-on-surface-dark-strong, #f9fafb) 20%);
 		}
 		.goshtoso-charts-palette-araihu,
 		[data-theme="araihu"] .goshtoso-charts-palette-auto {
-			--color-chart-series-1: var(--color-lime-400, #c7ff4a); --color-chart-series-2: var(--color-orange-400, #ff8a3d);
+			--color-chart-series-1: var(--color-lime-700, #4d7c0f); --color-chart-series-2: var(--color-orange-400, #ff8a3d);
 			--color-chart-series-3: var(--color-rose-500, #ef476f); --color-chart-series-4: var(--color-sky-400, #4cc9f0);
 			--color-chart-series-5: var(--color-violet-500, #9b5de5); --color-chart-series-6: var(--color-amber-300, #ffd166);
 			--color-chart-series-7: var(--color-pink-400, #f15bb5); --color-chart-series-8: var(--color-teal-500, #00b8a9);
+			--color-chart-scale-low: var(--color-sky-400, #38bdf8); --color-chart-scale-mid: var(--color-amber-500, #f59e0b); --color-chart-scale-high: var(--color-rose-600, #e11d48);
+			--color-chart-bollinger-upper: var(--color-sky-700, #0369a1);
+			--color-chart-bollinger-middle: var(--color-orange-700, #c2410c);
+			--color-chart-bollinger-lower: var(--color-rose-700, #be123c);
+		}
+		.dark .goshtoso-charts-palette-araihu,
+		.dark[data-theme="araihu"] .goshtoso-charts-palette-auto {
+			--color-chart-series-1: var(--color-lime-400, #c7ff4a);
+			--color-chart-scale-low: var(--color-cyan-700, #0e7490); --color-chart-scale-mid: var(--color-amber-400, #fbbf24); --color-chart-scale-high: var(--color-rose-400, #fb7185);
+			--color-chart-bollinger-upper: var(--color-sky-300, #7dd3fc);
+			--color-chart-bollinger-middle: var(--color-orange-300, #fdba74);
+			--color-chart-bollinger-lower: var(--color-rose-300, #fda4af);
 		}
 	</style>
 }

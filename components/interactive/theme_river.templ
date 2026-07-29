@@ -1,0 +1,36 @@
+package interactive
+
+import "strconv"
+
+templ themeRiverExactValues(values themeRiverValueRows) {
+	<details class="mt-3 max-w-full text-sm text-on-surface dark:text-on-surface-dark">
+		<summary class="cursor-pointer font-semibold">Exact stream values</summary>
+		<div class="mt-2 max-h-80 overflow-auto rounded-radius border border-outline dark:border-outline-dark">
+			<table class="min-w-full border-collapse text-left">
+				<thead>
+					<tr>
+						<th class="px-3 py-2" scope="col">Date</th>
+						<th class="px-3 py-2" scope="col">Stream</th>
+						<th class="px-3 py-2" scope="col">Value</th>
+						<th class="px-3 py-2" scope="col">Class</th>
+					</tr>
+				</thead>
+				<tbody>
+					for _, row := range values.Rows {
+						<tr class="border-t border-outline dark:border-outline-dark">
+							<th class="px-3 py-2 font-semibold" scope="row">{ row.Date }</th>
+							<td class="px-3 py-2">{ row.Stream }</td>
+							<td class="px-3 py-2 tabular-nums">{ row.Value }</td>
+							<td class="px-3 py-2">{ row.Class }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+		if values.Omitted > 0 {
+			<p class="mt-2 text-on-surface-muted dark:text-on-surface-dark-muted">
+				{ strconv.Itoa(values.Omitted) } additional values omitted from this bounded representation.
+			</p>
+		}
+	</details>
+}

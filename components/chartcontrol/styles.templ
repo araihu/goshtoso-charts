@@ -1,0 +1,141 @@
+package chartcontrol
+
+templ Styles() {
+	<style>
+		.goshtoso-charts-control-wrapper {
+			max-width: 100%;
+		}
+		.goshtoso-charts-control-content {
+			max-width: 100%;
+			overflow-x: auto;
+		}
+		.goshtoso-charts-control-content > figure {
+			margin-inline: auto;
+		}
+		.goshtoso-charts-controls {
+			min-width: 0;
+		}
+		.goshtoso-charts-controls > [data-action-group-secondary] > div > button,
+		.goshtoso-charts-controls > [data-action-group-overflow] > div > button {
+			font-size: 0.75rem;
+		}
+		.goshtoso-charts-stacked-primary > [data-action-group-primary] {
+			position: absolute;
+			visibility: hidden;
+			pointer-events: none;
+		}
+		.goshtoso-charts-stacked-primary:has(> [data-action-group-secondary]:nth-child(2)[hidden]) > [data-action-group-primary] {
+			position: static;
+			visibility: visible;
+			pointer-events: auto;
+		}
+		.goshtoso-charts-hidden-expand-modal {
+			position: absolute;
+			width: 0;
+			height: 0;
+			overflow: visible;
+		}
+		.goshtoso-charts-hidden-expand-modal > div > button {
+			display: none;
+		}
+		.goshtoso-charts-expand-control [role="dialog"] {
+			z-index: 2147483000;
+		}
+		.goshtoso-charts-expand-panel {
+			position: relative;
+			z-index: 2147483001;
+			box-sizing: border-box;
+			width: min(98vw, 110rem);
+			height: min(94vh, 72rem);
+			max-width: none;
+			max-height: 94vh;
+		}
+		.goshtoso-charts-expand-panel > div:nth-child(2) {
+			display: flex;
+			min-height: 0;
+			flex: 1 1 auto;
+			align-items: center;
+			justify-content: center;
+			overflow: auto;
+			padding: 0.75rem;
+		}
+		.goshtoso-charts-expand-panel > div:nth-child(2) > p:empty {
+			display: none;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-control-content {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-control-content > figure {
+			width: 100%;
+			height: 100%;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-control-content svg {
+			width: 100%;
+			height: 100%;
+			max-width: 100%;
+			max-height: 100%;
+			min-width: 0;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-scatter__viewport {
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-interactive > div:first-child {
+			width: 100% !important;
+			height: 100% !important;
+			min-height: 18rem;
+		}
+		.goshtoso-charts-expanded .goshtoso-charts-interactive [_echarts_instance_] {
+			width: 100% !important;
+			height: 100% !important;
+			min-height: 18rem;
+		}
+		.goshtoso-charts-control-wrapper:fullscreen,
+		.goshtoso-charts-control-wrapper.goshtoso-charts-fullscreen-fallback {
+			box-sizing: border-box;
+			width: 100%;
+			height: 100%;
+			padding: 1rem;
+			overflow: auto;
+			background: var(--color-chart-surface, var(--color-surface, #fff));
+			color: var(--color-chart-text, var(--color-on-surface, #111827));
+		}
+		.goshtoso-charts-control-wrapper.goshtoso-charts-fullscreen-fallback {
+			position: fixed;
+			inset: 0;
+			z-index: 1000;
+		}
+		.goshtoso-charts-control-wrapper:fullscreen .goshtoso-charts-control-content,
+		.goshtoso-charts-control-wrapper.goshtoso-charts-fullscreen-fallback .goshtoso-charts-control-content {
+			height: calc(100% - 3.5rem);
+			min-height: calc(100% - 3.5rem);
+			overflow: hidden;
+		}
+		.goshtoso-charts-control-wrapper:fullscreen .goshtoso-charts-control-content > figure,
+		.goshtoso-charts-control-wrapper.goshtoso-charts-fullscreen-fallback .goshtoso-charts-control-content > figure {
+			width: 100%;
+			height: 100%;
+		}
+		.goshtoso-charts-control-wrapper:fullscreen .goshtoso-charts-control-content svg,
+		.goshtoso-charts-control-wrapper.goshtoso-charts-fullscreen-fallback .goshtoso-charts-control-content svg {
+			width: 100%;
+			height: 100%;
+			min-width: 0;
+		}
+		.goshtoso-charts-control-wrapper:fullscreen .goshtoso-charts-interactive > div:first-child,
+		.goshtoso-charts-control-wrapper.goshtoso-charts-fullscreen-fallback .goshtoso-charts-interactive > div:first-child {
+			width: 100% !important;
+			height: 100% !important;
+			min-height: 18rem;
+		}
+		.goshtoso-charts-control-wrapper:fullscreen .goshtoso-charts-interactive [_echarts_instance_],
+		.goshtoso-charts-control-wrapper.goshtoso-charts-fullscreen-fallback .goshtoso-charts-interactive [_echarts_instance_] {
+			width: 100% !important;
+			height: 100% !important;
+			min-height: 18rem;
+		}
+	</style>
+}

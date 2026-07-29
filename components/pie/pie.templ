@@ -4,10 +4,36 @@ import "github.com/araihu/goshtoso-charts/components/charttheme"
 
 templ pieTemplate(cfg Config, chart templ.Component) {
 	@charttheme.Styles()
-	<figure class={ cfg.Style.RootClasses("goshtoso-charts-pie") } role="img" aria-label={ cfg.Label }>
-		@chart
+	<style>
+		.goshtoso-charts-pie__viewport > svg { display: block; width: 100%; height: auto; max-width: 100%; }
+		.goshtoso-charts-expanded .goshtoso-charts-pie__viewport,
+		.goshtoso-charts-control-wrapper:fullscreen .goshtoso-charts-pie__viewport,
+		.goshtoso-charts-control-wrapper.goshtoso-charts-fullscreen-fallback .goshtoso-charts-pie__viewport { width: 100%; height: 100%; overflow: hidden; }
+		.goshtoso-charts-expanded .goshtoso-charts-pie__viewport > svg,
+		.goshtoso-charts-control-wrapper:fullscreen .goshtoso-charts-pie__viewport > svg,
+		.goshtoso-charts-control-wrapper.goshtoso-charts-fullscreen-fallback .goshtoso-charts-pie__viewport > svg { width: 100%; height: 100%; min-width: 0; }
+	</style>
+	<figure class={ cfg.Style.RootClasses("goshtoso-charts-pie") } role="img" aria-label={ cfg.Label } { cfg.RootAttrs... }>
+		<div class="goshtoso-charts-pie__viewport mx-auto max-w-full overflow-x-auto">@chart</div>
 		if cfg.Caption != "" {
 			<figcaption class="mt-2 text-sm text-on-surface dark:text-on-surface-dark">{ cfg.Caption }</figcaption>
 		}
 	</figure>
+	<details class="mt-3 max-w-full text-sm text-on-surface dark:text-on-surface-dark">
+		<summary class="cursor-pointer font-semibold">Exact slice values</summary>
+		<div class="mt-2 overflow-x-auto rounded-radius border border-outline dark:border-outline-dark">
+			<table class="min-w-full border-collapse text-left" aria-label={ cfg.Label + " exact slice values" }>
+				<thead><tr><th class="px-3 py-2" scope="col">Slice</th><th class="px-3 py-2" scope="col">Value</th><th class="px-3 py-2" scope="col">Share of total</th></tr></thead>
+				<tbody>
+					for _, slice := range cfg.Slices {
+						<tr class={ "border-t border-outline dark:border-outline-dark " + slice.Class }>
+							<th class="px-3 py-2 font-semibold" scope="row">{ slice.Name }</th>
+							<td class="px-3 py-2 tabular-nums">{ formatValue(slice.Value) }</td>
+							<td class="px-3 py-2 tabular-nums">{ formatShare(slice.Value, totalValue(cfg.Slices)) }</td>
+						</tr>
+					}
+				</tbody>
+			</table>
+		</div>
+	</details>
 }

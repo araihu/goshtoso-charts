@@ -1,0 +1,27 @@
+package interactive
+
+import (
+	"fmt"
+	"strconv"
+)
+
+templ surface3DExactData(label string, series []Surface3DSeries, summary Surface3DDataSummary) {
+	{{ bounds := surface3DBounds(series) }}
+	<section class="mt-3 max-w-full text-sm text-on-surface dark:text-on-surface-dark" aria-label={ label + " exact data" } data-surface3d-exact-data>
+		<h3 class="font-semibold">Exact surface data</h3>
+		<p class="mt-2" data-surface3d-formula><span class="font-semibold">Formula:</span> { summary.Formula }</p>
+		<p class="mt-1 text-on-surface-muted dark:text-on-surface-dark-muted" data-surface3d-summary>
+			{ strconv.Itoa(surface3DPointCount(series)) } ordered points.
+			X domain [{ fmt.Sprintf("%g", bounds[0]) }, { fmt.Sprintf("%g", bounds[1]) }];
+			Y domain [{ fmt.Sprintf("%g", bounds[2]) }, { fmt.Sprintf("%g", bounds[3]) }];
+			Z domain [{ fmt.Sprintf("%g", bounds[4]) }, { fmt.Sprintf("%g", bounds[5]) }].
+		</p>
+		<a
+			class="mt-3 inline-flex min-h-11 items-center rounded-radius border border-outline px-4 py-2 font-semibold text-on-surface hover:bg-surface-alt focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary dark:border-outline-dark dark:text-on-surface-dark dark:hover:bg-surface-dark-alt"
+			href={ surface3DCSVURL(series) }
+			download={ surface3DDownloadName(label) + "-exact-data.csv" }
+			type="text/csv"
+			data-surface3d-download
+		>Download all exact points as CSV</a>
+	</section>
+}

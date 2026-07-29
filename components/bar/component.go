@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"html"
 	"io"
+	"strconv"
 	"strings"
 
 	"github.com/a-h/templ"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	chart "github.com/go-analyze/charts"
 )
@@ -22,19 +24,45 @@ func Bar(cfg Config) Instance { return Instance{cfg: cfg} }
 // Kind identifies the component as a bar chart.
 func (Instance) Kind() chartcomponents.Kind { return chartcomponents.KindBarChart }
 
-// Render writes accessible figure and SVG without browser rendering or hydration.
+// Render writes an accessible figure and SVG without browser rendering or hydration.
+// Horizontal charts also include an adjacent exact-value table.
 func (instance Instance) Render(ctx context.Context, writer io.Writer) error {
 	svg, err := renderSVG(instance.cfg)
 	if err != nil {
 		return err
 	}
-	return barTemplate(instance.cfg, templ.Raw(svg)).Render(ctx, writer)
+	chart := barTemplate(instance.cfg, templ.Raw(svg))
+	return chartcontrol.Wrapper(chartcontrol.WrapperConfig{
+		Label: instance.cfg.Label, Controls: instance.cfg.Controls, Export: instance.cfg.Export,
+		Capability: chartcontrol.ExportCapabilityStaticSVG,
+	}, chart).Render(ctx, writer)
 }
 
 func renderSVG(cfg Config) (string, error) {
 	if err := cfg.validate(); err != nil {
 		return "", err
 	}
+	options := barOptions(cfg)
+	painter := chart.NewPainter(chart.PainterOptions{OutputFormat: chart.ChartOutputSVG, Width: cfg.width(), Height: cfg.height(), Theme: tokenPalette()})
+	if err := painter.BarChart(options); err != nil {
+		return "", fmt.Errorf("render bar chart: %w", err)
+	}
+	data, err := painter.Bytes()
+	if err != nil {
+		return "", fmt.Errorf("encode bar chart SVG: %w", err)
+	}
+	svg := tokenizedSVG(string(data), cfg.Style)
+	if cfg.horizontal() {
+		svg = strings.Replace(svg, "<svg ", `<svg preserveAspectRatio="xMidYMid meet" `, 1)
+		for index := range cfg.Series {
+			color := html.EscapeString(cfg.Style.SeriesColor(index))
+			svg = strings.ReplaceAll(svg, "fill:"+color, "fill:"+color+";stroke:var(--color-chart-text);stroke-width:1")
+		}
+	}
+	return svg, nil
+}
+
+func barOptions(cfg Config) chart.BarChartOption {
 	values := make([][]float64, 0, len(cfg.Series))
 	names := make([]string, 0, len(cfg.Series))
 	for _, series := range cfg.Series {
@@ -45,15 +73,15 @@ func renderSVG(cfg Config) (string, error) {
 	options.Legend.SeriesNames = names
 	options.StackSeries = chart.Ptr(cfg.Stacked)
 	options.Theme = tokenPalette()
-	painter := chart.NewPainter(chart.PainterOptions{OutputFormat: chart.ChartOutputSVG, Width: cfg.width(), Height: cfg.height(), Theme: tokenPalette()})
-	if err := painter.BarChart(options); err != nil {
-		return "", fmt.Errorf("render bar chart: %w", err)
+	options.Horizontal = cfg.horizontal()
+	options.Title.Text = cfg.Title
+	if cfg.Padding != (Padding{}) {
+		options.Padding = chart.Box{
+			Top: cfg.Padding.Top, Right: cfg.Padding.Right,
+			Bottom: cfg.Padding.Bottom, Left: cfg.Padding.Left,
+		}
 	}
-	data, err := painter.Bytes()
-	if err != nil {
-		return "", fmt.Errorf("encode bar chart SVG: %w", err)
-	}
-	return tokenizedSVG(string(data), cfg.Style), nil
+	return options
 }
 
 func tokenPalette() chart.ColorPalette {
@@ -70,5 +98,7 @@ func tokenizedSVG(svg string, style charttheme.Style) string {
 	replacer := strings.NewReplacer("rgb(1,1,1)", "var(--color-chart-surface)", "rgb(2,2,2)", "var(--color-chart-outline)", "rgb(3,3,3)", "var(--color-chart-grid)", "rgb(4,4,4)", "var(--color-chart-text)", "rgb(5,5,5)", html.EscapeString(style.SeriesColor(0)), "rgb(6,6,6)", html.EscapeString(style.SeriesColor(1)), "rgb(7,7,7)", html.EscapeString(style.SeriesColor(2)), "rgb(8,8,8)", html.EscapeString(style.SeriesColor(3)), "rgb(9,9,9)", html.EscapeString(style.SeriesColor(4)), "rgb(10,10,10)", html.EscapeString(style.SeriesColor(5)), "rgb(11,11,11)", html.EscapeString(style.SeriesColor(6)), "rgb(12,12,12)", html.EscapeString(style.SeriesColor(7)), "'Roboto Medium',sans-serif", "var(--font-paragraph), sans-serif")
 	return replacer.Replace(svg)
 }
+
+func formatValue(value float64) string { return strconv.FormatFloat(value, 'f', -1, 64) }
 
 var _ chartcomponents.Component = Instance{}

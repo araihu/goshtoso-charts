@@ -1,0 +1,24 @@
+{
+  "name": "goshtoso-charts-site-tests",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "playwright": "1.61.1",
+    "sharp": "0.34.5"
+  },
+  "scripts": {
+    "test:chart-controls": "node --test browser/chart_controls.test.cjs",
+    "test:candlestick": "node --test browser/candlestick.test.cjs",
+    "test:funnel": "node --test browser/funnel.test.cjs",
+    "test:gauge-liquid": "node --test browser/gauge_liquid.test.cjs",
+    "test:geo": "node --test browser/geo.test.cjs",
+    "test:interactive-heatmap": "node --test browser/interactive_heatmap_layout.test.cjs",
+    "test:line-dual-axis": "node --test browser/line_dual_axis.test.cjs",
+    "test:line-area": "node --test browser/line_area.test.cjs",
+    "test:line3d": "node --test browser/line3d.test.cjs",
+    "test:pie": "node --test browser/pie.test.cjs",
+    "test:surface3d": "node --test browser/surface3d.test.cjs",
+    "test:table": "node --test browser/table.test.cjs",
+    "test:word-cloud": "node --test browser/word_cloud.test.cjs"
+  }
+}

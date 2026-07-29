@@ -4,7 +4,7 @@ import "testing"
 
 func TestAllKinds(t *testing.T) {
 	t.Parallel()
-	want := []Kind{KindHeartbeat, KindLineChart, KindBarChart, KindPieChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel}
+	want := []Kind{KindLineChart, KindBarChart, KindPieChart, KindScatterChart, KindRadarChart, KindCandlestickChart, KindHeatMapChart, KindFunnelChart, KindTable, KindViolinChart, KindInteractiveBar, KindInteractiveLine, KindInteractiveScatter, KindInteractiveScatter3D, KindInteractiveBar3D, KindInteractiveSurface3D, KindInteractiveLine3D, KindInteractivePie, KindInteractiveRadar, KindInteractiveHeatMap, KindInteractiveBoxPlot, KindInteractiveGauge, KindInteractiveFunnel, KindInteractiveGraph, KindInteractiveSankey, KindInteractiveTree, KindInteractiveSunburst, KindInteractiveTreemap, KindInteractiveParallel, KindInteractiveThemeRiver, KindInteractiveCandlestick, KindInteractiveWordCloud, KindInteractiveMap, KindInteractiveGeo}
 	got := AllKinds()
 	if len(got) != len(want) {
 		t.Fatalf("AllKinds() = %v, want %v", got, want)
@@ -15,7 +15,7 @@ func TestAllKinds(t *testing.T) {
 		}
 	}
 	got[0] = "changed"
-	if AllKinds()[0] != KindHeartbeat {
+	if AllKinds()[0] != KindLineChart {
 		t.Fatal("AllKinds() leaked internal slice")
 	}
 }

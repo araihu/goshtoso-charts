@@ -24,9 +24,14 @@ func TestBarRendersConfiguredChart(t *testing.T) {
 				Options: SeriesOptions{Stack: "revenue"},
 			},
 		},
-		Width:         "720px",
-		Height:        "360px",
-		Options:       ChartOptions{Title: &TitleOptions{Text: "Revenue"}},
+		Width:  "720px",
+		Height: "360px",
+		Options: ChartOptions{
+			Title:     &TitleOptions{Text: "Revenue"},
+			XAxis:     &AxisOptions{LabelInterval: Int(5), ShowFirstLabel: Bool(true), ShowLastLabel: Bool(true)},
+			YAxis:     &AxisOptions{Min: Float(0), Max: Float(20), Show: Bool(false)},
+			Animation: Bool(false),
+		},
 		SeriesOptions: SeriesOptions{Label: &LabelOptions{Show: Bool(true)}},
 		Style:         charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
 	})
@@ -47,6 +52,9 @@ func TestBarRendersConfiguredChart(t *testing.T) {
 		`"name":"Hardware"`,
 		`"stack":"revenue"`,
 		`"show":true`,
+		`data-goshtoso-charts-explicit-animation="false"`,
+		`"yAxis":[{"show":false,"min":0,"max":20}]`,
+		`"axisLabel":{"interval":5,"showMinLabel":true,"showMaxLabel":true}`,
 		`"text":"Revenue"`,
 		`"color":["#123456","#ff8a3d"`,
 		"goshtoso-charts-palette-araihu min-h-80",
@@ -93,6 +101,13 @@ func TestBarRejectsInvalidDataContract(t *testing.T) {
 		"nonfinite value": {
 			cfg:       BarConfig{Label: "Revenue", XAxis: []string{"Q1"}, Series: []BarSeries{{Name: "Hardware", Data: []BarData{{Value: math.NaN()}}}}},
 			wantError: `bar chart series "Hardware" data point 0 value must be finite`,
+		},
+		"negative label interval": {
+			cfg: BarConfig{
+				Label: "Revenue", XAxis: []string{"Q1"}, Series: []BarSeries{{Name: "Hardware", Data: []BarData{{Value: 12}}}},
+				Options: ChartOptions{XAxis: &AxisOptions{LabelInterval: Int(-1)}},
+			},
+			wantError: "x axis label interval must be nonnegative",
 		},
 	}
 

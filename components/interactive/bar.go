@@ -22,6 +22,7 @@ type BarConfig struct {
 	Options       ChartOptions
 	SeriesOptions SeriesOptions
 	Style         charttheme.Style
+	Live          *LiveData
 }
 
 // BarSeries describes one named bar series.
@@ -83,14 +84,26 @@ func Bar(cfg BarConfig) Instance {
 	}
 
 	return newInstance(chartcomponents.KindInteractiveBar, renderConfig{
-		Label:   cfg.Label,
-		Caption: cfg.Caption,
-		Chart:   chart,
-		Style:   cfg.Style,
+		Label:              cfg.Label,
+		Caption:            cfg.Caption,
+		Chart:              chart,
+		ResponsiveWidth:    responsiveWidth(cfg.Width),
+		Style:              cfg.Style,
+		Live:               cartesianLiveConfig(cfg.Live),
+		Animation:          cfg.Options.Animation,
+		Controls:           cfg.Options.Controls,
+		Export:             cfg.Options.Export,
+		AxisLabelIntervals: axisLabelIntervals(cfg.Options),
 	})
 }
 
 func validateBarConfig(cfg BarConfig) error {
+	if err := validateChartOptions(cfg.Options); err != nil {
+		return err
+	}
+	if err := validateLiveData(cfg.Live); err != nil {
+		return err
+	}
 	if len(cfg.XAxis) == 0 {
 		return fmt.Errorf("bar chart x axis is required")
 	}

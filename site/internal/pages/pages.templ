@@ -1,68 +1,63 @@
 package pages
 
 import (
-	"github.com/araihu/goshtoso/components/badge"
-	"github.com/araihu/goshtoso/components/panel"
+	"github.com/araihu/goshtoso/components/codeblock"
 	"github.com/araihu/goshtoso-app-shells/componentpage"
 	"github.com/araihu/goshtoso-charts/components/bar"
+	"github.com/araihu/goshtoso-charts/components/candlestick"
+	"github.com/araihu/goshtoso-charts/components/funnel"
+	"github.com/araihu/goshtoso-charts/components/heatmap"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
-	"github.com/araihu/goshtoso-charts/components/heartbeat"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
-	"github.com/araihu/goshtoso-charts/site/internal/brand"
+	"github.com/araihu/goshtoso-charts/components/radar"
+	"github.com/araihu/goshtoso-charts/components/scatter"
+	charttable "github.com/araihu/goshtoso-charts/components/table"
+	"github.com/araihu/goshtoso-charts/components/violin"
 )
 
-templ OverviewPage(fragment bool) {
-	@layout("Overview", "overview", overviewContent(), fragment)
+templ GettingStartedPage(fragment bool) {
+	@layout("Getting Started", "getting-started", gettingStartedContent(), fragment)
 }
 
-templ overviewContent() {
-	<section class="max-w-3xl space-y-4">
-		<div class="flex flex-wrap items-end gap-x-3 gap-y-1" aria-label="Goshtoso Charts">
-			@brand.LandingLogo()
-			<p class="pb-1 text-sm font-semibold uppercase tracking-wide text-primary dark:text-primary-dark">Charts</p>
-		</div>
-		<h1 class="font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong">Charts for Goshtoso</h1>
-		<p class="max-w-2xl text-lg text-on-surface-muted dark:text-on-surface-dark-muted">Typed Go and templ chart components with static vector and interactive variants. Public APIs stay renderer-neutral and follow Goshtoso theme tokens.</p>
+templ gettingStartedContent() {
+	<div class="max-w-3xl space-y-12">
+	<section class="space-y-4">
+		<p class="text-sm font-semibold text-primary dark:text-primary-dark">Goshtoso Charts</p>
+		<h1 class="font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong">Getting Started</h1>
+		<p class="text-lg text-on-surface-muted dark:text-on-surface-dark-muted">Install the module, wire the local chart runtime once, then render typed static or interactive charts with renderer-neutral APIs.</p>
 	</section>
-	<div class="grid gap-4 md:grid-cols-2">
-		@panel.Panel(panel.Config{Header: overviewHeartbeatHeader()}) {
-			@heartbeat.Heartbeat(sampleHeartbeat())
-		}
-		@panel.Panel(panel.Config{Header: overviewLineHeader()}) {
-			@line.Line(sampleLatency())
-		}
-		@panel.Panel(panel.Config{Header: overviewBarHeader()}) {
-			@bar.Bar(sampleDeployments())
-		}
-		@panel.Panel(panel.Config{Header: overviewPieHeader()}) {
-			@pie.Pie(sampleObservationStates())
-		}
+	<section class="space-y-4" data-getting-started-step>
+		<h2 id="install-the-module" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">1. Install the module</h2>
+		<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Add Goshtoso Charts to an existing Go and templ application.</p>
+		@codeblock.CodeBlock(gettingStartedCodeBlock("bash", "bash", gettingStartedInstallCode))
+	</section>
+	<section class="space-y-4" data-getting-started-step>
+		<h2 id="mount-chart-assets" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">2. Mount chart assets</h2>
+		<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Interactive charts use a versioned runtime embedded in the module. Mount its handler at the exported prefix; the handler removes that prefix itself.</p>
+		@codeblock.CodeBlock(gettingStartedCodeBlock("go", "Go", gettingStartedAssetsCode))
+	</section>
+	<section class="space-y-4" data-getting-started-step>
+		<h2 id="include-chart-dependencies" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">3. Include chart dependencies</h2>
+		<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Render the dependency component once in the document head, before interactive chart initialization. Local vendored delivery is the default.</p>
+		@codeblock.CodeBlock(gettingStartedCodeBlock("templ", "templ", gettingStartedDependenciesCode))
+		<p class="text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Third-party delivery is explicit: use <code class="font-mono">dependencies.WithCDN()</code> only when the application accepts that network and CSP boundary.</p>
+	</section>
+	<section class="space-y-4" data-getting-started-step>
+		<h2 id="render-a-static-chart" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">4. Render a static chart</h2>
+		<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Static/vector components render on the server and need no browser chart runtime.</p>
+		@codeblock.CodeBlock(gettingStartedCodeBlock("templ", "templ", gettingStartedStaticCode))
+	</section>
+	<section class="space-y-4" data-getting-started-step>
+		<h2 id="render-an-interactive-chart" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">5. Render an interactive chart</h2>
+		<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Interactive components use the same typed component contract while keeping browser-renderer details private.</p>
+		@codeblock.CodeBlock(gettingStartedCodeBlock("templ", "templ", gettingStartedInteractiveCode))
+	</section>
+	<section class="space-y-4" data-getting-started-step>
+		<h2 id="explore-the-catalog" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">6. Explore the catalog</h2>
+		<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Browse categorized <a class="font-semibold text-primary underline dark:text-primary-dark" href="/components/line">static/vector</a>, <a class="font-semibold text-primary underline dark:text-primary-dark" href="/components/interactive/bar">interactive Cartesian</a>, and <a class="font-semibold text-primary underline dark:text-primary-dark" href="/components/interactive/graph">relationship</a> components. The <a class="font-semibold text-primary underline dark:text-primary-dark" href="/examples/live-availability">Live availability</a> example demonstrates renderer-neutral full-snapshot SSE updates.</p>
+	</section>
 	</div>
-	@demoNote("Component contract", "Each component has typed Config, concrete Instance, stable Kind, and templ.Component rendering. Consumers choose page composition; charts supply evidence surfaces.")
-}
-
-templ HeartbeatPage(fragment bool) {
-	@layout("Heartbeat", "heartbeat", heartbeatContent(), fragment)
-}
-
-templ heartbeatContent() {
-	@componentpage.Page(componentpage.Config{
-		Title: "Heartbeat",
-		Description: "Compact availability history. Use it for monitor health and status-page evidence; retain exact values in nearby copy or a detail table.",
-		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Compact ordered availability evidence for a monitor or public-status row.", "Primitive", "heartbeat.Heartbeat", "Kind", "components.KindHeartbeat", "Configuration", "Label, Caption, chronological Points, RootClass, and RootAttrs.", "Accessibility", "Figure name comes from Label; Caption remains visible; every point exposes timestamp, state, and optional latency in its SVG title. Empty points render an explicit no-data state."),
-			Preview: heartbeat.Heartbeat(sampleHeartbeat()),
-			Code: heartbeatCode(),
-		},
-		Sections: []componentpage.Example{{
-			Title: "No data",
-			Description: "Absence of probes is not uptime.",
-			Preview: heartbeat.Heartbeat(heartbeat.Config{Label: "API availability"}),
-			Code: noDataCode(),
-		}},
-		After: demoNote("State contract", "up, degraded, down, and unknown are distinct. Color supports scanning; figure label, SVG titles, and text summary supply meaning."),
-	})
 }
 
 templ LinePage(fragment bool) {
@@ -76,18 +71,54 @@ templ BarPage(fragment bool) {
 templ barContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Bar chart",
-		Description: "Categorical SSR SVG for counts, comparisons, and grouped operational outcomes. Set Stacked for composition within each category.",
+		Description: "Categorical SSR SVG for vertical or horizontal comparisons. Set Stacked for composition within each category.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Compare named values across categories, including stacked operational outcomes.", "Primitive", "bar.Bar", "Kind", "components.KindBarChart", "Configuration", "Label, Caption, category Labels, named Series, Stacked, optional Width, and Height.", "Accessibility", "Figure name comes from Label; Caption stays visible. Keep an adjacent table or text summary when exact values are needed."),
+			AbovePreview: componentContract("Purpose", "Compare named values across categories, including stacked outcomes and horizontal treatments.", "Primitive", "bar.Bar", "Kind", "components.KindBarChart", "Configuration", "Label, Caption, Title, category Labels, named Series, Stacked, typed Orientation and Padding, optional Width, and Height.", "Accessibility", "Figure name comes from Label and Caption stays visible. Horizontal charts include an exact category-value table."),
 			Preview: bar.Bar(sampleDeployments()),
 			Code: barCode(),
 		},
-		After: demoNote("Use case", "Use bar charts for deployment outcomes, observation counts, or other categorical comparisons. Keep domain aggregation at the application view-model boundary."),
+		Sections: []componentpage.Example{
+			{
+				Title: "Horizontal orientation",
+				Description: "Use the typed horizontal variant when category labels read more naturally beside bars. Vertical remains the zero-value default.",
+				Preview: bar.Bar(sampleHorizontalWorldPopulation()),
+				Code: horizontalBarCode(),
+			},
+		},
+		After: demoNote("Orientation contract", "Vertical is the zero-value default. Horizontal changes axis treatment on the same Bar component and preserves exact values in an adjacent table."),
 	})
 }
 
 templ PiePage(fragment bool) {
 	@layout("Pie chart", "pie", pieContent(), fragment)
+}
+
+templ ScatterPage(fragment bool) {
+	@layout("Scatter chart", "scatter", scatterContent(), fragment)
+}
+
+templ RadarPage(fragment bool) {
+	@layout("Radar chart", "radar", radarContent(), fragment)
+}
+
+templ CandlestickPage(fragment bool) {
+	@layout("Candlestick", "candlestick", candlestickContent(), fragment)
+}
+
+templ FunnelPage(fragment bool) {
+	@layout("Funnel chart", "funnel", funnelContent(), fragment)
+}
+
+templ TablePage(fragment bool) {
+	@layout("Table", "table", tableContent(), fragment)
+}
+
+templ HeatMapPage(fragment bool) {
+	@layout("Heat map", "heatmap", heatMapContent(), fragment)
+}
+
+templ ViolinPage(fragment bool) {
+	@layout("Violin chart", "violin", violinContent(), fragment)
 }
 
 templ InteractiveBarPage(fragment bool) {
@@ -137,6 +168,104 @@ templ interactiveChartScatterContent() {
 		},
 		After: demoNote("Variant contract", "ScatterVariantStandard is the zero-value default. ScatterVariantEffect adds ripple rendering while the constructor, config, Instance, and stable Kind remain the same."),
 	})
+}
+
+templ InteractiveScatter3DPage(fragment bool) {
+	@layout("Interactive scatter 3D", "interactive-scatter-3d", interactiveScatter3DContent(), fragment)
+}
+
+templ interactiveScatter3DContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive scatter 3D",
+		Description: "Reusable three-dimensional point chart with typed axes, visual ranges, symbols, caller paint, responsive sizing, and exact adjacent values.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Explore the spatial relationship among three finite quantitative dimensions.", "Primitive", "interactive.Scatter3D", "Kind", "components.KindInteractiveScatter3D", "Configuration", "Label, Caption, typed Point3D series, named three-axis options, visual range, symbol and paint options, size, renderer-neutral chart options, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Every exact coordinate remains in a collapsed adjacent table, including the dense 80-point treatment."),
+			Preview: interactiveScatter3DVariants(),
+			Code: interactiveScatter3DCode(),
+		},
+		After: demoNote("Three-dimensional contract", "All point coordinates and optional visual values are finite. Axis names are required when custom axes are supplied. Color and semantic class are mutually exclusive at each paint boundary; visual ranges cannot conflict with fixed series or point paint."),
+	})
+}
+
+templ interactiveScatter3DVariants() {
+	<div class="space-y-10" data-scatter3d-variants>
+		<div data-scatter3d-variant="basic">@sampleInteractiveScatter3DBasic()</div>
+		<div data-scatter3d-variant="item-style">@sampleInteractiveScatter3DStyled()</div>
+	</div>
+}
+
+templ InteractiveBar3DPage(fragment bool) {
+	@layout("Interactive bar 3D", "interactive-bar-3d", interactiveBar3DContent(), fragment)
+}
+
+templ InteractiveSurface3DPage(fragment bool) {
+	@layout("Interactive surface 3D", "interactive-surface-3d", interactiveSurface3DContent(), fragment)
+}
+
+templ InteractiveLine3DPage(fragment bool) {
+	@layout("Interactive line 3D", "interactive-line-3d", interactiveLine3DContent(), fragment)
+}
+
+templ interactiveLine3DContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive line 3D",
+		Description: "Reusable three-dimensional ordered line with typed points, visual range, grid view, accessible rotation behavior, responsive sizing, and deterministic exact-data access.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Trace one ordered parametric path across three finite quantitative dimensions.", "Primitive", "interactive.Line3D", "Kind", "components.KindInteractiveLine3D", "Configuration", "Label, Caption, typed Point3D series, typed visual range and palette, grid and view options, auto-rotation, size, renderer-neutral ChartOptions and SeriesOptions, caller Color or Class, root attributes, controls, export, and chart style.", "Accessibility", "Figure name comes from Label. Formula, point count, parameter and coordinate domains remain visible beside a deterministic CSV download. Auto-rotation stops when reduced motion is preferred."),
+			Preview: interactiveLine3DVariants(),
+			Code: interactiveLine3DCode(),
+		},
+		After: demoNote("Variant contract", "The stationary base and auto-rotating treatment preserve the same 25,000 ordered points, formula, visual range, and palette on one Line3D component, route, Instance, and stable Kind. Reduced-motion users receive the stationary treatment."),
+	})
+}
+
+templ interactiveLine3DVariants() {
+	<div class="space-y-10" data-line3d-variants>
+		<div data-line3d-variant="base">@sampleInteractiveLine3D("basic line3d example", "basic-line3d-example", false)</div>
+		<div data-line3d-variant="auto-rotate">@sampleInteractiveLine3D("auto rotating", "auto-rotating", true)</div>
+	</div>
+}
+
+templ interactiveSurface3DContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive surface 3D",
+		Description: "Reusable three-dimensional mathematical surface with typed points, axes, visual range, grid, view, caller paint, responsive sizing, and deterministic exact-data access.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Explore a sampled mathematical surface across two input dimensions and one output dimension.", "Primitive", "interactive.Surface3D", "Kind", "components.KindInteractiveSurface3D", "Configuration", "Label, Caption, typed Point3D series, named three-axis options, visual range and palette, grid and view options, shading, caller Color or Class, renderer-neutral chart options, exact-data formula, size, root attributes, controls, export, and chart style.", "Accessibility", "Figure name comes from Label and formula remains visible. Each variant reports exact count and domains, then offers an adjacent user-triggered CSV containing every ordered point without adding 18,000 table rows to the initial DOM."),
+			Preview: interactiveSurface3DVariants(),
+			Code: interactiveSurface3DCode(),
+		},
+		After: demoNote("Variant contract", "The base grid and Rose style preserve their formulas, loop order, domains, visual range, and ten-color scale as two datasets on one Surface3D component, route, Instance, and stable Kind."),
+	})
+}
+
+templ interactiveSurface3DVariants() {
+	<div class="space-y-10" data-surface3d-variants>
+		<div data-surface3d-variant="base">@sampleInteractiveSurface3D("basic surface3D example", interactiveSurface3DBaseFormula, "basic-surface3d-example", interactiveSurface3DBasePoints)</div>
+		<div data-surface3d-variant="rose">@sampleInteractiveSurface3D("Rose style", interactiveSurface3DRoseFormula, "rose-style", interactiveSurface3DRosePoints)</div>
+	</div>
+}
+
+templ interactiveBar3DContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive bar 3D",
+		Description: "Reusable three-dimensional categorical bars with typed axes, cells, visual ranges, grid size, view rotation, shading, caller paint, responsive sizing, and exact adjacent values.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare values across two ordered categorical dimensions while preserving magnitude as bar height.", "Primitive", "interactive.Bar3D", "Kind", "components.KindInteractiveBar3D", "Configuration", "Label, Caption, typed categorical axes, Bar3D cells and series, visual range and palette, grid size, view rotation and speed, shading, caller Color or Class, renderer-neutral chart and series options, size, root attributes, controls, export, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Every variant includes an adjacent disclosure with all 168 exact cells, category labels, source-swapped indexes, values, and semantic classes."),
+			Preview: interactiveBar3DVariants(),
+			Code: interactiveBar3DCode(),
+		},
+		After: demoNote("Variant contract", "Base, auto rotation, faster rotation, and Lambert shading remain typed options on one Bar3D component, route, Instance, and stable Kind. Category indexes must remain in range; visual mapping cannot conflict with fixed series or cell paint."),
+	})
+}
+
+templ interactiveBar3DVariants() {
+	<div class="space-y-10" data-bar3d-variants>
+		<div data-bar3d-variant="base">@sampleInteractiveBar3D("basic bar3d example", interactive.Bar3DGridSize{Width: 200, Depth: 80}, nil, interactive.Bar3DShadingDefault)</div>
+		<div data-bar3d-variant="auto-rotate">@sampleInteractiveBar3D("auto rotating", interactive.Bar3DGridSize{Width: 160, Depth: 80}, &interactive.Bar3DView{AutoRotate: interactive.Bool(true)}, interactive.Bar3DShadingDefault)</div>
+		<div data-bar3d-variant="faster">@sampleInteractiveBar3D("rotating faster", interactive.Bar3DGridSize{Width: 160, Depth: 80}, &interactive.Bar3DView{AutoRotate: interactive.Bool(true), AutoRotateSpeed: 200}, interactive.Bar3DShadingDefault)</div>
+		<div data-bar3d-variant="lambert">@sampleInteractiveBar3D("Bar3D-shading(lambert)", interactive.Bar3DGridSize{Width: 200, Depth: 80}, nil, interactive.Bar3DShadingLambert)</div>
+	</div>
 }
 
 templ InteractivePiePage(fragment bool) {
@@ -193,6 +322,31 @@ templ InteractiveBoxPlotPage(fragment bool) {
 	@layout("Interactive box plot", "interactive-boxplot", interactiveChartBoxPlotContent(), fragment)
 }
 
+templ InteractiveCandlestickPage(fragment bool) {
+	@layout("Interactive candlestick", "interactive-candlestick", interactiveCandlestickContent(), fragment)
+}
+
+templ interactiveCandlestickContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive candlestick",
+		Description: "Reusable interactive candlestick component for inspecting aligned open, close, low, and high observations with typed zoom and reference marks.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Inspect OHLC movement across ordered dates with inside and slider zoom.", "Primitive", "interactive.Candlestick", "Kind", "components.KindInteractiveCandlestick", "Configuration", "Label, Caption, aligned Categories and named Series of typed Candle values, rise/fall semantic classes or colors, geometry, highest/lowest marks, typed chart, axis, tooltip and data-zoom options, size, controls, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded adjacent table preserves exact OHLC values, direction text, and semantic classes without relying on candle color."),
+			Preview: sampleInteractiveCandlestick(),
+			Code: interactiveCandlestickCode(),
+		},
+		Sections: []componentpage.Example{
+			{
+				Title: "Explicit direction style",
+				Description: "Caller colors, border colors, and semantic classes preserve the pinned source treatment while remaining renderer-neutral typed options on the same component.",
+				Preview: sampleInteractiveCandlestickUpstreamStyle(),
+				Code: interactiveCandlestickStyleCode(),
+			},
+		},
+		After: demoNote("OHLC and interaction contract", "Every finite Candle satisfies Low <= Open/Close <= High. Slider, inside, combined X-axis, and Y-axis zoom remain typed variants on the same component. Rise/fall classes and colors are optional; Goshtoso and AraiHu light/dark semantic defaults remain readable and distinct."),
+	})
+}
+
 templ interactiveChartBoxPlotContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive box plot",
@@ -213,18 +367,245 @@ templ InteractiveGaugePage(fragment bool) {
 templ interactiveChartGaugeContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Interactive gauge",
-		Description: "Reusable interactive gauge component for bounded readings, with standard and progress treatments under one stable component contract.",
+		Description: "Reusable interactive gauge component for bounded readings, with standard, progress, and liquid treatments under one stable component contract.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Show one or more current readings against an explicit bounded range.", "Primitive", "interactive.Gauge", "Kind", "components.KindInteractiveGauge", "Configuration", "Label, Caption, standard or progress Variant, Min and Max, typed Series and readings, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. State current values and the range in adjacent content when exact readings matter."),
-			Preview: interactive.Gauge(sampleInteractiveGauge()),
+			AbovePreview: componentContract("Purpose", "Show one or more current readings against an explicit bounded range.", "Primitive", "interactive.Gauge", "Kind", "components.KindInteractiveGauge", "Configuration", "Label, Caption, standard, progress, or liquid Variant, Min and Max, typed Series/readings, dial Scale, typed Liquid wave, shape, outline, background, label, and style options, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Liquid variants include an adjacent exact reading and range summary; every treatment remains color-independent."),
+			Preview: interactiveGaugeVariants(),
 			Code: interactiveChartGaugeCode(),
 		},
-		After: demoNote("Variant contract", "GaugeVariantStandard is the zero-value default and Max defaults to 100. GaugeVariantProgress changes the visual treatment while the constructor, config, Instance, and stable Kind remain the same."),
+		After: interactiveGaugeUsage(),
 	})
+}
+
+templ interactiveGaugeVariants() {
+	<div class="space-y-8">
+		<div data-gauge-variant="progress">@interactive.Gauge(sampleInteractiveGauge())</div>
+		<div class="flex flex-wrap gap-6" data-gauge-liquid-variants>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="basic">@interactive.Gauge(sampleInteractiveLiquidGauge("basic liquid example", interactive.GaugeLiquidShapeCircle, false, false, interactive.Bool(true)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="label">@interactive.Gauge(sampleInteractiveLiquidGauge("show label", interactive.GaugeLiquidShapeCircle, true, false, interactive.Bool(true)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="outline">@interactive.Gauge(sampleInteractiveLiquidGauge("show outline", interactive.GaugeLiquidShapeCircle, true, true, interactive.Bool(true)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="static">@interactive.Gauge(sampleInteractiveLiquidGauge("disable wave animation", interactive.GaugeLiquidShapeCircle, true, true, interactive.Bool(false)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="diamond">@interactive.Gauge(sampleInteractiveLiquidGauge("shape(Diamond)", interactive.GaugeLiquidShapeDiamond, false, false, interactive.Bool(true)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="pin">@interactive.Gauge(sampleInteractiveLiquidGauge("shape(Pin)", interactive.GaugeLiquidShapePin, false, false, interactive.Bool(true)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="arrow">@interactive.Gauge(sampleInteractiveLiquidGauge("shape(Arrow)", interactive.GaugeLiquidShapeArrow, false, false, interactive.Bool(true)))</div>
+			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="triangle">@interactive.Gauge(sampleInteractiveLiquidGauge("shape(Triangle)", interactive.GaugeLiquidShapeTriangle, false, false, interactive.Bool(true)))</div>
+		</div>
+	</div>
+}
+
+templ interactiveGaugeUsage() {
+	<div class="space-y-4">
+		@demoNote("Variant contract", "GaugeVariantStandard is the zero-value default and Max defaults to 100. Progress and liquid change visual treatment while Gauge, GaugeConfig, Instance, route, navigation entry, and stable Kind remain the same. Liquid readings normalize privately from Min and Max; wave count equals reading count.")
+		@codeblock.CodeBlock(gettingStartedCodeBlock("templ", "Liquid Gauge usage", interactiveGaugeLiquidCode()))
+	</div>
 }
 
 templ InteractiveFunnelPage(fragment bool) {
 	@layout("Interactive funnel", "interactive-funnel", interactiveChartFunnelContent(), fragment)
+}
+
+templ InteractiveGraphPage(fragment bool) {
+	@layout("Interactive graph", "interactive-graph", interactiveGraphContent(), fragment)
+}
+
+templ interactiveGraphContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive graph",
+		Description: "Reusable relationship graph for connected entities, categories, and weighted links under one renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Explore relationships, neighborhoods, and topology among named entities.", "Primitive", "interactive.Graph", "Kind", "components.KindInteractiveGraph", "Configuration", "Label, Caption, typed Nodes, Links, Categories, layout, roam, force options, size, chart options, series options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Pair the canvas with a textual relationship summary when exact topology matters."),
+			Preview: sampleInteractiveGraph(),
+			Code: interactiveGraphCode(),
+		},
+		After: demoNote("Layout contract", "Force is the zero-value default. Fixed-coordinate and circular layouts remain variants of the same Graph component."),
+	})
+}
+
+templ InteractiveSankeyPage(fragment bool) {
+	@layout("Interactive Sankey", "interactive-sankey", interactiveSankeyContent(), fragment)
+}
+
+templ interactiveSankeyContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive Sankey",
+		Description: "Reusable flow chart for weighted movement between named stages under one renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Show how quantities move, split, and converge across named stages.", "Primitive", "interactive.Sankey", "Kind", "components.KindInteractiveSankey", "Configuration", "Label, Caption, typed Series, Nodes, Links, orientation, alignment, node sizing, chart options, series options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve the weighted links in adjacent text or a table when exact flow values matter."),
+			Preview: sampleInteractiveSankey(),
+			Code: interactiveSankeyCode(),
+		},
+		After: demoNote("Flow contract", "Nodes are uniquely named within each series. Every weighted link references declared source and target nodes."),
+	})
+}
+
+templ InteractiveTreePage(fragment bool) {
+	@layout("Interactive tree", "interactive-tree", interactiveTreeContent(), fragment)
+}
+
+templ InteractiveSunburstPage(fragment bool) {
+	@layout("Interactive sunburst", "interactive-sunburst", interactiveSunburstContent(), fragment)
+}
+
+templ InteractiveTreemapPage(fragment bool) {
+	@layout("Interactive treemap", "interactive-treemap", interactiveTreemapContent(), fragment)
+}
+
+templ InteractiveThemeRiverPage(fragment bool) {
+	@layout("Interactive theme river", "interactive-theme-river", interactiveThemeRiverContent(), fragment)
+}
+
+templ InteractiveWordCloudPage(fragment bool) {
+	@layout("Interactive word cloud", "interactive-word-cloud", interactiveWordCloudContent(), fragment)
+}
+
+templ InteractiveMapPage(fragment bool) {
+	@layout("Interactive map", "interactive-map", interactiveMapContent(), fragment)
+}
+
+templ InteractiveGeoPage(fragment bool) {
+	@layout("Interactive geo", "interactive-geo", interactiveGeoContent(), fragment)
+}
+
+templ interactiveGeoContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive geo",
+		Description: "Reusable coordinate series over registered national or regional geometry with one typed, renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Plot named longitude, latitude, and value tuples over geographic geometry.", "Primitive", "interactive.Geo", "Kind", "components.KindInteractiveGeo", "Configuration", "Label, Caption, typed Geometry, VisualRange, GeoSeries kind and points, ripple, labels, size, renderer-neutral ChartOptions and SeriesOptions, semantic Color or Class paint, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Every variant includes a bounded exact series, point, coordinate, value, and semantic-class table."),
+			Preview: interactiveGeoVariants(),
+			Code: interactiveGeoCode(),
+		},
+		After: demoNote("Geometry contract", "Geo plots coordinate series over registered geometry; Map remains the region-value choropleth component. Brazil effect scatter and São Paulo scatter stay variants on one Geo identity. Local Brazil-state and São Paulo-municipality geometry resources are reused without a default network request."),
+	})
+}
+
+templ interactiveGeoVariants() {
+	<div class="flex flex-wrap gap-6" data-geo-variants>
+		for _, variant := range sampleInteractiveGeos() {
+			<div class="min-w-0 flex-[1_1_24rem]" data-geo-variant={ variant.name }>
+				@variant.chart
+			</div>
+		}
+	</div>
+}
+
+templ interactiveMapContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive map",
+		Description: "Reusable geographic values across national and regional geometry with one typed, renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare named values across geographic regions.", "Primitive", "interactive.Map", "Kind", "components.KindInteractiveMap", "Configuration", "Label, Caption, typed Geometry, Variant, Series and Region values, optional labels, continuous Scale, size, semantic classes or explicit colors, root attributes, controls, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Every variant includes a bounded exact region, value, and semantic-class table."),
+			Preview: interactiveMapVariants(),
+			Code: interactiveMapCode(),
+		},
+		After: demoNote("Geometry contract", "Brazil state geometry ships locally by default. Basic, labels, continuous scale, regional focus, and theme-aware behavior remain variants and options on one Map component. Consumer flex layout owns placement; each map owns only its responsive renderer surface."),
+	})
+}
+
+templ interactiveMapVariants() {
+	<div class="flex flex-wrap gap-6" data-map-variants>
+		for _, variant := range sampleInteractiveMaps() {
+			<div class="min-w-0 flex-[1_1_24rem]" data-map-variant={ string(variant.variant) }>
+				@variant.chart
+			</div>
+		}
+	</div>
+}
+
+templ interactiveWordCloudContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive word cloud",
+		Description: "Reusable weighted word layouts with typed silhouettes, deterministic data order, and renderer-neutral styling.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare relative prominence across a bounded set of named weighted terms.", "Primitive", "interactive.WordCloud", "Kind", "components.KindInteractiveWordCloud", "Configuration", "Label, Caption, typed Word and Series values, shape, size range, rotation, grid, draw-out-of-bound, layout animation, percentage layout, tooltip, controls, semantic classes or explicit colors, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Each variant includes a bounded exact word, value, and semantic-class list."),
+			Preview: wordCloudVariants(),
+			Code: interactiveWordCloudCode(),
+		},
+		After: demoNote("Variant contract", "Circle, cardioid, and star remain typed Shape options on one WordCloud component. The consumer-owned flex wrapper controls page layout; each chart owns only its responsive renderer surface."),
+	})
+}
+
+templ wordCloudVariants() {
+	<div class="flex flex-wrap gap-6" data-word-cloud-variants>
+		<div class="min-w-0 flex-[1_1_20rem]" data-word-cloud-variant="circle">
+			@sampleInteractiveWordCloud("basic WordCloud example", interactive.WordCloudShapeCircle)
+		</div>
+		<div class="min-w-0 flex-[1_1_20rem]" data-word-cloud-variant="cardioid">
+			@sampleInteractiveWordCloud("cardioid shape", interactive.WordCloudShapeCardioid)
+		</div>
+		<div class="min-w-0 flex-[1_1_20rem]" data-word-cloud-variant="star">
+			@sampleInteractiveWordCloud("star shape", interactive.WordCloudShapeStar)
+		</div>
+	</div>
+}
+
+templ interactiveThemeRiverContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive theme river",
+		Description: "Reusable temporal stream graph for comparing how named categories rise, fall, and overlap across aligned dates.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare evolving magnitude across named temporal streams while preserving their shared shape.", "Primitive", "interactive.ThemeRiver", "Kind", "components.KindInteractiveThemeRiver", "Configuration", "Label, Caption, typed named Streams and time Points, semantic classes or explicit colors, axis layout, boundary gap, labels, size, renderer-neutral title, legend, tooltip, controls, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded adjacent table preserves dates, stream names, exact values, and semantic classes."),
+			Preview: sampleInteractiveThemeRiver(),
+			Code: interactiveThemeRiverCode(),
+		},
+		After: demoNote("Temporal contract", "Every stream has one finite nonnegative value for each shared strictly increasing date. Streams remain one component; palette, labels, axis insets, and boundary gap are typed options."),
+	})
+}
+
+templ InteractiveParallelPage(fragment bool) {
+	@layout("Interactive parallel coordinates", "interactive-parallel", interactiveParallelContent(), fragment)
+}
+
+templ interactiveParallelContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive parallel coordinates",
+		Description: "Reusable multivariate profiles across ordered numeric and categorical dimensions under one renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare many observations across the same ordered dimensions and reveal multivariate profiles.", "Primitive", "interactive.Parallel", "Kind", "components.KindInteractiveParallel", "Configuration", "Label, Caption, typed unique Dimensions with numeric ranges or categorical values, aligned named Series and Observations, semantic classes or explicit colors, percentage layout, axis labels and lines, smoothing, inactive opacity, size, chart options, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded adjacent table preserves series and observation names, every exact dimension value, and semantic classes without relying on line color."),
+			Preview: sampleInteractiveParallel(),
+			Code: interactiveParallelCode(),
+		},
+		After: demoNote("Dimension contract", "Dimension names and series names are unique. Every observation supplies exactly one typed value per dimension; numeric values must be finite and within declared bounds, while categorical values must name a declared category."),
+	})
+}
+
+templ interactiveTreemapContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive treemap",
+		Description: "Reusable space-filling hierarchy for comparing weighted branches and focusing nested rectangles under one renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Explore weighted recursive hierarchies while using area to compare leaves and branch totals.", "Primitive", "interactive.Treemap", "Kind", "components.KindInteractiveTreemap", "Configuration", "Label, Caption, typed recursive Nodes, semantic class or color, drill-down navigation, roam, breadcrumb, labels, borders and gaps, optional leaf depth, levels, size, renderer-neutral chart options, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded adjacent table preserves node paths, parents, computed branch totals, leaf values, and semantic classes."),
+			Preview: sampleInteractiveTreemap(),
+			Code: interactiveTreemapCode(),
+		},
+		After: demoNote("Hierarchy contract", "Leaf values must be finite and nonnegative. Parent values stay zero because child values determine parent area. Drill-down and breadcrumb back-navigation update the same chart instance."),
+	})
+}
+
+templ interactiveSunburstContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive sunburst",
+		Description: "Reusable radial hierarchy for comparing weighted parent-child sectors and focusing nested branches under one renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Explore weighted recursive hierarchies as concentric sectors.", "Primitive", "interactive.Sunburst", "Kind", "components.KindInteractiveSunburst", "Configuration", "Label, Caption, typed recursive Nodes, drill-down navigation, sibling ordering, labels, inner and outer radii, size, renderer-neutral chart options, root class and attributes, and chart palette with explicit colors.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent exact-value table preserves every node path, parent, and value."),
+			Preview: sampleInteractiveSunburst(),
+			Code: interactiveSunburstCode(),
+		},
+		After: demoNote("Hierarchy contract", "Drill-down with center-back navigation and descending sibling order are zero-value defaults. Disable navigation or preserve caller order with typed options on the same Sunburst component."),
+	})
+}
+
+templ interactiveTreeContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Interactive tree",
+		Description: "Reusable hierarchy for parent-child relationships, layered or radial arrangement, and progressive disclosure under one renderer-neutral contract.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Explore ownership, taxonomy, ancestry, or other recursive parent-child structures.", "Primitive", "interactive.Tree", "Kind", "components.KindInteractiveTree", "Configuration", "Label, Caption, typed recursive Roots, layout, orientation, initial depth, collapsed nodes, labels, roam, symbols, insets, size, chart options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve every node name, value, and parent-child path in adjacent text or a table when exact data matters."),
+			Preview: sampleInteractiveTree(),
+			Code: interactiveTreeCode(),
+		},
+		After: demoNote("Hierarchy contract", "Layered is the zero-value layout; radial remains a variant of the same Tree component. InitialDepth and per-node Collapsed state control initial disclosure. Keep an adjacent nested list or table as the exact-data source."),
+	})
 }
 
 templ interactiveChartFunnelContent() {
@@ -243,13 +624,151 @@ templ interactiveChartFunnelContent() {
 templ pieContent() {
 	@componentpage.Page(componentpage.Config{
 		Title: "Pie chart",
-		Description: "Categorical SSR SVG for compact part-to-whole summaries. Use it when the category count stays small and a total supports comparison.",
+		Description: "Categorical SSR SVG for compact part-to-whole summaries, with full pie and doughnut treatments on one typed component.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Summarize a small categorical status distribution as parts of a total.", "Primitive", "pie.Pie", "Kind", "components.KindPieChart", "Configuration", "Label, Caption, named Slices, optional Width, and Height.", "Accessibility", "Figure name comes from Label; Caption stays visible. Keep an adjacent table or text summary when exact values are needed."),
+			AbovePreview: componentContract("Purpose", "Summarize a small categorical distribution as parts of a total.", "Primitive", "pie.Pie", "Kind", "components.KindPieChart", "Configuration", "Label, Caption, named Slices, typed pie or doughnut Variant, validated inner radius, title, legend, padding, dimensions, root attributes, controls, export, and chart style.", "Accessibility", "Figure name comes from Label; Caption stays visible. An adjacent table always preserves exact values and shares."),
 			Preview: pie.Pie(sampleObservationStates()),
 			Code: pieCode(),
 		},
-		After: demoNote("Use case", "Use pie charts for bounded status breakdowns, not ordered time-series data. Aggregate domain data at the application view-model boundary."),
+		Sections: []componentpage.Example{
+			{
+				Title: "Doughnut treatment",
+				Description: "Open the center with a validated inner radius while preserving the same slice semantics, exact-value summary, theme tokens, controls, and exports.",
+				RootAttrs: templ.Attributes{"data-goshtoso-candidate": "pie-doughnut-b97bca2322e90e2f"},
+				Preview: pie.Pie(sampleDoughnutChart()),
+				Code: doughnutCode(),
+			},
+		},
+		After: demoNote("Treatment contract", "Pie is the zero-value treatment. Doughnut changes only center geometry and remains the same Pie component, stable Kind, route, and catalog entry."),
+	})
+}
+
+templ scatterContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Scatter chart",
+		Description: "Dense categorical SSR SVG for repeated observations, trends, clusters, and outliers across an explicit ordered set of keys.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare dense or sparse distributions across ordered categories without browser rendering.", "Primitive", "scatter.Scatter", "Kind", "components.KindScatterChart", "Configuration", "Label, Caption, ordered Categories, named Series with sparse Points or aligned multi-sample Values, typed trend/reference/axis/legend/title/padding/marker/value-format options, dimensions, root attributes, and chart palette.", "Accessibility", "Figure name comes from Label; Caption stays bounded and visible. Applications provide an adjacent exact-data table, download, or drill-down when all samples matter; the chart never expands thousands of points into DOM text."),
+			Preview: scatter.Scatter(sampleDenseScatter()),
+			Code: scatterCode(),
+		},
+		After: demoNote("Dense category contract", "This preview adapts upstream examples/1-Painter/scatter_chart-3-dense_data/main.go with a fixed local RNG seed: three 1,000-category bounded random walks, repeated samples, SMA(100), maximum references, compact axes and legend. Categories define aligned slots; Values permits zero, one, or multiple samples without repeated category lookups. Sparse Points remains supported but cannot be mixed within one series."),
+	})
+}
+
+templ radarContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Radar chart",
+		Description: "SSR SVG for comparing a small number of profiles across shared bounded dimensions.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare named profiles across the same bounded dimensions without browser rendering.", "Primitive", "radar.Radar", "Kind", "components.KindRadarChart", "Configuration", "Label, Caption, named Indicators with maxima, named aligned Series, typed radius and value-label options, Width, Height, root class and attributes, and chart palette with explicit colors.", "Accessibility", "Figure name comes from Label; Caption stays visible. An adjacent disclosure preserves indicator maxima and every exact series value."),
+			Preview: radar.Radar(sampleBasicRadar()),
+			Code: radarCode(),
+		},
+		Sections: []componentpage.Example{
+			{
+				Title: "Explicit presentation overrides",
+				Description: "Caller colors, root classes, radius, and vertex labels remain typed options on the same component.",
+				Preview: radar.Radar(sampleBasicRadarOverride()),
+				Code: radarOverrideCode(),
+			},
+		},
+		After: demoNote("Radar contract", "Indicators define caller order and positive maxima. Every named series supplies one finite, non-negative value per indicator and may not exceed that indicator maximum."),
+	})
+}
+
+templ candlestickContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Candlestick",
+		Description: "SSR SVG for ordered open-high-low-close observations, using conventional increase and decrease treatments.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare open, high, low, and close values across ordered categories or times without browser rendering.", "Primitive", "candlestick.Candlestick", "Kind", "components.KindCandlestickChart", "Configuration", "Label, Caption, renderer-neutral Title and Axis labels, SeriesName, typed OHLC Data, close TrendLines, presentation Options, Width, Height, root class and attributes, chart palette, and shared controls/export.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent disclosure states direction in text and preserves every exact OHLC and computed trend value."),
+			Preview: candlestick.Candlestick(sampleBasicCandlestick()),
+			Code: candlestickCode(),
+		},
+		Sections: []componentpage.Example{
+			{
+				Title: "Bollinger Bands",
+				Description: "Twenty OHLC observations with period-five upper, middle, and lower close-price trends. Distinct accessible theme tokens adapt across Goshtoso and AraiHu light and dark modes.",
+				Preview: candlestick.Candlestick(sampleCandlestickBollingerBands()),
+				Code: candlestickBollingerCode(),
+			},
+			{
+				Title: "Presentation overrides",
+				Description: "Caller colors or classes may style candle directions and individual trend lines; each mark accepts one override mechanism at a time.",
+				Preview: candlestick.Candlestick(sampleCandlestickPresentationOverrides()),
+				Code: candlestickPresentationCode(),
+			},
+		},
+		After: demoNote("OHLC contract", "Each finite datum satisfies Low <= Open/Close <= High. Close greater than or equal to open is stated as Increase; a lower close is stated as Decrease, so meaning never depends on color alone."),
+	})
+}
+
+templ funnelContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Funnel chart",
+		Description: "SSR SVG for ordered stages whose non-increasing values narrow from the first stage to the last.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Show progressive reduction through a small ordered sequence without browser rendering.", "Primitive", "funnel.Funnel", "Kind", "components.KindFunnelChart", "Configuration", "Label, Caption, Title, typed Stages with caller Color and Class, typed label and legend options, chart and legend Padding, Width, Height, root attributes, palette, and shared controls/export options.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent disclosure preserves every exact stage value and its share of the first stage."),
+			Preview: funnel.Funnel(sampleBasicFunnel()),
+			Code: funnelCode(),
+		},
+		After: demoNote("Funnel contract", "Stages keep caller order, use unique non-empty labels, and carry finite non-negative values that never increase. Label variants and legend layout remain options on one component."),
+	})
+}
+
+templ heatMapContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Heat map",
+		Description: "Categorical SSR SVG for comparing values across a two-dimensional matrix with a sequential color scale.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare magnitude across the intersections of two ordered categorical axes.", "Primitive", "heatmap.HeatMap", "Kind", "components.KindHeatMapChart", "Configuration", "Label, Caption, Title, typed XAxis and YAxis labels, either a complete Rows matrix or indexed Cells, finite ValueRange, theme-aware sequential Gradient, dimensions, root attributes, and shared controls/export options.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded exact-value table preserves axis labels and numeric values so color is never the only signal."),
+			Preview: heatmap.HeatMap(sampleBasicHeatMap()),
+			Code: heatMapCode(),
+		},
+		Sections: []componentpage.Example{
+			{
+				Title: "Custom semantic scale",
+				Description: "Ordered stops accept renderer-neutral CSS colors and semantic classes; Reverse swaps scale direction on the same component.",
+				Preview: heatmap.HeatMap(sampleBasicHeatMapOverride()),
+				Code: heatMapOverrideCode(),
+			},
+		},
+		After: demoNote("Matrix contract", "Rows use Y-major order and contain one finite value for every X label. Indexed Cells cover the same complete matrix exactly once. The zero-value gradient is theme-aware cold to warm; every value remains inside the explicit range."),
+	})
+}
+
+templ tableContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Table",
+		Description: "SSR SVG for compact tabular presentation with weighted columns, alignment, semantic theme colors, and typed per-cell presentation.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Present aligned text values in a static vector table without browser rendering.", "Primitive", "table.Table", "Kind", "components.KindTable", "Configuration", "Label, Caption, typed Columns with width spans and alignment, Rows, optional Width, Padding, FontSize, semantic Colors, CellStyle, root class and attributes.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent semantic HTML table preserves headers and every cell value."),
+			Preview: charttable.Table(samplePeopleTable()),
+			Code: tableCode(),
+		},
+		Sections: []componentpage.Example{
+			{
+				Title: "Explicit presentation overrides",
+				Description: "Caller colors, numeric alignment, and typed per-cell backgrounds remain options on the same Table component.",
+				Preview: charttable.Table(sampleMarketTable()),
+				Code: marketTableCode(),
+			},
+		},
+		After: demoNote("Table contract", "Every row supplies exactly one string value per named column. Span controls relative width, alignment is typed, and cell meaning remains available in the adjacent semantic table without depending on color."),
+	})
+}
+
+templ violinContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Violin chart",
+		Description: "SSR SVG for comparing complete distribution shapes, centers, spread, skew, and multimodality from exact named samples.",
+		Primary: componentpage.Example{
+			AbovePreview: componentContract("Purpose", "Compare probability-density shapes across named sample populations without browser rendering.", "Primitive", "violin.Violin", "Kind", "components.KindViolinChart", "Configuration", "Label, Caption, Title, typed named sample Series, deterministic density point count, bandwidth and normalization, typed mean and median mark lines, typed quantile summaries, axis, padding, dimensions, semantic classes, explicit colors, root attributes, chart style, and shared controls/export.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent exact statistical summary preserves sample count, minimum, quartiles, median, mean, and maximum without relying on shape or color."),
+			Preview: violin.Violin(sampleDistributionShapes()),
+			Code: violinCode(),
+		},
+		After: demoNote("Distribution contract", "This deterministic four-distribution sample preserves 200 observations per series, 80 Gaussian density bands, 1200 x 800 dimensions, right-side labels, and mean markers. Median markers and quartile summaries remain typed variants on the same component."),
 	})
 }
 
@@ -258,58 +777,61 @@ templ lineContent() {
 		Title: "Line chart",
 		Description: "Quantitative SSR SVG for latency, queue depth, or any ordered numeric series. Renderer stays Go-native; surrounding panel stays application-owned.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Summarize one or more ordered numeric series without browser rendering.", "Primitive", "line.Line", "Kind", "components.KindLineChart", "Configuration", "Label, Caption, axis Labels, named Series, optional Width, and Height.", "Accessibility", "Figure name comes from Label; Caption stays visible. Keep an adjacent table or text summary when exact values are needed."),
+			AbovePreview: componentContract("Purpose", "Summarize one or more ordered numeric series without browser rendering.", "Primitive", "line.Line", "Kind", "components.KindLineChart", "Configuration", "Label, Caption, typed Title, axis Labels, named Series, optional filled Area, XAxis boundary gap, Legend padding, one or two YAxes with finite ranges and units, Width, Height, chart palette, and shared controls/export.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent table maps every exact value to its named series and Y axis."),
 			Preview: line.Line(sampleLatency()),
 			Code: lineCode(),
 		},
-		After: demoNote("Theme contract", "Line and heartbeat resolve Goshtoso semantic CSS tokens at display time. One SSR response follows every built-in theme and its dark mode; no browser chart renderer is involved."),
+		Sections: []componentpage.Example{
+			{
+				Title: "Filled area treatment",
+				Description: "Theme-aware fill adds magnitude emphasis while preserving the same ordered Line semantics and exact values.",
+				Preview: areaLineCandidate(),
+				Code: areaLineCode(),
+			},
+			{
+				Title: "Dual Y-axis treatment",
+				Description: "Two series retain independent theme-matched left and right scales while remaining one Line component.",
+				Preview: dualAxisLineCandidate(),
+				Code: dualAxisLineCode(),
+			},
+			{
+				Title: "Presentation overrides",
+				Description: "Series and axes accept either a caller color or semantic class at each boundary.",
+				Preview: line.Line(sampleDualAxisLineOverrides()),
+				Code: dualAxisLineOverridesCode(),
+			},
+		},
+		After: demoNote("Theme contract", "Static line charts resolve Goshtoso semantic CSS tokens at display time. One SSR response follows every built-in theme and its dark mode; no browser chart renderer is involved."),
 	})
 }
 
-templ StatusPageExample(fragment bool) {
-	@layout("Status page example", "status-page", statusPageContent(), fragment)
-}
-
-templ statusPageContent() {
-	<section class="space-y-2">
-		<p class="text-sm font-semibold text-primary dark:text-primary-dark">Examples / Xisnove</p>
-		<h1 class="font-title text-3xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Status page example</h1>
-		<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">Chart package stays generic. Xisnove maps its monitor and retained-observation projections at view-model boundary.</p>
-	</section>
-	<section class="space-y-4" aria-label="Example monitor status">
-		@statusMonitor("Public API", badge.ToneSuccess, "Operational", heartbeat.Heartbeat(sampleHeartbeat()))
-		@statusMonitor("DNS resolution", badge.ToneWarning, "Degraded", heartbeat.Heartbeat(sampleDegradedHeartbeat()))
-		@statusMonitor("Webhook delivery", badge.ToneDanger, "Incident open", heartbeat.Heartbeat(sampleFailedHeartbeat()))
-	</section>
-}
-
-templ statusMonitor(name string, tone badge.Tone, state string, chart templ.Component) {
-	@panel.Panel(panel.Config{Header: statusHeader(name, tone, state)}) {
-		@chart
-	}
-}
-
-templ statusHeader(name string, tone badge.Tone, state string) {
-	<div class="flex flex-wrap items-center gap-2">
-		<h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">{ name }</h2>
-		@badge.Badge(badge.Config{Label: state, Tone: tone})
+templ areaLineCandidate() {
+	<div data-goshtoso-candidate="line-area-b2d7b87ff675f437">
+		@line.Line(sampleAreaLine())
 	</div>
 }
 
-templ overviewHeartbeatHeader() {
-	<div><h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Availability</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Heartbeat primitive</p></div>
+templ dualAxisLineCandidate() {
+	<div data-goshtoso-candidate="line-dual-axis-78a3edd9aa356dc7">
+		@line.Line(sampleDualAxisLine())
+	</div>
 }
 
-templ overviewLineHeader() {
-	<div><h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Latency</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Line primitive</p></div>
+templ LiveAvailabilityExample(fragment bool) {
+	@layout("Live availability", "live-availability", liveAvailabilityContent(), fragment)
 }
 
-templ overviewBarHeader() {
-	<div><h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Deployments</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Bar primitive</p></div>
-}
-
-templ overviewPieHeader() {
-	<div><h2 class="text-lg font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Observation states</h2><p class="mt-1 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Pie primitive</p></div>
+templ liveAvailabilityContent() {
+	@componentpage.Page(componentpage.Config{
+		Title: "Live availability",
+		Description: "An application example built from the generic interactive Bar component and renderer-neutral server-sent event snapshots.",
+		Primary: componentpage.Example{
+			AbovePreview: demoNote("Live-data contract", "Bar and Line accept an opt-in LiveData source. Each SSE event carries a complete CartesianSnapshot, so reconnects replace stale client state deterministically."),
+			Preview: interactive.Bar(sampleLiveAvailability()),
+			Code: liveAvailabilityCode(),
+		},
+		After: demoNote("Application semantics", "Availability states belong to this example, not the chart taxonomy. Narrow stacked bars express checks while text and legend preserve state meaning without relying on color alone."),
+	})
 }
 
 templ demoNote(title string, text string) {

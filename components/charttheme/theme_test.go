@@ -34,6 +34,18 @@ func TestAutoUsesBoldLiteralFallback(t *testing.T) {
 	}
 }
 
+func TestStatusPaletteUsesSemanticOrderAndRootClass(t *testing.T) {
+	t.Parallel()
+	style := Style{Palette: PaletteStatus, Colors: []string{"#123456"}, Class: "custom-status-chart"}
+	colors := style.ResolvedColors()
+	if len(colors) != 8 || colors[0] != "#123456" || colors[1] != "#d97706" || colors[2] != "#dc2626" {
+		t.Fatalf("status colors = %#v", colors)
+	}
+	if got := style.RootClasses("chart"); got != "chart goshtoso-charts-palette goshtoso-charts-palette-status custom-status-chart" {
+		t.Fatalf("status classes = %q", got)
+	}
+}
+
 func TestStylesExposeLightAndDarkSemanticChartTokens(t *testing.T) {
 	t.Parallel()
 	var output bytes.Buffer
@@ -52,13 +64,116 @@ func TestStylesExposeLightAndDarkSemanticChartTokens(t *testing.T) {
 		`--color-chart-text: var(--color-on-surface)`,
 		`--color-chart-text-strong: var(--color-on-surface-strong`,
 		`--color-chart-text-muted: var(--color-on-surface-muted`,
+		`--color-chart-scale-low:`,
+		`--color-chart-scale-mid:`,
+		`--color-chart-scale-high:`,
+		`--color-chart-scale-low: var(--color-cyan-300, #67e8f9)`,
+		`--color-chart-scale-mid: var(--color-amber-400, #fbbf24)`,
+		`--color-chart-scale-high: var(--color-red-600, #dc2626)`,
+		`--color-chart-scale-low: var(--color-cyan-700, #0e7490)`,
+		`--color-chart-scale-high: var(--color-red-400, #f87171)`,
+		`.goshtoso-charts-palette-status`,
+		`--color-chart-series-1: color-mix(in srgb, var(--color-success, var(--color-green-600, #16a34a)) 80%`,
+		`--color-chart-series-2: color-mix(in srgb, var(--color-warning, var(--color-amber-600, #d97706)) 80%`,
+		`--color-chart-series-3: color-mix(in srgb, var(--color-danger, var(--color-red-600, #dc2626)) 80%`,
+		`.dark .goshtoso-charts-palette-status`,
+		`--color-chart-series-1: color-mix(in srgb, var(--color-success, var(--color-green-400, #4ade80)) 80%`,
 		`.dark .goshtoso-charts-palette`,
 		`--color-chart-surface: var(--color-surface-dark)`,
 		`--color-chart-text-strong: var(--color-on-surface-dark-strong`,
 		`--color-chart-text-muted: var(--color-on-surface-dark-muted`,
+		`[data-theme="araihu"] .goshtoso-charts-palette-auto`,
+		`--color-chart-series-1: var(--color-lime-700, #4d7c0f)`,
+		`--color-chart-series-1: var(--color-lime-400, #c7ff4a)`,
+		`--color-chart-scale-low: var(--color-sky-400`,
+		`--color-chart-scale-mid: var(--color-amber-500`,
+		`--color-chart-scale-high: var(--color-rose-600`,
+		`--color-chart-scale-high: var(--color-rose-400`,
+		`--color-chart-scale-mid: var(--color-amber-200`,
+		`.goshtoso-charts-scatter__viewport`,
+		`min-width: 36rem`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("theme styles missing %q", want)
+		}
+	}
+}
+
+func TestAraiHuAutoPaletteSplitsLightAndDarkSeriesOneWithoutChangingSemanticPalettes(t *testing.T) {
+	t.Parallel()
+	var output strings.Builder
+	if err := Styles().Render(context.Background(), &output); err != nil {
+		t.Fatalf("Styles().Render() error = %v", err)
+	}
+	markup := output.String()
+	lightStart := strings.Index(markup, `.goshtoso-charts-palette-araihu,`)
+	darkStart := strings.Index(markup, `.dark .goshtoso-charts-palette-araihu,`)
+	if lightStart == -1 || darkStart == -1 || darkStart <= lightStart {
+		t.Fatal("AraiHu light/dark palette rules are missing or unordered")
+	}
+	lightRule := markup[lightStart:darkStart]
+	darkRuleEnd := strings.Index(markup[darkStart:], `}`)
+	if darkRuleEnd == -1 {
+		t.Fatal("AraiHu dark palette rule is incomplete")
+	}
+	darkRule := markup[darkStart : darkStart+darkRuleEnd]
+	if !strings.Contains(lightRule, `--color-chart-series-1: var(--color-lime-700, #4d7c0f)`) || strings.Contains(lightRule, `--color-chart-series-1: var(--color-lime-400, #c7ff4a)`) {
+		t.Fatalf("AraiHu light series-1 token is not contrast-safe: %q", lightRule)
+	}
+	if !strings.Contains(darkRule, `--color-chart-series-1: var(--color-lime-400, #c7ff4a)`) || strings.Contains(darkRule, `--color-chart-series-1: var(--color-lime-700, #4d7c0f)`) {
+		t.Fatalf("AraiHu dark series-1 token does not restore bright lime: %q", darkRule)
+	}
+	for _, unchanged := range []string{
+		`--color-chart-series-2: var(--color-orange-400, #ff8a3d)`,
+		`--color-chart-scale-low: var(--color-sky-400, #38bdf8)`,
+		`--color-chart-scale-mid: var(--color-amber-500, #f59e0b)`,
+		`--color-chart-scale-high: var(--color-rose-600, #e11d48)`,
+		`--color-chart-series-1: color-mix(in srgb, var(--color-success`,
+		`--color-chart-series-2: color-mix(in srgb, var(--color-warning`,
+		`--color-chart-series-3: color-mix(in srgb, var(--color-danger`,
+	} {
+		if !strings.Contains(markup, unchanged) {
+			t.Errorf("unrelated semantic palette token changed or missing: %q", unchanged)
+		}
+	}
+}
+
+func TestStylesCenterInteractiveRendererHostWithoutSizingIt(t *testing.T) {
+	t.Parallel()
+	var output strings.Builder
+	if err := Styles().Render(context.Background(), &output); err != nil {
+		t.Fatalf("Styles().Render() error = %v", err)
+	}
+
+	markup := output.String()
+	containerRuleStart := strings.Index(markup, `.goshtoso-charts-interactive > .container`)
+	if containerRuleStart == -1 {
+		t.Fatal("shared interactive renderer container selector is missing")
+	}
+	containerRuleEnd := strings.Index(markup[containerRuleStart:], `}`)
+	if containerRuleEnd == -1 {
+		t.Fatal("shared interactive renderer container rule is incomplete")
+	}
+	containerRule := markup[containerRuleStart : containerRuleStart+containerRuleEnd]
+	if !strings.Contains(containerRule, `overflow-x: auto`) {
+		t.Fatalf("shared renderer container must contain narrow-screen overflow: %q", containerRule)
+	}
+
+	ruleStart := strings.Index(markup, `.goshtoso-charts-interactive > .container > .item`)
+	if ruleStart == -1 {
+		t.Fatal("shared interactive renderer-host selector is missing")
+	}
+	ruleEnd := strings.Index(markup[ruleStart:], `}`)
+	if ruleEnd == -1 {
+		t.Fatal("shared interactive renderer-host rule is incomplete")
+	}
+	rule := markup[ruleStart : ruleStart+ruleEnd]
+	if !strings.Contains(rule, `margin-inline: auto`) {
+		t.Fatalf("shared renderer-host rule does not center the host: %q", rule)
+	}
+	for _, forbidden := range []string{`width:`, `max-width:`, `min-width:`} {
+		if strings.Contains(rule, forbidden) {
+			t.Fatalf("shared renderer-host rule must preserve configured dimensions; found %q in %q", forbidden, rule)
 		}
 	}
 }

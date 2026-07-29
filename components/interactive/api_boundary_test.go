@@ -3,7 +3,9 @@ package interactive_test
 import (
 	"encoding/json"
 	"fmt"
+	"go/ast"
 	"go/importer"
+	"go/parser"
 	"go/token"
 	"go/types"
 	"io"
@@ -15,6 +17,83 @@ import (
 )
 
 const forbiddenAPIPackagePrefix = "github.com/go-echarts/"
+
+func TestPublicAPIIdentifiersAreRendererNeutral(t *testing.T) {
+	t.Parallel()
+
+	packages, err := parser.ParseDir(token.NewFileSet(), ".", func(info os.FileInfo) bool {
+		return !strings.HasSuffix(info.Name(), "_test.go")
+	}, 0)
+	if err != nil {
+		t.Fatalf("parse package: %v", err)
+	}
+	var leaks []string
+	for _, parsed := range packages {
+		for _, file := range parsed.Files {
+			ast.Inspect(file, func(node ast.Node) bool {
+				identifier, ok := node.(*ast.Ident)
+				if ok && token.IsExported(identifier.Name) && strings.Contains(strings.ToLower(identifier.Name), "echarts") {
+					leaks = append(leaks, identifier.Name)
+				}
+				return true
+			})
+		}
+	}
+	if len(leaks) != 0 {
+		t.Fatalf("public API names expose renderer implementation: %s", strings.Join(leaks, ", "))
+	}
+}
+
+func TestPublicAPIDocumentationIsRendererNeutral(t *testing.T) {
+	t.Parallel()
+
+	packages, err := parser.ParseDir(token.NewFileSet(), ".", func(info os.FileInfo) bool {
+		return !strings.HasSuffix(info.Name(), "_test.go")
+	}, parser.ParseComments)
+	if err != nil {
+		t.Fatalf("parse package comments: %v", err)
+	}
+	for _, parsed := range packages {
+		for _, file := range parsed.Files {
+			for _, declaration := range file.Decls {
+				switch current := declaration.(type) {
+				case *ast.FuncDecl:
+					if current.Name.IsExported() {
+						rejectRendererDoc(t, current.Name.Name, current.Doc)
+					}
+				case *ast.GenDecl:
+					for _, spec := range current.Specs {
+						switch value := spec.(type) {
+						case *ast.TypeSpec:
+							if value.Name.IsExported() {
+								rejectRendererDoc(t, value.Name.Name, value.Doc, current.Doc)
+							}
+						case *ast.ValueSpec:
+							for _, name := range value.Names {
+								if name.IsExported() {
+									rejectRendererDoc(t, name.Name, value.Doc, current.Doc)
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+func rejectRendererDoc(t *testing.T, name string, groups ...*ast.CommentGroup) {
+	t.Helper()
+	for _, group := range groups {
+		if group == nil {
+			continue
+		}
+		text := strings.ToLower(group.Text())
+		if strings.Contains(text, "echarts") || strings.Contains(text, "go-echarts") {
+			t.Errorf("public API documentation for %s exposes renderer implementation", name)
+		}
+	}
+}
 
 func TestPublicAPIDoesNotExposeGoEChartsTypes(t *testing.T) {
 	t.Parallel()

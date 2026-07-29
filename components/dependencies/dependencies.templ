@@ -1,0 +1,7 @@
+package dependencies
+
+templ dependenciesTemplate(cfg config) {
+	for _, script := range cfg.scripts() {
+		<script src={ script.url } { cfg.attributes(script)... }></script>
+	}
+}

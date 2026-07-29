@@ -5,6 +5,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/araihu/goshtoso-app-shells/componentdocshell"
+	"github.com/araihu/goshtoso-charts/components/dependencies"
 	"github.com/araihu/goshtoso-charts/site/internal/brand"
 	"github.com/araihu/goshtoso/components/sidebar"
 )
@@ -20,8 +21,8 @@ func shellPage(title string, active string, content templ.Component) componentdo
 		Description:   "Static vector and interactive chart components for Goshtoso applications.",
 		Active:        active,
 		Content:       content,
-		Head:          brand.Head(),
-		EnableTOC:     active == "heartbeat" || active == "line" || active == "bar" || active == "pie" || active == "interactive-bar" || active == "interactive-line",
+		Head:          templ.Join(brand.Head(), dependencies.Dependencies()),
+		EnableTOC:     active == "getting-started" || active == "line" || active == "bar" || active == "pie" || active == "scatter" || active == "radar" || active == "candlestick" || active == "funnel" || active == "heatmap" || active == "table" || active == "violin" || active == "interactive-bar" || active == "interactive-line" || active == "interactive-scatter-3d" || active == "interactive-bar-3d" || active == "interactive-surface-3d" || active == "interactive-line-3d" || active == "interactive-candlestick" || active == "interactive-tree" || active == "interactive-sunburst" || active == "interactive-treemap" || active == "interactive-parallel" || active == "interactive-theme-river" || active == "interactive-word-cloud" || active == "interactive-map" || active == "interactive-geo" || active == "live-availability",
 	}
 }
 
@@ -46,7 +47,7 @@ func shellConfig() componentdocshell.Config {
 func shellNavigation() componentdocshell.Navigation {
 	return componentdocshell.Navigation{
 		Items: []sidebar.Item{
-			{ID: "overview", Label: "Overview", Href: "/", Icon: sidebarOverviewIcon()},
+			{ID: "getting-started", Label: "Getting started", Href: "/", Icon: sidebarGettingStartedIcon()},
 			{ID: "attributions", Label: "Attributions", Href: "/attributions", Icon: sidebarAttributionsIcon()},
 		},
 		SectionsTitle: "Documentation",
@@ -54,10 +55,16 @@ func shellNavigation() componentdocshell.Navigation {
 			{
 				Title: "Static / Vector",
 				Items: []sidebar.Item{
-					{ID: "heartbeat", Label: "Heartbeat", Href: "/components/heartbeat"},
 					{ID: "line", Label: "Line chart", Href: "/components/line"},
 					{ID: "bar", Label: "Bar chart", Href: "/components/bar"},
 					{ID: "pie", Label: "Pie chart", Href: "/components/pie"},
+					{ID: "scatter", Label: "Scatter chart", Href: "/components/scatter"},
+					{ID: "radar", Label: "Radar chart", Href: "/components/radar"},
+					{ID: "candlestick", Label: "Candlestick", Href: "/components/candlestick"},
+					{ID: "funnel", Label: "Funnel chart", Href: "/components/funnel"},
+					{ID: "heatmap", Label: "Heat map", Href: "/components/heatmap"},
+					{ID: "table", Label: "Table", Href: "/components/table"},
+					{ID: "violin", Label: "Violin chart", Href: "/components/violin"},
 				},
 			},
 			{
@@ -66,7 +73,17 @@ func shellNavigation() componentdocshell.Navigation {
 					{ID: "interactive-bar", Label: "Bar", Href: "/components/interactive/bar"},
 					{ID: "interactive-line", Label: "Line", Href: "/components/interactive/line"},
 					{ID: "interactive-scatter", Label: "Scatter", Href: "/components/interactive/scatter"},
+					{ID: "interactive-candlestick", Label: "Candlestick", Href: "/components/interactive/candlestick"},
 					{ID: "interactive-heatmap", Label: "Heatmap", Href: "/components/interactive/heatmap"},
+				},
+			},
+			{
+				Title: "Interactive / 3D",
+				Items: []sidebar.Item{
+					{ID: "interactive-scatter-3d", Label: "Scatter 3D", Href: "/components/interactive/scatter-3d"},
+					{ID: "interactive-bar-3d", Label: "Bar 3D", Href: "/components/interactive/bar-3d"},
+					{ID: "interactive-surface-3d", Label: "Surface 3D", Href: "/components/interactive/surface-3d"},
+					{ID: "interactive-line-3d", Label: "Line 3D", Href: "/components/interactive/line-3d"},
 				},
 			},
 			{
@@ -77,12 +94,32 @@ func shellNavigation() componentdocshell.Navigation {
 					{ID: "interactive-boxplot", Label: "Box plot", Href: "/components/interactive/boxplot"},
 					{ID: "interactive-gauge", Label: "Gauge", Href: "/components/interactive/gauge"},
 					{ID: "interactive-funnel", Label: "Funnel", Href: "/components/interactive/funnel"},
+					{ID: "interactive-parallel", Label: "Parallel coordinates", Href: "/components/interactive/parallel"},
+					{ID: "interactive-theme-river", Label: "Theme river", Href: "/components/interactive/theme-river"},
+					{ID: "interactive-word-cloud", Label: "Word cloud", Href: "/components/interactive/word-cloud"},
+				},
+			},
+			{
+				Title: "Interactive / Geographic",
+				Items: []sidebar.Item{
+					{ID: "interactive-map", Label: "Map", Href: "/components/interactive/map"},
+					{ID: "interactive-geo", Label: "Geo", Href: "/components/interactive/geo"},
+				},
+			},
+			{
+				Title: "Interactive / Relationships",
+				Items: []sidebar.Item{
+					{ID: "interactive-graph", Label: "Graph", Href: "/components/interactive/graph"},
+					{ID: "interactive-sankey", Label: "Sankey", Href: "/components/interactive/sankey"},
+					{ID: "interactive-tree", Label: "Tree", Href: "/components/interactive/tree"},
+					{ID: "interactive-sunburst", Label: "Sunburst", Href: "/components/interactive/sunburst"},
+					{ID: "interactive-treemap", Label: "Treemap", Href: "/components/interactive/treemap"},
 				},
 			},
 			{
 				Title: "Examples",
 				Items: []sidebar.Item{
-					{ID: "status-page", Label: "Status page", Href: "/examples/status-page"},
+					{ID: "live-availability", Label: "Live availability", Href: "/examples/live-availability"},
 				},
 			},
 		},
