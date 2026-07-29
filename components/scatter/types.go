@@ -87,6 +87,8 @@ type ValueFormat string
 const (
 	ValueFormatDefault   ValueFormat = ""
 	ValueFormatHumanized ValueFormat = "humanized"
+	// ValueFormatInteger rounds rendered numeric labels to whole numbers.
+	ValueFormatInteger ValueFormat = "integer"
 )
 
 // CategoryAxisOptions controls dense categorical axis labels.
@@ -140,6 +142,7 @@ type LegendOptions struct {
 	Placement   HorizontalPlacement
 	Alignment   Alignment
 	FontSize    float64
+	Padding     Padding
 }
 
 // TitleOptions controls visible chart title placement.
@@ -147,6 +150,7 @@ type TitleOptions struct {
 	Text      string
 	Subtext   string
 	Placement HorizontalPlacement
+	FontSize  float64
 }
 
 // Padding is plot padding in pixels.
@@ -313,7 +317,7 @@ func (options Options) validate(prefix string) error {
 		return fmt.Errorf("%s has unsupported reference line %q", prefix, options.ReferenceLine)
 	}
 	switch options.ValueFormat {
-	case ValueFormatDefault, ValueFormatHumanized:
+	case ValueFormatDefault, ValueFormatHumanized, ValueFormatInteger:
 	default:
 		return fmt.Errorf("%s has unsupported value format %q", prefix, options.ValueFormat)
 	}
@@ -480,6 +484,12 @@ func (cfg Config) validateLayout() error {
 		return fmt.Errorf("scatter chart legend alignment %q is not supported", cfg.Legend.Alignment)
 	}
 	if err := finiteNonNegative("legend font size", cfg.Legend.FontSize); err != nil {
+		return err
+	}
+	if cfg.Legend.Padding.Top < 0 || cfg.Legend.Padding.Right < 0 || cfg.Legend.Padding.Bottom < 0 || cfg.Legend.Padding.Left < 0 {
+		return fmt.Errorf("scatter chart legend padding cannot be negative")
+	}
+	if err := finiteNonNegative("title font size", cfg.Title.FontSize); err != nil {
 		return err
 	}
 	if cfg.Padding.Top < 0 || cfg.Padding.Right < 0 || cfg.Padding.Bottom < 0 || cfg.Padding.Left < 0 {

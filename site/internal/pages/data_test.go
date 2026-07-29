@@ -533,11 +533,6 @@ func TestDenseScatterValuesAreDeterministicAndPreserveUpstreamDistribution(t *te
 
 func TestTopNScatterMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 	t.Parallel()
-	if topNScatterUpstreamPath != "examples/1-Painter/scatter_chart-4-top_n_labels/main.go" ||
-		topNScatterUpstreamRevision != "1fe31b06b8a82e00df877ff4417a75858547c1c2" ||
-		topNScatterUpstreamSHA256 != "cf92798819fbc010f44eaa406acabd337f16b52eec00793a10679e9c3b7cda81" {
-		t.Fatalf("top N scatter upstream source = %s@%s SHA-256 %s", topNScatterUpstreamPath, topNScatterUpstreamRevision, topNScatterUpstreamSHA256)
-	}
 	cfg := sampleTopNScatter()
 	if cfg.Title.Text != "Website Traffic Over 30 Days - Peak Days Highlighted" || cfg.Title.Subtext != "(Only top 5 traffic days show labels)" || !cfg.Legend.Hidden || cfg.Width != 800 || cfg.Height != 500 || cfg.Padding.Top != 20 || cfg.Padding.Right != 20 || cfg.Padding.Bottom != 20 || cfg.Padding.Left != 20 {
 		t.Fatalf("top N scatter presentation = %#v", cfg)

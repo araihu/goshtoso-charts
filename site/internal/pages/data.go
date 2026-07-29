@@ -34,9 +34,6 @@ const (
 	areaLineUpstreamPath          = "examples/1-Painter/line_chart-5-area/main.go"
 	areaLineUpstreamRevision      = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
 	areaLineUpstreamSHA256        = "b2d7b87ff675f437dbc95f2d7a0447c2040e18c5b873256a5808987dfc6131d0"
-	topNScatterUpstreamPath       = "examples/1-Painter/scatter_chart-4-top_n_labels/main.go"
-	topNScatterUpstreamRevision   = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
-	topNScatterUpstreamSHA256     = "cf92798819fbc010f44eaa406acabd337f16b52eec00793a10679e9c3b7cda81"
 )
 
 type deterministicLCG struct{ state uint64 }
@@ -530,11 +527,15 @@ func sampleDenseScatter() scatter.Config {
 			{Name: "Two", Values: values[1], Options: scatter.Options{ReferenceLine: scatter.ReferenceLineMaximum}},
 			{Name: "Three", Values: values[2]},
 		},
-		Title:    scatter.TitleOptions{Text: "Dense Scatter Chart Demo", Placement: scatter.PlacementCenter},
-		Legend:   scatter.LegendOptions{Orientation: scatter.LegendVertical, Placement: scatter.PlacementRight, Alignment: scatter.AlignmentRight, FontSize: 6},
-		XAxis:    scatter.CategoryAxisOptions{BoundaryGap: &noGap, LabelCount: 10, LabelFontSize: 6, LabelRotation: 45},
-		YAxis:    scatter.ValueAxisOptions{Min: &zero, Max: &maximum, Unit: 10, LabelSkip: 1, LabelFontSize: 6},
-		Padding:  scatter.Padding{Top: 16, Right: 32, Bottom: 16, Left: 16},
+		Title:   scatter.TitleOptions{Text: "Dense Scatter Chart Demo", Placement: scatter.PlacementCenter},
+		Legend:  scatter.LegendOptions{Orientation: scatter.LegendVertical, Placement: scatter.PlacementRight, Alignment: scatter.AlignmentRight, FontSize: 6},
+		XAxis:   scatter.CategoryAxisOptions{BoundaryGap: &noGap, LabelCount: 10, LabelFontSize: 6, LabelRotation: 45},
+		YAxis:   scatter.ValueAxisOptions{Min: &zero, Max: &maximum, Unit: 10, LabelSkip: 1, LabelFontSize: 6},
+		Padding: scatter.Padding{Top: 16, Right: 32, Bottom: 16, Left: 16},
+		RootAttrs: templ.Attributes{
+			"data-goshtoso-candidate":        "scatter-dense-0a50b43ccad6a96b",
+			"data-static-scatter-exhaustion": "1fe31b06",
+		},
 		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "dense-scatter-data"},
 	}

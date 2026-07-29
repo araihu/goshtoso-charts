@@ -22,6 +22,7 @@
     "test:line-area": "node --test browser/line_area.test.cjs",
     "test:line3d": "node --test browser/line3d.test.cjs",
     "test:pie": "node --test browser/pie.test.cjs",
+    "test:scatter": "node --test browser/scatter_upstream_exhaustion.test.cjs",
     "test:surface3d": "node --test browser/surface3d.test.cjs",
     "test:table": "node --test browser/table.test.cjs",
     "test:word-cloud": "node --test browser/word_cloud.test.cjs"
