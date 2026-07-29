@@ -221,7 +221,7 @@ func TestBarDocumentationPreservesHorizontalExampleWithoutEngineBranding(t *test
 		"20", "40", "60", "80", "100", "120", "140",
 		"OrientationHorizontal", "Padding", "600", "400",
 		"Exact category values", "Expand", "SVG", "PNG",
-		"Interpretation",
+		"Static/vector behavior", "shared chart-mode and control guides", "Go API", "v0.0.1",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("bar documentation missing horizontal example content %q", want)

@@ -75,11 +75,35 @@ func barOptions(cfg Config) chart.BarChartOption {
 	options.Theme = tokenPalette()
 	options.Horizontal = cfg.horizontal()
 	options.Title.Text = cfg.Title
+	options.BarSize = cfg.Geometry.ThicknessRatio
+	options.BarMargin = cfg.Geometry.GapRatio
+	if cfg.Geometry.RoundedCaps {
+		options.RoundedBarCaps = chart.Ptr(true)
+	}
+	options.SeriesLabelPosition = rendererLabelPosition(cfg)
+	if cfg.Legend.Hidden {
+		options.Legend.Show = chart.Ptr(false)
+	}
+	options.Legend.Offset = rendererLegendPlacement(cfg.Legend.Placement)
+	if cfg.Legend.Overlay {
+		options.Legend.OverlayChart = chart.Ptr(true)
+	}
+	if cfg.ValueAxis.Hidden {
+		options.ValueAxis[0].Show = chart.Ptr(false)
+	}
 	for index, series := range cfg.Series {
+		if series.Labels.Show {
+			options.SeriesList[index].Label.Show = chart.Ptr(true)
+			options.SeriesList[index].Label.ValueFormatter = dataLabelValueFormatter(series.Labels.Format)
+		}
 		references := series.References
 		if references.Average {
 			options.SeriesList[index].MarkLine.AddLines(chart.SeriesMarkTypeAverage)
-			options.SeriesList[index].MarkLine.ValueFormatter = referenceValueFormatter(references.Format)
+			options.SeriesList[index].MarkLine.ValueFormatter = referenceValueFormatter(references.Format, "")
+		}
+		if references.MaximumLine {
+			options.SeriesList[index].MarkLine.AddLines(chart.SeriesMarkTypeMax)
+			options.SeriesList[index].MarkLine.ValueFormatter = referenceValueFormatter(references.Format, "")
 		}
 		marks := make([]string, 0, 2)
 		if references.Maximum {
@@ -90,7 +114,12 @@ func barOptions(cfg Config) chart.BarChartOption {
 		}
 		if len(marks) > 0 {
 			options.SeriesList[index].MarkPoint.AddPoints(marks...)
-			options.SeriesList[index].MarkPoint.ValueFormatter = referenceValueFormatter(references.Format)
+			options.SeriesList[index].MarkPoint.ValueFormatter = referenceValueFormatter(references.Format, references.PointPrefix)
+			options.SeriesList[index].MarkPoint.SymbolSize = references.PointSize
+		}
+		if references.GlobalMaximum {
+			options.SeriesList[index].MarkPoint.AddGlobalPoints(chart.SeriesMarkTypeMax)
+			options.SeriesList[index].MarkPoint.ValueFormatter = referenceValueFormatter(references.Format, references.PointPrefix)
 			options.SeriesList[index].MarkPoint.SymbolSize = references.PointSize
 		}
 	}
@@ -101,6 +130,29 @@ func barOptions(cfg Config) chart.BarChartOption {
 		}
 	}
 	return options
+}
+
+func rendererLabelPosition(cfg Config) string {
+	if cfg.LabelPosition != DataLabelPositionStart {
+		return ""
+	}
+	if cfg.horizontal() {
+		return chart.PositionLeft
+	}
+	return chart.PositionBottom
+}
+
+func rendererLegendPlacement(placement LegendPlacement) chart.OffsetStr {
+	switch placement {
+	case LegendPlacementStart:
+		return chart.OffsetLeft
+	case LegendPlacementCenter:
+		return chart.OffsetCenter
+	case LegendPlacementEnd:
+		return chart.OffsetRight
+	default:
+		return chart.OffsetStr{}
+	}
 }
 
 func tokenPalette() chart.ColorPalette {
@@ -129,11 +181,24 @@ func tokenizedSVG(svg string, cfg Config) string {
 
 func formatValue(value float64) string { return strconv.FormatFloat(value, 'f', -1, 64) }
 
-func referenceValueFormatter(format ValueFormat) chart.ValueFormatter {
+func dataLabelValueFormatter(format ValueFormat) chart.ValueFormatter {
 	if format == ValueFormatHumanized {
-		return func(value float64) string { return strconv.FormatFloat(math.Round(value), 'f', 0, 64) }
+		return func(value float64) string { return chart.FormatValueHumanizeShort(value, 0, false) }
 	}
 	return nil
+}
+
+func referenceValueFormatter(format ValueFormat, prefix string) chart.ValueFormatter {
+	if format == ValueFormatDefault && prefix == "" {
+		return nil
+	}
+	return func(value float64) string {
+		formatted := formatValue(value)
+		if format == ValueFormatHumanized {
+			formatted = strconv.FormatFloat(math.Round(value), 'f', 0, 64)
+		}
+		return prefix + formatted
+	}
 }
 
 type referenceSummary struct {
@@ -142,6 +207,13 @@ type referenceSummary struct {
 	Maximum      float64
 	MinimumIndex int
 	MaximumIndex int
+}
+
+type stackedReferenceSummary struct {
+	Value  float64
+	Index  int
+	Format ValueFormat
+	Class  string
 }
 
 func summarizeReferences(values []float64) referenceSummary {
@@ -157,6 +229,26 @@ func summarizeReferences(values []float64) referenceSummary {
 	}
 	summary.Average /= float64(len(values))
 	return summary
+}
+
+func (cfg Config) summarizeStackedGlobalMaximum() stackedReferenceSummary {
+	result := stackedReferenceSummary{}
+	for _, series := range cfg.Series {
+		if series.References.GlobalMaximum {
+			result.Format = series.References.Format
+			result.Class = series.References.Style.Class
+		}
+	}
+	for categoryIndex := range cfg.Labels {
+		var total float64
+		for _, series := range cfg.Series {
+			total += series.Values[categoryIndex]
+		}
+		if categoryIndex == 0 || total > result.Value {
+			result.Value, result.Index = total, categoryIndex
+		}
+	}
+	return result
 }
 
 func formatReferenceValue(value float64, format ValueFormat) string {

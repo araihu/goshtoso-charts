@@ -18,18 +18,6 @@ func controlledOptions(title, filename string) interactive.ChartOptions {
 	}
 }
 
-func sampleInteractiveBar() interactive.BarConfig {
-	return interactive.BarConfig{
-		Label: "Weekly deployments by environment", Caption: "Interactive bar component.",
-		XAxis: []string{"Mon", "Tue", "Wed", "Thu", "Fri"},
-		Series: []interactive.BarSeries{
-			{Name: "Staging", Data: []interactive.BarData{{Value: 8}, {Value: 12}, {Value: 9}, {Value: 14}, {Value: 11}}},
-			{Name: "Production", Data: []interactive.BarData{{Value: 3}, {Value: 5}, {Value: 4}, {Value: 6}, {Value: 7}}},
-		},
-		Options: controlledOptions("Deployments", "interactive-deployments"),
-	}
-}
-
 func sampleInteractiveLine() interactive.LineConfig {
 	return interactive.LineConfig{
 		Label: "Weekly latency trend", Caption: "Interactive line component.",
@@ -583,14 +571,6 @@ func sampleLiveAvailability() interactive.BarConfig {
 		"Full snapshots stream through the renderer-neutral live-data contract.",
 		availabilityStates(0),
 	)
-}
-
-func interactiveChartBarCode() string {
-	return `@interactive.Bar(interactive.BarConfig{
-  Label: "Weekly deployments",
-  XAxis: []string{"Mon", "Tue"},
-  Series: []interactive.BarSeries{{Name: "Production", Data: []interactive.BarData{{Value: 3}, {Value: 5}}}},
-})`
 }
 
 func interactiveChartLineCode() string {

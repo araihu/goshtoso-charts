@@ -126,7 +126,16 @@ test("responsive controls keep one primary Expand and flatten overflow at 320, 3
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
     for (const width of [320, 390, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 });
-      await page.waitForTimeout(100);
+      const expectedSecondary = width === 320 ? 0 : width === 390 ? 1 : 2;
+      const expectedOverflow = width <= 390;
+      await page.waitForFunction(({ secondaryCount, overflowVisible }) => {
+        const root = document.querySelector("[data-goshtoso-chart-wrapper] [data-goshtoso-action-group]");
+        if (!root) return false;
+        const secondaries = [...root.querySelectorAll(":scope > [data-action-group-secondary]")]
+          .filter((secondary) => secondary.getBoundingClientRect().width > 0).length;
+        const overflow = root.querySelector(":scope > [data-action-group-overflow]");
+        return secondaries === secondaryCount && Boolean(overflow && overflow.getBoundingClientRect().width) === overflowVisible;
+      }, { secondaryCount: expectedSecondary, overflowVisible: expectedOverflow });
       const state = await wrapper.evaluate((element) => {
         const root = element.querySelector("[data-goshtoso-action-group]");
         const expand = Array.from(root.querySelectorAll('[id$="-stacked"] > button, [data-action-group-primary] button'))
@@ -147,9 +156,8 @@ test("responsive controls keep one primary Expand and flatten overflow at 320, 3
       assert.equal(state.primaryVisible, true, `${width}px primary Expand hidden`);
       assert.match(state.primaryText, /^Expand/);
       assert.equal(state.collapseCount, 0);
-      const expectedSecondary = width === 320 ? 0 : width === 390 ? 1 : 2;
       assert.equal(state.secondaryVisible, expectedSecondary, `${width}px secondary count at ${state.wrapperWidth}px wrapper`);
-      assert.equal(state.overflowVisible, width <= 390, `${width}px overflow visibility at ${state.wrapperWidth}px wrapper`);
+      assert.equal(state.overflowVisible, expectedOverflow, `${width}px overflow visibility at ${state.wrapperWidth}px wrapper`);
 
       const primary = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
       await primary.focus();
@@ -348,7 +356,7 @@ test("shared ResizeObserver converges a responsive interactive canvas after its 
 
 test("Bar, Line, Pie, and Tree settle across narrow/dark and wide/light modal geometry without animation reset", async () => {
   const cases = [
-    ["/components/interactive/bar", "Weekly deployments by environment"],
+    ["/components/interactive/bar", "Basic bar example"],
     ["/components/interactive/line", "Basic line example"],
     ["/components/interactive/pie", "Basic seasonal pie"],
     ["/components/interactive/tree", "Basic tree example"],
@@ -1262,8 +1270,8 @@ test("interactive PNG export matches live chart dimensions and remains opaque", 
       const instance = window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]"));
       return { width: instance.getWidth(), height: instance.getHeight() };
     });
-    const png = await download(page, "Download Weekly deployments by environment as PNG");
-    assert.equal(png.filename, "interactive-deployments.png");
+    const png = await download(page, "Download Basic bar example as PNG");
+    assert.equal(png.filename, "basic-bar-example.png");
     assert.equal(png.types.at(-1), "image/png");
     const metadata = await sharp(png.bytes).metadata();
     assert.deepEqual({ width: metadata.width, height: metadata.height }, expected);

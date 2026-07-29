@@ -51,3 +51,57 @@ func TestLineCoverageUsesOneCanonicalLedgerWithoutLostEntries(t *testing.T) {
 		}
 	}
 }
+
+func TestStaticBarCoverageUsesCanonicalLedgerWithoutLostEntries(t *testing.T) {
+	t.Parallel()
+
+	data, err := os.ReadFile("../../../docs/upstream-example-coverage.md")
+	if err != nil {
+		t.Fatalf("read canonical upstream coverage ledger: %v", err)
+	}
+	ledger := string(data)
+	if !strings.Contains(ledger, "## Static/vector Bar") || !strings.Contains(ledger, staticBarUpstreamRevision) {
+		t.Fatal("canonical ledger is missing the pinned static Bar section or revision")
+	}
+	for _, entry := range staticBarUpstreamCoverage() {
+		if count := strings.Count(ledger, "`"+entry.Path+"`"); count != 1 {
+			t.Errorf("static Bar coverage row %q occurs %d times, want 1", entry.Path, count)
+		}
+		if !strings.Contains(ledger, "`"+entry.SHA256+"`") {
+			t.Errorf("static Bar coverage row %q is missing SHA-256 %s", entry.Path, entry.SHA256)
+		}
+	}
+	if !strings.Contains(ledger, "eleven dedicated") || !strings.Contains(ledger, "nine distinct") {
+		t.Error("static Bar ledger must state both file and distinct-behavior coverage counts")
+	}
+}
+
+func TestInteractiveBarCoverageUsesCanonicalLedgerWithoutLostEntries(t *testing.T) {
+	t.Parallel()
+
+	const canonicalPath = "../../../docs/upstream-example-coverage.md"
+	data, err := os.ReadFile(canonicalPath)
+	if err != nil {
+		t.Fatalf("read canonical upstream coverage ledger: %v", err)
+	}
+	ledger := string(data)
+	for _, entry := range interactiveBarUpstreamCoverage() {
+		row := "| `" + entry.Name + "` |"
+		if count := strings.Count(ledger, row); count != 1 {
+			t.Errorf("interactive Bar coverage row %q occurs %d times, want 1", entry.Name, count)
+		}
+	}
+	if !strings.Contains(ledger, "| `barOverlap` | Unsupported |") {
+		t.Error("barOverlap must remain explicitly unsupported in canonical coverage ledger")
+	}
+	for _, source := range interactiveBarSupplementarySources() {
+		for _, want := range []string{"`" + source.Path + "`", "`" + source.SHA256 + "`"} {
+			if count := strings.Count(ledger, want); count != 1 {
+				t.Errorf("supplementary source evidence %q occurs %d times, want 1", want, count)
+			}
+		}
+	}
+	if count := strings.Count(ledger, "`"+interactiveBarUpstreamPath+"`"); count != 1 {
+		t.Errorf("canonical interactive Bar source path occurs %d times, want 1", count)
+	}
+}

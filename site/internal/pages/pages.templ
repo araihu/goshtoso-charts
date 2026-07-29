@@ -72,13 +72,37 @@ templ BarPage(fragment bool) {
 templ barContent() {
 	@componentpage.Page(componentpage.Config{
 		Title:       "Bar chart",
-		Description: "Categorical comparisons in vertical, horizontal, grouped, or stacked layouts.",
+		Description: "Static/vector categorical comparisons in vertical, horizontal, grouped, or stacked layouts.",
 		Primary: componentpage.Example{
-			AbovePreview: visualizationGuide("Compare named values across categories, including stacked outcomes and per-series reference markers.", "Use for a small set of discrete categories, especially when bar length makes rank and difference easy to scan.", "Avoid when categories are numerous, labels need rotation, or the key task is showing change over continuous time.", "The examples include exact category values and reference evidence; keep equivalent values in text or a table when users must compare precisely."),
-			Preview:      bar.Bar(sampleDeployments()),
-			Code:         barCode(),
+			AbovePreview: visualizationGuide("Compare and rank named values across discrete categories, including grouped and stacked totals.", "Use when bar length makes difference, order, or contribution easy to scan; choose horizontal bars for longer category labels.", "Avoid when the key task is showing continuous change, dense distributions, or precise point-to-point relationships.", "Exact labels, category tables, and reference evidence accompany treatments that require precise reading without color alone."),
+			Preview:      bar.Bar(sampleBasicBar()),
+			Code:         basicBarCode(),
 		},
 		Sections: []componentpage.Example{
+			{
+				Title:       "Thickness and group spacing",
+				Description: "Compare automatic geometry, bars using 15% of each allotted slot, and grouped bars without an inter-series gap.",
+				Preview:     barGeometryComparison(false),
+				Code:        geometryBarCode(false),
+			},
+			{
+				Title:       "Rounded caps and value-label anchors",
+				Description: "Rounded value-end caps work with exact labels at either the value end or category-axis start.",
+				Preview:     roundedBarLabelComparison(),
+				Code:        roundedBarLabelsCode(),
+			},
+			{
+				Title:       "Statistical reference annotations",
+				Description: "Average lines and minimum/maximum points add context. Exact values and computed references remain adjacent without relying on color.",
+				Preview:     bar.Bar(sampleBarReferences()),
+				Code:        barReferencesCode(),
+			},
+			{
+				Title:       "Stacked totals",
+				Description: "Stacked bars preserve component contributions while a maximum line and global maximum point identify the largest total.",
+				Preview:     bar.Bar(sampleStackedBar()),
+				Code:        stackedBarCode(),
+			},
 			{
 				Title:       "Horizontal orientation",
 				Description: "Use horizontal bars when category labels read more naturally beside values. Vertical remains the default.",
@@ -86,14 +110,42 @@ templ barContent() {
 				Code:        horizontalBarCode(),
 			},
 			{
-				Title:       "Statistical reference annotations",
-				Description: "Average lines and minimum/maximum points add context. Exact values and computed references remain adjacent to the chart without relying on color.",
-				Preview:     bar.Bar(sampleBarReferences()),
-				Code:        barReferencesCode(),
+				Title:       "Horizontal thickness and group spacing",
+				Description: "The same automatic, thin, and no-gap geometry options apply after changing orientation.",
+				Preview:     barGeometryComparison(true),
+				Code:        geometryBarCode(true),
+			},
+			{
+				Title:       "Horizontal maximum references",
+				Description: "Maximum reference lines remain aligned with the numeric axis after orientation changes.",
+				Preview:     bar.Bar(sampleHorizontalBarReferences()),
+				Code:        horizontalBarReferencesCode(),
+			},
+			{
+				Title:       "Stacked horizontal values",
+				Description: "Stacked horizontal bars can show exact segment labels and hide the redundant numeric axis.",
+				Preview:     bar.Bar(sampleHorizontalStackedBar()),
+				Code:        horizontalStackedBarCode(),
 			},
 		},
-		After: chartDocumentation("Interpretation", "Vertical and horizontal layouts communicate the same comparisons. Choose horizontal bars when labels are long; use reference markers to provide context, not as a substitute for exact values.", "bar"),
+		After: chartDocumentation("Static/vector behavior", "Bar renders inline SVG on the server, supports SVG and PNG download through the shared wrapper, and remains useful in print or no-JavaScript output. Review the shared chart-mode and control guides for delivery and wrapper choices.", "bar"),
 	})
+}
+
+templ barGeometryComparison(horizontal bool) {
+	{{ automatic, thin, noGap := sampleBarGeometryComparison(horizontal) }}
+	<div class="grid min-w-0 gap-4 xl:grid-cols-3">
+		<div class="min-w-0">@bar.Bar(automatic)</div>
+		<div class="min-w-0">@bar.Bar(thin)</div>
+		<div class="min-w-0">@bar.Bar(noGap)</div>
+	</div>
+}
+
+templ roundedBarLabelComparison() {
+	<div class="grid min-w-0 gap-4 lg:grid-cols-2">
+		<div class="min-w-0">@bar.Bar(sampleRoundedBarLabels(bar.DataLabelPositionEnd))</div>
+		<div class="min-w-0">@bar.Bar(sampleRoundedBarLabels(bar.DataLabelPositionStart))</div>
+	</div>
 }
 
 templ PiePage(fragment bool) {
@@ -135,14 +187,56 @@ templ InteractiveBarPage(fragment bool) {
 templ interactiveChartBarContent() {
 	@componentpage.Page(componentpage.Config{
 		Title:       "Interactive bar",
-		Description: "Categorical comparisons with direct values, positive and negative ranges, and responsive exploration.",
+		Description: "Categorical comparisons with grouped, stacked, horizontal, labeled, referenced, and zoomable treatments.",
 		Primary: componentpage.Example{
-			AbovePreview: visualizationGuidance("Compare named values across categories.", "You need direct category comparisons, including positive and negative values.", "Many categories make labels and comparisons crowded; use a table for exact values.", "Keep category names and exact values in nearby text or a table."),
+			AbovePreview: visualizationGuidance("Compare magnitudes across a small ordered or unordered category set.", "People need direct category comparisons, optional grouping or stacking, and hover exploration.", "Too many categories, too many stacks, or precise lookup dominates; use a table or another summary.", "Every example includes a keyboard-readable exact-value table; labels and references never rely on color alone."),
 			Preview:      interactive.Bar(sampleInteractiveBar()),
 			Code:         interactiveChartBarCode(),
 		},
-		After: goAPIReference("interactive"),
+		Sections: []componentpage.Example{
+			{Title: "Labels", Description: "Visible labels repeat exact values directly on the marks while the disclosure table remains the complete reading path.", Preview: interactive.Bar(sampleInteractiveBarLabels()), Code: `SeriesOptions: interactive.SeriesOptions{Label: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "top"}}`},
+			{Title: "Axes and units", Description: "Named axes, literal unit suffixes, and split lines add reading context without accepting executable formatter code.", Preview: interactive.Bar(sampleInteractiveBarAxes()), Code: interactiveBarAxesCode()},
+			{Title: "Explicit colors", Description: "Caller-selected colors override theme series tokens when a fixed visual identity is required.", Preview: interactive.Bar(sampleInteractiveBarColors()), Code: `Style: charttheme.Style{Colors: []string{"#2563eb", "#db2777"}}`},
+			{Title: "Series arrangement", Description: "Widths, gaps, horizontal orientation, and stacking are typed treatments on the same Bar component.", Preview: interactiveBarArrangementVariants(), Code: interactiveBarLayoutCode()},
+			{Title: "Category zoom", Description: "Inside gestures and a visible slider expose the same bounded category window; exact values remain available outside the canvas.", Preview: interactiveBarZoomVariants(), Code: interactiveBarZoomCode()},
+			{Title: "Calculated and explicit references", Description: "Named points and guide lines add context while the adjacent table preserves every source value.", Preview: interactiveBarReferenceVariants(), Code: interactiveBarReferencesCode()},
+			{Title: "Large canvas", Description: "A taller chart preserves the upstream large-canvas intent while responsive width keeps page layout consumer-owned.", Preview: interactive.Bar(sampleInteractiveBarLargeCanvas()), Code: `Width: "100%", Height: "600px"`},
+		},
+		After: interactiveBarDocumentation(),
 	})
+}
+
+templ interactiveBarArrangementVariants() {
+	<div class="space-y-10" data-bar-variant-group="arrangement">
+		<div data-bar-variant="width-gap">@interactive.Bar(sampleInteractiveBarWidthsAndGap())</div>
+		<div data-bar-variant="horizontal">@interactive.Bar(sampleInteractiveBarHorizontal())</div>
+		<div data-bar-variant="stacked">@interactive.Bar(sampleInteractiveBarStacked())</div>
+	</div>
+}
+
+templ interactiveBarZoomVariants() {
+	<div class="space-y-10" data-bar-variant-group="zoom">
+		<div data-bar-variant="zoom-inside">@interactive.Bar(sampleInteractiveBarZoom(interactive.BarZoomInside))</div>
+		<div data-bar-variant="zoom-slider">@interactive.Bar(sampleInteractiveBarZoom(interactive.BarZoomSlider))</div>
+	</div>
+}
+
+templ interactiveBarReferenceVariants() {
+	<div class="space-y-10" data-bar-variant-group="references">
+		<div data-bar-variant="mark-points">@interactive.Bar(sampleInteractiveBarMarkPoints())</div>
+		<div data-bar-variant="mark-lines">@interactive.Bar(sampleInteractiveBarMarkLines())</div>
+	</div>
+}
+
+templ interactiveBarDocumentation() {
+	<div class="space-y-4">
+		<section class="rounded-radius border border-outline bg-surface-alt p-5 text-sm dark:border-outline-dark dark:bg-surface-dark-alt">
+			<h2 id="shared-chart-behavior" data-toc-heading class="text-base font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Shared chart behavior</h2>
+			<p class="mt-1 text-on-surface-muted dark:text-on-surface-dark-muted">Use the <a class="font-semibold text-primary underline dark:text-primary-dark" href="/docs/chart-controls">chart controls guide</a> covering expand, fullscreen, and PNG export behavior. The <a class="font-semibold text-primary underline dark:text-primary-dark" href="/docs/chart-modes">chart modes guide</a> explains interactive canvas, runtime, and print tradeoffs.</p>
+		</section>
+		@demoNote("Mixed-series composition", "The upstream Bar, Line, and Scatter overlay needs a separate renderer-neutral composite chart API. Bar does not accept backing-renderer series or raw option escape hatches.")
+		@goAPIReference("interactive")
+	</div>
 }
 
 templ InteractiveLinePage(fragment bool) {
