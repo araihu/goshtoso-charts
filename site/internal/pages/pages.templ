@@ -2,6 +2,7 @@ package pages
 
 import (
 	"github.com/araihu/goshtoso/components/codeblock"
+	"github.com/araihu/goshtoso/components/link"
 	"github.com/araihu/goshtoso-app-shells/componentpage"
 	"github.com/araihu/goshtoso-charts/components/bar"
 	"github.com/araihu/goshtoso-charts/components/candlestick"
@@ -140,6 +141,7 @@ templ interactiveChartBarContent() {
 			Preview: interactive.Bar(sampleInteractiveBar()),
 			Code: interactiveChartBarCode(),
 		},
+		After: goAPIReference("interactive"),
 	})
 }
 
@@ -162,7 +164,7 @@ templ interactiveChartLineContent() {
 			Preview: interactive.Line(sampleInteractiveLineTime()),
 			Code: interactiveLineTimeCode(),
 		}},
-		After: demoNote("Time series", "Use a time axis for chronological observations; keep timestamps strictly ordered and show exact readings beside the chart when people need to compare them."),
+		After: interactiveDocumentation(demoNote("Time series", "Use a time axis for chronological observations; keep timestamps strictly ordered and show exact readings beside the chart when people need to compare them.")),
 	})
 }
 
@@ -179,7 +181,7 @@ templ interactiveChartScatterContent() {
 			Preview: interactive.Scatter(sampleInteractiveScatter()),
 			Code: interactiveChartScatterCode(),
 		},
-		After: demoNote("Emphasis", "Ripple can call attention to points, but it does not add data. Keep it restrained so motion does not hide the relationship."),
+		After: interactiveDocumentation(demoNote("Emphasis", "Ripple can call attention to points, but it does not add data. Keep it restrained so motion does not hide the relationship.")),
 	})
 }
 
@@ -196,7 +198,7 @@ templ interactiveScatter3DContent() {
 			Preview: interactiveScatter3DVariants(),
 			Code: interactiveScatter3DCode(),
 		},
-		After: demoNote("Reading the data", "Treat rotation and color as exploratory aids. Use the adjacent coordinate table for exact values and non-visual review."),
+		After: interactiveDocumentation(demoNote("Reading the data", "Treat rotation and color as exploratory aids. Use the adjacent coordinate table for exact values and non-visual review.")),
 	})
 }
 
@@ -228,7 +230,7 @@ templ interactiveLine3DContent() {
 			Preview: interactiveLine3DVariants(),
 			Code: interactiveLine3DCode(),
 		},
-		After: demoNote("Motion", "Auto-rotation is optional exploration. The stationary treatment remains available, including for reduced-motion preferences."),
+		After: interactiveDocumentation(demoNote("Motion", "Auto-rotation is optional exploration. The stationary treatment remains available, including for reduced-motion preferences.")),
 	})
 }
 
@@ -248,7 +250,7 @@ templ interactiveSurface3DContent() {
 			Preview: interactiveSurface3DVariants(),
 			Code: interactiveSurface3DCode(),
 		},
-		After: demoNote("Surface variants", "Compare the examples as distinct sampled surfaces. Their formulas and domains identify what changes."),
+		After: interactiveDocumentation(demoNote("Surface variants", "Compare the examples as distinct sampled surfaces. Their formulas and domains identify what changes.")),
 	})
 }
 
@@ -268,7 +270,7 @@ templ interactiveBar3DContent() {
 			Preview: interactiveBar3DVariants(),
 			Code: interactiveBar3DCode(),
 		},
-		After: demoNote("View treatments", "Rotation and shading change presentation, not values. Use the exact-cell disclosure to compare values."),
+		After: interactiveDocumentation(demoNote("View treatments", "Rotation and shading change presentation, not values. Use the exact-cell disclosure to compare values.")),
 	})
 }
 
@@ -294,7 +296,7 @@ templ interactiveChartPieContent() {
 			Preview: interactive.Pie(sampleInteractivePie()),
 			Code: interactiveChartPieCode(),
 		},
-		After: demoNote("Rendered defaults", "A zero outer radius renders at 75%. A zero inner radius renders a full pie; set both radii for a donut. Rose mode remains off unless selected."),
+		After: interactiveDocumentation(demoNote("Rendered defaults", "A zero outer radius renders at 75%. A zero inner radius renders a full pie; set both radii for a donut. Rose mode remains off unless selected.")),
 	})
 }
 
@@ -311,6 +313,7 @@ templ interactiveChartRadarContent() {
 			Preview: interactive.Radar(sampleInteractiveRadar()),
 			Code: interactiveChartRadarCode(),
 		},
+		After: goAPIReference("interactive"),
 	})
 }
 
@@ -327,7 +330,7 @@ templ interactiveChartHeatMapContent() {
 			Preview: interactive.HeatMap(sampleInteractiveHeatMap()),
 			Code: interactiveChartHeatMapCode(),
 		},
-		After: demoNote("Coordinates", "Use Cartesian axes for category grids and calendar coordinates for date patterns. Keep date ranges explicit."),
+		After: interactiveDocumentation(demoNote("Coordinates", "Use Cartesian axes for category grids and calendar coordinates for date patterns. Keep date ranges explicit.")),
 	})
 }
 
@@ -356,7 +359,7 @@ templ interactiveCandlestickContent() {
 				Code: interactiveCandlestickStyleCode(),
 			},
 		},
-		After: demoNote("Ranges and zoom", "Each candle has a low, open, close, and high value. Zoom supports exploration; the table remains source for exact values."),
+		After: interactiveDocumentation(demoNote("Ranges and zoom", "Each candle has a low, open, close, and high value. Zoom supports exploration; the table remains source for exact values.")),
 	})
 }
 
@@ -369,7 +372,7 @@ templ interactiveChartBoxPlotContent() {
 			Preview: interactive.BoxPlot(sampleInteractiveBoxPlot()),
 			Code: interactiveChartBoxPlotCode(),
 		},
-		After: demoNote("Five-number summary", "Read minimum, first quartile, median, third quartile, and maximum together; this summary does not reveal individual observations."),
+		After: interactiveDocumentation(demoNote("Five-number summary", "Read minimum, first quartile, median, third quartile, and maximum together; this summary does not reveal individual observations.")),
 	})
 }
 
@@ -386,7 +389,7 @@ templ interactiveChartGaugeContent() {
 			Preview: interactiveGaugeVariants(),
 			Code: interactiveChartGaugeCode(),
 		},
-		After: interactiveGaugeUsage(),
+		After: interactiveDocumentation(interactiveGaugeUsage()),
 	})
 }
 
@@ -430,7 +433,7 @@ templ interactiveGraphContent() {
 			Preview: sampleInteractiveGraph(),
 			Code: interactiveGraphCode(),
 		},
-		After: demoNote("Layouts", "Choose a layout that makes the relationships readable; layout changes placement, not the underlying nodes and links."),
+		After: interactiveDocumentation(demoNote("Layouts", "Choose a layout that makes the relationships readable; layout changes placement, not the underlying nodes and links.")),
 	})
 }
 
@@ -447,7 +450,7 @@ templ interactiveSankeyContent() {
 			Preview: sampleInteractiveSankey(),
 			Code: interactiveSankeyCode(),
 		},
-		After: demoNote("Flows", "Each link connects declared source and target stages. Use the adjacent values for precise flow comparison."),
+		After: interactiveDocumentation(demoNote("Flows", "Each link connects declared source and target stages. Use the adjacent values for precise flow comparison.")),
 	})
 }
 
@@ -488,7 +491,7 @@ templ interactiveGeoContent() {
 			Preview: interactiveGeoVariants(),
 			Code: interactiveGeoCode(),
 		},
-		After: demoNote("Choose a map type", "Use Geo for positioned points. Use Map when values belong to geographic regions."),
+		After: interactiveDocumentation(demoNote("Choose a map type", "Use Geo for positioned points. Use Map when values belong to geographic regions.")),
 	})
 }
 
@@ -511,7 +514,7 @@ templ interactiveMapContent() {
 			Preview: interactiveMapVariants(),
 			Code: interactiveMapCode(),
 		},
-		After: demoNote("Regional values", "Use labels or the adjacent table when readers need exact regional values; color alone is not enough."),
+		After: interactiveDocumentation(demoNote("Regional values", "Use labels or the adjacent table when readers need exact regional values; color alone is not enough.")),
 	})
 }
 
@@ -534,7 +537,7 @@ templ interactiveWordCloudContent() {
 			Preview: wordCloudVariants(),
 			Code: interactiveWordCloudCode(),
 		},
-		After: demoNote("Shapes", "Shapes alter layout only. The exact weighted list remains the reliable comparison surface."),
+		After: interactiveDocumentation(demoNote("Shapes", "Shapes alter layout only. The exact weighted list remains the reliable comparison surface.")),
 	})
 }
 
@@ -561,7 +564,7 @@ templ interactiveThemeRiverContent() {
 			Preview: sampleInteractiveThemeRiver(),
 			Code: interactiveThemeRiverCode(),
 		},
-		After: demoNote("Shared dates", "Compare streams only over shared, strictly ordered dates. Use the table for exact readings."),
+		After: interactiveDocumentation(demoNote("Shared dates", "Compare streams only over shared, strictly ordered dates. Use the table for exact readings.")),
 	})
 }
 
@@ -578,7 +581,7 @@ templ interactiveParallelContent() {
 			Preview: sampleInteractiveParallel(),
 			Code: interactiveParallelCode(),
 		},
-		After: demoNote("Comparable dimensions", "Each observation has one value for every declared dimension. Keep dimension names and scales clear before comparing paths."),
+		After: interactiveDocumentation(demoNote("Comparable dimensions", "Each observation has one value for every declared dimension. Keep dimension names and scales clear before comparing paths.")),
 	})
 }
 
@@ -591,7 +594,7 @@ templ interactiveTreemapContent() {
 			Preview: sampleInteractiveTreemap(),
 			Code: interactiveTreemapCode(),
 		},
-		After: demoNote("Hierarchy values", "Leaf values determine branch area. Use the table for exact totals and paths; drill-down is only a visual exploration aid."),
+		After: interactiveDocumentation(demoNote("Hierarchy values", "Leaf values determine branch area. Use the table for exact totals and paths; drill-down is only a visual exploration aid.")),
 	})
 }
 
@@ -604,7 +607,7 @@ templ interactiveSunburstContent() {
 			Preview: sampleInteractiveSunburst(),
 			Code: interactiveSunburstCode(),
 		},
-		After: demoNote("Explore the hierarchy", "Visual drill-down can focus a branch, but it is not the accessible navigation path. Use the keyboard-accessible adjacent table to inspect every parent-child path and value."),
+		After: interactiveDocumentation(demoNote("Explore the hierarchy", "Visual drill-down can focus a branch, but it is not the accessible navigation path. Use the keyboard-accessible adjacent table to inspect every parent-child path and value.")),
 	})
 }
 
@@ -617,7 +620,7 @@ templ interactiveTreeContent() {
 			Preview: sampleInteractiveTree(),
 			Code: interactiveTreeCode(),
 		},
-		After: demoNote("Reading the tree", "Layered and radial views change layout. Keep an adjacent nested list or table as the exact-data source."),
+		After: interactiveDocumentation(demoNote("Reading the tree", "Layered and radial views change layout. Keep an adjacent nested list or table as the exact-data source.")),
 	})
 }
 
@@ -630,7 +633,7 @@ templ interactiveChartFunnelContent() {
 			Preview: interactive.Funnel(sampleInteractiveFunnel()),
 			Code: interactiveChartFunnelCode(),
 		},
-		After: demoNote("Stage order", "Make intended stage order explicit. Sorting by value can be useful, but must not replace process order."),
+		After: interactiveDocumentation(demoNote("Stage order", "Make intended stage order explicit. Sorting by value can be useful, but must not replace process order.")),
 	})
 }
 
@@ -894,6 +897,10 @@ templ visualizationGuidance(purpose string, useWhen string, avoidWhen string, eq
 			}
 		</dl>
 	</section>
+}
+
+templ interactiveDocumentation(content templ.Component) {
+	@content
 	@goAPIReference("interactive")
 }
 
@@ -924,7 +931,7 @@ templ goAPIReference(packageName string) {
 				<p class="max-w-2xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">The examples above cover behavior and composition. pkg.go.dev is the canonical reference for exported types, functions, methods, and Go documentation.</p>
 				<code class="mt-3 block break-all font-mono text-xs text-on-surface-strong dark:text-on-surface-dark-strong">{ packagePath }</code>
 			</div>
-			<a href={ templ.URL("https://pkg.go.dev/github.com/araihu/goshtoso-charts@v0.0.1/components/" + packageName) } target="_blank" rel="noopener noreferrer" data-go-api-link class="inline-flex shrink-0 items-center justify-center gap-2 rounded-radius bg-primary px-4 py-2 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover dark:bg-primary-dark dark:text-on-primary-dark dark:hover:bg-primary-dark-hover">Open v0.0.1 API <span aria-hidden="true">↗</span></a>
+			@link.Link("https://pkg.go.dev/github.com/araihu/goshtoso-charts@v0.0.1/components/" + packageName, link.WithAppearance(link.AppearanceButton), link.WithTarget("_blank"), link.WithRootClass("shrink-0"), link.WithAttrs(templ.Attributes{"data-go-api-link": ""})) { Open v0.0.1 API <span aria-hidden="true">↗</span> }
 		</div>
 	</section>
 }

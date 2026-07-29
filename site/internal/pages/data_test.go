@@ -134,6 +134,26 @@ func TestInteractiveSunburstSourceExplainsAccessibleHierarchyReading(t *testing.
 	}
 }
 
+func TestGoAPIReferenceUsesGoshtosoButtonAppearanceLink(t *testing.T) {
+	t.Parallel()
+	source, err := os.ReadFile("pages.templ")
+	if err != nil {
+		t.Fatalf("read pages.templ: %v", err)
+	}
+	page := string(source)
+	start := strings.Index(page, "templ goAPIReference")
+	if start < 0 {
+		t.Fatal("cannot find Go API footer")
+	}
+	footer := page[start:]
+	if !strings.Contains(footer, "link.Link(") || !strings.Contains(footer, "link.WithAppearance(link.AppearanceButton)") {
+		t.Error("Go API footer must use the Goshtoso button-appearance Link")
+	}
+	if strings.Contains(footer, "<a href={ templ.URL(\"https://pkg.go.dev") {
+		t.Error("Go API footer must not duplicate raw button-link markup")
+	}
+}
+
 func TestDoughnutSampleMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 	t.Parallel()
 	if doughnutUpstreamPath != "examples/1-Painter/doughnut_chart-1-basic/main.go" ||

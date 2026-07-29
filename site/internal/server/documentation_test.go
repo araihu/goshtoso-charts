@@ -25,6 +25,9 @@ func TestEveryComponentRouteUsesGuidanceAndGoAPIFooter(t *testing.T) {
 				t.Fatalf("status = %d", recorder.Code)
 			}
 			body := recorder.Body.String()
+			if lastFooter, lastPreview := strings.LastIndex(body, "data-go-api-reference"), strings.LastIndex(body, "data-component-preview"); lastFooter <= lastPreview {
+				t.Errorf("Go API footer must follow every chart preview: footer=%d preview=%d", lastFooter, lastPreview)
+			}
 			for _, forbidden := range []string{"PRIMITIVE", "KIND", "CONFIGURATION", "Component contract", "contract"} {
 				if strings.Contains(body, forbidden) {
 					t.Errorf("retains %q", forbidden)

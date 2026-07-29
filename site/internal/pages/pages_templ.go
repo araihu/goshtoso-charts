@@ -22,6 +22,7 @@ import (
 	charttable "github.com/araihu/goshtoso-charts/components/table"
 	"github.com/araihu/goshtoso-charts/components/violin"
 	"github.com/araihu/goshtoso/components/codeblock"
+	"github.com/araihu/goshtoso/components/link"
 )
 
 func GettingStartedPage(fragment bool) templ.Component {
@@ -522,6 +523,7 @@ func interactiveChartBarContent() templ.Component {
 				Preview:      interactive.Bar(sampleInteractiveBar()),
 				Code:         interactiveChartBarCode(),
 			},
+			After: goAPIReference("interactive"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -594,7 +596,7 @@ func interactiveChartLineContent() templ.Component {
 				Preview:     interactive.Line(sampleInteractiveLineTime()),
 				Code:        interactiveLineTimeCode(),
 			}},
-			After: demoNote("Time series", "Use a time axis for chronological observations; keep timestamps strictly ordered and show exact readings beside the chart when people need to compare them."),
+			After: interactiveDocumentation(demoNote("Time series", "Use a time axis for chronological observations; keep timestamps strictly ordered and show exact readings beside the chart when people need to compare them.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -661,7 +663,7 @@ func interactiveChartScatterContent() templ.Component {
 				Preview:      interactive.Scatter(sampleInteractiveScatter()),
 				Code:         interactiveChartScatterCode(),
 			},
-			After: demoNote("Emphasis", "Ripple can call attention to points, but it does not add data. Keep it restrained so motion does not hide the relationship."),
+			After: interactiveDocumentation(demoNote("Emphasis", "Ripple can call attention to points, but it does not add data. Keep it restrained so motion does not hide the relationship.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -728,7 +730,7 @@ func interactiveScatter3DContent() templ.Component {
 				Preview:      interactiveScatter3DVariants(),
 				Code:         interactiveScatter3DCode(),
 			},
-			After: demoNote("Reading the data", "Treat rotation and color as exploratory aids. Use the adjacent coordinate table for exact values and non-visual review."),
+			After: interactiveDocumentation(demoNote("Reading the data", "Treat rotation and color as exploratory aids. Use the adjacent coordinate table for exact values and non-visual review.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -898,7 +900,7 @@ func interactiveLine3DContent() templ.Component {
 				Preview:      interactiveLine3DVariants(),
 				Code:         interactiveLine3DCode(),
 			},
-			After: demoNote("Motion", "Auto-rotation is optional exploration. The stationary treatment remains available, including for reduced-motion preferences."),
+			After: interactiveDocumentation(demoNote("Motion", "Auto-rotation is optional exploration. The stationary treatment remains available, including for reduced-motion preferences.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -981,7 +983,7 @@ func interactiveSurface3DContent() templ.Component {
 				Preview:      interactiveSurface3DVariants(),
 				Code:         interactiveSurface3DCode(),
 			},
-			After: demoNote("Surface variants", "Compare the examples as distinct sampled surfaces. Their formulas and domains identify what changes."),
+			After: interactiveDocumentation(demoNote("Surface variants", "Compare the examples as distinct sampled surfaces. Their formulas and domains identify what changes.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1064,7 +1066,7 @@ func interactiveBar3DContent() templ.Component {
 				Preview:      interactiveBar3DVariants(),
 				Code:         interactiveBar3DCode(),
 			},
-			After: demoNote("View treatments", "Rotation and shading change presentation, not values. Use the exact-cell disclosure to compare values."),
+			After: interactiveDocumentation(demoNote("View treatments", "Rotation and shading change presentation, not values. Use the exact-cell disclosure to compare values.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1192,7 +1194,7 @@ func interactiveChartPieContent() templ.Component {
 				Preview:      interactive.Pie(sampleInteractivePie()),
 				Code:         interactiveChartPieCode(),
 			},
-			After: demoNote("Rendered defaults", "A zero outer radius renders at 75%. A zero inner radius renders a full pie; set both radii for a donut. Rose mode remains off unless selected."),
+			After: interactiveDocumentation(demoNote("Rendered defaults", "A zero outer radius renders at 75%. A zero inner radius renders a full pie; set both radii for a donut. Rose mode remains off unless selected.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1259,6 +1261,7 @@ func interactiveChartRadarContent() templ.Component {
 				Preview:      interactive.Radar(sampleInteractiveRadar()),
 				Code:         interactiveChartRadarCode(),
 			},
+			After: goAPIReference("interactive"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1325,7 +1328,7 @@ func interactiveChartHeatMapContent() templ.Component {
 				Preview:      interactive.HeatMap(sampleInteractiveHeatMap()),
 				Code:         interactiveChartHeatMapCode(),
 			},
-			After: demoNote("Coordinates", "Use Cartesian axes for category grids and calendar coordinates for date patterns. Keep date ranges explicit."),
+			After: interactiveDocumentation(demoNote("Coordinates", "Use Cartesian axes for category grids and calendar coordinates for date patterns. Keep date ranges explicit.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1429,7 +1432,7 @@ func interactiveCandlestickContent() templ.Component {
 					Code:        interactiveCandlestickStyleCode(),
 				},
 			},
-			After: demoNote("Ranges and zoom", "Each candle has a low, open, close, and high value. Zoom supports exploration; the table remains source for exact values."),
+			After: interactiveDocumentation(demoNote("Ranges and zoom", "Each candle has a low, open, close, and high value. Zoom supports exploration; the table remains source for exact values.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1467,7 +1470,7 @@ func interactiveChartBoxPlotContent() templ.Component {
 				Preview:      interactive.BoxPlot(sampleInteractiveBoxPlot()),
 				Code:         interactiveChartBoxPlotCode(),
 			},
-			After: demoNote("Five-number summary", "Read minimum, first quartile, median, third quartile, and maximum together; this summary does not reveal individual observations."),
+			After: interactiveDocumentation(demoNote("Five-number summary", "Read minimum, first quartile, median, third quartile, and maximum together; this summary does not reveal individual observations.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1534,7 +1537,7 @@ func interactiveChartGaugeContent() templ.Component {
 				Preview:      interactiveGaugeVariants(),
 				Code:         interactiveChartGaugeCode(),
 			},
-			After: interactiveGaugeUsage(),
+			After: interactiveDocumentation(interactiveGaugeUsage()),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1772,7 +1775,7 @@ func interactiveGraphContent() templ.Component {
 				Preview:      sampleInteractiveGraph(),
 				Code:         interactiveGraphCode(),
 			},
-			After: demoNote("Layouts", "Choose a layout that makes the relationships readable; layout changes placement, not the underlying nodes and links."),
+			After: interactiveDocumentation(demoNote("Layouts", "Choose a layout that makes the relationships readable; layout changes placement, not the underlying nodes and links.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1839,7 +1842,7 @@ func interactiveSankeyContent() templ.Component {
 				Preview:      sampleInteractiveSankey(),
 				Code:         interactiveSankeyCode(),
 			},
-			After: demoNote("Flows", "Each link connects declared source and target stages. Use the adjacent values for precise flow comparison."),
+			After: interactiveDocumentation(demoNote("Flows", "Each link connects declared source and target stages. Use the adjacent values for precise flow comparison.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2080,7 +2083,7 @@ func interactiveGeoContent() templ.Component {
 				Preview:      interactiveGeoVariants(),
 				Code:         interactiveGeoCode(),
 			},
-			After: demoNote("Choose a map type", "Use Geo for positioned points. Use Map when values belong to geographic regions."),
+			After: interactiveDocumentation(demoNote("Choose a map type", "Use Geo for positioned points. Use Map when values belong to geographic regions.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2122,7 +2125,7 @@ func interactiveGeoVariants() templ.Component {
 			var templ_7745c5c3_Var60 string
 			templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.ResolveAttributeValue(variant.name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 498, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 501, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var60)
 			if templ_7745c5c3_Err != nil {
@@ -2178,7 +2181,7 @@ func interactiveMapContent() templ.Component {
 				Preview:      interactiveMapVariants(),
 				Code:         interactiveMapCode(),
 			},
-			After: demoNote("Regional values", "Use labels or the adjacent table when readers need exact regional values; color alone is not enough."),
+			After: interactiveDocumentation(demoNote("Regional values", "Use labels or the adjacent table when readers need exact regional values; color alone is not enough.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2220,7 +2223,7 @@ func interactiveMapVariants() templ.Component {
 			var templ_7745c5c3_Var63 string
 			templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(variant.variant))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 521, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 524, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var63)
 			if templ_7745c5c3_Err != nil {
@@ -2276,7 +2279,7 @@ func interactiveWordCloudContent() templ.Component {
 				Preview:      wordCloudVariants(),
 				Code:         interactiveWordCloudCode(),
 			},
-			After: demoNote("Shapes", "Shapes alter layout only. The exact weighted list remains the reliable comparison surface."),
+			After: interactiveDocumentation(demoNote("Shapes", "Shapes alter layout only. The exact weighted list remains the reliable comparison surface.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2367,7 +2370,7 @@ func interactiveThemeRiverContent() templ.Component {
 				Preview:      sampleInteractiveThemeRiver(),
 				Code:         interactiveThemeRiverCode(),
 			},
-			After: demoNote("Shared dates", "Compare streams only over shared, strictly ordered dates. Use the table for exact readings."),
+			After: interactiveDocumentation(demoNote("Shared dates", "Compare streams only over shared, strictly ordered dates. Use the table for exact readings.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2434,7 +2437,7 @@ func interactiveParallelContent() templ.Component {
 				Preview:      sampleInteractiveParallel(),
 				Code:         interactiveParallelCode(),
 			},
-			After: demoNote("Comparable dimensions", "Each observation has one value for every declared dimension. Keep dimension names and scales clear before comparing paths."),
+			After: interactiveDocumentation(demoNote("Comparable dimensions", "Each observation has one value for every declared dimension. Keep dimension names and scales clear before comparing paths.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2472,7 +2475,7 @@ func interactiveTreemapContent() templ.Component {
 				Preview:      sampleInteractiveTreemap(),
 				Code:         interactiveTreemapCode(),
 			},
-			After: demoNote("Hierarchy values", "Leaf values determine branch area. Use the table for exact totals and paths; drill-down is only a visual exploration aid."),
+			After: interactiveDocumentation(demoNote("Hierarchy values", "Leaf values determine branch area. Use the table for exact totals and paths; drill-down is only a visual exploration aid.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2510,7 +2513,7 @@ func interactiveSunburstContent() templ.Component {
 				Preview:      sampleInteractiveSunburst(),
 				Code:         interactiveSunburstCode(),
 			},
-			After: demoNote("Explore the hierarchy", "Visual drill-down can focus a branch, but it is not the accessible navigation path. Use the keyboard-accessible adjacent table to inspect every parent-child path and value."),
+			After: interactiveDocumentation(demoNote("Explore the hierarchy", "Visual drill-down can focus a branch, but it is not the accessible navigation path. Use the keyboard-accessible adjacent table to inspect every parent-child path and value.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2548,7 +2551,7 @@ func interactiveTreeContent() templ.Component {
 				Preview:      sampleInteractiveTree(),
 				Code:         interactiveTreeCode(),
 			},
-			After: demoNote("Reading the tree", "Layered and radial views change layout. Keep an adjacent nested list or table as the exact-data source."),
+			After: interactiveDocumentation(demoNote("Reading the tree", "Layered and radial views change layout. Keep an adjacent nested list or table as the exact-data source.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2586,7 +2589,7 @@ func interactiveChartFunnelContent() templ.Component {
 				Preview:      interactive.Funnel(sampleInteractiveFunnel()),
 				Code:         interactiveChartFunnelCode(),
 			},
-			After: demoNote("Stage order", "Make intended stage order explicit. Sorting by value can be useful, but must not replace process order."),
+			After: interactiveDocumentation(demoNote("Stage order", "Make intended stage order explicit. Sorting by value can be useful, but must not replace process order.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -3205,7 +3208,7 @@ func demoNote(title string, text string) templ.Component {
 		var templ_7745c5c3_Var87 string
 		templ_7745c5c3_Var87, templ_7745c5c3_Err = templ.ResolveAttributeValue(tocID(title))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 883, Col: 145}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 886, Col: 145}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var87)
 		if templ_7745c5c3_Err != nil {
@@ -3218,7 +3221,7 @@ func demoNote(title string, text string) templ.Component {
 		var templ_7745c5c3_Var88 string
 		templ_7745c5c3_Var88, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 883, Col: 256}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 886, Col: 256}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var88))
 		if templ_7745c5c3_Err != nil {
@@ -3231,7 +3234,7 @@ func demoNote(title string, text string) templ.Component {
 		var templ_7745c5c3_Var89 string
 		templ_7745c5c3_Var89, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 883, Col: 347}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 886, Col: 347}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var89))
 		if templ_7745c5c3_Err != nil {
@@ -3273,7 +3276,7 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 		var templ_7745c5c3_Var91 string
 		templ_7745c5c3_Var91, templ_7745c5c3_Err = templ.JoinStringErrs(purpose)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 889, Col: 204}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 892, Col: 204}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var91))
 		if templ_7745c5c3_Err != nil {
@@ -3286,7 +3289,7 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 		var templ_7745c5c3_Var92 string
 		templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinStringErrs(useWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 890, Col: 205}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 893, Col: 205}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var92))
 		if templ_7745c5c3_Err != nil {
@@ -3299,7 +3302,7 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 		var templ_7745c5c3_Var93 string
 		templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.JoinStringErrs(avoidWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 891, Col: 209}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 894, Col: 209}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var93))
 		if templ_7745c5c3_Err != nil {
@@ -3317,7 +3320,7 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 			var templ_7745c5c3_Var94 string
 			templ_7745c5c3_Var94, templ_7745c5c3_Err = templ.JoinStringErrs(equivalentData)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 893, Col: 220}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 896, Col: 220}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var94))
 			if templ_7745c5c3_Err != nil {
@@ -3329,6 +3332,35 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 			}
 		}
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</dl></section>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		return nil
+	})
+}
+
+func interactiveDocumentation(content templ.Component) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var95 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var95 == nil {
+			templ_7745c5c3_Var95 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = content.Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -3356,21 +3388,21 @@ func visualizationGuide(purpose string, useWhen string, avoidWhen string, equiva
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var95 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var95 == nil {
-			templ_7745c5c3_Var95 = templ.NopComponent
+		templ_7745c5c3_Var96 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var96 == nil {
+			templ_7745c5c3_Var96 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<section class=\"rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt\"><dl class=\"grid gap-4 lg:grid-cols-2\"><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">Purpose</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var96 string
-		templ_7745c5c3_Var96, templ_7745c5c3_Err = templ.JoinStringErrs(purpose)
+		var templ_7745c5c3_Var97 string
+		templ_7745c5c3_Var97, templ_7745c5c3_Err = templ.JoinStringErrs(purpose)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 903, Col: 204}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 910, Col: 204}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var96))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var97))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -3378,12 +3410,12 @@ func visualizationGuide(purpose string, useWhen string, avoidWhen string, equiva
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var97 string
-		templ_7745c5c3_Var97, templ_7745c5c3_Err = templ.JoinStringErrs(useWhen)
+		var templ_7745c5c3_Var98 string
+		templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.JoinStringErrs(useWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 904, Col: 205}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 911, Col: 205}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var97))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var98))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -3391,12 +3423,12 @@ func visualizationGuide(purpose string, useWhen string, avoidWhen string, equiva
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var98 string
-		templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.JoinStringErrs(avoidWhen)
+		var templ_7745c5c3_Var99 string
+		templ_7745c5c3_Var99, templ_7745c5c3_Err = templ.JoinStringErrs(avoidWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 905, Col: 209}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 912, Col: 209}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var98))
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var99))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -3409,12 +3441,12 @@ func visualizationGuide(purpose string, useWhen string, avoidWhen string, equiva
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			var templ_7745c5c3_Var99 string
-			templ_7745c5c3_Var99, templ_7745c5c3_Err = templ.JoinStringErrs(equivalentData)
+			var templ_7745c5c3_Var100 string
+			templ_7745c5c3_Var100, templ_7745c5c3_Err = templ.JoinStringErrs(equivalentData)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 907, Col: 220}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 914, Col: 220}
 			}
-			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var99))
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var100))
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -3447,9 +3479,9 @@ func chartDocumentation(title string, text string, packageName string) templ.Com
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var100 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var100 == nil {
-			templ_7745c5c3_Var100 = templ.NopComponent
+		templ_7745c5c3_Var101 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var101 == nil {
+			templ_7745c5c3_Var101 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = demoNote(title, text).Render(ctx, templ_7745c5c3_Buffer)
@@ -3480,9 +3512,9 @@ func goAPIReference(packageName string) templ.Component {
 			}()
 		}
 		ctx = templ.InitializeContext(ctx)
-		templ_7745c5c3_Var101 := templ.GetChildren(ctx)
-		if templ_7745c5c3_Var101 == nil {
-			templ_7745c5c3_Var101 = templ.NopComponent
+		templ_7745c5c3_Var102 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var102 == nil {
+			templ_7745c5c3_Var102 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
 		packagePath := "github.com/araihu/goshtoso-charts/components/" + packageName
@@ -3490,29 +3522,42 @@ func goAPIReference(packageName string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var102 string
-		templ_7745c5c3_Var102, templ_7745c5c3_Err = templ.JoinStringErrs(packagePath)
+		var templ_7745c5c3_Var103 string
+		templ_7745c5c3_Var103, templ_7745c5c3_Err = templ.JoinStringErrs(packagePath)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 925, Col: 126}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var102))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</code></div><a href=\"")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		var templ_7745c5c3_Var103 templ.SafeURL
-		templ_7745c5c3_Var103, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("https://pkg.go.dev/github.com/araihu/goshtoso-charts@v0.0.1/components/" + packageName))
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 927, Col: 111}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 932, Col: 126}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var103))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "\" target=\"_blank\" rel=\"noopener noreferrer\" data-go-api-link class=\"inline-flex shrink-0 items-center justify-center gap-2 rounded-radius bg-primary px-4 py-2 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover dark:bg-primary-dark dark:text-on-primary-dark dark:hover:bg-primary-dark-hover\">Open v0.0.1 API <span aria-hidden=\"true\">↗</span></a></div></section>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</code></div>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Var104 := templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+			templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+			templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+			if !templ_7745c5c3_IsBuffer {
+				defer func() {
+					templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+					if templ_7745c5c3_Err == nil {
+						templ_7745c5c3_Err = templ_7745c5c3_BufErr
+					}
+				}()
+			}
+			ctx = templ.InitializeContext(ctx)
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "Open v0.0.1 API <span aria-hidden=\"true\">↗</span>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			return nil
+		})
+		templ_7745c5c3_Err = link.Link("https://pkg.go.dev/github.com/araihu/goshtoso-charts@v0.0.1/components/"+packageName, link.WithAppearance(link.AppearanceButton), link.WithTarget("_blank"), link.WithRootClass("shrink-0"), link.WithAttrs(templ.Attributes{"data-go-api-link": ""})).Render(templ.WithChildren(ctx, templ_7745c5c3_Var104), templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 72, "</div></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
