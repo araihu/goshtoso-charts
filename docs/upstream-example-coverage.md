@@ -26,3 +26,33 @@ source evidence live here and on the Attributions page.
 
 No Line example at this revision requires a raw renderer option or engine-specific
 public type. All ten are represented by typed renderer-neutral configuration.
+
+## Interactive Line
+
+- Source repository: `github.com/go-echarts/examples`
+- Source file: `examples/line.go`
+- Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
+- Source SHA-256: `1f36444bd373eafde876af19746d6b0115a776fd7c019e5996bdf2d00ecd7b1c`
+- Status: thirteen of fourteen upstream functions are covered by the one
+  renderer-neutral `interactive.Line` component. `lineOverlap` remains an
+  explicit unsupported case pending a renderer-neutral composite-chart API.
+- Deterministic adaptation: random values and ambient local time are replaced by
+  fixed category and numerical values plus UTC timestamps. The upstream `Peach `
+  label typo is corrected to `Peach`.
+
+| Upstream function | Coverage | Goshtoso Charts treatment |
+| --- | --- | --- |
+| `lineBase` | Example | Basic categorical line |
+| `lineShowLabel` | Example | Visible point labels |
+| `lineMarkPoint` | Example | Typed minimum, maximum, and average point references |
+| `lineSplitLine` | Example | Visible horizontal split lines |
+| `lineNumerical` | Example | Numerical x axis, piecewise visual scale, guide lines, and marked range |
+| `lineTime` | Example | Typed UTC time axis and exact-value evidence |
+| `lineStep` | Example | Step treatment |
+| `lineSmooth` | Example | Smooth treatment |
+| `lineArea` | Example | Area treatment and marked range |
+| `lineSmoothArea` | Example | Smooth area treatment |
+| `lineOverlap` | Unsupported | Mixed line, scatter, and effect-scatter series require a renderer-neutral composite-chart API; Line does not expose backing-engine series types |
+| `lineMulti` | Example | Four aligned series |
+| `lineDemo` | Example | Two-series comparison with labels and average guides |
+| `lineSymbols` | Example | Smoothed multi-series line with diamond symbols |

@@ -29,15 +29,28 @@ func TestInteractiveLineTimeSourcePinAndContract(t *testing.T) {
 	}
 }
 
-func TestInteractiveLineTimePageRendersOneLineComponentWithEvidence(t *testing.T) {
+func TestInteractiveLinePageRendersExhaustiveVariantsWithEvidence(t *testing.T) {
 	t.Parallel()
 	var output bytes.Buffer
 	if err := InteractiveLinePage(false).Render(context.Background(), &output); err != nil {
 		t.Fatalf("render line page: %v", err)
 	}
-	for _, want := range []string{"Temporal X-axis treatment", "Exact time and values", "2025-01-31T00:00:00Z", "UTC timestamps.", "Show change across an ordered sequence."} {
+	for _, want := range []string{
+		"Basic line example", "Labels and symbols", "Visible point labels", "Diamond symbols",
+		"References and split lines", "Calculated point references", "Visible split lines",
+		"Numerical axis and guides", "Numerical x axis with guides", "Danger zone", "Line of no return",
+		"Line shape treatments", "Step line", "Smooth line", "Area line", "Smooth area",
+		"Multi-series comparisons", "Four line comparison", "Search time comparison",
+		"Temporal X-axis treatment", "Exact time and values", "2025-01-31T00:00:00Z", "UTC timestamps.",
+		"Mixed-series composition", "separate renderer-neutral composite chart API", "Show change across an ordered sequence.",
+	} {
 		if !strings.Contains(output.String(), want) {
 			t.Errorf("line page missing %q", want)
+		}
+	}
+	for _, forbidden := range []string{"go-echarts", "Apache ECharts", "examples/line.go"} {
+		if strings.Contains(output.String(), forbidden) {
+			t.Errorf("line page exposes backing renderer %q", forbidden)
 		}
 	}
 }
