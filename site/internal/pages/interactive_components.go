@@ -53,17 +53,6 @@ func sampleInteractiveScatter() interactive.ScatterConfig {
 	}
 }
 
-func sampleInteractivePie() interactive.PieConfig {
-	return interactive.PieConfig{
-		Label: "Incident states", Caption: "Current incidents grouped by state.",
-		Series: []interactive.PieSeries{{
-			Name: "Incidents", InnerRadius: 32, OuterRadius: 72,
-			Data: []interactive.PieData{{Name: "Open", Value: 12}, {Name: "Investigating", Value: 7}, {Name: "Resolved", Value: 28}},
-		}},
-		Options: controlledOptions("Incident states", "incident-states"),
-	}
-}
-
 func sampleInteractiveRadar() interactive.RadarConfig {
 	return interactive.RadarConfig{
 		Label: "Service health profile", Caption: "Current measurements compared with the target.",
@@ -627,15 +616,12 @@ func interactiveChartScatterCode() string {
 
 func interactiveChartPieCode() string {
 	return `@interactive.Pie(interactive.PieConfig{
-  Label: "Incident states",
+  Label: "Rose area",
   Series: []interactive.PieSeries{{
-    Name: "Incidents",
-    InnerRadius: 32,
-    OuterRadius: 72,
-    Data: []interactive.PieData{
-      {Name: "Open", Value: 12},
-      {Name: "Resolved", Value: 28},
-    },
+    Name: "Seasons", InnerRadius: 40, OuterRadius: 75,
+    RoseMode: interactive.PieRoseArea,
+    LabelContent: interactive.PieLabelNameAndValue,
+    Data: seasonalData,
   }},
 })`
 }

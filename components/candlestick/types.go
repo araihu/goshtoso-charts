@@ -118,6 +118,14 @@ type PatternOptions struct {
 	References   []CloseReferenceType
 }
 
+// AggregationOptions compares source candles with candles grouped into fixed
+// ordered windows. Its zero value leaves aggregation disabled.
+type AggregationOptions struct {
+	WindowSize int
+	Title      string
+	SeriesName string
+}
+
 // PatternResult is one detected formation. Results are ordered first by datum
 // order and then by the selected vocabulary order when several patterns match.
 type PatternResult struct {
@@ -142,20 +150,21 @@ type Options struct {
 
 // Config describes an SSR SVG candlestick chart.
 type Config struct {
-	Label      string
-	Caption    string
-	Title      string
-	SeriesName string
-	Data       []Datum
-	TrendLines []TrendLine
-	Patterns   PatternOptions
-	XAxis      Axis
-	YAxis      Axis
-	Options    Options
-	Width      int
-	Height     int
-	Style      charttheme.Style
-	RootAttrs  templ.Attributes
+	Label       string
+	Caption     string
+	Title       string
+	SeriesName  string
+	Data        []Datum
+	TrendLines  []TrendLine
+	Patterns    PatternOptions
+	Aggregation AggregationOptions
+	XAxis       Axis
+	YAxis       Axis
+	Options     Options
+	Width       int
+	Height      int
+	Style       charttheme.Style
+	RootAttrs   templ.Attributes
 	// Controls configures shared controls; Expand defaults on while fullscreen defaults off.
 	Controls chartcontrol.Options
 	// Export customizes or disables default SVG and PNG export.
@@ -186,6 +195,12 @@ func (cfg Config) validate() error {
 	}
 	if negativePadding(cfg.Options.Padding) {
 		return fmt.Errorf("candlestick chart padding cannot be negative")
+	}
+	if cfg.Aggregation.WindowSize == 1 || cfg.Aggregation.WindowSize < 0 {
+		return fmt.Errorf("candlestick chart aggregation window size must be zero or at least 2")
+	}
+	if cfg.Aggregation.WindowSize == 0 && (strings.TrimSpace(cfg.Aggregation.Title) != "" || strings.TrimSpace(cfg.Aggregation.SeriesName) != "") {
+		return fmt.Errorf("candlestick chart aggregation options need a window size")
 	}
 	if err := validateCandleStyle("increasing", cfg.Options.Increasing); err != nil {
 		return err

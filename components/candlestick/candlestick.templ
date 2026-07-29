@@ -11,8 +11,20 @@ templ candlestickTemplate(cfg Config, chart templ.Component) {
 		}
 	</figure>
 	<details class="mt-3 max-w-full text-sm text-on-surface dark:text-on-surface-dark">
-		<summary class="cursor-pointer font-semibold">Exact OHLC values</summary>
+		<summary class="cursor-pointer font-semibold">{ exactValuesSummary(cfg) }</summary>
 		<p class="mt-2 text-on-surface-muted dark:text-on-surface-dark-muted">Increase means close is greater than or equal to open; decrease means close is below open. Detected patterns are named in text and do not depend on color.</p>
+		if cfg.Aggregation.WindowSize > 0 {
+			<h3 class="mt-3 font-semibold">Source observations</h3>
+		}
+		@candlestickValuesTable(cfg)
+		if cfg.Aggregation.WindowSize > 0 {
+			<h3 class="mt-4 font-semibold">Aggregated observations</h3>
+			@candlestickValuesTable(aggregatedConfig(cfg))
+		}
+	</details>
+}
+
+templ candlestickValuesTable(cfg Config) {
 		<div class="mt-2 overflow-x-auto rounded-radius border border-outline dark:border-outline-dark">
 			<table class="min-w-full border-collapse text-left" aria-label={ cfg.SeriesName + " exact OHLC values" }>
 				<thead><tr>
@@ -44,5 +56,4 @@ templ candlestickTemplate(cfg Config, chart templ.Component) {
 				</tbody>
 			</table>
 		</div>
-	</details>
 }

@@ -17,9 +17,10 @@ func TestPieRendersDonutRoseChart(t *testing.T) {
 		Label: "Incident states", Caption: "Incidents grouped by state.",
 		Series: []PieSeries{{
 			Name: "Incidents", InnerRadius: 30, OuterRadius: 70,
-			RoseMode: PieRoseArea, PadAngle: 2,
-			Data:    []PieData{{Name: "Open", Value: 12}, {Name: "Closed", Value: 28}},
-			Options: SeriesOptions{Label: &LabelOptions{Show: Bool(true)}},
+			RoseMode: PieRoseArea, PadAngle: 2, Center: &PieCenter{X: 25, Y: 50},
+			LabelContent: PieLabelNameAndValue,
+			Data:         []PieData{{Name: "Open", Value: 12}, {Name: "Closed", Value: 28}},
+			Options:      SeriesOptions{Label: &LabelOptions{Show: Bool(true)}},
 		}},
 		Width: "720px", Height: "360px",
 		Options:       ChartOptions{Title: &TitleOptions{Text: "Incident split"}},
@@ -38,9 +39,10 @@ func TestPieRendersDonutRoseChart(t *testing.T) {
 	for _, want := range []string{
 		"Incident states", "Incidents grouped by state.", "width:720px;height:360px",
 		`"name":"Incidents"`, `"name":"Open","value":12`, `"radius":["30%","70%"]`,
-		`"roseType":"area"`, `"padAngle":2`, `"show":true`, `"animation":false`,
+		`"roseType":"area"`, `"padAngle":2`, `"center":["25%","50%"]`,
+		`"formatter":"{b}: {c}"`, `"show":true`, `"animation":false`,
 		`"text":"Incident split"`, `"color":["#123456","#ff8a3d"`,
-		"goshtoso-charts-palette-araihu min-h-80",
+		"goshtoso-charts-palette-araihu min-h-80", "Exact pie values", "Open", "12", "30%",
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
@@ -83,6 +85,9 @@ func TestPieRejectsInvalidDataContract(t *testing.T) {
 		"bad outer radius":    {PieConfig{Label: "States", Series: []PieSeries{{Name: "States", OuterRadius: 101, Data: validSeries.Data}}}, `pie chart series "States" outer radius must be between 0 and 100`},
 		"crossed radii":       {PieConfig{Label: "States", Series: []PieSeries{{Name: "States", InnerRadius: 60, OuterRadius: 50, Data: validSeries.Data}}}, `pie chart series "States" inner radius must be less than outer radius`},
 		"bad rose mode":       {PieConfig{Label: "States", Series: []PieSeries{{Name: "States", RoseMode: "flower", Data: validSeries.Data}}}, `pie chart series "States" rose mode "flower" is not supported`},
+		"bad center x":        {PieConfig{Label: "States", Series: []PieSeries{{Name: "States", Center: &PieCenter{X: -1, Y: 50}, Data: validSeries.Data}}}, `pie chart series "States" center x must be between 0 and 100`},
+		"bad center y":        {PieConfig{Label: "States", Series: []PieSeries{{Name: "States", Center: &PieCenter{X: 50, Y: 101}, Data: validSeries.Data}}}, `pie chart series "States" center y must be between 0 and 100`},
+		"bad label content":   {PieConfig{Label: "States", Series: []PieSeries{{Name: "States", LabelContent: "raw", Data: validSeries.Data}}}, `pie chart series "States" label content "raw" is not supported`},
 		"negative pad":        {PieConfig{Label: "States", Series: []PieSeries{{Name: "States", PadAngle: -1, Data: validSeries.Data}}}, `pie chart series "States" pad angle must be a finite nonnegative value`},
 		"missing data name":   {PieConfig{Label: "States", Series: []PieSeries{{Name: "States", Data: []PieData{{Value: 1}}}}}, `pie chart series "States" data point 0 name is required`},
 		"negative value":      {PieConfig{Label: "States", Series: []PieSeries{{Name: "States", Data: []PieData{{Name: "Open", Value: -1}}}}}, `pie chart series "States" data point "Open" value must be a finite nonnegative value`},
@@ -101,5 +106,29 @@ func TestPieRejectsInvalidDataContract(t *testing.T) {
 				t.Fatalf("Render() wrote %d bytes for invalid config", output.Len())
 			}
 		})
+	}
+}
+
+func TestPieRendersNestedSeriesAtOneCenter(t *testing.T) {
+	t.Parallel()
+	instance := Pie(PieConfig{
+		Label: "Nested seasons",
+		Series: []PieSeries{
+			{Name: "Outer", InnerRadius: 50, OuterRadius: 55, RoseMode: PieRoseArea, Data: []PieData{{Name: "Spring", Value: 81}}},
+			{Name: "Inner", OuterRadius: 45, RoseMode: PieRoseRadius, Data: []PieData{{Name: "Spring", Value: 56}}},
+		},
+	})
+	var output bytes.Buffer
+	if err := instance.Render(context.Background(), &output); err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	markup := output.String()
+	for _, want := range []string{`"name":"Outer"`, `"radius":["50%","55%"]`, `"roseType":"area"`, `"name":"Inner"`, `"radius":["0%","45%"]`, `"roseType":"radius"`} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("rendered markup missing %q", want)
+		}
+	}
+	if strings.Contains(markup, `"center"`) {
+		t.Error("default-center nested series must preserve renderer default center")
 	}
 }

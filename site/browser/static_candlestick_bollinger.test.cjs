@@ -9,6 +9,7 @@ const { chromium } = require("playwright");
 const sharp = require("sharp");
 
 const candidateMarker = 'data-goshtoso-candidate="candlestick-bollinger-fc218c7fedf84c7a"';
+const screenshotDirectory = process.env.GOSHTOSO_SCREENSHOT_DIR;
 let baseURL;
 let browser;
 let server;
@@ -199,6 +200,59 @@ test("source OHLC hash, period-five bands, title, legend, padding, and default e
     await page.close();
   }
 });
+
+for (const width of [390, 1440]) {
+  for (const dark of [false, true]) {
+    test(`${width}px ${dark ? "dark" : "light"} aggregation preserves both charts, exact windows, and responsive containment`, async () => {
+      const { page, failures } = await chartPage({ width, height: 900 });
+      try {
+        await page.evaluate((dark) => document.documentElement.classList.toggle("dark", dark), dark);
+        const figure = page.locator('figure[aria-label="Candlestick aggregation"]');
+        await figure.waitFor();
+        const wrapper = figure.locator("xpath=ancestor::*[@data-goshtoso-chart-wrapper][1]");
+        const sourceRows = wrapper.locator('table[aria-label="1-Minute exact OHLC values"] tbody tr');
+        const aggregateRows = wrapper.locator('table[aria-label="5-Minute exact OHLC values"] tbody tr');
+        assert.equal(await sourceRows.count(), 15);
+        assert.equal(await aggregateRows.count(), 3);
+        assert.deepEqual(await aggregateRows.evaluateAll((rows) => rows.map((row) =>
+          [...row.querySelectorAll("th,td")].slice(0, 6).map((cell) => cell.textContent.trim()))), [
+          ["1-5", "● Increase", "100", "107", "99", "106"],
+          ["6-10", "● Increase", "106", "112", "105", "111"],
+          ["11-15", "● Increase", "111", "117", "110", "116"],
+        ]);
+        const state = await figure.evaluate((element) => {
+          const viewport = element.querySelector(".goshtoso-charts-candlestick__viewport");
+          const svg = viewport.querySelector("svg");
+          const titles = [...svg.querySelectorAll("text")].map((node) => node.textContent);
+          return {
+            viewBox: svg.getAttribute("viewBox"),
+            sourceTitle: titles.filter((text) => text === "1-Minute Candles (Before Aggregation)").length,
+            aggregateTitle: titles.filter((text) => text === "5-Minute Aggregated Candles").length,
+            tokenizedSurface: svg.outerHTML.includes("var(--color-chart-surface)"),
+            documentWidth: document.documentElement.scrollWidth,
+            viewportWidth: window.innerWidth,
+            chartViewportWidth: viewport.clientWidth,
+            chartScrollWidth: viewport.scrollWidth,
+            svgWidth: svg.getBoundingClientRect().width,
+          };
+        });
+        assert.deepEqual({ viewBox: state.viewBox, sourceTitle: state.sourceTitle, aggregateTitle: state.aggregateTitle },
+          { viewBox: "0 0 1200 800", sourceTitle: 1, aggregateTitle: 1 });
+        assert.equal(state.tokenizedSurface, true);
+        assert.ok(state.documentWidth <= state.viewportWidth);
+        assert.ok(state.chartScrollWidth >= state.chartViewportWidth);
+        assert.ok(state.svgWidth >= 600);
+        if (screenshotDirectory) {
+          await fs.mkdir(screenshotDirectory, { recursive: true });
+          await figure.screenshot({ path: path.join(screenshotDirectory, `candlestick-aggregation-${width}-${dark ? "dark" : "light"}.png`) });
+        }
+        assert.deepEqual(failures, []);
+      } finally {
+        await page.close();
+      }
+    });
+  }
+}
 
 for (const width of [390, 1440]) {
   for (const dark of [false, true]) {

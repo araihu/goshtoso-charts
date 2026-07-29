@@ -350,7 +350,7 @@ test("Bar, Line, Pie, and Tree settle across narrow/dark and wide/light modal ge
   const cases = [
     ["/components/interactive/bar", "Weekly deployments by environment"],
     ["/components/interactive/line", "Weekly latency trend"],
-    ["/components/interactive/pie", "Incident states"],
+    ["/components/interactive/pie", "Basic seasonal pie"],
     ["/components/interactive/tree", "Basic tree example"],
   ];
   const displays = [

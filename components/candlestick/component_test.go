@@ -76,6 +76,25 @@ func patternConfig() Config {
 	}
 }
 
+func aggregationConfig() Config {
+	return Config{
+		Label: "Candlestick aggregation", Title: "1-Minute Candles (Before Aggregation)", SeriesName: "1-Minute",
+		Data: []Datum{
+			{Label: "1", Open: 100, High: 102, Low: 99, Close: 101}, {Label: "2", Open: 101, High: 103, Low: 100, Close: 102},
+			{Label: "3", Open: 102, High: 105, Low: 101, Close: 104}, {Label: "4", Open: 104, High: 106, Low: 103, Close: 105},
+			{Label: "5", Open: 105, High: 107, Low: 104, Close: 106}, {Label: "6", Open: 106, High: 108, Low: 105, Close: 107},
+			{Label: "7", Open: 107, High: 109, Low: 106, Close: 108}, {Label: "8", Open: 108, High: 110, Low: 107, Close: 109},
+			{Label: "9", Open: 109, High: 111, Low: 108, Close: 110}, {Label: "10", Open: 110, High: 112, Low: 109, Close: 111},
+			{Label: "11", Open: 111, High: 113, Low: 110, Close: 112}, {Label: "12", Open: 112, High: 114, Low: 111, Close: 113},
+			{Label: "13", Open: 113, High: 115, Low: 112, Close: 114}, {Label: "14", Open: 114, High: 116, Low: 113, Close: 115},
+			{Label: "15", Open: 115, High: 117, Low: 114, Close: 116},
+		},
+		Aggregation: AggregationOptions{WindowSize: 5, Title: "5-Minute Aggregated Candles", SeriesName: "5-Minute"},
+		Options:     Options{TitleFontSize: 16, YUnit: 1, Padding: Padding{Top: 20, Right: 20, Bottom: 20, Left: 20}},
+		Width:       1200, Height: 800,
+	}
+}
+
 func TestCandlestickRendersAccessibleSSRAndExactValues(t *testing.T) {
 	t.Parallel()
 	cfg := validConfig()
@@ -138,6 +157,47 @@ func TestCandlestickDefaultsToUpstreamDimensions(t *testing.T) {
 	cfg := validConfig()
 	if cfg.width() != 600 || cfg.height() != 400 {
 		t.Fatalf("dimensions = %dx%d, want 600x400", cfg.width(), cfg.height())
+	}
+}
+
+func TestCandlestickAggregationPreservesSourceAndWindowSemantics(t *testing.T) {
+	t.Parallel()
+	cfg := aggregationConfig()
+	got := aggregateData(cfg.Data, cfg.Aggregation.WindowSize)
+	want := []Datum{
+		{Label: "1-5", Open: 100, High: 107, Low: 99, Close: 106},
+		{Label: "6-10", Open: 106, High: 112, Low: 105, Close: 111},
+		{Label: "11-15", Open: 111, High: 117, Low: 110, Close: 116},
+	}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("aggregated data = %#v, want %#v", got, want)
+	}
+	if len(cfg.Data) != 15 || cfg.Data[0].Open != 100 || cfg.Data[14].Close != 116 {
+		t.Fatalf("source data mutated: %#v", cfg.Data)
+	}
+	partial := aggregateData(cfg.Data[:12], 5)
+	if got, want := partial[2], (Datum{Label: "11-12", Open: 111, High: 114, Low: 110, Close: 113}); got != want {
+		t.Fatalf("partial final window = %#v, want %#v", got, want)
+	}
+}
+
+func TestCandlestickAggregationRendersBeforeAfterAndExactValues(t *testing.T) {
+	t.Parallel()
+	cfg := aggregationConfig()
+	cfg.Caption = "Fifteen one-minute observations grouped into three five-minute candles."
+	var output bytes.Buffer
+	if err := Candlestick(cfg).Render(context.Background(), &output); err != nil {
+		t.Fatal(err)
+	}
+	markup := output.String()
+	for _, want := range []string{
+		`viewBox="0 0 1200 800"`, "1-Minute Candles (Before Aggregation)", "5-Minute Aggregated Candles",
+		"1-Minute exact OHLC values", "5-Minute exact OHLC values", "1-5", "6-10", "11-15",
+		"Fifteen one-minute observations grouped into three five-minute candles.", "var(--color-chart-surface)",
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("aggregation markup missing %q", want)
+		}
 	}
 }
 
@@ -321,6 +381,8 @@ func TestCandlestickValidation(t *testing.T) {
 		{name: "title font", edit: func(c *Config) { c.Options.TitleFontSize = math.NaN() }, want: "title font size"},
 		{name: "Y unit", edit: func(c *Config) { c.Options.YUnit = -1 }, want: "Y unit"},
 		{name: "padding", edit: func(c *Config) { c.Options.Padding.Left = -1 }, want: "padding cannot be negative"},
+		{name: "aggregation window", edit: func(c *Config) { c.Aggregation.WindowSize = 1 }, want: "aggregation window size"},
+		{name: "aggregation title without window", edit: func(c *Config) { c.Aggregation.Title = "Grouped" }, want: "need a window size"},
 		{name: "candle exclusivity", edit: func(c *Config) { c.Options.Increasing = CandleStyle{Color: "red", Class: "up"} }, want: "both color and class"},
 		{name: "unsupported trend", edit: func(c *Config) { c.TrendLines = []TrendLine{{Type: "median", Period: 2}} }, want: "unsupported"},
 		{name: "trend period low", edit: func(c *Config) { c.TrendLines = []TrendLine{{Type: TrendTypeSimpleMovingAverage, Period: 1}} }, want: "between 2 and datum count"},
