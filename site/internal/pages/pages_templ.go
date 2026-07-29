@@ -4491,7 +4491,7 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 			templ_7745c5c3_Var113 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "<section class=\"rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt\"><dl class=\"grid gap-4 lg:grid-cols-2\"><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">Purpose</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 122, "<section data-visualization-guidance class=\"rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt\"><dl class=\"grid gap-4 lg:grid-cols-2\"><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">Purpose</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -4615,7 +4615,7 @@ func visualizationGuide(purpose string, useWhen string, avoidWhen string, equiva
 			templ_7745c5c3_Var119 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 129, "<section class=\"rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt\"><dl class=\"grid gap-4 lg:grid-cols-2\"><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">Purpose</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 129, "<section data-visualization-guidance class=\"rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt\"><dl class=\"grid gap-4 lg:grid-cols-2\"><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">Purpose</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -4753,7 +4753,7 @@ func goAPIReference(packageName string) templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 137, "</code><p data-shared-chart-guidance class=\"mt-4 max-w-2xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted\">Wrapper lifecycle, controls, export, and client events are shared by every chart. Review <a class=\"font-semibold text-primary underline dark:text-primary-dark\" href=\"/docs/chart-controls\">chart controls</a>, then compare <a class=\"font-semibold text-primary underline dark:text-primary-dark\" href=\"/docs/chart-modes\">static/vector and interactive capabilities</a>.</p></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 137, "</code><p data-shared-chart-guidance class=\"mt-4 max-w-2xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted\">Enabled, disabled, hidden, and omitted wrapper behavior, controls, export, and client transitions are shared by every chart. Review <a class=\"font-semibold text-primary underline dark:text-primary-dark\" href=\"/docs/chart-controls\">chart controls</a>, then compare <a class=\"font-semibold text-primary underline dark:text-primary-dark\" href=\"/docs/chart-modes\">static/vector and interactive capabilities</a>.</p></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

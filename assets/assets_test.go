@@ -84,14 +84,14 @@ func TestHandlerServesVersionedChartControlRuntime(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("GET %s status = %d, want %d", assets.ControlRuntimeURL, recorder.Code, http.StatusOK)
 	}
-	const wantSHA256 = "7747ad340743c428ff733c7f38e112be828fea268c75fe6ee5c8ca273af106fa"
+	const wantSHA256 = "18b87e685e16788b30fb879dd73e084262e0dd94495e884884435e185237d0a0"
 	if got := fmt.Sprintf("%x", sha256.Sum256(recorder.Body.Bytes())); got != wantSHA256 {
-		t.Fatalf("GET %s SHA-256 = %s, want immutable v4 %s", assets.ControlRuntimeURL, got, wantSHA256)
+		t.Fatalf("GET %s SHA-256 = %s, want immutable v5 %s", assets.ControlRuntimeURL, got, wantSHA256)
 	}
 	for _, want := range []string{
 		"requestFullscreen", "goshtoso-charts:resize", "goshtoso-charts:export-request", "expandFromMenu", "toggleFullscreen",
 		"goshtoso-charts:set-wrapper-mode", "goshtoso-charts:wrapper-mode-change",
-		"MutationObserver", "htmx:load", "htmx:afterSwap", "goshtosoChartWrapperMode",
+		"MutationObserver", "htmx:load", "htmx:afterSwap", "goshtosoChartWrapperMode", "normalizeWrapperMode",
 	} {
 		if !strings.Contains(recorder.Body.String(), want) {
 			t.Errorf("control runtime missing %q", want)
@@ -116,6 +116,7 @@ func TestHandlerKeepsPreviousChartControlRuntimesAvailable(t *testing.T) {
 		{"1", "ccb5c4c11ab1078549ec02a339f1fc4afdaea747b8d1379ad1dac25d1eb47c5b"},
 		{"2", "562c321b5e51c153ba7f6889cce52e15c9fd60f4c0ca70430acb1126708d507d"},
 		{"3", "90b1369603f3c77c364e41e5d74a83ff44e8651a9ad8c97e015b3769617de781"},
+		{"4", "7747ad340743c428ff733c7f38e112be828fea268c75fe6ee5c8ca273af106fa"},
 	} {
 		recorder := httptest.NewRecorder()
 		request := httptest.NewRequest(http.MethodGet, "/charts/assets/js/controls/"+runtime.version+"/controls.js", nil)

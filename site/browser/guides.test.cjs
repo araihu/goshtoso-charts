@@ -75,12 +75,16 @@ for (const width of [390, 1440]) {
           await page.getByText("pkg.go.dev is the canonical reference", { exact: false }).waitFor();
           if (name === "chart-controls") {
             await page.locator("[data-wrapper-mode-comparison]").waitFor();
+            await page.locator("[data-wrapper-dom-contract]").waitFor();
+            await page.getByText("observable state, not a mutation API", { exact: false }).waitFor();
             await page.getByText("goshtoso-charts:set-wrapper-mode", { exact: true }).waitFor();
             await page.getByRole("heading", { name: "No-JavaScript behavior", exact: true }).waitFor();
             await page.getByRole("heading", { name: "Caller responsibilities", exact: true }).waitFor();
             await page.getByText("window.__goshtosoChartsControls.setWrapperMode", { exact: false }).first().waitFor();
           } else {
             await page.getByText("chart controls and wrapper lifecycle", { exact: true }).waitFor();
+            await page.locator("[data-chart-mode-limits]").waitFor();
+            await page.getByRole("heading", { name: "Shared wrapper boundary", exact: true }).waitFor();
           }
           const state = await page.evaluate(() => ({
             clientWidth: document.documentElement.clientWidth,

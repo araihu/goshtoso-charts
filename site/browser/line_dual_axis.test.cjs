@@ -149,7 +149,7 @@ test("test-owned candidate routes, search, and assets are exact and healthy", as
     "/components/line",
     "/attributions",
     "/search/assets/search.js",
-    "/charts/assets/js/controls/4/controls.js",
+    "/charts/assets/js/controls/5/controls.js",
     "/assets/styles.css",
   ]) {
     const response = await fetch(`${baseURL}${route}`);

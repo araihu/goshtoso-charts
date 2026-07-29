@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
 const { after, before, test } = require("node:test");
+const http = require("node:http");
 const path = require("node:path");
 const { execFileSync, spawn } = require("node:child_process");
 const { chromium } = require("playwright");
@@ -8,26 +9,6 @@ const testPort = process.env.TEST_PORT || String(20000 + Math.floor(Math.random(
 const baseURL = process.env.BASE_URL || `http://127.0.0.1:${testPort}`;
 let browser;
 let server;
-
-const staticRoutes = [
-  "/components/line", "/components/bar", "/components/pie", "/components/scatter",
-  "/components/radar", "/components/candlestick", "/components/funnel", "/components/heatmap",
-  "/components/table", "/components/violin",
-];
-
-const interactiveRoutes = [
-  "/components/interactive/bar", "/components/interactive/line", "/components/interactive/scatter",
-  "/components/interactive/scatter-3d", "/components/interactive/bar-3d",
-  "/components/interactive/surface-3d", "/components/interactive/line-3d",
-  "/components/interactive/pie", "/components/interactive/radar", "/components/interactive/heatmap",
-  "/components/interactive/boxplot", "/components/interactive/gauge",
-  "/components/interactive/funnel", "/components/interactive/graph",
-  "/components/interactive/sankey", "/components/interactive/tree",
-  "/components/interactive/sunburst", "/components/interactive/treemap",
-  "/components/interactive/parallel", "/components/interactive/theme-river",
-  "/components/interactive/candlestick", "/components/interactive/word-cloud",
-  "/components/interactive/map", "/components/interactive/geo",
-];
 
 async function ready() {
   for (let attempt = 0; attempt < 120; attempt += 1) {
@@ -73,11 +54,18 @@ after(async () => {
   }
 });
 
-test("all 34 public chart pages preserve one renderer-neutral wrapper lifecycle", async () => {
-  assert.equal(staticRoutes.length, 10);
-  assert.equal(interactiveRoutes.length, 24);
+test("all current public chart pages preserve one renderer-neutral wrapper lifecycle", async () => {
+  const navigationPage = await browser.newPage({ viewport: { width: 768, height: 900 } });
+  await navigationPage.goto(`${baseURL}/components/line`);
+  const routes = await navigationPage.locator('a[href^="/components/"]').evaluateAll((links) => (
+    [...new Set(links.map((link) => new URL(link.href).pathname)
+      .filter((route) => /^\/components\/(?:interactive\/)?[a-z0-9-]+$/.test(route)))]
+      .sort()
+  ));
+  await navigationPage.close();
+  assert.ok(routes.length > 0, "current chart navigation has no component routes");
 
-  for (const route of [...staticRoutes, ...interactiveRoutes]) {
+  for (const route of routes) {
     const page = await browser.newPage({ viewport: { width: 768, height: 900 } });
     const errors = [];
     page.on("pageerror", (error) => errors.push(String(error)));
@@ -198,7 +186,7 @@ test("actionless wrapper still accepts plain-JS lifecycle changes", async () => 
     await page.setContent(`<!doctype html><html><head><base href="${baseURL}/"></head><body>${rendered}</body></html>`, { waitUntil: "load" });
     await page.waitForFunction(() => Boolean(window.__goshtosoChartsControls));
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]");
-    assert.equal(await wrapper.locator('script[src="/charts/assets/js/controls/4/controls.js"]').count(), 1);
+    assert.equal(await wrapper.locator('script[src="/charts/assets/js/controls/5/controls.js"]').count(), 1);
     assert.equal(await wrapper.locator("[data-goshtoso-chart-actions-fieldset]").count(), 0);
     assert.equal(await wrapper.evaluate((element) => window.__goshtosoChartsControls.setWrapperMode(element, "hidden")), true);
     assert.deepEqual(await wrapper.evaluate((element) => ({
@@ -220,5 +208,97 @@ test("actionless wrapper still accepts plain-JS lifecycle changes", async () => 
     assert.deepEqual(errors, []);
   } finally {
     await page.close();
+  }
+});
+
+test("actionless wrapper state runtime works under strict CSP and normalizes the Go zero value", async () => {
+  const rendered = execFileSync("go", ["run", "./browser/fixtures/actionless-wrapper"], {
+    cwd: path.resolve(__dirname, ".."),
+    encoding: "utf8",
+  });
+  const cspServer = http.createServer(async (request, response) => {
+    if (request.url?.startsWith("/charts/assets/")) {
+      const upstream = await fetch(`${baseURL}${request.url}`);
+      response.writeHead(upstream.status, { "content-type": upstream.headers.get("content-type") || "application/javascript" });
+      response.end(Buffer.from(await upstream.arrayBuffer()));
+      return;
+    }
+    response.writeHead(200, {
+      "content-type": "text/html; charset=utf-8",
+      "content-security-policy": "default-src 'none'; script-src 'self'; style-src 'unsafe-inline'",
+    });
+    response.end(`<!doctype html><html><head><meta charset="utf-8"></head><body>${rendered}</body></html>`);
+  });
+  await new Promise((resolve, reject) => {
+    cspServer.once("error", reject);
+    cspServer.listen(0, "127.0.0.1", resolve);
+  });
+
+  const address = cspServer.address();
+  const page = await browser.newPage({ viewport: { width: 390, height: 600 } });
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(String(error)));
+  page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+  try {
+    await page.goto(`http://127.0.0.1:${address.port}/`);
+    await page.waitForFunction(() => Boolean(window.__goshtosoChartsControls));
+    const wrapper = page.locator("[data-goshtoso-chart-wrapper]");
+    await page.waitForFunction(() => document.querySelector("[data-goshtoso-chart-wrapper]")?.dataset.goshtosoChartWrapperInitialized === "true");
+    assert.equal(await wrapper.locator('script[src="/charts/assets/js/controls/5/controls.js"]').count(), 1);
+
+    await page.evaluate(() => {
+      document.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      document.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+      const text = document.createTextNode("event target probe");
+      document.body.append(text);
+      text.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      text.dispatchEvent(new KeyboardEvent("keydown", { bubbles: true, key: "Escape" }));
+      text.remove();
+    });
+
+    const state = await wrapper.evaluate((element) => {
+      const changes = [];
+      element.addEventListener("goshtoso-charts:wrapper-mode-change", (event) => changes.push(event.detail));
+      const disabled = window.__goshtosoChartsControls.setWrapperMode(element, "disabled");
+      const zeroValueEnabled = window.__goshtosoChartsControls.setWrapperMode(element, "");
+      const rejected = ["omitted", "__proto__", "constructor", "toString"].map((mode) => (
+        window.__goshtosoChartsControls.setWrapperMode(element, mode)
+      ));
+      element.dispatchEvent(new CustomEvent("goshtoso-charts:set-wrapper-mode", {
+        bubbles: true,
+        detail: { mode: "disabled" },
+      }));
+      element.dispatchEvent(new CustomEvent("goshtoso-charts:set-wrapper-mode", {
+        bubbles: true,
+        detail: { mode: "" },
+      }));
+      return {
+        disabled,
+        zeroValueEnabled,
+        rejected,
+        mode: element.dataset.goshtosoChartWrapperMode,
+        hidden: element.hidden,
+        inert: element.hasAttribute("inert"),
+        changes,
+      };
+    });
+    assert.deepEqual(state, {
+      disabled: true,
+      zeroValueEnabled: true,
+      rejected: [false, false, false, false],
+      mode: "enabled",
+      hidden: false,
+      inert: false,
+      changes: [
+        { previousMode: "enabled", mode: "disabled" },
+        { previousMode: "disabled", mode: "enabled" },
+        { previousMode: "enabled", mode: "disabled" },
+        { previousMode: "disabled", mode: "enabled" },
+      ],
+    });
+    assert.deepEqual(errors, []);
+  } finally {
+    await page.close();
+    await new Promise((resolve, reject) => cspServer.close((error) => error ? reject(error) : resolve()));
   }
 });

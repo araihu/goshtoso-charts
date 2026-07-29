@@ -3,6 +3,8 @@ package server
 import (
 	"net/http"
 	"net/http/httptest"
+	"regexp"
+	"sort"
 	"strings"
 	"testing"
 )
@@ -13,10 +15,8 @@ var componentDocumentationRoutes = map[string]string{
 }
 
 func TestEveryComponentRouteUsesGuidanceAndGoAPIFooter(t *testing.T) {
-	if got := len(componentDocumentationRoutes); got != 34 {
-		t.Fatalf("component route count = %d, want 34", got)
-	}
 	handler := New()
+	assertDocumentationRoutesMatchNavigation(t, handler)
 	for path, packageName := range componentDocumentationRoutes {
 		t.Run(path, func(t *testing.T) {
 			recorder := httptest.NewRecorder()
@@ -25,6 +25,20 @@ func TestEveryComponentRouteUsesGuidanceAndGoAPIFooter(t *testing.T) {
 				t.Fatalf("status = %d", recorder.Code)
 			}
 			body := recorder.Body.String()
+			for marker, want := range map[string]int{
+				"data-visualization-guidance": 1,
+				"data-go-api-reference":       1,
+				"data-shared-chart-guidance":  1,
+			} {
+				if got := strings.Count(body, marker); got != want {
+					t.Errorf("%s count = %d, want %d", marker, got, want)
+				}
+			}
+			for _, heading := range []string{">Purpose</dt>", ">Use when</dt>", ">Avoid when</dt>", ">Equivalent data</dt>"} {
+				if got := strings.Count(body, heading); got != 1 {
+					t.Errorf("visualization guidance %s count = %d, want one", heading, got)
+				}
+			}
 			if lastFooter, lastPreview := strings.LastIndex(body, "data-go-api-reference"), strings.LastIndex(body, "data-component-preview"); lastFooter <= lastPreview {
 				t.Errorf("Go API footer must follow every chart preview: footer=%d preview=%d", lastFooter, lastPreview)
 			}
@@ -40,15 +54,39 @@ func TestEveryComponentRouteUsesGuidanceAndGoAPIFooter(t *testing.T) {
 					t.Errorf("Go API footer missing %q", want)
 				}
 			}
-			for _, want := range []string{`data-shared-chart-guidance`, `href="/docs/chart-controls"`, `href="/docs/chart-modes"`, "Wrapper lifecycle", "static/vector and interactive capabilities"} {
+			for _, want := range []string{`data-shared-chart-guidance`, `href="/docs/chart-controls"`, `href="/docs/chart-modes"`, "Enabled, disabled, hidden, and omitted wrapper behavior", "static/vector and interactive capabilities"} {
 				if !strings.Contains(body, want) {
 					t.Errorf("shared chart guidance missing %q", want)
 				}
 			}
-			if got := strings.Count(body, "data-shared-chart-guidance"); got != 1 {
-				t.Errorf("shared chart guidance count = %d, want one common helper", got)
-			}
 		})
+	}
+}
+
+func assertDocumentationRoutesMatchNavigation(t *testing.T, handler http.Handler) {
+	t.Helper()
+	recorder := httptest.NewRecorder()
+	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/bar", nil))
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("navigation source status = %d", recorder.Code)
+	}
+	pattern := regexp.MustCompile(`href="(/components/(?:interactive/)?[a-z0-9-]+)"`)
+	set := map[string]struct{}{}
+	for _, match := range pattern.FindAllStringSubmatch(recorder.Body.String(), -1) {
+		set[match[1]] = struct{}{}
+	}
+	navigationRoutes := make([]string, 0, len(set))
+	for path := range set {
+		navigationRoutes = append(navigationRoutes, path)
+	}
+	documentedRoutes := make([]string, 0, len(componentDocumentationRoutes))
+	for path := range componentDocumentationRoutes {
+		documentedRoutes = append(documentedRoutes, path)
+	}
+	sort.Strings(navigationRoutes)
+	sort.Strings(documentedRoutes)
+	if strings.Join(navigationRoutes, "\n") != strings.Join(documentedRoutes, "\n") {
+		t.Fatalf("documentation route matrix differs from current chart navigation\nnavigation:\n%s\ndocumentation:\n%s", strings.Join(navigationRoutes, "\n"), strings.Join(documentedRoutes, "\n"))
 	}
 }
 
