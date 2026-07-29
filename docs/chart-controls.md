@@ -31,6 +31,32 @@ here. Chart controls no longer measure width or own responsive overflow.
 Controls runtime v3 owns chart-specific modal, fullscreen, resize, and export
 behavior only; immutable v1 and v2 paths stay served for compatibility.
 
+## Wrapper lifecycle
+
+Every static/vector and interactive chart accepts the same renderer-neutral
+`chartcontrol.Options.Mode`. `WrapperModeEnabled` is the zero value. It renders
+the wrapper, chart, available actions, and wrapper runtime normally.
+`WrapperModeDisabled` keeps the chart visible, live, and theme-aware while
+making wrapper actions inert. `WrapperModeHidden` retains DOM and runtime state
+but hides the wrapper subtree with inert and `aria-hidden` semantics; callers
+must provide an external reveal control and manage focus. `WrapperModeOmitted`
+renders only the chart, with no wrapper, actions, status region, modal, or
+wrapper-control runtime. Omitted is server-only and can return only through a
+rerender or swap.
+
+Enabled, disabled, and hidden transition through the bubbling
+`goshtoso-charts:set-wrapper-mode` event. Event detail is
+`{ mode, focusReturn? }`; `focusReturn` may be a connected `HTMLElement`.
+Applied transitions emit bubbling `goshtoso-charts:wrapper-mode-change` with
+`{ previousMode, mode }`. Disabling or hiding closes transient wrapper UI.
+Reveal and re-enable request a settled resize while preserving the current
+renderer instance, latest live snapshot, and active theme. HTMX swaps rehydrate
+from the new server-rendered mode.
+
+Enabled, disabled, and hidden still validate configured export formats and
+backgrounds during server rendering. Omitted skips that wrapper-only export
+validation because it renders neither export actions nor export runtime.
+
 ## Verified export matrix
 
 | Component family | Current components | SVG | PNG | Evidence |

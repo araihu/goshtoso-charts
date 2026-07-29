@@ -66,6 +66,7 @@ templ chartModesContent() {
 					</tbody>
 				</table>
 			</div>
+			<p class="max-w-3xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Wrapper lifecycle is independent of renderer choice. Every chart accepts the same enabled, disabled, hidden, or omitted wrapper state; review <a class="font-semibold text-primary underline dark:text-primary-dark" href="/docs/chart-controls" hx-get="/docs/chart-controls" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">chart controls and wrapper lifecycle</a> before choosing client-side transitions.</p>
 		</section>
 
 		<section class="space-y-4">
@@ -91,7 +92,7 @@ templ chartControlsContent() {
 		<header class="space-y-4">
 			<p class="text-sm font-semibold text-primary dark:text-primary-dark">Shared behavior</p>
 			<h1 class="font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong">Chart controls</h1>
-			<p class="max-w-3xl text-lg text-on-surface-muted dark:text-on-surface-dark-muted">Every chart is rendered through the same wrapper. Configure controls and export on the chart config; the wrapper supplies responsive actions, a large modal, fullscreen behavior, downloads, and focus management.</p>
+			<p class="max-w-3xl text-lg text-on-surface-muted dark:text-on-surface-dark-muted">Every chart accepts the same renderer-neutral wrapper options. Configure lifecycle, controls, and export on the chart config; the wrapper supplies responsive actions, a large modal, fullscreen behavior, downloads, and focus management when present.</p>
 			@chartGuideNavigation("chart-controls")
 		</header>
 
@@ -103,6 +104,60 @@ templ chartControlsContent() {
 				@controlFact("Export", "Enabled from the chart capability unless Export.Disabled is true.")
 				@controlFact("Collapse", "Not part of the public control API.")
 			</div>
+		</section>
+
+		<section class="space-y-4">
+			<h2 id="wrapper-lifecycle" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Wrapper lifecycle</h2>
+			<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted"><code class="font-mono">chartcontrol.Options.Mode</code> is shared by static/vector and interactive charts. Enabled is the zero value. Choose an initial server-rendered state deliberately; only enabled, disabled, and hidden can change in the browser.</p>
+			<div class="overflow-x-auto rounded-radius border border-outline dark:border-outline-dark" data-wrapper-mode-comparison>
+				<table class="w-full min-w-[52rem] border-collapse text-left text-sm">
+					<thead class="bg-surface-alt text-on-surface-strong dark:bg-surface-dark-alt dark:text-on-surface-dark-strong">
+						<tr><th scope="col" class="px-4 py-3 font-semibold">Mode</th><th scope="col" class="px-4 py-3 font-semibold">Rendered result</th><th scope="col" class="px-4 py-3 font-semibold">Client transition</th><th scope="col" class="px-4 py-3 font-semibold">Use it when</th></tr>
+					</thead>
+					<tbody class="divide-y divide-outline dark:divide-outline-dark">
+						<tr><th scope="row" class="px-4 py-3 align-top font-semibold"><code class="font-mono">WrapperModeEnabled</code></th><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">Default. Wrapper, chart, available actions, and wrapper runtime are active.</td><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">Can enter from disabled or hidden.</td><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">People should see and operate the chart normally.</td></tr>
+						<tr><th scope="row" class="px-4 py-3 align-top font-semibold"><code class="font-mono">WrapperModeDisabled</code></th><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">Chart stays visible, live, and theme-aware. Wrapper actions remain visible but inert and expose disabled state.</td><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">Can enter or leave with the set-mode event.</td><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">Context remains useful while actions must be temporarily unavailable.</td></tr>
+						<tr><th scope="row" class="px-4 py-3 align-top font-semibold"><code class="font-mono">WrapperModeHidden</code></th><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">Wrapper and chart remain in the DOM with runtime state intact, but the subtree is hidden, inert, and <code class="font-mono">aria-hidden</code>.</td><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">Can enter or leave with an external trigger. Caller owns trigger placement and focus.</td><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">The same initialized chart will be revealed again without a server round trip.</td></tr>
+						<tr><th scope="row" class="px-4 py-3 align-top font-semibold"><code class="font-mono">WrapperModeOmitted</code></th><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">Only the chart renders: no wrapper, actions, status region, modal, or wrapper-control runtime.</td><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">Server-only. Change it by rerendering or swapping the chart.</td><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">Consumer supplies its own shell or wants the smallest static/vector no-JavaScript surface.</td></tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="min-w-0 space-y-3">
+				<h3 class="font-title text-lg font-semibold text-on-surface-strong dark:text-on-surface-dark-strong">Choose the initial state in Go</h3>
+				@codeblock.CodeBlock(codeblock.Config{Language: "templ", Label: "templ", Code: wrapperModeInitialCode})
+			</div>
+		</section>
+
+		<section class="space-y-4">
+			<h2 id="client-transitions" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Client transitions</h2>
+			<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">Dispatch the stable bubbling <code class="font-mono">goshtoso-charts:set-wrapper-mode</code> event on a wrapper or any descendant. Its detail is <code class="font-mono">&#123; mode, focusReturn? &#125;</code>; mode accepts <code class="font-mono">enabled</code>, <code class="font-mono">disabled</code>, or <code class="font-mono">hidden</code>. A connected <code class="font-mono">HTMLElement</code> in <code class="font-mono">focusReturn</code> receives focus after hiding or closing transient UI.</p>
+			<div class="grid gap-6 xl:grid-cols-2">
+				<div class="min-w-0 space-y-3"><h3 class="font-title text-lg font-semibold">Plain JavaScript</h3>@codeblock.CodeBlock(codeblock.Config{Language: "javascript", Label: "JavaScript", Code: wrapperModeJavaScriptCode})</div>
+				<div class="min-w-0 space-y-3"><h3 class="font-title text-lg font-semibold">Alpine</h3>@codeblock.CodeBlock(codeblock.Config{Language: "html", Label: "templ", Code: wrapperModeAlpineCode})</div>
+			</div>
+			<p class="max-w-3xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">After applying state, the wrapper emits <code class="font-mono">goshtoso-charts:wrapper-mode-change</code> with exact detail <code class="font-mono">&#123; previousMode, mode &#125;</code>. Listen on the wrapper or an ancestor; the event bubbles.</p>
+		</section>
+
+		<section class="space-y-4">
+			<h2 id="htmx-swaps" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">HTMX swaps</h2>
+			<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">Let the server return the desired initial mode when HTMX replaces a chart. Newly swapped wrappers rehydrate from their rendered mode. An omitted wrapper can return only through a rerender or swap because no client wrapper exists to receive a mode event.</p>
+			@codeblock.CodeBlock(codeblock.Config{Language: "templ", Label: "templ", Code: wrapperModeHTMXCode})
+			<p class="max-w-3xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Map request values to the four known <code class="font-mono">WrapperMode</code> constants before rendering; reject unknown values instead of casting arbitrary input.</p>
+		</section>
+
+		<section class="space-y-4">
+			<h2 id="state-guarantees" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">State guarantees</h2>
+			<div class="grid gap-4 md:grid-cols-2">
+				@controlFact("Reveal and re-enable", "The same DOM and renderer instance remain in place. The wrapper requests a settled resize after becoming visible or active, so interactive canvases and responsive static charts fit current layout.")
+				@controlFact("Live data and theme", "Disabled and hidden charts keep the latest live snapshot and current theme. Reveal does not restore stale server data or recreate the renderer.")
+				@controlFact("Transient UI and focus", "Disabling or hiding closes open menus, modal expansion, and fullscreen state first. Hidden content is removed from focus and accessibility traversal; use focusReturn or move focus from an external controller.")
+				@controlFact("Export and validation", "Wrapper mode never adds an unsupported format. Enabled, disabled, and hidden validate export configuration during server rendering. Omitted skips wrapper-only export validation because no wrapper action or export runtime renders.")
+			</div>
+		</section>
+
+		<section class="space-y-4 rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt">
+			<h2 id="no-javascript" data-toc-heading class="scroll-mt-8 font-title text-xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">No-JavaScript behavior</h2>
+			<p class="text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Static/vector charts remain readable when enabled or disabled; controls cannot act without JavaScript. Hidden stays hidden. Omitted leaves the static/vector chart visible with no wrapper runtime. Interactive charts still require their chart runtime regardless of wrapper mode. Client mode events and hidden-to-visible transitions require JavaScript; use an HTMX or full-page server response when the server must own state.</p>
 		</section>
 
 		<section class="space-y-4">
@@ -129,7 +184,7 @@ templ chartControlsContent() {
 					<tbody class="divide-y divide-outline dark:divide-outline-dark"><tr><th scope="row" class="px-4 py-3">Static/vector SVG</th><td class="px-4 py-3">SVG and PNG</td><td class="px-4 py-3">Opaque or transparent</td><td class="px-4 py-3">Serialize computed SVG styles; rasterize in-browser for PNG.</td></tr><tr><th scope="row" class="px-4 py-3">Interactive canvas</th><td class="px-4 py-3">PNG</td><td class="px-4 py-3">Opaque</td><td class="px-4 py-3">Snapshot the live chart instance.</td></tr></tbody>
 				</table>
 			</div>
-			<p class="text-sm text-on-surface-muted dark:text-on-surface-dark-muted"><code class="font-mono">PixelRatio</code> defaults to 1. Filenames are normalized to a lowercase, filesystem-safe basename. Unsupported format and background requests fail during rendering instead of showing a control that cannot work.</p>
+			<p class="text-sm text-on-surface-muted dark:text-on-surface-dark-muted"><code class="font-mono">PixelRatio</code> defaults to 1. Filenames are normalized to a lowercase, filesystem-safe basename. Unsupported format and background requests fail during rendering instead of showing a control that cannot work. Wrapper lifecycle does not expand this capability matrix.</p>
 		</section>
 
 		<section class="space-y-4">
