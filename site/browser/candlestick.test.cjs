@@ -8,6 +8,7 @@ const sharp = require("sharp");
 
 const port = Number(process.env.CANDLESTICK_TEST_PORT || 18097);
 const baseURL = process.env.BASE_URL || `http://127.0.0.1:${port}`;
+const screenshotDirectory = process.env.GOSHTOSO_SCREENSHOT_DIR;
 let browser;
 let server;
 
@@ -113,7 +114,67 @@ async function chartState(page) {
   });
 }
 
+test("all five pinned candlestick behaviors preserve the exact dataset and typed options", async () => {
+  const page = await candlestickPage();
+  try {
+    await page.waitForFunction(() => document.querySelectorAll("[data-candlestick-variant] [_echarts_instance_]").length === 5);
+    const variants = await page.locator("[data-candlestick-variant]").evaluateAll((figures) => Object.fromEntries(figures.map((figure) => {
+      const host = figure.querySelector("[_echarts_instance_]");
+      const option = window.echarts.getInstanceByDom(host).getOption();
+      return [figure.dataset.candlestickVariant, {
+        count: option.series[0].data.length,
+        first: option.series[0].data[0].value,
+        last: option.series[0].data.at(-1).value,
+        splitNumber: option.xAxis[0].splitNumber,
+        scale: option.yAxis[0].scale,
+        zoom: (option.dataZoom || []).map((zoom) => ({
+          type: zoom.type,
+          start: zoom.start,
+          end: zoom.end,
+          orient: zoom.orient,
+          x: zoom.xAxisIndex,
+          y: zoom.yAxisIndex,
+        })),
+        marks: option.series[0].markPoint?.data?.map((point) => ({ name: point.name, type: point.type, valueDim: point.valueDim })) || [],
+        styles: figure.getAttribute("data-goshtoso-charts-candlestick-styles"),
+      }];
+    })));
+
+    assert.deepEqual(Object.keys(variants), ["baseline", "inside", "inside-slider", "y-axis", "style"]);
+    for (const variant of Object.values(variants)) {
+      assert.equal(variant.count, 88);
+      assert.deepEqual(variant.first, [2320.26, 2320.26, 2287.3, 2362.94]);
+      assert.deepEqual(variant.last, [2190.1, 2148.35, 2126.22, 2190.1]);
+      assert.equal(variant.splitNumber, 20);
+      assert.equal(variant.scale, true);
+    }
+    assert.deepEqual(variants.baseline.zoom.map(({ type, start, end, x }) => ({ type, start, end, x })), [
+      { type: "", start: 50, end: 100, x: [0] },
+    ]);
+    assert.deepEqual(variants.inside.zoom.map(({ type, start, end, x }) => ({ type, start, end, x })), [
+      { type: "inside", start: 50, end: 100, x: [0] },
+    ]);
+    assert.deepEqual(variants["inside-slider"].zoom.map(({ type, start, end, x }) => ({ type, start, end, x })), [
+      { type: "inside", start: 50, end: 100, x: [0] },
+      { type: "", start: 50, end: 100, x: [0] },
+    ]);
+    assert.deepEqual(variants["y-axis"].zoom.map(({ type, start, end, orient, y }) => ({ type, start, end, orient, y })), [
+      { type: "", start: 50, end: 100, orient: "vertical", y: [0] },
+    ]);
+    assert.deepEqual(variants.style.marks, [
+      { name: "highest value", type: "max", valueDim: "highest" },
+      { name: "lowest value", type: "min", valueDim: "lowest" },
+    ]);
+    assert.match(variants.style.styles, /goshtoso-charts-candlestick__direction--decreasing/);
+    assert.match(variants.style.styles, /goshtoso-charts-candlestick__direction--increasing/);
+    assert.doesNotMatch(variants.style.styles, /#ec0000|#00da3c|#8A0000|#008F28/i);
+  } finally {
+    await page.close();
+  }
+});
+
 test("390 and 1440 layouts converge without overflow across Goshtoso and AraiHu light/dark themes", async () => {
+  if (screenshotDirectory) await fs.mkdir(screenshotDirectory, { recursive: true });
   const colors = new Map();
   const measurements = [];
   for (const width of [390, 1440]) {
@@ -131,6 +192,22 @@ test("390 and 1440 layouts converge without overflow across Goshtoso and AraiHu 
           assert.notEqual(state.rise, state.fall, `${theme}/${dark} rise and fall colors match`);
           colors.set(`${theme}/${dark}`, `${state.rise}|${state.fall}|${state.background}`);
           measurements.push({ width, theme, dark, host: `${state.hostWidth}x${state.hostHeight}`, documentWidth: state.documentWidth });
+          if (screenshotDirectory) {
+            await page.screenshot({
+              path: path.join(screenshotDirectory, `interactive-candlestick-${width}-${theme}-${dark ? "dark" : "light"}.png`),
+              fullPage: true,
+            });
+            if ((width === 390 && theme === "goshtoso" && !dark) || (width === 1440 && theme === "araihu" && dark)) {
+              const wrappers = page.locator("[data-candlestick-variant]");
+              for (let index = 0; index < await wrappers.count(); index += 1) {
+                const wrapper = wrappers.nth(index);
+                const variant = await wrapper.getAttribute("data-candlestick-variant");
+                await wrapper.screenshot({
+                  path: path.join(screenshotDirectory, `interactive-candlestick-${variant}-${width}-${theme}-${dark ? "dark" : "light"}.png`),
+                });
+              }
+            }
+          }
         } finally {
           await page.close();
         }

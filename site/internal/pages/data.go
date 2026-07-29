@@ -227,23 +227,83 @@ func sampleBasicCandlestick() candlestick.Config {
 	}
 }
 
+func sampleCandlestickOptionFuncBasic() candlestick.Config {
+	cfg := sampleBasicCandlestick()
+	cfg.Label = "Eight-day stock price"
+	cfg.Caption = "The second upstream construction style extends the basic series with Day 8 while retaining the same renderer-neutral component."
+	cfg.Title = "Basic Candlestick Chart"
+	cfg.Data = append(append([]candlestick.Datum(nil), cfg.Data...), candlestick.Datum{Label: "Day 8", Open: 119, High: 125, Low: 116, Close: 122})
+	cfg.Options = candlestick.Options{TitleFontSize: 18, YUnit: 1, Padding: candlestick.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20}}
+	cfg.Width, cfg.Height = 800, 600
+	cfg.RootAttrs = templ.Attributes{"data-goshtoso-candidate": "candlestick-optionfunc-aad7ab0297061baa"}
+	cfg.Export = &chartcontrol.ExportOptions{Filename: "basic-candlestick-eight-days"}
+	return cfg
+}
+
 const (
+	staticCandlestickUpstreamRevision          = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
+	staticCandlestickBasicUpstreamPath         = "examples/1-Painter/candlestick_chart-1-basic/main.go"
+	staticCandlestickBasicUpstreamSHA256       = "44c216955ae850b824a0e3f3ee2bbaf67a23ca185d8faea77335d048cd19c26b"
+	staticCandlestickMultipleUpstreamPath      = "examples/1-Painter/candlestick_chart-2-multiple_series/main.go"
+	staticCandlestickMultipleUpstreamSHA256    = "f132f40ac3e920a891782c5ab6f80e681f8e7ee87a0a05405bad75ee161e964f"
+	staticCandlestickOptionFuncUpstreamPath    = "examples/2-OptionFunc/candlestick_chart-1-basic/main.go"
+	staticCandlestickOptionFuncUpstreamSHA256  = "aad7ab0297061baac358b63b19b15e6dca48734d2be607d11679bd284263423c"
 	staticCandlestickBollingerUpstreamPath     = "examples/1-Painter/candlestick_chart-3-bollinger_bands/main.go"
-	staticCandlestickBollingerUpstreamRevision = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
+	staticCandlestickBollingerUpstreamRevision = staticCandlestickUpstreamRevision
 	staticCandlestickBollingerUpstreamSHA256   = "cc3b347d5faea1a15ca22554dcc46a35beed74e49da56701659a1a7d1f000202"
 )
 
 const (
 	staticCandlestickPatternsUpstreamPath     = "examples/1-Painter/candlestick_chart-4-patterns/main.go"
-	staticCandlestickPatternsUpstreamRevision = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
+	staticCandlestickPatternsUpstreamRevision = staticCandlestickUpstreamRevision
 	staticCandlestickPatternsUpstreamSHA256   = "ab5891e744bc8ec40fbead6b16af5642ea94c738369469b392ac7acf1e0055ec"
 )
 
 const (
 	staticCandlestickAggregationUpstreamPath     = "examples/1-Painter/candlestick_chart-5-aggregation/main.go"
-	staticCandlestickAggregationUpstreamRevision = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
+	staticCandlestickAggregationUpstreamRevision = staticCandlestickUpstreamRevision
 	staticCandlestickAggregationUpstreamSHA256   = "ba7d1d31fef54f792e53840d969c4a3d791309a6059b2c5997dd2e509e1cbde1"
 )
+
+func sampleCandlestickMultipleSeries() candlestick.Config {
+	seriesData := func(base float64) []candlestick.Datum {
+		return []candlestick.Datum{
+			{Label: "Day 1", Open: base, High: base + 10, Low: base - 5, Close: base + 5},
+			{Label: "Day 2", Open: base + 5, High: base + 15, Low: base, Close: base + 12},
+			{Label: "Day 3", Open: base + 12, High: base + 18, Low: base + 8, Close: base + 15},
+			// Upstream Low exceeds Close. Use the same corrected bearish range as the basic example.
+			{Label: "Day 4", Open: base + 15, High: base + 20, Low: base + 4, Close: base + 8},
+			{Label: "Day 5", Open: base + 8, High: base + 13, Low: base + 5, Close: base + 9},
+		}
+	}
+	return candlestick.Config{
+		Label:   "Three aligned stock series",
+		Caption: "Stock A uses filled bodies, Stock B uses traditional hollow increases, and Stock C uses outlines. The invalid upstream Day 4 lows are corrected below their closes.",
+		Series: []candlestick.Series{
+			{Name: "Stock A", Data: seriesData(100), BodyStyle: candlestick.BodyStyleFilled},
+			{Name: "Stock B", Data: seriesData(150), BodyStyle: candlestick.BodyStyleTraditional},
+			{Name: "Stock C", Data: seriesData(200), BodyStyle: candlestick.BodyStyleOutline},
+		},
+		Options:   candlestick.Options{YUnit: 1, Padding: candlestick.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20}},
+		Width:     1000,
+		Height:    700,
+		RootAttrs: templ.Attributes{"data-static-candlestick-exhaustion": "1fe31b06", "data-goshtoso-candidate": "candlestick-multiple-f132f40ac3e920a8"},
+		Controls:  chartcontrol.Options{Fullscreen: true},
+		Export:    &chartcontrol.ExportOptions{Filename: "candlestick-multiple-series"},
+	}
+}
+
+func sampleCandlestickGeometry() candlestick.Config {
+	cfg := sampleCandlestickMultipleSeries()
+	cfg.Label = "Candlestick geometry controls"
+	cfg.Caption = "Narrower bodies, explicit inter-series spacing, thicker wicks, chart-level wick visibility, and a per-series override use typed geometry options."
+	show, margin := true, .08
+	cfg.Options.Geometry = candlestick.Geometry{CandleWidth: .58, WickWidth: 2, SeriesGap: &margin, ShowWicks: &show}
+	hide := false
+	cfg.Series[2].ShowWicks = &hide
+	cfg.Export = &chartcontrol.ExportOptions{Filename: "candlestick-geometry"}
+	return cfg
+}
 
 func sampleCandlestickAggregation() candlestick.Config {
 	return candlestick.Config{
@@ -807,6 +867,50 @@ func candlestickCode() string {
 })`
 }
 
+func candlestickExtendedBasicCode() string {
+	return `cfg := sampleBasicCandlestick()
+cfg.Label = "Eight-day stock price"
+cfg.Data = append(cfg.Data,
+  candlestick.Datum{Label: "Day 8", Open: 119, High: 125, Low: 116, Close: 122},
+)
+cfg.Options = candlestick.Options{
+  TitleFontSize: 18,
+  YUnit: 1,
+  Padding: candlestick.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20},
+}
+cfg.Width, cfg.Height = 800, 600
+@candlestick.Candlestick(cfg)`
+}
+
+func candlestickMultipleSeriesCode() string {
+	return `@candlestick.Candlestick(candlestick.Config{
+  Label: "Three aligned stock series",
+  Series: []candlestick.Series{
+    {Name: "Stock A", Data: stockA, BodyStyle: candlestick.BodyStyleFilled},
+    {Name: "Stock B", Data: stockB, BodyStyle: candlestick.BodyStyleTraditional},
+    {Name: "Stock C", Data: stockC, BodyStyle: candlestick.BodyStyleOutline},
+  },
+  Options: candlestick.Options{
+    YUnit: 1,
+    Padding: candlestick.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20},
+  },
+  Width: 1000, Height: 700,
+})`
+}
+
+func candlestickGeometryCode() string {
+	return `showWicks, hideWicks, seriesGap := true, false, 0.08
+cfg := sampleCandlestickMultipleSeries()
+cfg.Options.Geometry = candlestick.Geometry{
+  CandleWidth: 0.58,
+  WickWidth: 2,
+  SeriesGap: &seriesGap,
+  ShowWicks: &showWicks,
+}
+cfg.Series[2].ShowWicks = &hideWicks
+@candlestick.Candlestick(cfg)`
+}
+
 func candlestickBollingerCode() string {
 	return `@candlestick.Candlestick(candlestick.Config{
   Label: "Candlestick Chart with Bollinger Bands",
@@ -926,7 +1030,12 @@ func candlestickPatternsCode() string {
 
 func candlestickPatternVariantCode() string {
 	return `cfg.Patterns.Selection = candlestick.PatternSelectionCore
-// Or use PatternSelectionBullish.
+// Other groups: Bullish, Bearish, Reversal, or Trend.
+// Enabled selects an explicit ordered subset instead of a group.
+cfg.Patterns.DojiThreshold = 0.05
+cfg.Patterns.ShadowTolerance = 0.01
+cfg.Patterns.ShadowRatio = 2
+cfg.Patterns.EngulfingMinSize = 1
 cfg.Patterns.PreferLabels = true
 cfg.Patterns.Label = candlestick.PatternLabelStyle{
   Text: candlestick.PatternLabelTextNameWithCount,

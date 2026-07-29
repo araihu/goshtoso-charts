@@ -594,8 +594,26 @@ templ interactiveCandlestickContent() {
 		},
 		Sections: []componentpage.Example{
 			{
-				Title:       "Explicit direction style",
-				Description: "Direction colors and borders distinguish rising and falling periods while text and the exact-value table preserve meaning without color alone.",
+				Title:       "Inside zoom",
+				Description: "Inside gestures explore a bounded date window without adding a visible slider.",
+				Preview:     sampleInteractiveCandlestickInsideZoom(),
+				Code:        interactiveCandlestickInsideZoomCode(),
+			},
+			{
+				Title:       "Inside and slider zoom",
+				Description: "Inside gestures and a visible slider control the same bounded date window.",
+				Preview:     sampleInteractiveCandlestickBothZooms(),
+				Code:        interactiveCandlestickBothZoomsCode(),
+			},
+			{
+				Title:       "Y-axis slider zoom",
+				Description: "A vertical slider narrows the visible value range while preserving the ordered dates.",
+				Preview:     sampleInteractiveCandlestickYAxisZoom(),
+				Code:        interactiveCandlestickYAxisZoomCode(),
+			},
+			{
+				Title:       "Direction style and extrema",
+				Description: "Theme-token classes distinguish rising and falling periods; highest and lowest marks add range references while the exact-value table preserves meaning without color alone.",
 				Preview:     sampleInteractiveCandlestickUpstreamStyle(),
 				Code:        interactiveCandlestickStyleCode(),
 			},
@@ -1019,6 +1037,24 @@ templ candlestickContent() {
 		},
 		Sections: []componentpage.Example{
 			{
+				Title:       "Extended basic series",
+				Description: "The second upstream construction style adds an eighth daily candle, larger title text, explicit padding, and 800x600 geometry. It remains the same typed component rather than exposing construction functions.",
+				Preview:     candlestick.Candlestick(sampleCandlestickOptionFuncBasic()),
+				Code:        candlestickExtendedBasicCode(),
+			},
+			{
+				Title:       "Multiple aligned series",
+				Description: "The pinned upstream comparison keeps three named OHLC populations together and demonstrates filled, traditional, and outline bodies. Exact tables separate each series.",
+				Preview:     candlestick.Candlestick(sampleCandlestickMultipleSeries()),
+				Code:        candlestickMultipleSeriesCode(),
+			},
+			{
+				Title:       "Candle geometry and wicks",
+				Description: "Typed width, spacing, wick thickness, chart-level visibility, and per-series visibility options preserve automatic defaults while allowing compact or emphasis treatments.",
+				Preview:     candlestick.Candlestick(sampleCandlestickGeometry()),
+				Code:        candlestickGeometryCode(),
+			},
+			{
 				Title:       "Aggregation",
 				Description: "Compare the original ordered candles with fixed-size OHLC windows. The first open, highest high, lowest low, and final close define each aggregated candle.",
 				Preview:     candlestick.Candlestick(sampleCandlestickAggregation()),
@@ -1061,7 +1097,7 @@ templ candlestickContent() {
 				Code:        candlestickPatternVariantCode(),
 			},
 		},
-		After: chartDocumentation("Reading price movement", "Each candle shows a period range plus opening and closing positions. Use the exact-value table for comparisons that cannot be reliably judged from mark geometry.", "candlestick"),
+		After: chartDocumentation("Static/vector behavior", "Candlestick renders inline SVG on the server, follows Goshtoso and AraiHu tokens in light and dark mode, remains useful in print or without JavaScript, and provides resolved SVG plus opaque or transparent PNG download through the shared wrapper. Use the exact tables for comparisons that cannot be judged from geometry; shared chart controls and chart modes guides document lifecycle and delivery choices.", "candlestick"),
 	})
 }
 

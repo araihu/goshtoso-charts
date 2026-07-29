@@ -118,9 +118,17 @@ func Candlestick(cfg CandlestickConfig) Instance {
 	if height == "" {
 		height = "500px"
 	}
+	gridRight := "4%"
+	for _, series := range cfg.Series {
+		if series.Options.Marks.Highest || series.Options.Marks.Lowest {
+			gridRight = "14%"
+			break
+		}
+	}
 	globalOptions := []charts.GlobalOpts{
 		charts.WithInitializationOpts(opts.Initialization{Width: width, Height: height}),
 		charts.WithColorsOpts(opts.Colors(cfg.Style.ResolvedColors())),
+		charts.WithGridOpts(opts.Grid{Top: "24%", Right: gridRight, Bottom: "15%", Left: "4%", ContainLabel: opts.Bool(true)}),
 	}
 	globalOptions = append(globalOptions, chartGlobalOptions(cfg.Options)...)
 	for _, zoom := range cfg.DataZoom {

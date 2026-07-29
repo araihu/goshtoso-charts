@@ -127,6 +127,56 @@ arbitrary formatter callbacks, painter hierarchy, output encoders, and upstream
 option functions remain private; typed value formats, Goshtoso theme tokens,
 shared controls, and SVG or PNG export provide the supported equivalents.
 
+## Static/vector Candlestick
+
+- Source repository: `github.com/go-analyze/charts`
+- Revision: `1fe31b06b8a82e00df877ff4417a75858547c1c2`
+- Status: all six dedicated Candlestick-family files at that revision are
+  covered by the one renderer-neutral `candlestick.Candlestick` component.
+  Their eight source functions define basic seven- and eight-period charts,
+  three aligned series with filled, traditional, and outline bodies, period-five
+  Bollinger bands, four pattern treatments, and fixed-window aggregation.
+
+| Upstream example | SHA-256 | Goshtoso coverage | Adaptation note |
+| --- | --- | --- | --- |
+| `examples/1-Painter/candlestick_chart-1-basic/main.go` | `44c216955ae850b824a0e3f3ee2bbaf67a23ca185d8faea77335d048cd19c26b` | Basic seven-period chart | Preserves all OHLC values, labels, title, legend, and 600x400 geometry. |
+| `examples/1-Painter/candlestick_chart-2-multiple_series/main.go` | `f132f40ac3e920a891782c5ab6f80e681f8e7ee87a0a05405bad75ee161e964f` | Three aligned series and body styles | Preserves Stock A, B, and C, five periods, filled/traditional/outline bodies, unit, padding, legend, and 1000x700 geometry. Each upstream Day 4 low is above its close and therefore invalid OHLC; the lows become 104, 154, and 204, matching the valid bearish range used by the basic example. |
+| `examples/1-Painter/candlestick_chart-3-bollinger_bands/main.go` | `cc3b347d5faea1a15ca22554dcc46a35beed74e49da56701659a1a7d1f000202` | Period-five Bollinger bands | Preserves all twenty observations, upper/SMA/lower close trends, title, dimensions, unit, legend, and padding. |
+| `examples/1-Painter/candlestick_chart-4-patterns/main.go` | `ab5891e744bc8ec40fbead6b16af5642ea94c738369469b392ac7acf1e0055ec` | All, core, formatted-label, and bullish pattern treatments | Preserves the ten-observation pattern sequence, automatic detection vocabulary, average/minimum close guides, four geometries, legend choices, and safe first-name-plus-count formatting without exposing a callback. Typed bearish, reversal, trend, explicit-subset, and threshold controls cover the remaining finite pattern API. |
+| `examples/1-Painter/candlestick_chart-5-aggregation/main.go` | `ba7d1d31fef54f792e53840d969c4a3d791309a6059b2c5997dd2e509e1cbde1` | Source and five-period aggregate comparison | Preserves fifteen one-minute candles, three five-minute windows, first-open/highest-high/lowest-low/final-close semantics, two vertically composed charts, and 1200x800 geometry. |
+| `examples/2-OptionFunc/candlestick_chart-1-basic/main.go` | `aad7ab0297061baac358b63b19b15e6dca48734d2be607d11679bd284263423c` | Extended eight-period basic chart | Preserves Day 8, 18-point title, unit, padding, legend, and 800x600 geometry. Construction-style wording is omitted from the visible title because public pages remain backing-engine neutral. |
+
+Every function in the six pinned files is inventoried below. Function hashes
+cover exact bytes from each `func` declaration through its closing brace.
+
+| Source function | SHA-256 | Role |
+| --- | --- | --- |
+| Painter basic `main` | `4f576ae2cde41f4d76dcd23babee4f7a14440a6c8686c892552d17375a44868b` | Seven-period dataset and basic presentation |
+| Painter multiple-series `main` | `7de600489e87d2dcc88a0e56c4aa2417e97bb512d0e000bd615b407063b80c35` | Three aligned series and body styles |
+| Painter Bollinger `main` | `2b56840d7ef57840f42670f2b4619cc899503822a3a2bbef51fc13aff38928fe` | Twenty-period close bands |
+| Patterns `main` | `2df1c6d6e980195d50db54e3d1410f977b21b60cb9b8316bd17d3222bb9e53d9` | Ten-observation pattern dataset |
+| Patterns `createPatternExamples` | `191c4a25a756552c34775b854b902820934dd0c8f6e227e916f489041b168f4d` | Four pattern configurations |
+| Patterns `generateExampleCharts` | `7209718f4bfd6a1f7650f049251534fcd17c296dab039b82e88f21406d9fd9f8` | Shared title, axis, padding, legend, and output presentation |
+| Aggregation `main` | `d79715bb8b1da24b8b0caa9cd9e3a69f089b30cb47d6a15e16462e4cab0d6ed0` | Fifteen-to-three window aggregation and vertical composition |
+| Option-function basic `main` | `2fb069e158b4c28cd1a4ace193380557aadaab443338ca7f21be76f68aaab128` | Eight-period dataset and explicit 800x600 presentation |
+
+Relevant Candlestick-specific implementation and finite presentation API
+evidence at the same revision is pinned separately:
+
+| Upstream API source | SHA-256 | Renderer-neutral coverage |
+| --- | --- | --- |
+| `candlestick_chart.go` | `d70ee4b46e6d95de928e83d48ffcc43d3ea5516bbfc431131d1fd5bc61ab667d` | Body-width ratio, wick visibility and thickness, inter-series gap, aligned series, axes, title, legend, and padding. |
+| `candlestick_patterns.go` | `c9579221d8b97477d878baa898d22ae7c60d94e4458218565c762dc5a75d8092` | All finite pattern groups, fourteen typed patterns, explicit subsets, label precedence, doji/shadow/engulfing thresholds, and safe built-in label formatting. |
+| `series.go` | `953f4e5d555701348ebcb8eb0bfe1753a6df56eb4f94a86403c6dc6cecf79217` | Named OHLC populations, filled/traditional/outline bodies, per-series wick override, close trends and references used by dedicated examples, and fixed-window aggregation semantics. |
+| `painter.go` | `f4ac102e9b21623765e2fdfe4c0910a03265bc751b9f5d019ae41e80611be959` | SVG rendering, vertical child regions for aggregation, dimensions, and output encoding remain private implementation details. |
+
+Unsupported dedicated Candlestick-family behaviors: none. Every behavior in
+the six dedicated files maps to typed renderer-neutral configuration. Arbitrary
+value or pattern callbacks, raw theme or painter objects, generic option
+functions, and mark/trend fields not exercised by these sources remain private;
+typed formats, theme tokens, safe pattern labels, shared controls, exact tables,
+and SVG or PNG export provide the supported equivalents.
+
 ## Static/vector Line
 
 - Source repository: `github.com/go-analyze/charts`
@@ -352,3 +402,32 @@ Unsupported dedicated Radar-family behaviors: none. Shape, split count,
 split-area visibility, split-line styling, line and area opacity, multiple or
 single legend selection, responsive sizing, exact values, theme colors,
 controls, PNG export, and wrapper lifecycle are all typed and renderer-neutral.
+
+## Interactive Candlestick
+
+- Source repository: `github.com/go-echarts/examples`
+- Source file: `examples/kline.go`
+- Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
+- Source SHA-256: `712b738662e87ceaab96fe9a3b39cc2591184db4de519a34f628ccee067f0489`
+- Status: all five dedicated behavior functions are covered by the one
+  renderer-neutral `interactive.Candlestick` component; all 88 ordered OHLC observations are preserved exactly.
+- Theme adaptation: the style example's fixed red and green fills and borders
+  become Goshtoso direction-token classes. Callers can still supply explicit
+  colors and borders through typed direction styles.
+
+| Exact source span | Lines | SHA-256 | Role and coverage |
+| --- | --- | --- | --- |
+| `klineData` | 12–15 | `844d53233a5d826fdde0d8286bc328d24c1a89066507a30d9505e124f9dc67bc` | Data helper type; adapted to typed `Candle` values ordered open, close, low, high. |
+| `kd` | 17–106 | `94baedf445f705b38028f2b9f91997d924be7ed7eac046a25cba1d1bb20e4143` | Exact 88-row dataset variable from 24 January through 13 June 2018. |
+| `klineBase` | 108–137 | `83380beaca22d81cce6a0d38facb27ae206d96ccc715b48c647460ad4ac026da` | Category split count 20, scaled value axis, and a visible X-axis slider over the 50–100% window. |
+| `klineDataZoomInside` | 139–169 | `d8197311ea2164c43384921c37b0a60a4e7860c1c81489f2c6b16b8a3808325d` | Inside-only X-axis zoom over the 50–100% window. |
+| `klineDataZoomBoth` | 171–207 | `a8291af22b113f59db07c8d09b81fe4ba3e8b5f5914e0769d3fb2a3efecf5fab` | Inside and slider X-axis zoom controls over the same window. |
+| `klineDataZoomYAxis` | 209–239 | `c60b43ac2b542c04cb041bba90c7cc980e484c06bb6e297dcc0663174f160db3` | Visible Y-axis slider over the 50–100% value window. |
+| `klineStyle` | 241–293 | `671aa66b391c119d3b8c3e8bd5da4f064bdb0341c1e4882ab57988b2138574c9` | Direction-token classes, typed border overrides, and labeled highest/lowest range marks. |
+| `KlineExamples.Examples` | 295–313 | `d32f020d851c51f971b46e4cd9fa04cb1c76b12e392b2f18df18d28191d3255a` | Page composition; preserves the five-example order without entering the component API. |
+
+Unsupported dedicated Candlestick behaviors: none. OHLC data, scaled axes,
+split count, slider and inside zoom on either axis, combined zoom controls,
+direction classes or explicit paint, border styling, and highest or lowest
+range marks are typed. The upstream page renderer remains outside the public
+chart API because consumers own page layout.

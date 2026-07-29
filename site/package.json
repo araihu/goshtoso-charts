@@ -12,6 +12,7 @@
     "test:documentation-footer": "node --test browser/documentation_footer.test.cjs",
     "test:candlestick": "node --test browser/candlestick.test.cjs",
     "test:static-candlestick": "node --test browser/static_candlestick_bollinger.test.cjs",
+    "test:candlestick-all": "npm run test:static-candlestick && npm run test:candlestick",
     "test:funnel": "node --test browser/funnel.test.cjs",
     "test:gauge-liquid": "node --test browser/gauge_liquid.test.cjs",
     "test:guides": "node --test browser/guides.test.cjs",
