@@ -18,6 +18,7 @@
     "test:interactive-heatmap": "node --test browser/interactive_heatmap_layout.test.cjs",
     "test:interactive-bar": "node --test browser/interactive_bar_variants.test.cjs",
     "test:interactive-pie": "node --test browser/interactive_pie.test.cjs",
+    "test:interactive-scatter": "node --test browser/interactive_scatter.test.cjs",
     "test:line-dual-axis": "node --test browser/line_dual_axis.test.cjs",
     "test:line-area": "node --test browser/line_area.test.cjs",
     "test:line3d": "node --test browser/line3d.test.cjs",

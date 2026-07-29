@@ -167,6 +167,59 @@ Supplementary Bar-adjacent evidence at the same revision:
 | `examples/renderer.go` | `c4956db261f554c6a161c0d25baa7dbd7c2c179523997d297020cd55916e6a3f` | Private renderer integration, not a public chart option |
 | `examples/bar3d.go` | `110b3b85f2528d76eb8271b64f1facd81a974e30ecc0dd77319d5a409ff64275` | Separate existing Bar 3D component, not a two-dimensional Bar variant |
 
+## Interactive Scatter
+
+- Source repository: `github.com/go-echarts/examples`
+- Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
+- Standard source: `examples/scatter.go`
+- Standard source SHA-256: `a77ddbf7580210a842a3e1d3966ab62c3f229fdb1a33df8f319ef029bd4188b5`
+- Effect source: `examples/effectscatter.go`
+- Effect source SHA-256: `1bf49dc5fb02b248ff6794aa549836b4c8fa02ddb89be6adc0c4574327673f1a`
+- Status: all five upstream behavior functions are covered by the one
+  renderer-neutral `interactive.Scatter` component. Effect scatter remains a
+  typed variant with shared or per-series ripple options; it is not another
+  component, kind, page, or route.
+- Deterministic adaptation: ambient random values are replaced by the recorded
+  local seed-1 sequence in original behavior-function and series-call order.
+  Six categories or players, series names, integer values in `[0,100)`, and
+  standard point geometry remain unchanged. The upstream `Shooting ` trailing
+  space is corrected to `Shooting`.
+
+| Upstream behavior function | Coverage | Goshtoso Charts treatment |
+| --- | --- | --- |
+| `scatterBase` | Example | Two categorical series with round-rectangle symbols, size 20, and 10-degree rotation |
+| `scatterShowLabel` | Example | Two categorical series with visible labels positioned right |
+| `scatterSplitLine` | Example | Player A and Player B with Sports and Score axis names and visible split lines |
+| `esBase` | Example | Dunk series using the existing Scatter effect variant and default ripple treatment |
+| `esEffectStyle` | Example | Dunk stroke ripple at period 4 and scale 10; Shoot fill ripple at period 3 and scale 6 |
+
+Every function and method in both pinned source files is inventoried below.
+Function SHA-256 values cover exact source text from each `func` declaration
+through its closing brace at the pinned revision.
+
+| Source function or method | SHA-256 | Role |
+| --- | --- | --- |
+| `generateScatterItems` | `2cfe0abcb152c7020f5da65f8e22e616e665263a8e31918edc636499e08d4bb6` | Deterministic standard-point generator adaptation |
+| `scatterBase` | `08faff249e4c7eaa65b602662f01896f4d745fda2c131526b3ac01b5354723b5` | Behavior example |
+| `scatterShowLabel` | `99ead467aac7ae752e29e2912a3a7f3657c62fc05e0e0685074e1f2db5bc3623` | Behavior example |
+| `scatterSplitLine` | `55d2f4d9d6e87a356894fcd71320c94a2ccc40abe4ba616587a759aa9f53acb7` | Behavior example |
+| `ScatterExamples.Examples` | `39e747d19ef16f9ac2d20191242e80bf4bcb278d3db3c8f08f3e8891ad231ac9` | Page composition only |
+| `generateEffectScatterItems` | `0f295b3eef4924158ea1b39bc0fc60ecc3b86afd61cf694943e9ebca4899a399` | Deterministic effect-point generator adaptation |
+| `esBase` | `c2cfce12547c08c27942e5aa51df2fd6a332a9ec9e9db092bdbbe60a6ba3bf69` | Behavior example |
+| `esEffectStyle` | `0fa720ed3f610334a6bf0cb8c4bcf8f33c79167f7f9033b2ced0996751316888` | Behavior example |
+| `EffectscatterExamples.Examples` | `844e71f0cb14680df92458b561662a41e4cb2ed3cbb83fdbdca9d3c9c376c19d` | Page composition only |
+
+Dedicated Scatter and effect-scatter source behaviors requiring a raw renderer
+option or backing-engine public type: none. These files do not exercise visual
+maps or pieces, dataset transforms, data zoom, statistical references, or
+mixed-family composition, so this source-family slice does not invent those
+treatments. Shared typed title, tooltip, axis, label, theme, controls, PNG,
+resize, and wrapper lifecycle behavior remains available.
+
+The three page-layout sources and immutable hashes in the shared supplementary
+evidence table above also bound Scatter layout: center, flex, and unmanaged
+page composition stay consumer-owned and do not become chart API modes.
+
 ## Interactive Pie
 
 - Source repository: `github.com/go-echarts/examples`
