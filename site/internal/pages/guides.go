@@ -81,3 +81,76 @@ const controlsInteractiveCode = `@interactive.Line(interactive.LineConfig{
     },
   },
 })`
+
+const wrapperModeInitialCode = `@line.Line(line.Config{
+  Label:     "Weekly revenue",
+  Labels:    []string{"Mon", "Tue", "Wed"},
+  RootAttrs: templ.Attributes{"id": "weekly-revenue"},
+  Series: []line.Series{{
+    Name:   "Revenue",
+    Values: []float64{12, 18, 14},
+  }},
+  Controls: chartcontrol.Options{
+    // Omit Mode for WrapperModeEnabled, the zero/default.
+    Mode: chartcontrol.WrapperModeHidden,
+  },
+})`
+
+const wrapperModeJavaScriptCode = `const chart = document.querySelector("#weekly-revenue");
+const wrapper = chart.closest("[data-goshtoso-chart-wrapper]");
+const showButton = document.querySelector("#show-weekly-revenue");
+
+wrapper.addEventListener("goshtoso-charts:wrapper-mode-change", (event) => {
+  console.log(event.detail.previousMode, event.detail.mode);
+});
+
+wrapper.dispatchEvent(new CustomEvent("goshtoso-charts:set-wrapper-mode", {
+  bubbles: true,
+  detail: { mode: "hidden", focusReturn: showButton },
+}));`
+
+const wrapperModeAlpineCode = `<div
+  x-data="{
+    mode: 'enabled',
+    setMode(next, focusReturn) {
+      const wrapper = this.$refs.chart
+        .querySelector('[data-goshtoso-chart-wrapper]');
+      wrapper.dispatchEvent(new CustomEvent(
+        'goshtoso-charts:set-wrapper-mode',
+        { bubbles: true, detail: { mode: next, focusReturn } },
+      ));
+    },
+  }"
+  @goshtoso-charts:wrapper-mode-change="mode = $event.detail.mode"
+>
+  <button type="button" @click="setMode('hidden', $el)">Hide chart</button>
+  <button type="button" @click="setMode('enabled', $el)">Show chart</button>
+  <div x-ref="chart">
+    @line.Line(line.Config{
+      Label:  "Weekly revenue",
+      Labels: []string{"Mon", "Tue", "Wed"},
+      Series: []line.Series{{
+        Name: "Revenue", Values: []float64{12, 18, 14},
+      }},
+    })
+  </div>
+</div>`
+
+const wrapperModeHTMXCode = `templ WeeklyRevenue(mode chartcontrol.WrapperMode) {
+  <div id="weekly-revenue-slot">
+    @line.Line(line.Config{
+      Label:  "Weekly revenue",
+      Labels: []string{"Mon", "Tue", "Wed"},
+      Series: []line.Series{{
+        Name: "Revenue", Values: []float64{12, 18, 14},
+      }},
+      Controls: chartcontrol.Options{Mode: mode},
+    })
+  </div>
+}
+
+<button
+  hx-get="/charts/weekly-revenue?wrapper=hidden"
+  hx-target="#weekly-revenue-slot"
+  hx-swap="outerHTML"
+>Hide chart</button>`

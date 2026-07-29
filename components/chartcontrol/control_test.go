@@ -11,14 +11,14 @@ import (
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 )
 
-func TestOptionsPublicAPIContainsOnlyExpandAndFullscreen(t *testing.T) {
+func TestOptionsPublicAPIContainsSharedControlsAndWrapperMode(t *testing.T) {
 	t.Parallel()
 	typ := reflect.TypeOf(chartcontrol.Options{})
 	fields := make([]string, typ.NumField())
 	for index := 0; index < typ.NumField(); index++ {
 		fields[index] = typ.Field(index).Name
 	}
-	if got, want := strings.Join(fields, ","), "Fullscreen,Expand"; got != want {
+	if got, want := strings.Join(fields, ","), "Fullscreen,Expand,Mode"; got != want {
 		t.Fatalf("chartcontrol.Options fields = %q, want %q", got, want)
 	}
 }
@@ -40,6 +40,7 @@ func TestDefaultWrapperEnablesExpandAndCapabilityDerivedExport(t *testing.T) {
 	})
 	for _, want := range []string{
 		`class="goshtoso-charts-control-wrapper"`, `data-goshtoso-chart-expand`,
+		`data-goshtoso-chart-wrapper-mode="enabled"`, `data-goshtoso-chart-actions-fieldset`,
 		`data-goshtoso-action-group`, `data-action-group-primary`,
 		`role="dialog"`, `aria-modal="true"`, `x-trap.inert.noscroll`,
 		`id="latency-chart-expand-export"`, `data-action-group-overflow`,
@@ -53,6 +54,126 @@ func TestDefaultWrapperEnablesExpandAndCapabilityDerivedExport(t *testing.T) {
 	for _, unwanted := range []string{`Collapse`, `data-goshtoso-chart-secondary-actions`, `data-goshtoso-chart-overflow`} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("default wrapper unexpectedly contains %q", unwanted)
+		}
+	}
+}
+
+func TestWrapperModesHaveClosedStableValues(t *testing.T) {
+	t.Parallel()
+	tests := map[chartcontrol.WrapperMode]string{
+		chartcontrol.WrapperModeEnabled:  "",
+		chartcontrol.WrapperModeDisabled: "disabled",
+		chartcontrol.WrapperModeHidden:   "hidden",
+		chartcontrol.WrapperModeOmitted:  "omitted",
+	}
+	for mode, want := range tests {
+		if got := string(mode); got != want {
+			t.Errorf("WrapperMode value = %q, want %q", got, want)
+		}
+	}
+}
+
+func TestExplicitEnabledWrapperModeRoundTripsClientState(t *testing.T) {
+	t.Parallel()
+	markup := render(t, chartcontrol.WrapperConfig{
+		Label:      "Latency",
+		Controls:   chartcontrol.Options{Mode: chartcontrol.WrapperMode("enabled")},
+		Capability: chartcontrol.ExportCapabilityInteractiveRaster,
+	})
+	if !strings.Contains(markup, `data-goshtoso-chart-wrapper-mode="enabled"`) {
+		t.Fatalf("explicit enabled mode did not round-trip: %s", markup)
+	}
+}
+
+func TestDisabledWrapperKeepsChartVisibleAndActionsNativelyInert(t *testing.T) {
+	t.Parallel()
+	markup := render(t, chartcontrol.WrapperConfig{
+		Label:      "Latency",
+		Controls:   chartcontrol.Options{Mode: chartcontrol.WrapperModeDisabled, Fullscreen: true},
+		Capability: chartcontrol.ExportCapabilityStaticSVG,
+	})
+	for _, want := range []string{
+		`data-goshtoso-chart-wrapper-mode="disabled"`,
+		`data-goshtoso-chart-actions-fieldset disabled aria-disabled="true"`,
+		`<figure><svg width="320" height="160"></svg></figure>`,
+		`src="/charts/assets/js/controls/4/controls.js"`,
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("disabled wrapper missing %q", want)
+		}
+	}
+	if strings.Contains(markup, `data-goshtoso-chart-export-pixel-ratio="1" hidden inert aria-hidden="true"`) {
+		t.Fatal("disabled wrapper hid visible chart DOM")
+	}
+}
+
+func TestHiddenWrapperRetainsDOMRuntimeAndInertAccessibilityState(t *testing.T) {
+	t.Parallel()
+	markup := render(t, chartcontrol.WrapperConfig{
+		Label:      "Latency",
+		Controls:   chartcontrol.Options{Mode: chartcontrol.WrapperModeHidden},
+		Capability: chartcontrol.ExportCapabilityInteractiveRaster,
+	})
+	for _, want := range []string{
+		`data-goshtoso-chart-wrapper-mode="hidden"`, ` hidden inert aria-hidden="true"`,
+		`<figure><svg width="320" height="160"></svg></figure>`,
+		`src="/charts/assets/js/controls/4/controls.js"`,
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("hidden wrapper missing %q", want)
+		}
+	}
+}
+
+func TestOmittedWrapperIsExactChartPassthroughBeforeExportResolution(t *testing.T) {
+	t.Parallel()
+	const chartMarkup = `<figure data-chart-only><svg width="320" height="160"></svg></figure>`
+	var output bytes.Buffer
+	err := chartcontrol.Wrapper(chartcontrol.WrapperConfig{
+		Label:    "Latency",
+		Controls: chartcontrol.Options{Mode: chartcontrol.WrapperModeOmitted},
+		Export: &chartcontrol.ExportOptions{
+			Formats:    []chartcontrol.ExportFormat{"not-a-format"},
+			PixelRatio: -1,
+		},
+	}, templ.Raw(chartMarkup)).Render(context.Background(), &output)
+	if err != nil {
+		t.Fatalf("omitted Render() error = %v", err)
+	}
+	if got := output.String(); got != chartMarkup {
+		t.Fatalf("omitted markup = %q, want exact chart passthrough %q", got, chartMarkup)
+	}
+}
+
+func TestUnknownWrapperModeFailsBeforeRendering(t *testing.T) {
+	t.Parallel()
+	var output bytes.Buffer
+	err := chartcontrol.Wrapper(chartcontrol.WrapperConfig{
+		Label: "Latency", Controls: chartcontrol.Options{Mode: chartcontrol.WrapperMode("collapsed")},
+	}, templ.Raw(`<figure></figure>`)).Render(context.Background(), &output)
+	if err == nil || !strings.Contains(err.Error(), `chart wrapper mode "collapsed" is unsupported`) {
+		t.Fatalf("Render() error = %v", err)
+	}
+	if output.Len() != 0 {
+		t.Fatalf("unknown mode wrote %q", output.String())
+	}
+}
+
+func TestNonOmittedModesStillValidateExportDeterministically(t *testing.T) {
+	t.Parallel()
+	for _, mode := range []chartcontrol.WrapperMode{
+		chartcontrol.WrapperModeEnabled,
+		chartcontrol.WrapperModeDisabled,
+		chartcontrol.WrapperModeHidden,
+	} {
+		var output bytes.Buffer
+		err := chartcontrol.Wrapper(chartcontrol.WrapperConfig{
+			Label: "Latency", Controls: chartcontrol.Options{Mode: mode},
+			Capability: chartcontrol.ExportCapabilityInteractiveRaster,
+			Export:     &chartcontrol.ExportOptions{Formats: []chartcontrol.ExportFormat{chartcontrol.ExportSVG}},
+		}, templ.Raw(`<figure></figure>`)).Render(context.Background(), &output)
+		if err == nil || !strings.Contains(err.Error(), "svg export is unsupported") {
+			t.Errorf("mode %q Render() error = %v", mode, err)
 		}
 	}
 }

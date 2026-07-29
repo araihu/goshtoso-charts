@@ -73,6 +73,13 @@ for (const width of [390, 1440]) {
           await page.locator(selector).waitFor();
           await page.locator(`[data-chart-guide-nav] [aria-current="page"]`).waitFor();
           await page.getByText("pkg.go.dev is the canonical reference", { exact: false }).waitFor();
+          if (name === "chart-controls") {
+            await page.locator("[data-wrapper-mode-comparison]").waitFor();
+            await page.getByText("goshtoso-charts:set-wrapper-mode", { exact: true }).waitFor();
+            await page.getByRole("heading", { name: "No-JavaScript behavior", exact: true }).waitFor();
+          } else {
+            await page.getByText("chart controls and wrapper lifecycle", { exact: true }).waitFor();
+          }
           const state = await page.evaluate(() => ({
             clientWidth: document.documentElement.clientWidth,
             scrollWidth: document.documentElement.scrollWidth,
@@ -109,6 +116,8 @@ test("guide links navigate with HTMX and update active state", async () => {
     await page.locator("[data-chart-controls-guide]").waitFor();
     assert.equal(await page.locator("[data-chart-guide-nav] [aria-current='page']").innerText(), "Chart controls");
     assert.match(await page.title(), /^Chart controls/);
+    await page.locator("#wrapper-lifecycle").waitFor();
+    assert.equal(await page.locator("[data-wrapper-mode-comparison] tbody tr").count(), 4);
   } finally {
     await page.close();
   }

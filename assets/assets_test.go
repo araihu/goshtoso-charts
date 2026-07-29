@@ -56,13 +56,19 @@ func TestHandlerServesVersionedChartControlRuntime(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("GET %s status = %d, want %d", assets.ControlRuntimeURL, recorder.Code, http.StatusOK)
 	}
-	for _, want := range []string{"requestFullscreen", "getDataURL", "goshtoso-charts:resize", "expandFromMenu", "toggleFullscreen"} {
+	for _, want := range []string{
+		"requestFullscreen", "goshtoso-charts:resize", "goshtoso-charts:export-request", "expandFromMenu", "toggleFullscreen",
+		"goshtoso-charts:set-wrapper-mode", "goshtoso-charts:wrapper-mode-change",
+		"MutationObserver", "htmx:load", "htmx:afterSwap", "goshtosoChartWrapperMode",
+	} {
 		if !strings.Contains(recorder.Body.String(), want) {
 			t.Errorf("control runtime missing %q", want)
 		}
 	}
-	if strings.Contains(recorder.Body.String(), "chart.resize()") {
-		t.Fatal("renderer-neutral controls runtime resized a private chart engine directly")
+	for _, engineReference := range []string{"window.echarts", "getInstanceByDom", "getDataURL", "chart.resize()"} {
+		if strings.Contains(recorder.Body.String(), engineReference) {
+			t.Fatalf("renderer-neutral controls runtime references private chart engine through %q", engineReference)
+		}
 	}
 	for _, unwanted := range []string{"toggleCollapse", "goshtoso-charts-controls-constrained", "updateOverflowVisibility"} {
 		if strings.Contains(recorder.Body.String(), unwanted) {
@@ -74,7 +80,7 @@ func TestHandlerServesVersionedChartControlRuntime(t *testing.T) {
 func TestHandlerKeepsPreviousChartControlRuntimesAvailable(t *testing.T) {
 	t.Parallel()
 
-	for _, version := range []string{"1", "2"} {
+	for _, version := range []string{"1", "2", "3"} {
 		recorder := httptest.NewRecorder()
 		request := httptest.NewRequest(http.MethodGet, "/charts/assets/js/controls/"+version+"/controls.js", nil)
 		assets.Handler().ServeHTTP(recorder, request)

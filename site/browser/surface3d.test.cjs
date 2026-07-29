@@ -175,7 +175,7 @@ test("both exact surfaces, local runtime order, route/search, palette, and CSV a
 
     const search = await page.request.get(`${baseURL}/components/line`);
     assert.match(await search.text(), /data-search="surface 3d interactive \/ 3d interactive-surface-3d"/);
-    for (const asset of ["/charts/assets/js/controls/3/controls.js", "/charts/assets/js/runtime/three-d/2.0.9/runtime.min.js", "/charts/assets/js/runtime/echarts/5.4.3/echarts.min.js"]) {
+    for (const asset of ["/charts/assets/js/controls/4/controls.js", "/charts/assets/js/runtime/three-d/2.0.9/runtime.min.js", "/charts/assets/js/runtime/echarts/5.4.3/echarts.min.js"]) {
       assert.equal((await page.request.get(`${baseURL}${asset}`)).status(), 200);
     }
   } finally {

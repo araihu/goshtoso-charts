@@ -29,7 +29,10 @@ func TestChartGuidesDocumentActualRendererNeutralCapabilities(t *testing.T) {
 			required: []string{
 				"Chart controls", "Enabled by default and kept as the primary action", "Disabled by default", "Not part of the public control API",
 				"same chart DOM", "one stacked Expand dropdown", "flattened into one accessible overflow menu", "SVG and PNG", "Interactive canvas",
-				"data-guide-api-link=\"chartcontrol\"", "Accessibility and status",
+				"data-guide-api-link=\"chartcontrol\"", "Accessibility and status", "Wrapper lifecycle", "WrapperModeEnabled",
+				"WrapperModeDisabled", "WrapperModeHidden", "WrapperModeOmitted", "data-wrapper-mode-comparison",
+				"goshtoso-charts:set-wrapper-mode", "goshtoso-charts:wrapper-mode-change", "previousMode", "focusReturn",
+				"HTMX swaps", "No-JavaScript behavior", "Omitted skips wrapper-only export validation",
 			},
 		},
 	}
@@ -69,6 +72,7 @@ func TestChartGuideHTMXResponseKeepsTitleSidebarAndTOCHeadings(t *testing.T) {
 	for _, want := range []string{
 		`<title>Chart controls · Goshtoso Charts</title>`, `id="main-content"`, `id="componentdocshell-sidebar-content"`,
 		`hx-swap-oob`, `data-sidebar-icon="chart-controls"`, `aria-current="page"`, `id="responsive-actions"`, `data-toc-heading`,
+		`id="wrapper-lifecycle"`, `id="client-transitions"`, `id="htmx-swaps"`, `id="state-guarantees"`, `id="no-javascript"`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("HTMX guide response missing %q", want)

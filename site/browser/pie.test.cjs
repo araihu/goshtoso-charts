@@ -57,7 +57,7 @@ test("Pie browser server is exact candidate worktree build on a test-owned non-8
     "/components/pie",
     "/attributions",
     "/search/assets/search.js",
-    "/charts/assets/js/controls/3/controls.js",
+    "/charts/assets/js/controls/4/controls.js",
   ]) {
     const response = await fetch(`${baseURL}${route}`);
     assert.equal(response.status, 200, route);

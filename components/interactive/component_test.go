@@ -152,6 +152,8 @@ func TestThemeRuntimeResizesCanvasAfterConsumerHostShrinks(t *testing.T) {
 		`chart.resize({ width: width, height: height, animation: { duration: 0 } });`,
 		`window.addEventListener("resize", scheduleAll);`,
 		`document.addEventListener("goshtoso-charts:resize",`,
+		`document.addEventListener("goshtoso-charts:export-request",`,
+		`detail.dataURL = chart.getDataURL({`,
 	} {
 		if !strings.Contains(themeRuntimeMarkup, want) {
 			t.Errorf("responsive theme runtime missing %q", want)

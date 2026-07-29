@@ -169,6 +169,20 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 	      if (!wrapper) return;
 	      wrapper.querySelectorAll(".goshtoso-charts-interactive").forEach(scheduleResize);
 	    });
+	    document.addEventListener("goshtoso-charts:export-request", function (event) {
+	      var detail = event.detail;
+	      if (!detail || detail.format !== "png" || detail.dataURL) return;
+	      var wrapper = event.target.closest && event.target.closest("[data-goshtoso-chart-wrapper]");
+	      var figure = wrapper && wrapper.querySelector(".goshtoso-charts-interactive");
+	      var host = figure && figure.querySelector("[_echarts_instance_]");
+	      var chart = host && window.echarts && window.echarts.getInstanceByDom(host);
+	      if (!chart) return;
+	      detail.dataURL = chart.getDataURL({
+	        type: "png",
+	        pixelRatio: detail.pixelRatio,
+	        backgroundColor: detail.backgroundColor
+	      });
+	    });
 	    new MutationObserver(function () {
 	      responsiveFigures.forEach(function (_, figure) {
 	        if (!figure.isConnected) unregister(figure);

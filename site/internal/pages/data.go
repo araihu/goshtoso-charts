@@ -149,21 +149,6 @@ func sampleDualAxisLineOverrides() line.Config {
 	return cfg
 }
 
-func sampleDeployments() bar.Config {
-	return bar.Config{
-		Label:   "Deployments by environment",
-		Caption: "Successful and failed deployments this week.",
-		Labels:  []string{"Development", "Staging", "Production"},
-		Series: []bar.Series{
-			{Name: "Successful", Values: []float64{18, 12, 9}},
-			{Name: "Failed", Values: []float64{1, 2, 1}},
-		},
-		Stacked:  true,
-		Controls: chartcontrol.Options{Fullscreen: true},
-		Export:   &chartcontrol.ExportOptions{Filename: "deployments-by-environment"},
-	}
-}
-
 func sampleHorizontalWorldPopulation() bar.Config {
 	return bar.Config{
 		Label:       "World population by reporting series",
@@ -193,7 +178,8 @@ func sampleBarReferences() bar.Config {
 			{Name: "Rainfall", Values: []float64{2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3}, References: annotations},
 			{Name: "Evaporation", Values: []float64{2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3}, References: annotations},
 		},
-		Width: 600, Height: 400,
+		Legend: bar.LegendOptions{Placement: bar.LegendPlacementEnd, Overlay: true},
+		Width:  600, Height: 400,
 		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "monthly-rainfall-and-evaporation"},
 	}
@@ -700,18 +686,6 @@ cfg.YAxes[0].Class = "caller-left-axis"
 cfg.YAxes[1].Color = "#7e22ce"
 
 @line.Line(cfg)`
-}
-
-func barCode() string {
-	return `@bar.Bar(bar.Config{
-  Label: "Deployments by environment",
-  Labels: []string{"Development", "Staging", "Production"},
-  Series: []bar.Series{
-    {Name: "Successful", Values: []float64{18, 12, 9}},
-    {Name: "Failed", Values: []float64{1, 2, 1}},
-  },
-  Stacked: true,
-})`
 }
 
 func horizontalBarCode() string {

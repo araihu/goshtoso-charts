@@ -70,21 +70,47 @@ templ barTemplate(cfg Config, chart templ.Component) {
 						}
 					</tbody>
 				</table>
-				<table class="min-w-full border-collapse text-left" aria-label={ cfg.Label + " computed reference annotations" }>
-					<thead><tr><th class="px-3 py-2" scope="col">Series</th><th class="px-3 py-2" scope="col">Average</th><th class="px-3 py-2" scope="col">Maximum</th><th class="px-3 py-2" scope="col">Minimum</th></tr></thead>
-					<tbody>
-						for _, series := range cfg.Series {
-							if series.References.Average || series.References.Maximum || series.References.Minimum {
-								{{ summary := summarizeReferences(series.Values) }}
-								<tr class={ "border-t border-outline dark:border-outline-dark " + series.References.Style.Class }><th class="px-3 py-2 font-semibold" scope="row">{ series.Name }</th>
-									<td class="px-3 py-2 tabular-nums">{ formatReferenceValue(summary.Average, series.References.Format) }</td>
-									<td class="px-3 py-2 tabular-nums">{ formatReferenceValue(summary.Maximum, series.References.Format) + " at " + cfg.Labels[summary.MaximumIndex] }</td>
-									<td class="px-3 py-2 tabular-nums">{ formatReferenceValue(summary.Minimum, series.References.Format) + " at " + cfg.Labels[summary.MinimumIndex] }</td>
-								</tr>
+				if cfg.hasSummaryReferences() {
+					<table class="min-w-full border-collapse text-left" aria-label={ cfg.Label + " computed reference annotations" }>
+						<thead><tr><th class="px-3 py-2" scope="col">Series</th><th class="px-3 py-2" scope="col">Average</th><th class="px-3 py-2" scope="col">Maximum</th><th class="px-3 py-2" scope="col">Minimum</th></tr></thead>
+						<tbody>
+							for _, series := range cfg.Series {
+								if series.References.Average || series.References.Maximum || series.References.Minimum {
+									{{ summary := summarizeReferences(series.Values) }}
+									<tr class={ "border-t border-outline dark:border-outline-dark " + series.References.Style.Class }><th class="px-3 py-2 font-semibold" scope="row">{ series.Name }</th>
+										<td class="px-3 py-2 tabular-nums">{ formatReferenceValue(summary.Average, series.References.Format) }</td>
+										<td class="px-3 py-2 tabular-nums">{ formatReferenceValue(summary.Maximum, series.References.Format) + " at " + cfg.Labels[summary.MaximumIndex] }</td>
+										<td class="px-3 py-2 tabular-nums">{ formatReferenceValue(summary.Minimum, series.References.Format) + " at " + cfg.Labels[summary.MinimumIndex] }</td>
+									</tr>
+								}
 							}
-						}
-					</tbody>
-				</table>
+						</tbody>
+					</table>
+				}
+				if cfg.hasMaximumLine() {
+					<table class="min-w-full border-collapse text-left" aria-label={ cfg.Label + " maximum-line annotations" }>
+						<tbody>
+							for _, series := range cfg.Series {
+								if series.References.MaximumLine {
+									{{ summary := summarizeReferences(series.Values) }}
+									<tr class={ "border-t border-outline dark:border-outline-dark " + series.References.Style.Class }>
+										<th class="px-3 py-2 font-semibold" scope="row">{ series.Name + " maximum line" }</th>
+										<td class="px-3 py-2 tabular-nums">{ formatReferenceValue(summary.Maximum, series.References.Format) + " at " + cfg.Labels[summary.MaximumIndex] }</td>
+									</tr>
+								}
+							}
+						</tbody>
+					</table>
+				}
+				if cfg.hasGlobalMaximum() {
+					{{ maximum := cfg.summarizeStackedGlobalMaximum() }}
+					<table class="min-w-full border-collapse text-left" aria-label={ cfg.Label + " stacked reference annotations" }>
+						<tbody><tr class={ "border-t border-outline dark:border-outline-dark " + maximum.Class }>
+							<th class="px-3 py-2 font-semibold" scope="row">Maximum stack total</th>
+							<td class="px-3 py-2 tabular-nums">{ formatReferenceValue(maximum.Value, maximum.Format) + " at " + cfg.Labels[maximum.Index] }</td>
+						</tr></tbody>
+					</table>
+				}
 			</div>
 		</details>
 	}

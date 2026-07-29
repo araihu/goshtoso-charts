@@ -12,11 +12,34 @@ import (
 	"github.com/araihu/goshtoso/components/actiongroup"
 )
 
-// Options configures chart controls. Expand defaults on; fullscreen defaults off.
+// WrapperMode controls server-rendered wrapper lifecycle and its initial client state.
+//
+// Enabled, disabled, and hidden wrappers retain their chart DOM and can transition
+// client-side. Omitted renders only the chart and cannot transition until an
+// application or HTMX response renders a wrapper around it.
+type WrapperMode string
+
+const (
+	// WrapperModeEnabled renders the wrapper and enables every configured action.
+	WrapperModeEnabled WrapperMode = ""
+	// WrapperModeDisabled keeps the wrapper and chart visible while disabling its actions.
+	WrapperModeDisabled WrapperMode = "disabled"
+	// WrapperModeHidden keeps the initialized wrapper and chart DOM hidden and inert.
+	WrapperModeHidden WrapperMode = "hidden"
+	// WrapperModeOmitted renders the chart without wrapper DOM or wrapper runtime.
+	WrapperModeOmitted WrapperMode = "omitted"
+)
+
+const wrapperModeEnabledLiteral WrapperMode = "enabled"
+
+// Options configures chart controls and the shared wrapper lifecycle. Expand
+// defaults on; fullscreen defaults off; Mode defaults to WrapperModeEnabled.
 type Options struct {
 	Fullscreen bool
 	// Expand opens the same chart instance in a large Goshtoso modal. Nil enables it.
 	Expand *bool
+	// Mode selects the wrapper's initial server-rendered lifecycle state.
+	Mode WrapperMode
 }
 
 // ExportFormat identifies a verified browser download format.
@@ -82,14 +105,29 @@ func Wrapper(cfg WrapperConfig, chart templ.Component) templ.Component {
 }
 
 func (instance instance) Render(ctx context.Context, writer io.Writer) error {
+	if err := validateWrapperMode(instance.cfg.Controls.Mode); err != nil {
+		return err
+	}
 	if instance.chart == nil {
 		return fmt.Errorf("chart control wrapper content is required")
+	}
+	if instance.cfg.Controls.Mode == WrapperModeOmitted {
+		return instance.chart.Render(ctx, writer)
 	}
 	formats, err := resolvedFormats(instance.cfg.Export, instance.cfg.Capability)
 	if err != nil {
 		return err
 	}
 	return wrapperTemplate(instance.cfg, formats, instance.chart).Render(ctx, writer)
+}
+
+func validateWrapperMode(mode WrapperMode) error {
+	switch mode {
+	case WrapperModeEnabled, wrapperModeEnabledLiteral, WrapperModeDisabled, WrapperModeHidden, WrapperModeOmitted:
+		return nil
+	default:
+		return fmt.Errorf("chart wrapper mode %q is unsupported", mode)
+	}
 }
 
 func resolvedFormats(options *ExportOptions, capability ExportCapability) ([]ExportFormat, error) {
@@ -184,7 +222,23 @@ func exportPixelRatio(cfg WrapperConfig) string {
 }
 
 func hasRuntime(cfg WrapperConfig, formats []ExportFormat) bool {
-	return cfg.Controls.Fullscreen || expandEnabled(cfg.Controls) || len(formats) > 0
+	return cfg.Controls.Mode == WrapperModeDisabled || cfg.Controls.Mode == WrapperModeHidden ||
+		cfg.Controls.Fullscreen || expandEnabled(cfg.Controls) || len(formats) > 0
+}
+
+func wrapperMode(options Options) string {
+	if options.Mode == WrapperModeEnabled || options.Mode == wrapperModeEnabledLiteral {
+		return "enabled"
+	}
+	return string(options.Mode)
+}
+
+func wrapperDisabled(options Options) bool {
+	return options.Mode == WrapperModeDisabled
+}
+
+func wrapperHidden(options Options) bool {
+	return options.Mode == WrapperModeHidden
 }
 
 // Bool returns a pointer for explicit opt-out settings whose zero value is enabled.
