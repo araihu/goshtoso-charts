@@ -339,6 +339,34 @@ func TestStaticCandlestickPatternsDataMechanicallyMatchesPinnedUpstreamExample(t
 	}
 }
 
+func TestStaticCandlestickAggregationDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if staticCandlestickAggregationUpstreamPath != "examples/1-Painter/candlestick_chart-5-aggregation/main.go" ||
+		staticCandlestickAggregationUpstreamRevision != "1fe31b06b8a82e00df877ff4417a75858547c1c2" ||
+		staticCandlestickAggregationUpstreamSHA256 != "ba7d1d31fef54f792e53840d969c4a3d791309a6059b2c5997dd2e509e1cbde1" {
+		t.Fatalf("aggregation upstream source = %s@%s (%s)", staticCandlestickAggregationUpstreamPath, staticCandlestickAggregationUpstreamRevision, staticCandlestickAggregationUpstreamSHA256)
+	}
+	cfg := sampleCandlestickAggregation()
+	if cfg.Title != "1-Minute Candles (Before Aggregation)" || cfg.SeriesName != "1-Minute" || cfg.Width != 1200 || cfg.Height != 800 ||
+		cfg.Aggregation.WindowSize != 5 || cfg.Aggregation.Title != "5-Minute Aggregated Candles" || cfg.Aggregation.SeriesName != "5-Minute" ||
+		cfg.Options.TitleFontSize != 16 || cfg.Options.YUnit != 1 || cfg.Options.Padding != (candlestick.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20}) {
+		t.Fatalf("aggregation presentation drifted: %#v", cfg)
+	}
+	want := []candlestick.Datum{
+		{Label: "1", Open: 100, High: 102, Low: 99, Close: 101}, {Label: "2", Open: 101, High: 103, Low: 100, Close: 102},
+		{Label: "3", Open: 102, High: 105, Low: 101, Close: 104}, {Label: "4", Open: 104, High: 106, Low: 103, Close: 105},
+		{Label: "5", Open: 105, High: 107, Low: 104, Close: 106}, {Label: "6", Open: 106, High: 108, Low: 105, Close: 107},
+		{Label: "7", Open: 107, High: 109, Low: 106, Close: 108}, {Label: "8", Open: 108, High: 110, Low: 107, Close: 109},
+		{Label: "9", Open: 109, High: 111, Low: 108, Close: 110}, {Label: "10", Open: 110, High: 112, Low: 109, Close: 111},
+		{Label: "11", Open: 111, High: 113, Low: 110, Close: 112}, {Label: "12", Open: 112, High: 114, Low: 111, Close: 113},
+		{Label: "13", Open: 113, High: 115, Low: 112, Close: 114}, {Label: "14", Open: 114, High: 116, Low: 113, Close: 115},
+		{Label: "15", Open: 115, High: 117, Low: 114, Close: 116},
+	}
+	if !reflect.DeepEqual(cfg.Data, want) {
+		t.Fatalf("aggregation source data = %#v, want %#v", cfg.Data, want)
+	}
+}
+
 func TestInteractiveCandlestickDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 	t.Parallel()
 	if interactiveCandlestickUpstreamPath != "examples/kline.go" {

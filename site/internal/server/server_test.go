@@ -387,6 +387,17 @@ func TestCandlestickDocumentationPreservesUpstreamBasicExampleWithoutEngineBrand
 	if !strings.Contains(attributions.Body.String(), "examples/1-Painter/candlestick_chart-4-patterns/main.go") {
 		t.Error("central attributions missing candlestick patterns source path")
 	}
+	for _, want := range []string{"Aggregation", "1-Minute Candles (Before Aggregation)", "5-Minute Aggregated Candles", "1-5", "6-10", "11-15", "Exact source and aggregated OHLC values"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("candlestick aggregation documentation missing %q", want)
+		}
+	}
+	if strings.Contains(body, "candlestick_chart-5-aggregation") {
+		t.Error("candlestick component page exposes backing example path")
+	}
+	if !strings.Contains(attributions.Body.String(), "examples/1-Painter/candlestick_chart-5-aggregation/main.go") {
+		t.Error("central attributions missing candlestick aggregation source path")
+	}
 }
 
 func TestThemeRiverDocumentationPreservesPinnedUpstreamExampleWithoutEngineBranding(t *testing.T) {

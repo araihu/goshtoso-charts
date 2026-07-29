@@ -712,6 +712,12 @@ templ candlestickContent() {
 		},
 		Sections: []componentpage.Example{
 			{
+				Title: "Aggregation",
+				Description: "Compare the original ordered candles with fixed-size OHLC windows. The first open, highest high, lowest low, and final close define each aggregated candle.",
+				Preview: candlestick.Candlestick(sampleCandlestickAggregation()),
+				Code: candlestickAggregationCode(),
+			},
+			{
 				Title: "Bollinger Bands",
 				Description: "Twenty OHLC observations with period-five upper, middle, and lower close-price trends. Distinct accessible theme tokens adapt across Goshtoso and AraiHu light and dark modes.",
 				Preview: candlestick.Candlestick(sampleCandlestickBollingerBands()),

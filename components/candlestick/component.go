@@ -42,6 +42,9 @@ func renderSVG(cfg Config) (string, error) {
 	if err := cfg.validate(); err != nil {
 		return "", err
 	}
+	if cfg.Aggregation.WindowSize > 0 {
+		return renderAggregationSVG(cfg)
+	}
 	painter := chart.NewPainter(chart.PainterOptions{OutputFormat: chart.ChartOutputSVG, Width: cfg.width(), Height: cfg.height(), Theme: tokenPalette()})
 	if err := painter.CandlestickChart(candlestickOptions(cfg)); err != nil {
 		return "", fmt.Errorf("render candlestick chart: %w", err)
@@ -51,6 +54,66 @@ func renderSVG(cfg Config) (string, error) {
 		return "", fmt.Errorf("encode candlestick chart SVG: %w", err)
 	}
 	return decorateSVG(tokenizedSVG(string(data)), cfg), nil
+}
+
+func renderAggregationSVG(cfg Config) (string, error) {
+	width, height := cfg.width(), cfg.height()
+	painter := chart.NewPainter(chart.PainterOptions{OutputFormat: chart.ChartOutputSVG, Width: width, Height: height, Theme: tokenPalette()})
+	surface := chart.Color{R: 1, G: 1, B: 1, A: 255}
+	painter.FilledRect(0, 0, width, height, surface, surface, 0)
+	middle := height / 2
+	top := painter.Child(chart.PainterBoxOption(chart.NewBox(0, 0, width, middle)))
+	bottom := painter.Child(chart.PainterBoxOption(chart.NewBox(0, middle, width, height)))
+	if err := top.CandlestickChart(candlestickOptions(cfg)); err != nil {
+		return "", fmt.Errorf("render source candlestick chart: %w", err)
+	}
+	if err := bottom.CandlestickChart(candlestickOptions(aggregatedConfig(cfg))); err != nil {
+		return "", fmt.Errorf("render aggregated candlestick chart: %w", err)
+	}
+	data, err := painter.Bytes()
+	if err != nil {
+		return "", fmt.Errorf("encode aggregated candlestick chart SVG: %w", err)
+	}
+	return decorateSVG(tokenizedSVG(string(data)), cfg), nil
+}
+
+func aggregateData(data []Datum, windowSize int) []Datum {
+	if windowSize <= 1 {
+		return append([]Datum(nil), data...)
+	}
+	result := make([]Datum, 0, (len(data)+windowSize-1)/windowSize)
+	for start := 0; start < len(data); start += windowSize {
+		end := min(start+windowSize, len(data))
+		first, last := data[start], data[end-1]
+		aggregated := Datum{Label: first.Label, Open: first.Open, High: first.High, Low: first.Low, Close: last.Close}
+		if first.Label != last.Label {
+			aggregated.Label = first.Label + "-" + last.Label
+		}
+		for _, datum := range data[start:end] {
+			aggregated.High = max(aggregated.High, datum.High)
+			aggregated.Low = min(aggregated.Low, datum.Low)
+		}
+		result = append(result, aggregated)
+	}
+	return result
+}
+
+func aggregatedConfig(cfg Config) Config {
+	cfg.Data = aggregateData(cfg.Data, cfg.Aggregation.WindowSize)
+	if title := strings.TrimSpace(cfg.Aggregation.Title); title != "" {
+		cfg.Title = title
+	} else {
+		cfg.Title = "Aggregated " + cfg.Title
+	}
+	if seriesName := strings.TrimSpace(cfg.Aggregation.SeriesName); seriesName != "" {
+		cfg.SeriesName = seriesName
+	} else {
+		cfg.SeriesName += " aggregated"
+	}
+	cfg.TrendLines = nil
+	cfg.Patterns = PatternOptions{}
+	cfg.Aggregation = AggregationOptions{}
+	return cfg
 }
 
 func candlestickOptions(cfg Config) chart.CandlestickChartOption {
@@ -332,6 +395,12 @@ func centeredTrend(values []float64, trend TrendLine) []float64 {
 }
 
 func formatValue(value float64) string { return strconv.FormatFloat(value, 'f', -1, 64) }
+func exactValuesSummary(cfg Config) string {
+	if cfg.Aggregation.WindowSize > 0 {
+		return "Exact source and aggregated OHLC values"
+	}
+	return "Exact OHLC values"
+}
 func formatTrendValue(value float64) string {
 	return strconv.FormatFloat(value, 'f', 6, 64)
 }
