@@ -22,6 +22,8 @@ func TestDemoRoutesRender(t *testing.T) {
 		want string
 	}{
 		{"/", "Getting Started"},
+		{"/docs/chart-modes", "Static/vector and interactive charts"},
+		{"/docs/chart-controls", "Chart controls"},
 		{"/attributions", "Foundation dependencies"},
 		{"/components/line", "Line chart"},
 		{"/components/bar", "Bar chart"},
@@ -1172,12 +1174,12 @@ func assertOneHotAvailabilitySnapshot(t *testing.T, snapshot interactive.Cartesi
 	}
 }
 
-func TestGettingStartedAndAttributionsUseNativeSidebarIcons(t *testing.T) {
+func TestTopLevelDocumentationUsesNativeSidebarIcons(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/attributions", nil))
 	body := recorder.Body.String()
-	for _, want := range []string{`data-sidebar-icon="getting-started"`, `data-sidebar-icon="attributions"`, `aria-hidden="true"`} {
+	for _, want := range []string{`data-sidebar-icon="getting-started"`, `data-sidebar-icon="chart-modes"`, `data-sidebar-icon="chart-controls"`, `data-sidebar-icon="attributions"`, `aria-hidden="true"`} {
 		if !strings.Contains(body, want) {
 			t.Errorf("sidebar navigation missing icon contract %q", want)
 		}
