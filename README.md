@@ -1,10 +1,18 @@
 # Goshtoso Charts
 
-Static vector and interactive charts for Go applications using [Goshtoso](https://github.com/araihu/goshtoso). Initial product driver: monitor detail and public status pages in Xisnove. Public API remains product-neutral.
+Static/vector and opt-in interactive chart components for Go/templ applications
+using [Goshtoso](https://github.com/araihu/goshtoso). The public contract stays
+renderer-neutral: typed configs, instances, and options do not expose a backing
+renderer. Initial product driver was Xisnove monitoring, but the library is
+product-neutral.
 
-`goshtoso-charts` provides Go/templ chart components in two layers: lightweight
-static vector primitives and opt-in interactive components. The public API is
-renderer-neutral, and no Node process or CDN asset is required.
+Charts use Goshtoso theme tokens, including Tailwind-compatible chart tokens,
+and responsive Goshtoso ActionGroup controls. Static/vector and interactive
+families deliberately differ where their proven export capabilities differ.
+Interactive runtime assets are vendored locally by default; CDN delivery is an
+explicit opt-in. Components provide accessible labels and adjacent exact data
+where a visual alone would be insufficient; interactive charts can also receive
+live Cartesian data through a renderer-neutral SSE snapshot contract.
 
 ## Install
 
@@ -56,6 +64,17 @@ Application CSS may target `my-chart` and override any
 charts resolve these CSS tokens through the private runtime bridge and refresh
 when Goshtoso theme or dark-mode state changes. Explicit `Style.Colors` remain
 authoritative.
+
+## Source policy
+
+Examples preserve a concrete upstream example's dataset, hierarchy, and chart
+semantics before being adapted to typed Goshtoso APIs, accessibility, responsive
+layout, and theme tokens. Static/vector examples originate in
+[`go-analyze/charts`](https://github.com/go-analyze/charts/tree/main/examples);
+interactive examples originate in
+[`go-echarts/examples`](https://github.com/go-echarts/examples/tree/master/examples).
+The demo's [Attributions page](site/internal/pages/attributions.go) centrally
+records exact example paths, revisions, runtime, and geography sources.
 
 ## Line chart
 
@@ -370,10 +389,16 @@ Availability remains application semantics and is not a separate chart type.
 
 ## Roadmap
 
-Foundation: static/vector `line`, `bar`/stacked bar, `pie`, and categorical
-`scatter`, plus typed interactive components. Next generic primitives: area and
-distribution/histogram. Add each only with a real use case, stable kind,
-accessible evidence, semantic-token palette, and focused tests.
+Current library covers a broad static/vector family (including line, bar, pie,
+scatter, radar, candlestick, funnel, heatmap, table, and violin) and an opt-in
+interactive family with Cartesian, hierarchy, distribution, map/geo, and 3D
+variants. Brazil-state and São Paulo-municipality geometry are bundled for the
+typed map and geo contracts; live availability remains an application use of the
+shared live Cartesian contract, not a separate chart type.
+
+Future primitives need a concrete use case and upstream source, stable
+renderer-neutral kind, accessible exact evidence, semantic-token palette,
+responsive behavior, capability-derived controls/export, and focused tests.
 
 See [chart-library evaluation](docs/chart-library-evaluation.md), [surface brief](docs/surface-brief.md), and [Xisnove heartbeat brief](docs/xisnove-heartbeat.md).
 
