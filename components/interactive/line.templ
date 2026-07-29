@@ -5,24 +5,24 @@ import (
 	"strconv"
 )
 
-templ lineTimeExactValues(cfg LineConfig) {
-	if cfg.TimeAxis != nil {
-		<details class="mt-3 max-w-full text-sm text-on-surface dark:text-on-surface-dark" data-line-time-exact-values>
-			<summary class="cursor-pointer font-semibold">Exact time and values</summary>
+templ lineExactValues(cfg LineConfig) {
+	<details class="mt-3 max-w-full text-sm text-on-surface dark:text-on-surface-dark" { lineExactValuesAttributes(cfg)... }>
+		<summary class="cursor-pointer font-semibold">{ lineExactValuesTitle(cfg) }</summary>
+		if cfg.TimeAxis != nil {
 			<p class="mt-2 text-on-surface-muted dark:text-on-surface-dark-muted">UTC timestamps. Time domain starts at { lineTimeValue(cfg.TimeAxis.Minimum) }. Evidence runs from { lineTimeValue(cfg.TimeAxis.Values[0]) } to { lineTimeValue(cfg.TimeAxis.Values[len(cfg.TimeAxis.Values)-1]) }.</p>
-			<div class="mt-2 max-h-80 overflow-auto rounded-radius border border-outline dark:border-outline-dark">
-				<table class="min-w-max border-collapse text-left" aria-label={ cfg.Label + " exact time and values" }>
-					<thead><tr><th class="px-3 py-2" scope="col">Time</th><th class="px-3 py-2" scope="col">Series</th><th class="px-3 py-2" scope="col">Value</th></tr></thead>
-					<tbody>
-						for index, instant := range cfg.TimeAxis.Values {
-							for _, series := range cfg.Series {
-								<tr class="border-t border-outline dark:border-outline-dark"><th class="px-3 py-2 font-semibold" scope="row">{ lineTimeValue(instant) }</th><td class="px-3 py-2">{ series.Name }</td><td class="px-3 py-2 tabular-nums">{ fmt.Sprintf("%g", series.Data[index].Value) }</td></tr>
-							}
+		}
+		<div class="mt-2 max-h-80 overflow-auto rounded-radius border border-outline dark:border-outline-dark">
+			<table class="min-w-max border-collapse text-left" aria-label={ cfg.Label + " exact x and values" }>
+				<thead><tr><th class="px-3 py-2" scope="col">{ lineXAxisHeading(cfg) }</th><th class="px-3 py-2" scope="col">Series</th><th class="px-3 py-2" scope="col">Value</th></tr></thead>
+				<tbody>
+					for index := 0; index < lineXAxisLength(cfg); index++ {
+						for _, series := range cfg.Series {
+							<tr class="border-t border-outline dark:border-outline-dark"><th class="px-3 py-2 font-semibold" scope="row">{ lineXAxisValue(cfg, index) }</th><td class="px-3 py-2">{ series.Name }</td><td class="px-3 py-2 tabular-nums">{ fmt.Sprintf("%g", series.Data[index].Value) }</td></tr>
 						}
-					</tbody>
-				</table>
-			</div>
-			<p class="mt-2 text-on-surface-muted dark:text-on-surface-dark-muted">{ strconv.Itoa(len(cfg.TimeAxis.Values)) } ordered timestamps across { strconv.Itoa(len(cfg.Series)) } series.</p>
-		</details>
-	}
+					}
+				</tbody>
+			</table>
+		</div>
+		<p class="mt-2 text-on-surface-muted dark:text-on-surface-dark-muted">{ strconv.Itoa(lineXAxisLength(cfg)) } ordered x values across { strconv.Itoa(len(cfg.Series)) } series.</p>
+	</details>
 }

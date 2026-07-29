@@ -26,6 +26,7 @@ func sampleInteractiveLineTime() interactive.LineConfig {
 		Series: []interactive.LineSeries{{Name: "Category A", Data: deterministicLineTimeData(50)}},
 		Options: interactive.ChartOptions{
 			Title:    &interactive.TitleOptions{Text: "temporal X axis", Subtitle: "time.Date as X axis values"},
+			Legend:   &interactive.LegendOptions{Bottom: "0"},
 			Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "axis"},
 			YAxis:    &interactive.AxisOptions{Min: interactive.Float(0), Max: interactive.Float(200)},
 			Controls: chartcontrol.Options{Fullscreen: true},

@@ -595,9 +595,12 @@ func interactiveChartBarCode() string {
 
 func interactiveChartLineCode() string {
 	return `@interactive.Line(interactive.LineConfig{
-  Label: "Weekly latency",
-  XAxis: []string{"Mon", "Tue"},
-  Series: []interactive.LineSeries{{Name: "Latency", Data: []interactive.LineData{{Value: 42}, {Value: 47}}}},
+  Label: "Basic line example",
+  XAxis: []string{"Apple", "Banana", "Peach", "Lemon", "Pear", "Cherry"},
+  Series: []interactive.LineSeries{{
+    Name: "Category A",
+    Data: []interactive.LineData{{Value: 120}, {Value: 132}, {Value: 101}, {Value: 134}, {Value: 90}, {Value: 230}},
+  }},
 })`
 }
 

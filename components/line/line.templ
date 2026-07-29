@@ -49,12 +49,36 @@ templ lineTemplate(cfg Config, chart templ.Component) {
 								<th class="px-3 py-2 font-semibold" scope="row">{ label }</th>
 								<td class="px-3 py-2">{ series.Name }</td>
 								<td class={ "px-3 py-2 " + axisClass(cfg, series.YAxisIndex) }>{ axisName(cfg, series.YAxisIndex) }</td>
-								<td class="px-3 py-2 tabular-nums">{ formatValue(series.Values[labelIndex]) }</td>
+								<td class="px-3 py-2 tabular-nums">{ formatSeriesValue(series, labelIndex) }</td>
 							</tr>
 						}
 					}
 				</tbody>
 			</table>
 		</div>
+		if cfg.hasReferences() {
+			<h3 class="mt-4 font-semibold">Reference evidence</h3>
+			<div class="mt-2 overflow-x-auto rounded-radius border border-outline dark:border-outline-dark">
+				<table class="min-w-full border-collapse text-left" aria-label={ cfg.Label + " statistical reference evidence" }>
+					<thead><tr><th class="px-3 py-2" scope="col">Series</th><th class="px-3 py-2" scope="col">Reference</th><th class="px-3 py-2" scope="col">Value</th><th class="px-3 py-2" scope="col">Label</th></tr></thead>
+					<tbody>
+						for _, series := range cfg.Series {
+							if series.References.Average || series.References.Minimum || series.References.Maximum {
+								{{ summary := summarizeLineReferences(series) }}
+								if series.References.Average {
+									<tr class={ "border-t border-outline dark:border-outline-dark " + series.References.Style.Class }><th class="px-3 py-2 font-semibold" scope="row">{ series.Name }</th><td class="px-3 py-2">Average</td><td class="px-3 py-2 tabular-nums">{ formatReferenceValue(summary.Average, series.References) }</td><td class="px-3 py-2">All available points</td></tr>
+								}
+								if series.References.Maximum {
+									<tr class={ "border-t border-outline dark:border-outline-dark " + series.References.Style.Class }><th class="px-3 py-2 font-semibold" scope="row">{ series.Name }</th><td class="px-3 py-2">Maximum</td><td class="px-3 py-2 tabular-nums">{ formatReferenceValue(summary.Maximum, series.References) }</td><td class="px-3 py-2">{ cfg.Labels[summary.MaximumIndex] }</td></tr>
+								}
+								if series.References.Minimum {
+									<tr class={ "border-t border-outline dark:border-outline-dark " + series.References.Style.Class }><th class="px-3 py-2 font-semibold" scope="row">{ series.Name }</th><td class="px-3 py-2">Minimum</td><td class="px-3 py-2 tabular-nums">{ formatReferenceValue(summary.Minimum, series.References) }</td><td class="px-3 py-2">{ cfg.Labels[summary.MinimumIndex] }</td></tr>
+								}
+							}
+						}
+					</tbody>
+				</table>
+			</div>
+		}
 	</details>
 }

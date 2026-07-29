@@ -407,6 +407,21 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 					: palette[index % palette.length]);
 			themedItem.lineStyle = Object.assign({}, series.lineStyle || {}, { color: line3DSeriesColor });
 		}
+		if (series.type === "line") {
+			var lineSeriesColor = palette[index % palette.length];
+			if (series.markPoint) themedItem.markPoint = Object.assign({}, series.markPoint, {
+				label: Object.assign({}, series.markPoint.label || {}, { color: strong }),
+				itemStyle: Object.assign({}, series.markPoint.itemStyle || {}, { color: lineSeriesColor })
+			});
+			if (series.markLine) themedItem.markLine = Object.assign({}, series.markLine, {
+				label: Object.assign({}, series.markLine.label || {}, { color: strong }),
+				lineStyle: Object.assign({}, series.markLine.lineStyle || {}, { color: outline })
+			});
+			if (series.markArea) themedItem.markArea = Object.assign({}, series.markArea, {
+				label: Object.assign({}, series.markArea.label || {}, { color: strong }),
+				itemStyle: Object.assign({}, series.markArea.itemStyle || {}, { color: scaleHigh, opacity: 0.18 })
+			});
+		}
         if (series.type === "boxplot" && managesSeriesItem(index)) {
           themedItem.itemStyle = { color: palette[index % palette.length], borderColor: palette[index % palette.length] };
         }

@@ -69,7 +69,7 @@ before(async () => {
   assert.notEqual(port, 8091);
   assert.notEqual(port, 8096);
   baseURL = `http://127.0.0.1:${port}`;
-  server = spawn("go", ["run", "./cmd/server", "-port", String(port)], {
+  server = spawn("/opt/homebrew/bin/go", ["run", "./cmd/server", "-port", String(port)], {
     cwd: path.resolve(__dirname, ".."), detached: true, stdio: "pipe",
   });
   await ready();

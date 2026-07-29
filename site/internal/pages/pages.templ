@@ -152,20 +152,60 @@ templ InteractiveLinePage(fragment bool) {
 templ interactiveChartLineContent() {
 	@componentpage.Page(componentpage.Config{
 		Title:       "Interactive line",
-		Description: "Ordered numeric series for trends, rates of change, and turning points over time or sequence.",
+		Description: "Ordered numeric series with categorical, numerical, and temporal axes; labels, symbols, references, fills, and multiple aligned series.",
 		Primary: componentpage.Example{
 			AbovePreview: visualizationGuidance("Show change across an ordered sequence.", "Order and direction matter, especially for a small number of time series.", "Unordered categories or many crossing series obscure comparison.", "Provide the ordered values in an adjacent table when exact readings matter."),
-			Preview:      interactive.Line(sampleInteractiveLine()),
+			Preview:      interactive.Line(sampleInteractiveLineBase()),
 			Code:         interactiveChartLineCode(),
 		},
-		Sections: []componentpage.Example{{
-			Title:       "Temporal X-axis treatment",
-			Description: "UTC timestamps keep one chronological series in order, with exact values beside the chart.",
-			Preview:     interactive.Line(sampleInteractiveLineTime()),
-			Code:        interactiveLineTimeCode(),
-		}},
-		After: interactiveDocumentation(demoNote("Time series", "Use a time axis for chronological observations; keep timestamps strictly ordered and show exact readings beside the chart when people need to compare them.")),
+		Sections: []componentpage.Example{
+			{Title: "Labels and symbols", Description: "Labels expose exact point values; symbols distinguish points without changing the data.", Preview: interactiveLineLabelsAndSymbolsVariants(), Code: interactiveLineLabelsCode()},
+			{Title: "References and split lines", Description: "Calculated points and horizontal guides add context while the adjacent tables retain exact values.", Preview: interactiveLineReferenceVariants(), Code: interactiveLineReferencesCode()},
+			{Title: "Numerical axis and guides", Description: "A numerical x axis supports ranges, coordinate guides, vertical thresholds, and theme-aware scale pieces.", Preview: interactive.Line(sampleInteractiveLineNumerical()), Code: interactiveLineNumericalCode()},
+			{Title: "Line shape treatments", Description: "Step, smooth, area, and smooth-area treatments share one component and typed series options.", Preview: interactiveLineShapeVariants(), Code: interactiveLineShapesCode()},
+			{Title: "Multi-series comparisons", Description: "Aligned series share one ordered x axis; labels and average references can be configured per series.", Preview: interactiveLineMultiVariants(), Code: interactiveLineMultiCode()},
+			{Title: "Temporal X-axis treatment", Description: "UTC timestamps keep one chronological series in order, with exact values beside the chart.", Preview: interactive.Line(sampleInteractiveLineTime()), Code: interactiveLineTimeCode()},
+		},
+		After: interactiveLineDocumentation(),
 	})
+}
+
+templ interactiveLineLabelsAndSymbolsVariants() {
+	<div class="space-y-10" data-line-variant-group="labels-symbols">
+		<div data-line-variant="labels">@interactive.Line(sampleInteractiveLineLabels())</div>
+		<div data-line-variant="symbols">@interactive.Line(sampleInteractiveLineSymbols())</div>
+	</div>
+}
+
+templ interactiveLineReferenceVariants() {
+	<div class="space-y-10" data-line-variant-group="references">
+		<div data-line-variant="mark-points">@interactive.Line(sampleInteractiveLineMarkPoints())</div>
+		<div data-line-variant="split-lines">@interactive.Line(sampleInteractiveLineSplitLines())</div>
+	</div>
+}
+
+templ interactiveLineShapeVariants() {
+	<div class="space-y-10" data-line-variant-group="shapes">
+		<div data-line-variant="step">@interactive.Line(sampleInteractiveLineStep())</div>
+		<div data-line-variant="smooth">@interactive.Line(sampleInteractiveLineSmooth())</div>
+		<div data-line-variant="area">@interactive.Line(sampleInteractiveLineArea())</div>
+		<div data-line-variant="smooth-area">@interactive.Line(sampleInteractiveLineSmoothArea())</div>
+	</div>
+}
+
+templ interactiveLineMultiVariants() {
+	<div class="space-y-10" data-line-variant-group="multi-series">
+		<div data-line-variant="multi">@interactive.Line(sampleInteractiveLineMulti())</div>
+		<div data-line-variant="demo">@interactive.Line(sampleInteractiveLineDemo())</div>
+	</div>
+}
+
+templ interactiveLineDocumentation() {
+	<div class="space-y-4">
+		@demoNote("Time series", "Use a time axis for chronological observations; keep timestamps strictly ordered and show exact readings beside the chart when people need to compare them.")
+		@demoNote("Mixed-series composition", "The upstream mixed line and scatter overlay needs a separate renderer-neutral composite chart API. Line does not accept backing-renderer series or raw option escape hatches.")
+		@goAPIReference("interactive")
+	</div>
 }
 
 templ InteractiveScatterPage(fragment bool) {
@@ -894,10 +934,46 @@ templ lineContent() {
 		},
 		Sections: []componentpage.Example{
 			{
+				Title:       "Missing observations and basic presentation",
+				Description: "Explicit missing points break a series without inventing zero values. Title size, legend inset, point symbol, and stroke width remain typed options.",
+				Preview:     line.Line(sampleBasicLine()),
+				Code:        basicLineCode(),
+			},
+			{
+				Title:       "Per-series symbols",
+				Description: "Circle, diamond, square, and dot markers distinguish four series without requiring color alone.",
+				Preview:     line.Line(sampleSymbolLine()),
+				Code:        symbolLineCode(),
+			},
+			{
+				Title:       "Smoothed strokes",
+				Description: "Smoothing and stroke width support broad trend reading. Hidden markers and legend reduce clutter, while exact values remain adjacent.",
+				Preview:     line.Line(sampleSmoothLine()),
+				Code:        smoothLineCode(),
+			},
+			{
+				Title:       "Statistical references",
+				Description: "Average lines and maximum points add context to each series. The reference table exposes every computed value and matching label.",
+				Preview:     line.Line(sampleMarkedLine()),
+				Code:        markedLineCode(),
+			},
+			{
 				Title:       "Filled area treatment",
 				Description: "Theme-aware fill adds magnitude emphasis while preserving the same ordered Line semantics and exact values.",
 				Preview:     areaLineCandidate(),
 				Code:        areaLineCode(),
+			},
+			{
+				Title:       "Stacked contributions",
+				Description: "Stacked layers emphasize the cumulative total and its components. Point labels and maximum references stay available as typed options.",
+				Preview:     line.Line(sampleStackedLine()),
+				Code:        stackedLineCode(),
+			},
+			{
+				Title:       "Boundary-gap comparison",
+				Description: "The same dataset shows how category-edge spacing changes point placement. Compare the two treatments before choosing an explicit boundary gap.",
+				Preview:     boundaryGapLineVariants(),
+				Code:        boundaryGapLineCode(),
 			},
 			{
 				Title:       "Dual Y-axis treatment",
@@ -906,14 +982,33 @@ templ lineContent() {
 				Code:        dualAxisLineCode(),
 			},
 			{
+				Title:       "Dense axes, gaps, and positioned labels",
+				Description: "A dense focal-length series uses explicit gaps, sampled and rotated axis labels, hidden numeric labels, and positioned text annotations.",
+				Preview:     customLensLineCandidate(),
+				Code:        customLensLineCode(),
+			},
+			{
+				Title:       "Theme-aware value-label scale",
+				Description: "Point labels use the active chart palette's cold, midpoint, and warm scale tokens instead of fixed colors.",
+				Preview:     gradientLabelLineCandidate(),
+				Code:        gradientLabelLineCode(),
+			},
+			{
 				Title:       "Presentation overrides",
 				Description: "Series and axes accept either a caller color or semantic class at each boundary.",
 				Preview:     line.Line(sampleDualAxisLineOverrides()),
 				Code:        dualAxisLineOverridesCode(),
 			},
 		},
-		After: chartDocumentation("Reading series", "Filled areas emphasize magnitude; dual axes suit distinct units but require clearly labeled scales. Use a shared axis whenever direct value comparison matters.", "line"),
+		After: chartDocumentation("Reading series", "Gaps represent unavailable observations, not zero. Symbols and labels supplement color; smoothing favors broad trends; stacked layers emphasize totals; dual axes suit distinct units but require clearly labeled scales. Use a shared axis whenever direct value comparison matters.", "line"),
 	})
+}
+
+templ boundaryGapLineVariants() {
+	<div class="grid gap-8 xl:grid-cols-2" data-goshtoso-candidate="line-boundary-gap-comparison">
+		@line.Line(sampleBoundaryGapLine(true))
+		@line.Line(sampleBoundaryGapLine(false))
+	</div>
 }
 
 templ areaLineCandidate() {
@@ -925,6 +1020,18 @@ templ areaLineCandidate() {
 templ dualAxisLineCandidate() {
 	<div data-goshtoso-candidate="line-dual-axis-78a3edd9aa356dc7">
 		@line.Line(sampleDualAxisLine())
+	</div>
+}
+
+templ customLensLineCandidate() {
+	<div data-goshtoso-candidate="line-custom-67a9f05aba96e970">
+		@line.Line(sampleCustomLensLine())
+	</div>
+}
+
+templ gradientLabelLineCandidate() {
+	<div data-goshtoso-candidate="line-gradient-labels-21d84540f36ecdfb">
+		@line.Line(sampleGradientLabelLine())
 	</div>
 }
 
