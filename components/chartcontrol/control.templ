@@ -51,9 +51,7 @@ templ wrapperTemplate(cfg WrapperConfig, formats []ExportFormat, chart templ.Com
 		if len(formats) > 0 {
 			<span class="sr-only" aria-live="polite" data-goshtoso-chart-export-status></span>
 		}
-		if hasRuntime(cfg, formats) {
-			<script src={ templ.SafeURL(assets.ControlRuntimeURL) } defer></script>
-		}
+		<script src={ templ.SafeURL(assets.ControlRuntimeURL) } defer></script>
 	</div>
 }
 

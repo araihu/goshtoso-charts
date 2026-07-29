@@ -230,7 +230,13 @@ When Expand and Fullscreen are both enabled, one stacked Expand Dropdown offers
 both choices at wide widths. Goshtoso ActionGroup keeps Expand primary and
 flattens stacked Fullscreen and export actions into one icon-only overflow
 Dropdown as space contracts; menus never nest.
-See the [capability matrix, layout contract, and pending integration checks](docs/chart-controls.md).
+The site route `/docs/chart-controls` is the canonical wrapper guide; it covers
+defaults, lifecycle states, client events, responsive actions, export, HTMX,
+accessibility, and failure behavior. `/docs/chart-modes` compares static/vector
+and interactive delivery. Repository maintainers can use the
+[chart-control implementation evidence](docs/chart-controls.md) to locate the
+corresponding source and verification gates without maintaining a second copy
+of the consumer contract.
 
 ## Candlestick
 

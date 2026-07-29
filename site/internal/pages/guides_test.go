@@ -17,7 +17,7 @@ func TestGuideSourceUsesActualExportAndControlTypes(t *testing.T) {
 		"chartcontrol.Options", "chartcontrol.Bool(false)", "chartcontrol.ExportOptions", "chartcontrol.ExportSVG", "chartcontrol.ExportPNG",
 		"chartcontrol.ExportBackgroundTransparent", "interactive.ChartOptions", "interactive.TooltipOptions", "interactive.Bool(true)",
 		"chartcontrol.WrapperMode", "chartcontrol.WrapperModeHidden", "goshtoso-charts:set-wrapper-mode", "goshtoso-charts:wrapper-mode-change",
-		`detail: { mode: "hidden", focusReturn: showButton }`, `hx-swap="outerHTML"`,
+		`detail: { mode: "hidden", focusReturn: showButton }`, `hx-swap="outerHTML"`, "window.__goshtosoChartsControls.setWrapperMode",
 	} {
 		if !strings.Contains(text, want) {
 			t.Errorf("guide source missing actual API %q", want)

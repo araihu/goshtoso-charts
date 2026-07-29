@@ -1,131 +1,48 @@
-# Shared chart controls
+# Chart-control implementation evidence
 
-`components/chartcontrol` supplies one renderer-neutral wrapper used by every
-current static/vector and interactive chart. Expand and capability-derived
-Export default on. `Fullscreen` remains an independent opt-in; Collapse is not
-part of the public API or rendered controls. When Expand and Fullscreen are both
-enabled, one visible stacked Goshtoso Dropdown named Expand offers Expand and
-Fullscreen choices instead of adjacent peer controls. Expand retains its
-enlargement icon and remains the primary verb.
-Expand relocates the existing chart content into a large Goshtoso Modal and
-restores it on close; it never clones or rerenders chart DOM. Fullscreen uses
-the browser Fullscreen API and falls back to a fixed overlay where needed.
-Settled layout resizes preserve live renderer identity across every transition.
+The canonical consumer documentation is the site guide served at
+`/docs/chart-controls`. It owns defaults, lifecycle modes, client events,
+responsive actions, export capabilities, accessibility, HTMX behavior, and
+failure guidance. The companion `/docs/chart-modes` guide owns the choice
+between static/vector and interactive delivery. Component pages link both
+guides through one shared footer helper instead of repeating this contract.
 
-Export presentation follows capability count: zero formats render no control,
-one format renders one direct accessible Export button, and multiple formats
-render one Goshtoso Dropdown with only the proven items. Current static charts
-therefore show SVG and PNG in a dropdown; current interactive charts show one
-direct PNG button. `ExportOptions` retains filename, background, and pixel-ratio
-customization; `Disabled` is the explicit opt-out.
+This repository file records implementation and verification boundaries only.
+Do not add a second prose version of the public behavior here.
 
-Goshtoso `ActionGroup` measures the local container. It keeps the primary
-Expand action available, moves lower-priority actions into one icon-only,
-end-aligned overflow Dropdown, and flattens stacked Expand/Fullscreen and
-multi-format Export children into labeled sections. The same zero/one/many
-export policy remains intact at the wide boundary, without nested menus.
+## Ownership
 
-Goshtoso `v0.0.14-0.20260729011747-809b903c1296` provides the public
-`components/actiongroup` API and `/assets/js/action-group.js` dependency used
-here. Chart controls no longer measure width or own responsive overflow.
-Controls runtime v4 owns chart-specific modal, fullscreen, resize, export, and
-wrapper-lifecycle behavior only; immutable v1, v2, and v3 paths stay served for
-compatibility.
+- `components/chartcontrol` defines the renderer-neutral wrapper, lifecycle,
+  action, and export types.
+- `assets/js/controls/4/controls.js` owns wrapper transitions, modal and
+  fullscreen behavior, export requests, resize settlement, and idempotent DOM
+  preparation. Immutable v1, v2, and v3 asset paths remain compatibility
+  outputs.
+- Goshtoso `components/actiongroup` owns primary action, stacked action, and
+  constrained overflow presentation.
+- Interactive renderer export remains behind its private runtime; the common
+  control runtime requests capture through a renderer-neutral event.
+- The site guide and component footers are documentation concerns. They do not
+  change component runtime or public Go API.
 
-## Wrapper lifecycle
+## Verification anchors
 
-Every static/vector and interactive chart accepts the same renderer-neutral
-`chartcontrol.Options.Mode`. `WrapperModeEnabled` is the zero value. It renders
-the wrapper, chart, available actions, and wrapper runtime normally.
-`WrapperModeDisabled` keeps the chart visible, live, and theme-aware while
-making wrapper actions inert. `WrapperModeHidden` retains DOM and runtime state
-but hides the wrapper subtree with inert and `aria-hidden` semantics; callers
-must provide an external reveal control and manage focus. `WrapperModeOmitted`
-renders only the chart, with no wrapper, actions, status region, modal, or
-wrapper-control runtime. Omitted is server-only and can return only through a
-rerender or swap.
+- `components/chartcontrol/control_test.go` covers lifecycle rendering,
+  omission, action configuration, and validation.
+- `assets/assets_test.go` covers stable runtime events, HTMX hooks, mutation
+  observation, and immutable asset delivery.
+- `site/internal/server/guides_test.go` covers the canonical guide contract.
+- `site/internal/server/documentation_test.go` proves that every chart route
+  uses one shared guide/API footer.
+- `site/browser/chart_controls.test.cjs` covers state transitions, focus,
+  responsive actions, fullscreen, modal expansion, export, HTMX swaps, theme,
+  and renderer identity.
+- `site/browser/guides.test.cjs` and
+  `site/browser/documentation_footer.test.cjs` cover narrow/wide, light/dark
+  guide and footer presentation.
 
-Enabled, disabled, and hidden transition through the bubbling
-`goshtoso-charts:set-wrapper-mode` event. Event detail is
-`{ mode, focusReturn? }`; `focusReturn` may be a connected `HTMLElement`.
-Applied transitions emit bubbling `goshtoso-charts:wrapper-mode-change` with
-`{ previousMode, mode }`. Disabling or hiding closes transient wrapper UI.
-Reveal and re-enable request a settled resize while preserving the current
-renderer instance, latest live snapshot, and active theme. HTMX swaps rehydrate
-from the new server-rendered mode.
+## Source attribution boundary
 
-Enabled, disabled, and hidden still validate configured export formats and
-backgrounds during server rendering. Omitted skips that wrapper-only export
-validation because it renders neither export actions nor export runtime.
-
-## Verified export matrix
-
-| Component family | Current components | SVG | PNG | Evidence |
-|---|---|---:|---:|---|
-| Static/vector | Line, Bar, Pie, Scatter, Radar, Candlestick, Funnel, Heat map, Table, Violin | Yes | Yes | Each component configures `go-analyze/charts` with `ChartOutputSVG`, then reads `Painter.Bytes`. Browser PNG export rasterizes that resolved SVG at its intrinsic dimensions. |
-| Interactive | Bar, Line, Scatter, HeatMap, Pie, Radar, BoxPlot, Candlestick, Gauge, Funnel, Graph, Sankey, Tree, Sunburst, Treemap, Parallel coordinates, Theme river, Word cloud, Map, Geo | No | Yes | Every component uses the current browser chart instance. Apache ECharts `getDataURL` documents PNG as the default and branches on the active canvas/SVG painter. Goshtoso Charts currently initializes go-echarts v2.7.2 with its default canvas renderer, so only PNG is exposed. |
-
-Static transparent SVG/PNG backgrounds are supported. Opaque remains default
-and resolves the active Goshtoso surface color. Interactive transparent export
-is rejected because the live theme runtime deliberately paints its chart
-surface; temporarily mutating that live option would risk visible state.
-
-Primary source checks:
-
-- [Goshtoso ActionGroup](https://goshtoso.araihu.com/components/action-group)
-  provides primary/secondary priority, container measurement, stacked actions,
-  and flat responsive overflow.
-- [Goshtoso Dropdown](https://goshtoso.araihu.com/components/dropdown) documents
-  icon-only triggers, item icons, action handlers, end alignment, and keyboard
-  behavior used by stacked and overflow actions.
-- [Goshtoso component model](https://goshtoso.araihu.com/docs/component-model)
-  keeps component-specific config types and concrete renderable primitives;
-  the chart wrapper adds no generic library API.
-- [Apache ECharts `getDataURL` and `getConnectedDataURL`](https://github.com/apache/echarts/blob/e647e7746279397170a1e654e5567cac73b79f9b/src/core/echarts.ts#L911-L1052)
-  list `png`, `jpeg`, and `svg`, use SVG output only for an SVG painter, and
-  otherwise rasterize through canvas.
-- [Apache ECharts renderer guidance](https://echarts.apache.org/handbook/en/best-practices/canvas-vs-svg/)
-  confirms canvas and SVG are initialization-time renderer choices.
-- [`go-analyze/charts` v0.6.0 painter](https://github.com/go-analyze/charts/blob/v0.6.0/painter.go#L108-L161)
-  selects `chartdraw.SVG` for `ChartOutputSVG` and returns encoded bytes.
-- Completed example commit `a616b17` supplied reusable filename, resolved-color,
-  MIME, PNG-signature/dimension, and light/dark artifact test patterns. Shared
-  runtime code was adapted; its dedicated page and private runtime were not
-  retained because every component page now provides the same concrete export
-  controls through one public API and one shared runtime, without duplicating
-  implementation or exposing a backing engine.
-
-## Consumer-owned layout
-
-The wrapper owns controls and local horizontal overflow only. It applies no
-page grid, catalog, or documentation layout. Fixed-width charts remain fixed
-and scroll inside the wrapper on narrow screens. Omitted width and
-`Width: "100%"` use the full available local container width without replacing
-the renderer host. Charts remain centered within their local content area.
-
-This uses the official go-echarts examples only as layout references:
-[center](https://github.com/go-echarts/examples/blob/bda428480a82d6d77ebb9fa939cf8d52528453dd/examples/page_center_layout.go)
-keeps the default page behavior, while [flex](https://github.com/go-echarts/examples/blob/bda428480a82d6d77ebb9fa939cf8d52528453dd/examples/page_flex_layout.go)
-and [none](https://github.com/go-echarts/examples/blob/bda428480a82d6d77ebb9fa939cf8d52528453dd/examples/page_none_layout.go)
-are explicit consumer page choices. Shared controls do not select any of them.
-Word-cloud catalog variants use a consumer-owned flex wrapper; shared
-`ResizeObserver` handling watches each actual chart host and its immediate
-container. Host, modal, fullscreen, explicit control, and window changes settle
-over consecutive frames before the private runtime resizes the existing
-instance with zero-duration resize animation. Removed figures unobserve both
-targets; repeated registration is idempotent.
-Map and Geo reuse pinned local Brazil-state and São Paulo-municipality geometry delivery.
-Map owns named region values; Geo owns longitude/latitude coordinate series.
-
-## Pair-integration coverage
-
-Static Scatter and Radar use `ExportCapabilityStaticSVG`, expose SVG and PNG,
-and run through the same artifact, theme, responsive-layout, fullscreen, and
-modal checks as other static components. Interactive Tree and
-Sunburst carry `ChartOptions` into the shared wrapper and expose PNG only. Tree
-disclosure and Sunburst drill-down/back state remain on the same browser chart
-instance across theme, resize, modal, and fullscreen transitions. All routes
-participate in the complete capability matrix and public API leakage gates.
-
-Heartbeat and status remain redirect-only legacy routes; controls add no
-component or page semantics for them.
+Backing-library evidence and pinned upstream example paths remain centralized
+in the attributions and upstream-coverage documents. Public component pages and
+the two shared guides stay renderer-neutral.

@@ -282,16 +282,20 @@ func TestExportFormatsAreCapabilityGated(t *testing.T) {
 	}
 }
 
-func TestExpandAndExportCanBeDisabledIndependently(t *testing.T) {
+func TestActionlessWrapperKeepsLifecycleRuntimeWithoutRenderingActions(t *testing.T) {
 	t.Parallel()
 	markup := render(t, chartcontrol.WrapperConfig{
 		Label: "Latency", Controls: chartcontrol.Options{Expand: chartcontrol.Bool(false)},
 		Export: &chartcontrol.ExportOptions{Disabled: true}, Capability: chartcontrol.ExportCapabilityStaticSVG,
 	})
-	for _, unwanted := range []string{"data-goshtoso-chart-expand", "data-goshtoso-action-group", "controls.js"} {
+	for _, unwanted := range []string{"data-goshtoso-chart-expand", "data-goshtoso-action-group", "data-goshtoso-chart-actions-fieldset"} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("opted-out wrapper contains %q", unwanted)
 		}
+	}
+	const runtime = `src="/charts/assets/js/controls/4/controls.js"`
+	if got := strings.Count(markup, runtime); got != 1 {
+		t.Fatalf("actionless wrapper lifecycle runtime count = %d, want exactly one", got)
 	}
 }
 

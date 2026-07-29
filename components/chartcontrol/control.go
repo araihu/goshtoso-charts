@@ -99,7 +99,9 @@ type instance struct {
 	chart templ.Component
 }
 
-// Wrapper preserves chart DOM while adding enabled controls around it.
+// Wrapper preserves chart DOM and its client lifecycle while adding configured
+// controls. WrapperModeOmitted is the only mode that skips wrapper markup and
+// the shared lifecycle runtime.
 func Wrapper(cfg WrapperConfig, chart templ.Component) templ.Component {
 	return instance{cfg: cfg, chart: chart}
 }
@@ -219,11 +221,6 @@ func exportPixelRatio(cfg WrapperConfig) string {
 		return "1"
 	}
 	return fmt.Sprintf("%g", cfg.Export.PixelRatio)
-}
-
-func hasRuntime(cfg WrapperConfig, formats []ExportFormat) bool {
-	return cfg.Controls.Mode == WrapperModeDisabled || cfg.Controls.Mode == WrapperModeHidden ||
-		cfg.Controls.Fullscreen || expandEnabled(cfg.Controls) || len(formats) > 0
 }
 
 func wrapperMode(options Options) string {

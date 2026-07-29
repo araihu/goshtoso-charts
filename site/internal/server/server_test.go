@@ -491,7 +491,7 @@ func TestGettingStartedReplacesChartCardOverview(t *testing.T) {
 	body := recorder.Body.String()
 	for _, want := range []string{
 		"Install the module", "Mount chart assets", "Include chart dependencies",
-		"Render a static chart", "Render an interactive chart", "Explore the catalog",
+		"Render a static chart", "Render an interactive chart", "Choose delivery and wrapper behavior",
 		"chartassets", "Handler", "dependencies", "Dependencies", "dependencies.WithCDN()",
 		`href="/examples/live-availability"`, `class="max-w-3xl space-y-12"`,
 		`class="codeblock overflow-x-auto"`, `x-data="{ copied: false, copyCode()`,

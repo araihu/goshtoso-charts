@@ -108,7 +108,7 @@ templ chartControlsContent() {
 
 		<section class="space-y-4">
 			<h2 id="wrapper-lifecycle" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Wrapper lifecycle</h2>
-			<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted"><code class="font-mono">chartcontrol.Options.Mode</code> is shared by static/vector and interactive charts. Enabled is the zero value. Choose an initial server-rendered state deliberately; only enabled, disabled, and hidden can change in the browser.</p>
+			<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted"><code class="font-mono">chartcontrol.Options.Mode</code> is shared by static/vector and interactive charts. Enabled is the zero value. Choose an initial server-rendered state deliberately; only enabled, disabled, and hidden can change in the browser. Lifecycle hooks remain available when every action is disabled because the rendered wrapper still loads its control runtime. Omitted mode alone suppresses the wrapper runtime.</p>
 			<div class="overflow-x-auto rounded-radius border border-outline dark:border-outline-dark" data-wrapper-mode-comparison>
 				<table class="w-full min-w-[52rem] border-collapse text-left text-sm">
 					<thead class="bg-surface-alt text-on-surface-strong dark:bg-surface-dark-alt dark:text-on-surface-dark-strong">
@@ -135,12 +135,12 @@ templ chartControlsContent() {
 				<div class="min-w-0 space-y-3"><h3 class="font-title text-lg font-semibold">Plain JavaScript</h3>@codeblock.CodeBlock(codeblock.Config{Language: "javascript", Label: "JavaScript", Code: wrapperModeJavaScriptCode})</div>
 				<div class="min-w-0 space-y-3"><h3 class="font-title text-lg font-semibold">Alpine</h3>@codeblock.CodeBlock(codeblock.Config{Language: "html", Label: "templ", Code: wrapperModeAlpineCode})</div>
 			</div>
-			<p class="max-w-3xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">After applying state, the wrapper emits <code class="font-mono">goshtoso-charts:wrapper-mode-change</code> with exact detail <code class="font-mono">&#123; previousMode, mode &#125;</code>. Listen on the wrapper or an ancestor; the event bubbles.</p>
+			<p class="max-w-3xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">The equivalent public helper is <code class="font-mono">window.__goshtosoChartsControls.setWrapperMode(wrapper, mode, focusReturn)</code>. The helper returns false when the wrapper is missing or the mode is unknown; otherwise it returns true. After applying a changed state, the wrapper emits <code class="font-mono">goshtoso-charts:wrapper-mode-change</code> with exact detail <code class="font-mono">&#123; previousMode, mode &#125;</code>. Listen on the wrapper or an ancestor; the event bubbles.</p>
 		</section>
 
 		<section class="space-y-4">
 			<h2 id="htmx-swaps" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">HTMX swaps</h2>
-			<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">Let the server return the desired initial mode when HTMX replaces a chart. Newly swapped wrappers rehydrate from their rendered mode. An omitted wrapper can return only through a rerender or swap because no client wrapper exists to receive a mode event.</p>
+			<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">Let the server return the desired initial mode when HTMX replaces a chart. The runtime observes <code class="font-mono">htmx:load</code> and <code class="font-mono">htmx:afterSwap</code>, and a <code class="font-mono">MutationObserver</code> covers other DOM insertion and removal. Preparation is idempotent: newly swapped wrappers rehydrate from their rendered mode without application re-init code. An omitted wrapper can return only through a rerender or swap because no client wrapper exists to receive a mode event.</p>
 			@codeblock.CodeBlock(codeblock.Config{Language: "templ", Label: "templ", Code: wrapperModeHTMXCode})
 			<p class="max-w-3xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Map request values to the four known <code class="font-mono">WrapperMode</code> constants before rendering; reject unknown values instead of casting arbitrary input.</p>
 		</section>
@@ -198,6 +198,16 @@ templ chartControlsContent() {
 		<section class="space-y-4 rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt">
 			<h2 id="accessibility" data-toc-heading class="scroll-mt-8 font-title text-xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Accessibility and status</h2>
 			<p class="text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Controls form a named group based on the chart label. Modal focus is contained while open. Fullscreen exposes pressed state. Export actions become busy while processing and report completion or failure through a polite live region. These controls improve operation, but they do not make chart geometry equivalent to exact data; retain a caption, summary, disclosure, or adjacent table as the task requires.</p>
+		</section>
+
+		<section class="space-y-4">
+			<h2 id="caller-responsibilities" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Caller responsibilities</h2>
+			<div class="grid gap-4 md:grid-cols-2">
+				@controlFact("Hidden state", "Place the reveal trigger outside the wrapper and supply focusReturn when hiding from inside it. The wrapper cannot invent application navigation or decide where focus belongs.")
+				@controlFact("Exact data", "Keep a caption, summary, disclosure, table, or download when exact values matter. Wrapper controls do not make chart pixels or SVG geometry an accessible data model.")
+				@controlFact("Unknown modes", "Validate request values against the four Go constants. Client requests for omitted or unknown modes are ignored; the public helper returns false and no change event fires.")
+				@controlFact("Unsupported export", "Request only formats and backgrounds proven by the capability table. Invalid server configuration fails rendering; browser capture failures are announced in the wrapper status region.")
+			</div>
 		</section>
 
 		@guideAPIReferences([]string{"chartcontrol", "line", "interactive"})

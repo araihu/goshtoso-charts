@@ -45,6 +45,9 @@ func TestEveryComponentRouteUsesGuidanceAndGoAPIFooter(t *testing.T) {
 					t.Errorf("shared chart guidance missing %q", want)
 				}
 			}
+			if got := strings.Count(body, "data-shared-chart-guidance"); got != 1 {
+				t.Errorf("shared chart guidance count = %d, want one common helper", got)
+			}
 		})
 	}
 }

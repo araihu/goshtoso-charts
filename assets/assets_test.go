@@ -84,6 +84,10 @@ func TestHandlerServesVersionedChartControlRuntime(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("GET %s status = %d, want %d", assets.ControlRuntimeURL, recorder.Code, http.StatusOK)
 	}
+	const wantSHA256 = "7747ad340743c428ff733c7f38e112be828fea268c75fe6ee5c8ca273af106fa"
+	if got := fmt.Sprintf("%x", sha256.Sum256(recorder.Body.Bytes())); got != wantSHA256 {
+		t.Fatalf("GET %s SHA-256 = %s, want immutable v4 %s", assets.ControlRuntimeURL, got, wantSHA256)
+	}
 	for _, want := range []string{
 		"requestFullscreen", "goshtoso-charts:resize", "goshtoso-charts:export-request", "expandFromMenu", "toggleFullscreen",
 		"goshtoso-charts:set-wrapper-mode", "goshtoso-charts:wrapper-mode-change",
@@ -108,16 +112,23 @@ func TestHandlerServesVersionedChartControlRuntime(t *testing.T) {
 func TestHandlerKeepsPreviousChartControlRuntimesAvailable(t *testing.T) {
 	t.Parallel()
 
-	for _, version := range []string{"1", "2", "3"} {
+	for _, runtime := range []struct{ version, sha256 string }{
+		{"1", "ccb5c4c11ab1078549ec02a339f1fc4afdaea747b8d1379ad1dac25d1eb47c5b"},
+		{"2", "562c321b5e51c153ba7f6889cce52e15c9fd60f4c0ca70430acb1126708d507d"},
+		{"3", "90b1369603f3c77c364e41e5d74a83ff44e8651a9ad8c97e015b3769617de781"},
+	} {
 		recorder := httptest.NewRecorder()
-		request := httptest.NewRequest(http.MethodGet, "/charts/assets/js/controls/"+version+"/controls.js", nil)
+		request := httptest.NewRequest(http.MethodGet, "/charts/assets/js/controls/"+runtime.version+"/controls.js", nil)
 		assets.Handler().ServeHTTP(recorder, request)
 
 		if recorder.Code != http.StatusOK {
-			t.Errorf("GET controls v%s runtime status = %d, want %d", version, recorder.Code, http.StatusOK)
+			t.Errorf("GET controls v%s runtime status = %d, want %d", runtime.version, recorder.Code, http.StatusOK)
 		}
 		if !strings.Contains(recorder.Body.String(), "goshtoso-charts:resize") {
-			t.Errorf("controls v%s runtime is not intact", version)
+			t.Errorf("controls v%s runtime is not intact", runtime.version)
+		}
+		if got := fmt.Sprintf("%x", sha256.Sum256(recorder.Body.Bytes())); got != runtime.sha256 {
+			t.Errorf("controls v%s SHA-256 = %s, want immutable %s", runtime.version, got, runtime.sha256)
 		}
 	}
 }
