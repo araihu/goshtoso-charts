@@ -1,7 +1,7 @@
 const assert = require("node:assert/strict");
 const { after, before, test } = require("node:test");
 const path = require("node:path");
-const { spawn } = require("node:child_process");
+const { execFileSync, spawn } = require("node:child_process");
 const { chromium } = require("playwright");
 
 const testPort = process.env.TEST_PORT || String(20000 + Math.floor(Math.random() * 30000));
@@ -55,6 +55,8 @@ before(async () => {
       detached: true,
       stdio: "pipe",
     });
+    server.stdout.resume();
+    server.stderr.resume();
   }
   await ready();
   browser = await chromium.launch({ headless: true });
@@ -96,7 +98,7 @@ test("all 34 public chart pages preserve one renderer-neutral wrapper lifecycle"
       await wrapper.evaluate((element, interactive) => {
         element.__wrapperMatrixContent = element.querySelector("[data-goshtoso-chart-content]");
         element.__wrapperMatrixFigure = element.__wrapperMatrixContent.querySelector("figure");
-        element.__wrapperMatrixSVG = element.querySelector("svg");
+        element.__wrapperMatrixSVG = element.querySelector("[data-goshtoso-chart-content] svg");
         element.__wrapperMatrixChanges = [];
         element.addEventListener("goshtoso-charts:wrapper-mode-change", (event) => {
           element.__wrapperMatrixChanges.push([event.detail.previousMode, event.detail.mode]);
@@ -154,10 +156,10 @@ test("all 34 public chart pages preserve one renderer-neutral wrapper lifecycle"
           ariaHidden: element.hasAttribute("aria-hidden"),
           sameContent: element.__wrapperMatrixContent === element.querySelector("[data-goshtoso-chart-content]"),
           sameFigure: element.__wrapperMatrixFigure === element.querySelector("[data-goshtoso-chart-content] figure"),
-          sameStaticSVG: interactive || element.__wrapperMatrixSVG === element.querySelector("svg"),
+          sameStaticSVG: interactive || element.__wrapperMatrixSVG === element.querySelector("[data-goshtoso-chart-content] svg"),
           sameInteractiveHost: !interactive || element.__wrapperMatrixHost === host,
           sameInteractiveInstance: !interactive || element.__wrapperMatrixInstance === window.echarts.getInstanceByDom(host),
-          chartWidth: interactive ? window.echarts.getInstanceByDom(host).getWidth() : element.querySelector("svg").getBoundingClientRect().width,
+          chartWidth: interactive ? window.echarts.getInstanceByDom(host).getWidth() : element.querySelector("[data-goshtoso-chart-content] svg").getBoundingClientRect().width,
           changes: element.__wrapperMatrixChanges,
         };
       }, route.includes("/interactive/"));
@@ -189,14 +191,14 @@ test("actionless wrapper still accepts plain-JS lifecycle changes", async () => 
   page.on("pageerror", (error) => errors.push(String(error)));
   page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
   try {
-    await page.setContent(`<!doctype html><html><body>
-      <div data-goshtoso-chart-wrapper data-goshtoso-chart-wrapper-mode="enabled">
-        <div data-goshtoso-chart-content><figure aria-label="Actionless chart"><svg width="320" height="160"></svg></figure></div>
-        <script src="${baseURL}/charts/assets/js/controls/4/controls.js" defer></script>
-      </div>
-    </body></html>`, { waitUntil: "load" });
+    const rendered = execFileSync("go", ["run", "./browser/fixtures/actionless-wrapper"], {
+      cwd: path.resolve(__dirname, ".."),
+      encoding: "utf8",
+    });
+    await page.setContent(`<!doctype html><html><head><base href="${baseURL}/"></head><body>${rendered}</body></html>`, { waitUntil: "load" });
     await page.waitForFunction(() => Boolean(window.__goshtosoChartsControls));
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]");
+    assert.equal(await wrapper.locator('script[src="/charts/assets/js/controls/4/controls.js"]').count(), 1);
     assert.equal(await wrapper.locator("[data-goshtoso-chart-actions-fieldset]").count(), 0);
     assert.equal(await wrapper.evaluate((element) => window.__goshtosoChartsControls.setWrapperMode(element, "hidden")), true);
     assert.deepEqual(await wrapper.evaluate((element) => ({

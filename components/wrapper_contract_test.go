@@ -4,7 +4,6 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"io/fs"
 	"reflect"
 	"sort"
 	"strings"
@@ -23,6 +22,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/scatter"
 	charttable "github.com/araihu/goshtoso-charts/components/table"
 	"github.com/araihu/goshtoso-charts/components/violin"
+	"golang.org/x/tools/go/packages"
 )
 
 type wrapperConfigContract struct {
@@ -131,15 +131,21 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 	}
 	assertWrapperLiteral(t, "interactive/component.go", "interactive-raster")
 
-	constructors, err := parser.ParseDir(token.NewFileSet(), "interactive", func(info fs.FileInfo) bool {
-		name := info.Name()
-		return strings.HasSuffix(name, ".go") && !strings.HasSuffix(name, "_test.go") && !strings.HasSuffix(name, "_templ.go")
-	}, 0)
+	loaded, err := packages.Load(&packages.Config{
+		Mode: packages.NeedName | packages.NeedFiles | packages.NeedCompiledGoFiles | packages.NeedSyntax,
+		Dir:  "interactive",
+	}, ".")
 	if err != nil {
-		t.Fatalf("parse interactive constructors: %v", err)
+		t.Fatalf("load interactive constructors: %v", err)
+	}
+	if len(loaded) != 1 {
+		t.Fatalf("load interactive constructors: got %d packages, want 1", len(loaded))
+	}
+	if len(loaded[0].Errors) > 0 {
+		t.Fatalf("load interactive constructors: %v", loaded[0].Errors)
 	}
 	var missing []string
-	for _, file := range constructors["interactive"].Files {
+	for _, file := range loaded[0].Syntax {
 		for _, declaration := range file.Decls {
 			function, ok := declaration.(*ast.FuncDecl)
 			if !ok || function.Recv != nil || !function.Name.IsExported() || function.Type.Results == nil || len(function.Type.Results.List) != 1 {

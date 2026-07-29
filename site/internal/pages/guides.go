@@ -109,13 +109,7 @@ const changed = window.__goshtosoChartsControls.setWrapperMode(
   wrapper,
   "hidden",
   showButton,
-);
-
-// Dispatching the stable bubbling request event is equivalent.
-wrapper.dispatchEvent(new CustomEvent(
-  "goshtoso-charts:set-wrapper-mode",
-  { bubbles: true, detail: { mode: "hidden", focusReturn: showButton } },
-));`
+);`
 
 const wrapperModeAlpineCode = `<div
   x-data="{
