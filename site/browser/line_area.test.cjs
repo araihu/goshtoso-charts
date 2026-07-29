@@ -139,7 +139,7 @@ test("area Line routes, search, assets, title, and exact adjacent values stay he
     "/components/line",
     "/attributions",
     "/search/assets/search.js",
-    "/charts/assets/js/controls/3/controls.js",
+    "/charts/assets/js/controls/4/controls.js",
     "/assets/styles.css",
   ]) {
     const response = await fetch(`${baseURL}${route}`);

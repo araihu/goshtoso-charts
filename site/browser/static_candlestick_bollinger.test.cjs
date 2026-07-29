@@ -144,7 +144,7 @@ test("test-owned candidate route, search, and assets are exact and healthy", asy
     "/components/candlestick",
     "/attributions",
     "/search/assets/search.js",
-    "/charts/assets/js/controls/3/controls.js",
+    "/charts/assets/js/controls/4/controls.js",
     "/assets/styles.css",
   ]) {
     const response = await fetch(`${baseURL}${route}`);

@@ -163,7 +163,7 @@ test("test-owned random-port Heatmap route and shared assets stay healthy", asyn
     "/components/interactive/heatmap",
     "/attributions",
     "/search/assets/search.js",
-    "/charts/assets/js/controls/3/controls.js",
+    "/charts/assets/js/controls/4/controls.js",
     "/assets/styles.css",
   ]) {
     const response = await fetch(`${baseURL}${route}`);

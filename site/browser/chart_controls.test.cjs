@@ -766,6 +766,272 @@ test("Escape exits the safe fullscreen fallback and returns focus", async () => 
   }
 });
 
+test("initial hidden wrapper supports plain JS, Alpine, HTMX, focus, and inert lifecycle transitions", async () => {
+  const page = await browser.newPage({ viewport: { width: 390, height: 900 }, acceptDownloads: true });
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(String(error)));
+  page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+  await page.addInitScript(() => { globalThis.__chartBlobTypes = []; });
+  await page.route(`${baseURL}/components/interactive/bar`, async (route) => {
+    const response = await route.fetch();
+    const body = (await response.text()).replace(
+      'data-goshtoso-chart-wrapper-mode="enabled"',
+      'data-goshtoso-chart-wrapper-mode="hidden" hidden inert aria-hidden="true"',
+    );
+    await route.fulfill({ response, body });
+  });
+  try {
+    await page.goto(`${baseURL}/components/interactive/bar`);
+    const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    await wrapper.waitFor({ state: "attached" });
+    await page.waitForFunction(() => Boolean(window.__goshtosoChartsControls));
+    await page.waitForFunction(() => document.querySelector("[data-goshtoso-chart-wrapper]")?.dataset.goshtosoChartWrapperInitialized === "true");
+
+    assert.deepEqual(await wrapper.evaluate((element) => ({
+      mode: element.dataset.goshtosoChartWrapperMode,
+      hidden: element.hidden,
+      inert: element.hasAttribute("inert"),
+      ariaHidden: element.getAttribute("aria-hidden"),
+    })), { mode: "hidden", hidden: true, inert: true, ariaHidden: "true" });
+
+    await wrapper.evaluate((element) => {
+      const host = element.querySelector("[_echarts_instance_]");
+      element.__lifecycleInstance = window.echarts.getInstanceByDom(host);
+      element.__lifecycleHost = host;
+      element.__resizeEvents = 0;
+      element.__modeChanges = [];
+      element.addEventListener("goshtoso-charts:resize", () => { element.__resizeEvents += 1; });
+      element.addEventListener("goshtoso-charts:wrapper-mode-change", (event) => {
+        element.__modeChanges.push(event.detail);
+      });
+      element.dispatchEvent(new CustomEvent("goshtoso-charts:set-wrapper-mode", {
+        bubbles: true,
+        detail: { mode: "enabled" },
+      }));
+    });
+    await page.waitForTimeout(350);
+    const revealedInitial = await wrapper.evaluate((element) => ({
+      mode: element.dataset.goshtosoChartWrapperMode,
+      hidden: element.hidden,
+      inert: element.hasAttribute("inert"),
+      ariaHidden: element.hasAttribute("aria-hidden"),
+      sameHost: element.__lifecycleHost === element.querySelector("[_echarts_instance_]"),
+      sameInstance: element.__lifecycleInstance === window.echarts.getInstanceByDom(element.__lifecycleHost),
+      width: element.__lifecycleInstance.getWidth(),
+      height: element.__lifecycleInstance.getHeight(),
+      resizeEvents: element.__resizeEvents,
+    }));
+    assert.deepEqual({
+      mode: revealedInitial.mode, hidden: revealedInitial.hidden, inert: revealedInitial.inert,
+      ariaHidden: revealedInitial.ariaHidden, sameHost: revealedInitial.sameHost,
+      sameInstance: revealedInitial.sameInstance,
+    }, { mode: "enabled", hidden: false, inert: false, ariaHidden: false, sameHost: true, sameInstance: true });
+    assert.ok(revealedInitial.width > 0 && revealedInitial.height > 0);
+    assert.ok(revealedInitial.resizeEvents >= 3, `resize events = ${revealedInitial.resizeEvents}`);
+
+    await wrapper.evaluate((element) => element.dispatchEvent(new CustomEvent("goshtoso-charts:set-wrapper-mode", {
+      bubbles: true,
+      detail: { mode: "disabled" },
+    })));
+    const disabled = await wrapper.evaluate((element) => {
+      const fieldset = element.querySelector("[data-goshtoso-chart-actions-fieldset]");
+      const actions = [...fieldset.querySelectorAll("button")];
+      const exporter = actions.find((button) => button.id.includes("export-png-action"));
+      globalThis.__chartBlobTypes = [];
+      window.__goshtosoChartsControls.exportFromMenu(exporter, "png");
+      return {
+        mode: element.dataset.goshtosoChartWrapperMode,
+        visible: element.getBoundingClientRect().height > 0,
+        fieldsetDisabled: fieldset.disabled,
+        fieldsetAria: fieldset.getAttribute("aria-disabled"),
+        everyActionDisabled: actions.every((action) => action.matches(":disabled") && action.getAttribute("aria-disabled") === "true"),
+        blobTypes: [...globalThis.__chartBlobTypes],
+      };
+    });
+    assert.deepEqual(disabled, {
+      mode: "disabled", visible: true, fieldsetDisabled: true, fieldsetAria: "true",
+      everyActionDisabled: true, blobTypes: [],
+    });
+
+    await wrapper.evaluate((element) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.textContent = "Enable with Alpine";
+      button.setAttribute("x-data", "{}");
+      button.setAttribute("x-on:click", "$dispatch('goshtoso-charts:set-wrapper-mode', {mode: 'enabled'})");
+      element.prepend(button);
+      window.Alpine.initTree(button);
+    });
+    await wrapper.getByRole("button", { name: "Enable with Alpine" }).click();
+    await page.waitForFunction(() => document.querySelector("[data-goshtoso-chart-wrapper]").dataset.goshtosoChartWrapperMode === "enabled");
+
+    await openExpand(wrapper);
+    const dialog = wrapper.getByRole("dialog", { name: "Basic bar example" });
+    await dialog.waitFor({ state: "visible" });
+    await wrapper.evaluate((element) => element.dispatchEvent(new CustomEvent("goshtoso-charts:set-wrapper-mode", {
+      bubbles: true,
+      detail: { mode: "disabled" },
+    })));
+    await dialog.waitFor({ state: "hidden" });
+    assert.equal(await wrapper.evaluate((element) => element.classList.contains("goshtoso-charts-expanded")), false);
+    await wrapper.evaluate((element) => element.dispatchEvent(new CustomEvent("goshtoso-charts:set-wrapper-mode", {
+      bubbles: true,
+      detail: { mode: "enabled" },
+    })));
+
+    await wrapper.evaluate((element) => { element.requestFullscreen = undefined; });
+    await enterFullscreen(wrapper);
+    await page.waitForFunction(() => document.querySelector("[data-goshtoso-chart-wrapper]").classList.contains("goshtoso-charts-fullscreen-fallback"));
+
+    await page.evaluate(() => {
+      const returnFocus = document.createElement("button");
+      returnFocus.id = "wrapper-focus-return";
+      returnFocus.textContent = "External chart control";
+      document.body.prepend(returnFocus);
+      const wrapper = document.querySelector("[data-goshtoso-chart-wrapper]");
+      wrapper.querySelector("button").focus();
+      wrapper.dispatchEvent(new CustomEvent("goshtoso-charts:set-wrapper-mode", {
+        bubbles: true,
+        detail: { mode: "hidden", focusReturn: returnFocus },
+      }));
+    });
+    assert.deepEqual(await wrapper.evaluate((element) => ({
+      mode: element.dataset.goshtosoChartWrapperMode,
+      hidden: element.hidden,
+      inert: element.hasAttribute("inert"),
+      ariaHidden: element.getAttribute("aria-hidden"),
+      focusReturned: document.activeElement?.id === "wrapper-focus-return",
+      fallback: element.classList.contains("goshtoso-charts-fullscreen-fallback"),
+    })), { mode: "hidden", hidden: true, inert: true, ariaHidden: "true", focusReturned: true, fallback: false });
+
+    await page.evaluate(() => {
+      const wrapper = document.querySelector("[data-goshtoso-chart-wrapper]");
+      wrapper.dispatchEvent(new CustomEvent("goshtoso-charts:set-wrapper-mode", { bubbles: true, detail: { mode: "enabled" } }));
+      const shell = document.createElement("div");
+      shell.innerHTML = '<div data-goshtoso-chart-wrapper data-goshtoso-chart-wrapper-mode="disabled"><fieldset data-goshtoso-chart-actions-fieldset><button type="button">Swapped action</button></fieldset></div>';
+      document.body.append(shell);
+      document.dispatchEvent(new CustomEvent("htmx:afterSwap", { bubbles: true, detail: { target: shell } }));
+      globalThis.__swappedWrapper = shell.firstElementChild;
+    });
+    await page.waitForFunction(() => globalThis.__swappedWrapper?.dataset.goshtosoChartWrapperInitialized === "true");
+    assert.deepEqual(await page.evaluate(() => ({
+      mode: globalThis.__swappedWrapper.dataset.goshtosoChartWrapperMode,
+      disabled: globalThis.__swappedWrapper.querySelector("fieldset").disabled,
+      ariaDisabled: globalThis.__swappedWrapper.querySelector("button").getAttribute("aria-disabled"),
+    })), { mode: "disabled", disabled: true, ariaDisabled: "true" });
+    await page.evaluate(() => globalThis.__swappedWrapper.remove());
+    await page.waitForFunction(() => !globalThis.__swappedWrapper.dataset.goshtosoChartWrapperInitialized);
+
+    const changes = await wrapper.evaluate((element) => element.__modeChanges);
+    assert.deepEqual(changes.map(({ previousMode, mode }) => [previousMode, mode]), [
+      ["hidden", "enabled"], ["enabled", "disabled"], ["disabled", "enabled"],
+      ["enabled", "disabled"], ["disabled", "enabled"], ["enabled", "hidden"], ["hidden", "enabled"],
+    ]);
+    assert.deepEqual(errors, []);
+  } finally {
+    await page.close();
+  }
+});
+
+test("wrapper lifecycle stays responsive across 390/1440 and light/dark", async () => {
+  const page = await pageAt("/components/interactive/line", { width: 390, height: 900 });
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(String(error)));
+  page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+  try {
+    const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const dark of [false, true]) {
+        await page.evaluate((enabled) => document.documentElement.classList.toggle("dark", enabled), dark);
+        for (const mode of ["disabled", "hidden", "enabled"]) {
+          await wrapper.evaluate((element, nextMode) => element.dispatchEvent(new CustomEvent("goshtoso-charts:set-wrapper-mode", {
+            bubbles: true,
+            detail: { mode: nextMode },
+          })), mode);
+          if (mode === "enabled") await page.waitForTimeout(300);
+          const state = await wrapper.evaluate((element) => ({
+            mode: element.dataset.goshtosoChartWrapperMode,
+            hidden: element.hidden,
+            pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+            canvasWidth: element.querySelector("canvas")?.getBoundingClientRect().width || 0,
+          }));
+          assert.equal(state.mode, mode, `${width}px dark=${dark} mode`);
+          assert.equal(state.hidden, mode === "hidden", `${width}px dark=${dark} hidden`);
+          assert.equal(state.pageOverflow, 0, `${width}px dark=${dark} overflow`);
+          if (mode === "enabled") {
+            assert.ok(state.canvasWidth > 0, `${width}px dark=${dark} zero canvas`);
+            if (screenshotDirectory) {
+              await page.screenshot({
+                path: path.join(screenshotDirectory, `wrapper-lifecycle-${width}-${dark ? "dark" : "light"}.png`),
+                fullPage: true,
+              });
+            }
+          }
+        }
+      }
+    }
+    assert.deepEqual(errors, []);
+  } finally {
+    await page.close();
+  }
+});
+
+test("hidden live wrapper retains latest snapshot, theme, identity, and settled resize", async () => {
+  const page = await pageAt("/examples/live-availability");
+  const errors = [];
+  page.on("pageerror", (error) => errors.push(String(error)));
+  page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+  try {
+    const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    const initial = await wrapper.evaluate((element) => {
+      const host = element.querySelector("[_echarts_instance_]");
+      const instance = window.echarts.getInstanceByDom(host);
+      element.__hiddenLiveInstance = instance;
+      element.__hiddenLiveResizeEvents = 0;
+      element.addEventListener("goshtoso-charts:resize", () => { element.__hiddenLiveResizeEvents += 1; });
+      element.dispatchEvent(new CustomEvent("goshtoso-charts:set-wrapper-mode", { bubbles: true, detail: { mode: "hidden" } }));
+      return { background: instance.getOption().backgroundColor, categories: instance.getOption().xAxis[0].data.join("|") };
+    });
+    await page.evaluate(() => document.documentElement.classList.add("dark"));
+    await page.waitForFunction((value) => {
+      const wrapper = document.querySelector("[data-goshtoso-chart-wrapper]");
+      const instance = window.echarts.getInstanceByDom(wrapper.querySelector("[_echarts_instance_]"));
+      return instance.getOption().backgroundColor !== value;
+    }, initial.background);
+    await page.waitForFunction((value) => {
+      const wrapper = document.querySelector("[data-goshtoso-chart-wrapper]");
+      const instance = window.echarts.getInstanceByDom(wrapper.querySelector("[_echarts_instance_]"));
+      return instance.getOption().xAxis[0].data.join("|") !== value;
+    }, initial.categories, { timeout: 5000 });
+    await wrapper.evaluate((element) => element.dispatchEvent(new CustomEvent("goshtoso-charts:set-wrapper-mode", {
+      bubbles: true,
+      detail: { mode: "enabled" },
+    })));
+    await page.waitForTimeout(350);
+    const revealed = await wrapper.evaluate((element) => {
+      const host = element.querySelector("[_echarts_instance_]");
+      const instance = window.echarts.getInstanceByDom(host);
+      return {
+        sameInstance: instance === element.__hiddenLiveInstance,
+        categories: instance.getOption().xAxis[0].data.join("|"),
+        background: instance.getOption().backgroundColor,
+        width: instance.getWidth(),
+        height: instance.getHeight(),
+        resizeEvents: element.__hiddenLiveResizeEvents,
+      };
+    });
+    assert.equal(revealed.sameInstance, true);
+    assert.notEqual(revealed.categories, initial.categories);
+    assert.notEqual(revealed.background, initial.background);
+    assert.ok(revealed.width > 0 && revealed.height > 0);
+    assert.ok(revealed.resizeEvents >= 3, `resize events = ${revealed.resizeEvents}`);
+    assert.deepEqual(errors, []);
+  } finally {
+    await page.close();
+  }
+});
+
 test("theme changes and live SSE updates preserve the interactive instance", async () => {
   const page = await pageAt("/examples/live-availability");
   try {

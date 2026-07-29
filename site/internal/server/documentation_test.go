@@ -40,6 +40,11 @@ func TestEveryComponentRouteUsesGuidanceAndGoAPIFooter(t *testing.T) {
 					t.Errorf("Go API footer missing %q", want)
 				}
 			}
+			for _, want := range []string{`data-shared-chart-guidance`, `href="/docs/chart-controls"`, `href="/docs/chart-modes"`, "Wrapper lifecycle", "static/vector and interactive capabilities"} {
+				if !strings.Contains(body, want) {
+					t.Errorf("shared chart guidance missing %q", want)
+				}
+			}
 		})
 	}
 }
