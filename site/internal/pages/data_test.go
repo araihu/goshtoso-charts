@@ -11,6 +11,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/araihu/goshtoso-charts/components/bar"
 	"github.com/araihu/goshtoso-charts/components/candlestick"
 	"github.com/araihu/goshtoso-charts/components/interactive"
 	"github.com/araihu/goshtoso-charts/components/pie"
@@ -78,6 +79,81 @@ func TestInteractiveComponentPagesRemainRendererNeutral(t *testing.T) {
 	}
 }
 
+func TestInteractivePageSourceUsesVisualizationGuidance(t *testing.T) {
+	t.Parallel()
+	source, err := os.ReadFile("pages.templ")
+	if err != nil {
+		t.Fatalf("read pages.templ: %v", err)
+	}
+	interactive := string(source)
+	start := strings.Index(interactive, "templ InteractiveBarPage")
+	end := strings.Index(interactive, "templ pieContent")
+	if start < 0 || end < 0 || start >= end {
+		t.Fatal("cannot isolate interactive component pages")
+	}
+	interactive = interactive[start:end]
+	if got := strings.Count(interactive, "AbovePreview: visualizationGuidance("); got != 24 {
+		t.Fatalf("interactive guidance count = %d, want 24 canonical component routes", got)
+	}
+	for _, forbidden := range []string{"AbovePreview: componentContract(", `"Primitive"`, `"Kind"`, `"Configuration"`, `"Component contract"`} {
+		if strings.Contains(interactive, forbidden) {
+			t.Errorf("interactive component pages retain %q", forbidden)
+		}
+	}
+}
+
+func TestInteractiveSunburstSourceExplainsAccessibleHierarchyReading(t *testing.T) {
+	t.Parallel()
+	source, err := os.ReadFile("pages.templ")
+	if err != nil {
+		t.Fatalf("read pages.templ: %v", err)
+	}
+	page := string(source)
+	start := strings.Index(page, "templ interactiveSunburstContent")
+	if start < 0 {
+		t.Fatal("cannot isolate sunburst page")
+	}
+	end := strings.Index(page[start:], "templ interactiveTreeContent")
+	if end < 0 {
+		t.Fatal("cannot isolate sunburst page")
+	}
+	sunburst := page[start : start+end]
+	for _, want := range []string{"shallow hierarchy", "Deep hierarchies", "keyboard navigation", "Hierarchy contract"} {
+		if want == "Hierarchy contract" {
+			if strings.Contains(sunburst, want) {
+				t.Errorf("sunburst retains %q", want)
+			}
+			continue
+		}
+		if !strings.Contains(sunburst, want) {
+			t.Errorf("sunburst guidance missing %q", want)
+		}
+	}
+	if !strings.Contains(sunburst, "not the accessible navigation path") {
+		t.Error("sunburst must not present visual drill-down as accessible navigation")
+	}
+}
+
+func TestGoAPIReferenceUsesGoshtosoButtonAppearanceLink(t *testing.T) {
+	t.Parallel()
+	source, err := os.ReadFile("pages.templ")
+	if err != nil {
+		t.Fatalf("read pages.templ: %v", err)
+	}
+	page := string(source)
+	start := strings.Index(page, "templ goAPIReference")
+	if start < 0 {
+		t.Fatal("cannot find Go API footer")
+	}
+	footer := page[start:]
+	if !strings.Contains(footer, "link.Link(") || !strings.Contains(footer, "link.WithAppearance(link.AppearanceButton)") {
+		t.Error("Go API footer must use the Goshtoso button-appearance Link")
+	}
+	if strings.Contains(footer, "<a href={ templ.URL(\"https://pkg.go.dev") {
+		t.Error("Go API footer must not duplicate raw button-link markup")
+	}
+}
+
 func TestDoughnutSampleMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 	t.Parallel()
 	if doughnutUpstreamPath != "examples/1-Painter/doughnut_chart-1-basic/main.go" ||
@@ -135,6 +211,23 @@ func TestHorizontalBarMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 	for index, series := range cfg.Series {
 		if series.Name != wantNames[index] || !reflect.DeepEqual(series.Values, wantValues[index]) {
 			t.Fatalf("series %d = %q %v, want %q %v", index, series.Name, series.Values, wantNames[index], wantValues[index])
+		}
+	}
+}
+
+func TestBarReferencesMechanicallyMatchPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if barReferencesUpstreamPath != "examples/1-Painter/bar_chart-4-mark/main.go" || barReferencesUpstreamRevision != "1fe31b06b8a82e00df877ff4417a75858547c1c2" || barReferencesUpstreamSHA256 != "544fea22c29db4225c7b10bb6d12137d484a4ca9b6c647dc29730a61ce4ced4c" {
+		t.Fatalf("bar reference upstream source = %s@%s SHA-256 %s", barReferencesUpstreamPath, barReferencesUpstreamRevision, barReferencesUpstreamSHA256)
+	}
+	cfg := sampleBarReferences()
+	if cfg.Width != 600 || cfg.Height != 400 || !reflect.DeepEqual(cfg.Labels, []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"}) {
+		t.Fatalf("reference bar geometry/categories drifted: %dx%d %v", cfg.Width, cfg.Height, cfg.Labels)
+	}
+	want := [][]float64{{2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3}, {2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3}}
+	for index, series := range cfg.Series {
+		if !reflect.DeepEqual(series.Values, want[index]) || !series.References.Average || !series.References.Minimum || !series.References.Maximum || series.References.Format != bar.ValueFormatHumanized {
+			t.Fatalf("series %d drifted: %#v", index, series)
 		}
 	}
 }
@@ -216,6 +309,33 @@ func TestStaticCandlestickBollingerDataMechanicallyMatchesPinnedUpstreamExample(
 		if trend.Type != wantTypes[index] || trend.Period != 5 {
 			t.Fatalf("Bollinger trend %d = %#v", index, trend)
 		}
+	}
+}
+
+func TestStaticCandlestickPatternsDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if staticCandlestickPatternsUpstreamPath != "examples/1-Painter/candlestick_chart-4-patterns/main.go" ||
+		staticCandlestickPatternsUpstreamRevision != "1fe31b06b8a82e00df877ff4417a75858547c1c2" ||
+		staticCandlestickPatternsUpstreamSHA256 != "ab5891e744bc8ec40fbead6b16af5642ea94c738369469b392ac7acf1e0055ec" {
+		t.Fatalf("patterns upstream source = %s@%s (%s)", staticCandlestickPatternsUpstreamPath, staticCandlestickPatternsUpstreamRevision, staticCandlestickPatternsUpstreamSHA256)
+	}
+	cfg := sampleCandlestickPatterns()
+	if cfg.Title != "Candlestick Patterns" || cfg.SeriesName != "Stock Price with Patterns" || cfg.Width != 900 || cfg.Height != 650 ||
+		cfg.Patterns.Selection != candlestick.PatternSelectionAll || len(cfg.Patterns.References) != 2 ||
+		cfg.Patterns.References[0] != candlestick.CloseReferenceAverage || cfg.Patterns.References[1] != candlestick.CloseReferenceMinimum {
+		t.Fatalf("patterns configuration drifted: %#v", cfg)
+	}
+	want := [][4]float64{{100, 110, 95, 105}, {105, 108, 102, 105.1}, {108, 109, 98, 107}, {107, 108, 103, 104}, {102, 115, 101, 113}, {113, 125, 112, 114}, {114, 118, 113, 117}, {119, 120, 108, 110}, {110, 113, 107, 109.9}, {109, 118, 108, 116}}
+	if len(cfg.Data) != len(want) {
+		t.Fatalf("patterns datum count = %d, want %d", len(cfg.Data), len(want))
+	}
+	for index, datum := range cfg.Data {
+		if got := [4]float64{datum.Open, datum.High, datum.Low, datum.Close}; got != want[index] {
+			t.Fatalf("patterns datum %d = %v, want %v", index+1, got, want[index])
+		}
+	}
+	if sampleCandlestickCorePatterns().Patterns.Selection != candlestick.PatternSelectionCore || sampleCandlestickBullishPatterns().Patterns.Selection != candlestick.PatternSelectionBullish || !sampleCandlestickPatternLabels().Patterns.PreferLabels {
+		t.Fatal("pattern variants drifted")
 	}
 }
 
@@ -354,6 +474,31 @@ func TestDenseScatterValuesAreDeterministicAndPreserveUpstreamDistribution(t *te
 				}
 			}
 		}
+	}
+}
+
+func TestTopNScatterMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if topNScatterUpstreamPath != "examples/1-Painter/scatter_chart-4-top_n_labels/main.go" ||
+		topNScatterUpstreamRevision != "1fe31b06b8a82e00df877ff4417a75858547c1c2" ||
+		topNScatterUpstreamSHA256 != "cf92798819fbc010f44eaa406acabd337f16b52eec00793a10679e9c3b7cda81" {
+		t.Fatalf("top N scatter upstream source = %s@%s SHA-256 %s", topNScatterUpstreamPath, topNScatterUpstreamRevision, topNScatterUpstreamSHA256)
+	}
+	cfg := sampleTopNScatter()
+	if cfg.Title.Text != "Website Traffic Over 30 Days - Peak Days Highlighted" || cfg.Title.Subtext != "(Only top 5 traffic days show labels)" || !cfg.Legend.Hidden || cfg.Width != 800 || cfg.Height != 500 || cfg.Padding.Top != 20 || cfg.Padding.Right != 20 || cfg.Padding.Bottom != 20 || cfg.Padding.Left != 20 {
+		t.Fatalf("top N scatter presentation = %#v", cfg)
+	}
+	if len(cfg.Categories) != 30 || cfg.Categories[0] != "Day 1" || cfg.Categories[29] != "Day 30" || len(cfg.Series) != 1 || cfg.Series[0].Name != "Daily Visitors (k)" {
+		t.Fatalf("top N scatter categories/series = %#v", cfg)
+	}
+	want := []float64{15.2, 18.5, 22.1, 19.8, 25.4, 21.3, 17.9, 32.6, 28.1, 24.7, 31.5, 29.3, 26.8, 35.2, 41.7, 38.9, 33.1, 29.6, 27.4, 30.8, 36.3, 42.1, 39.5, 44.8, 48.3, 45.6, 40.2, 37.9, 34.5, 26.1}
+	for index, value := range want {
+		if got := cfg.Series[0].Values[index]; len(got) != 1 || got[0] != value {
+			t.Fatalf("top N scatter value %d = %v, want %g", index, got, value)
+		}
+	}
+	if cfg.Options.TopNLabels.Count != 5 || cfg.Options.TopNLabels.FontSize != 16 || cfg.YAxis.Min == nil || *cfg.YAxis.Min != 0 || cfg.YAxis.Max == nil || *cfg.YAxis.Max != 50 {
+		t.Fatalf("top N scatter options = %#v %#v", cfg.Options, cfg.YAxis)
 	}
 }
 

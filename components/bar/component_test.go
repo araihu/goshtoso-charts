@@ -14,6 +14,7 @@ import (
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
+	chart "github.com/go-analyze/charts"
 )
 
 func TestBarRendersSSRAccessibleSVG(t *testing.T) {
@@ -147,6 +148,39 @@ func TestVerticalDefaultRemainsByteCompatible(t *testing.T) {
 	}
 }
 
+func TestBarReferencesRenderMarksAndAccessibleEvidence(t *testing.T) {
+	t.Parallel()
+	cfg := Config{
+		Label: "Monthly references", Labels: []string{"Jan", "Feb", "Mar"}, Width: 600, Height: 400,
+		Series: []Series{{Name: "Rainfall", Values: []float64{2.4, 8.6, 3.1}, References: References{Average: true, Minimum: true, Maximum: true, Format: ValueFormatHumanized, PointSize: 20, Style: ReferenceStyle{Color: "#14532d", Class: "rainfall-references"}}}},
+	}
+	options := barOptions(cfg)
+	series := options.SeriesList[0]
+	if len(series.MarkLine.Lines) != 1 || series.MarkLine.Lines[0].Type != chart.SeriesMarkTypeAverage {
+		t.Fatalf("mark lines = %#v, want average", series.MarkLine.Lines)
+	}
+	if got := series.MarkPoint.Points; len(got) != 2 || got[0].Type != chart.SeriesMarkTypeMax || got[1].Type != chart.SeriesMarkTypeMin || series.MarkPoint.SymbolSize != 20 {
+		t.Fatalf("mark points = %#v size %d, want max/min size 20", got, series.MarkPoint.SymbolSize)
+	}
+	if got := series.MarkLine.ValueFormatter(4.6); got != "5" || series.MarkPoint.ValueFormatter(4.6) != "5" {
+		t.Fatalf("humanized formatter = %q, want 5", got)
+	}
+	var output bytes.Buffer
+	if err := Bar(cfg).Render(context.Background(), &output); err != nil {
+		t.Fatal(err)
+	}
+	markup := output.String()
+	for _, want := range []string{
+		`viewBox="0 0 600 400"`, "Exact values and reference annotations", "Monthly references exact values and reference annotations", "Monthly references computed reference annotations",
+		">Jan</th><td class=\"px-3 py-2 tabular-nums\">2</td>", ">Feb</th><td class=\"px-3 py-2 tabular-nums\">9</td>",
+		">5</td><td class=\"px-3 py-2 tabular-nums\">9 at Feb</td><td class=\"px-3 py-2 tabular-nums\">2 at Jan</td>", "rainfall-references", "#14532d",
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("reference markup missing %q", want)
+		}
+	}
+}
+
 func TestBarValidation(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -166,6 +200,10 @@ func TestBarValidation(t *testing.T) {
 		{"padding", func(cfg *Config) { cfg.Padding.Left = -1 }, "padding cannot be negative"},
 		{"width", func(cfg *Config) { cfg.Width = -1 }, "width cannot be negative"},
 		{"height", func(cfg *Config) { cfg.Height = -1 }, "height cannot be negative"},
+		{"reference format", func(cfg *Config) { cfg.Series[0].References.Format = ValueFormat("scientific") }, `reference format "scientific" is unsupported`},
+		{"reference point size", func(cfg *Config) { cfg.Series[0].References.PointSize = -1 }, "reference point size cannot be negative"},
+		{"reference color", func(cfg *Config) { cfg.Series[0].References.Style.Color = "url(https://example.test)" }, "reference color is unsafe"},
+		{"reference class", func(cfg *Config) { cfg.Series[0].References.Style.Class = "bad;class" }, "reference class is unsafe"},
 	}
 	for _, test := range tests {
 		test := test

@@ -26,6 +26,9 @@ const (
 	horizontalBarUpstreamPath     = "examples/1-Painter/horizontal_bar_chart-1-basic/main.go"
 	horizontalBarUpstreamRevision = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
 	horizontalBarUpstreamSHA256   = "735240dd8433bd2494ae019f272840a8ff2fcf5572166b78269e23cbff7111a0"
+	barReferencesUpstreamPath     = "examples/1-Painter/bar_chart-4-mark/main.go"
+	barReferencesUpstreamRevision = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
+	barReferencesUpstreamSHA256   = "544fea22c29db4225c7b10bb6d12137d484a4ca9b6c647dc29730a61ce4ced4c"
 	doughnutUpstreamPath          = "examples/1-Painter/doughnut_chart-1-basic/main.go"
 	doughnutUpstreamRevision      = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
 	doughnutUpstreamSHA256        = "b97bca2322e90e2f03ab49aa77f683d0c58e027846b939e5a61100602dad1ebf"
@@ -35,6 +38,9 @@ const (
 	areaLineUpstreamPath          = "examples/1-Painter/line_chart-5-area/main.go"
 	areaLineUpstreamRevision      = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
 	areaLineUpstreamSHA256        = "b2d7b87ff675f437dbc95f2d7a0447c2040e18c5b873256a5808987dfc6131d0"
+	topNScatterUpstreamPath       = "examples/1-Painter/scatter_chart-4-top_n_labels/main.go"
+	topNScatterUpstreamRevision   = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
+	topNScatterUpstreamSHA256     = "cf92798819fbc010f44eaa406acabd337f16b52eec00793a10679e9c3b7cda81"
 )
 
 type deterministicLCG struct{ state uint64 }
@@ -177,6 +183,22 @@ func sampleHorizontalWorldPopulation() bar.Config {
 	}
 }
 
+func sampleBarReferences() bar.Config {
+	annotations := bar.References{Average: true, Minimum: true, Maximum: true, Format: bar.ValueFormatHumanized}
+	return bar.Config{
+		Label:   "Monthly rainfall and evaporation reference annotations",
+		Caption: "Monthly values with average lines and minimum and maximum reference points; adjacent evidence lists every value and computed reference.",
+		Labels:  []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"},
+		Series: []bar.Series{
+			{Name: "Rainfall", Values: []float64{2.0, 4.9, 7.0, 23.2, 25.6, 76.7, 135.6, 162.2, 32.6, 20.0, 6.4, 3.3}, References: annotations},
+			{Name: "Evaporation", Values: []float64{2.6, 5.9, 9.0, 26.4, 28.7, 70.7, 175.6, 182.2, 48.7, 18.8, 6.0, 2.3}, References: annotations},
+		},
+		Width: 600, Height: 400,
+		Controls: chartcontrol.Options{Fullscreen: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "monthly-rainfall-and-evaporation"},
+	}
+}
+
 func sampleObservationStates() pie.Config {
 	return pie.Config{
 		Label:   "Observation states",
@@ -266,6 +288,53 @@ const (
 	staticCandlestickBollingerUpstreamRevision = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
 	staticCandlestickBollingerUpstreamSHA256   = "cc3b347d5faea1a15ca22554dcc46a35beed74e49da56701659a1a7d1f000202"
 )
+
+const (
+	staticCandlestickPatternsUpstreamPath     = "examples/1-Painter/candlestick_chart-4-patterns/main.go"
+	staticCandlestickPatternsUpstreamRevision = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
+	staticCandlestickPatternsUpstreamSHA256   = "ab5891e744bc8ec40fbead6b16af5642ea94c738369469b392ac7acf1e0055ec"
+)
+
+func sampleCandlestickPatterns() candlestick.Config {
+	return candlestick.Config{
+		Label: "Candlestick patterns", Caption: "Ten OHLC observations demonstrate normal, doji, hammer, engulfing, inverted-hammer, and recovery candles. Pattern names and exact OHLC values remain available in text.",
+		Title: "Candlestick Patterns", SeriesName: "Stock Price with Patterns",
+		Data: []candlestick.Datum{
+			{Label: "1", Open: 100, High: 110, Low: 95, Close: 105}, {Label: "2", Open: 105, High: 108, Low: 102, Close: 105.1},
+			{Label: "3", Open: 108, High: 109, Low: 98, Close: 107}, {Label: "4", Open: 107, High: 108, Low: 103, Close: 104},
+			{Label: "5", Open: 102, High: 115, Low: 101, Close: 113}, {Label: "6", Open: 113, High: 125, Low: 112, Close: 114},
+			{Label: "7", Open: 114, High: 118, Low: 113, Close: 117}, {Label: "8", Open: 119, High: 120, Low: 108, Close: 110},
+			{Label: "9", Open: 110, High: 113, Low: 107, Close: 109.9}, {Label: "10", Open: 109, High: 118, Low: 108, Close: 116},
+		},
+		Patterns: candlestick.PatternOptions{Selection: candlestick.PatternSelectionAll, References: []candlestick.CloseReferenceType{candlestick.CloseReferenceAverage, candlestick.CloseReferenceMinimum}},
+		Options:  candlestick.Options{TitleFontSize: 16, YUnit: 1, Padding: candlestick.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20}},
+		Width:    900, Height: 650, Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "candlestick-patterns"},
+	}
+}
+
+func sampleCandlestickCorePatterns() candlestick.Config {
+	cfg := sampleCandlestickPatterns()
+	cfg.Label, cfg.Title, cfg.SeriesName, cfg.Width, cfg.Height = "Core candlestick patterns", "Core Patterns", "Important Patterns", 800, 400
+	cfg.Patterns = candlestick.PatternOptions{Selection: candlestick.PatternSelectionCore}
+	cfg.Export = &chartcontrol.ExportOptions{Filename: "candlestick-patterns-core"}
+	return cfg
+}
+
+func sampleCandlestickPatternLabels() candlestick.Config {
+	cfg := sampleCandlestickPatterns()
+	cfg.Label, cfg.Title, cfg.SeriesName, cfg.Width, cfg.Height = "Candlestick pattern labels", "Custom Pattern Formatting", "Custom Format", 800, 400
+	cfg.Patterns = candlestick.PatternOptions{Selection: candlestick.PatternSelectionAll, PreferLabels: true, Label: candlestick.PatternLabelStyle{Text: candlestick.PatternLabelTextNameWithCount, Color: "#ffffff", BackgroundColor: "#1d4ed8", FontSize: 8, CornerRadius: 2}}
+	cfg.Export = &chartcontrol.ExportOptions{Filename: "candlestick-pattern-labels"}
+	return cfg
+}
+
+func sampleCandlestickBullishPatterns() candlestick.Config {
+	cfg := sampleCandlestickPatterns()
+	cfg.Label, cfg.Title, cfg.SeriesName, cfg.Width, cfg.Height = "Bullish candlestick patterns", "Bullish Patterns", "Bullish Only", 800, 400
+	cfg.Patterns = candlestick.PatternOptions{Selection: candlestick.PatternSelectionBullish}
+	cfg.Export = &chartcontrol.ExportOptions{Filename: "candlestick-patterns-bullish"}
+	return cfg
+}
 
 func sampleCandlestickBollingerBands() candlestick.Config {
 	return candlestick.Config{
@@ -500,6 +569,31 @@ func sampleDenseScatter() scatter.Config {
 	}
 }
 
+func sampleTopNScatter() scatter.Config {
+	values := []float64{15.2, 18.5, 22.1, 19.8, 25.4, 21.3, 17.9, 32.6, 28.1, 24.7, 31.5, 29.3, 26.8, 35.2, 41.7, 38.9, 33.1, 29.6, 27.4, 30.8, 36.3, 42.1, 39.5, 44.8, 48.3, 45.6, 40.2, 37.9, 34.5, 26.1}
+	categories := make([]string, len(values))
+	for index := range values {
+		categories[index] = fmt.Sprintf("Day %d", index+1)
+	}
+	zero, maximum := 0.0, 50.0
+	return scatter.Config{
+		Label:      "Website traffic over 30 days with peak-day labels",
+		Caption:    "Daily visitors in thousands. Exact values and the selected five labels remain available below the chart.",
+		Categories: categories,
+		Series: []scatter.Series{{
+			Name: "Daily Visitors (k)", Values: [][]float64{{15.2}, {18.5}, {22.1}, {19.8}, {25.4}, {21.3}, {17.9}, {32.6}, {28.1}, {24.7}, {31.5}, {29.3}, {26.8}, {35.2}, {41.7}, {38.9}, {33.1}, {29.6}, {27.4}, {30.8}, {36.3}, {42.1}, {39.5}, {44.8}, {48.3}, {45.6}, {40.2}, {37.9}, {34.5}, {26.1}},
+		}},
+		Options: scatter.Options{TopNLabels: scatter.TopNLabels{Count: 5, FontSize: 16, Color: "var(--color-chart-danger)"}},
+		Title:   scatter.TitleOptions{Text: "Website Traffic Over 30 Days - Peak Days Highlighted", Subtext: "(Only top 5 traffic days show labels)"},
+		Legend:  scatter.LegendOptions{Hidden: true},
+		YAxis:   scatter.ValueAxisOptions{Min: &zero, Max: &maximum},
+		Padding: scatter.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20},
+		Width:   800, Height: 500,
+		Controls: chartcontrol.Options{Fullscreen: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "website-traffic-top-labels"},
+	}
+}
+
 func denseScatterValues(rng *rand.Rand, seriesCount, pointCount int, maxVariationPercentage float64) [][][]float64 {
 	data := make([][][]float64, seriesCount)
 	for seriesIndex := range data {
@@ -603,6 +697,23 @@ func horizontalBarCode() string {
 })`
 }
 
+func barReferencesCode() string {
+	return `references := bar.References{
+  Average: true, Minimum: true, Maximum: true,
+  Format: bar.ValueFormatHumanized,
+}
+
+@bar.Bar(bar.Config{
+  Label: "Monthly rainfall and evaporation reference annotations",
+  Labels: []string{"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"},
+  Series: []bar.Series{
+    {Name: "Rainfall", Values: rainfall, References: references},
+    {Name: "Evaporation", Values: evaporation, References: references},
+  },
+  Width: 600, Height: 400,
+})`
+}
+
 func pieCode() string {
 	return `@pie.Pie(pie.Config{
   Label: "Observation states",
@@ -652,6 +763,22 @@ func scatterCode() string {
 		{Name: "Two", Values: values[1], Options: scatter.Options{ReferenceLine: scatter.ReferenceLineMaximum}},
 		{Name: "Three", Values: values[2]},
 	},
+})`
+}
+
+func topNScatterCode() string {
+	return `@scatter.Scatter(scatter.Config{
+	Label: "Website traffic over 30 days with peak-day labels",
+	Categories: days,
+	Series: []scatter.Series{{Name: "Daily Visitors (k)", Values: values}},
+	Options: scatter.Options{TopNLabels: scatter.TopNLabels{
+		Count: 5, FontSize: 16, Color: "var(--color-chart-danger)",
+	}},
+	Title: scatter.TitleOptions{Text: "Website Traffic Over 30 Days - Peak Days Highlighted", Subtext: "(Only top 5 traffic days show labels)"},
+	Legend: scatter.LegendOptions{Hidden: true},
+	YAxis: scatter.ValueAxisOptions{Min: &zero, Max: &maximum},
+	Padding: scatter.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20},
+	Width: 800, Height: 500,
 })`
 }
 
@@ -752,6 +879,46 @@ cfg.Options.Increasing.Color = "#14532d"
 cfg.Options.Decreasing.Class = "caller-decreasing-candles"
 cfg.TrendLines[0].Color = "#1d4ed8"
 cfg.TrendLines[1].Class = "caller-middle-band"
+@candlestick.Candlestick(cfg)`
+}
+
+func candlestickPatternsCode() string {
+	return `@candlestick.Candlestick(candlestick.Config{
+  Label: "Candlestick patterns",
+  Title: "Candlestick Patterns",
+  SeriesName: "Stock Price with Patterns",
+  Data: []candlestick.Datum{
+    {Label: "1", Open: 100, High: 110, Low: 95, Close: 105},
+    {Label: "2", Open: 105, High: 108, Low: 102, Close: 105.1},
+    {Label: "3", Open: 108, High: 109, Low: 98, Close: 107},
+    {Label: "4", Open: 107, High: 108, Low: 103, Close: 104},
+    {Label: "5", Open: 102, High: 115, Low: 101, Close: 113},
+    {Label: "6", Open: 113, High: 125, Low: 112, Close: 114},
+    {Label: "7", Open: 114, High: 118, Low: 113, Close: 117},
+    {Label: "8", Open: 119, High: 120, Low: 108, Close: 110},
+    {Label: "9", Open: 110, High: 113, Low: 107, Close: 109.9},
+    {Label: "10", Open: 109, High: 118, Low: 108, Close: 116},
+  },
+  Patterns: candlestick.PatternOptions{
+    Selection: candlestick.PatternSelectionAll,
+    References: []candlestick.CloseReferenceType{
+      candlestick.CloseReferenceAverage,
+      candlestick.CloseReferenceMinimum,
+    },
+  },
+  Options: candlestick.Options{TitleFontSize: 16, YUnit: 1, Padding: candlestick.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20}},
+  Width: 900, Height: 650,
+})`
+}
+
+func candlestickPatternVariantCode() string {
+	return `cfg.Patterns.Selection = candlestick.PatternSelectionCore
+// Or use PatternSelectionBullish.
+cfg.Patterns.PreferLabels = true
+cfg.Patterns.Label = candlestick.PatternLabelStyle{
+  Text: candlestick.PatternLabelTextNameWithCount,
+  Color: "#ffffff", BackgroundColor: "#1d4ed8", FontSize: 8, CornerRadius: 2,
+}
 @candlestick.Candlestick(cfg)`
 }
 

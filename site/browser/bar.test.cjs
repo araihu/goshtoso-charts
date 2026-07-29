@@ -253,6 +253,36 @@ for (const width of [390, 1440]) {
   }
 }
 
+for (const width of [390, 1440]) {
+  for (const mode of ["light", "dark"]) {
+    test(`${width}px ${mode} renders Bar reference annotations with adjacent non-color evidence`, async () => {
+      const page = await barPage({ width, height: 900 });
+      try {
+        await page.evaluate((dark) => document.documentElement.classList.toggle("dark", dark), mode === "dark");
+        const figure = page.getByRole("img", { name: "Monthly rainfall and evaporation reference annotations" });
+        await figure.waitFor();
+        const wrapper = figure.locator("xpath=ancestor::*[@data-goshtoso-chart-wrapper][1]");
+        const evidence = wrapper.getByRole("table", { name: "Monthly rainfall and evaporation reference annotations computed reference annotations" });
+        assert.deepEqual(await evidence.locator("tbody th").allTextContents(), ["Rainfall", "Evaporation"]);
+        assert.match((await evidence.locator("tbody tr").first().innerText()), /Rainfall\s+42\s+162 at Aug\s+2 at Jan/);
+        assert.match((await evidence.locator("tbody tr").last().innerText()), /Evaporation\s+48\s+182 at Aug\s+2 at Dec/);
+        assert.equal(await wrapper.getByRole("table", { name: "Monthly rainfall and evaporation reference annotations exact values and reference annotations" }).locator("tbody tr").count(), 12);
+        const layout = await wrapper.evaluate((element) => {
+          const svg = element.querySelector('svg[viewBox="0 0 600 400"]');
+          const box = svg.getBoundingClientRect();
+          return { documentScroll: document.documentElement.scrollWidth, documentClient: document.documentElement.clientWidth, width: box.width, height: box.height, viewBox: svg.getAttribute("viewBox") };
+        });
+        assert.equal(layout.documentScroll, layout.documentClient);
+        assert.ok(layout.width > 0 && layout.height > 0);
+        assert.equal(layout.viewBox, "0 0 600 400");
+        if (screenshotDirectory) await figure.screenshot({ path: path.join(screenshotDirectory, `bar-references-${width}-${mode}.png`) });
+      } finally {
+        await page.close();
+      }
+    });
+  }
+}
+
 test("horizontal Bar exports self-contained 600x400 SVG and opaque PNG", async () => {
   const page = await barPage();
   try {

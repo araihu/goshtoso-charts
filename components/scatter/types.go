@@ -4,6 +4,7 @@ package scatter
 import (
 	"fmt"
 	"math"
+	"sort"
 	"strings"
 
 	"github.com/a-h/templ"
@@ -42,6 +43,19 @@ type Options struct {
 	Trend         TrendLine
 	ReferenceLine ReferenceLine
 	ValueFormat   ValueFormat
+	TopNLabels    TopNLabels
+}
+
+// TopNLabels labels the highest Count values in a series. Ties retain input
+// order, so exactly Count labels are selected when Count is positive.
+//
+// Color and Class are mutually exclusive presentation overrides. Their zero
+// values use Goshtoso chart-theme tokens.
+type TopNLabels struct {
+	Count    int
+	FontSize float64
+	Color    string
+	Class    string
 }
 
 // TrendKind selects a renderer-neutral statistical trend.
@@ -121,6 +135,7 @@ const (
 
 // LegendOptions controls legend layout without exposing renderer types.
 type LegendOptions struct {
+	Hidden      bool
 	Orientation LegendOrientation
 	Placement   HorizontalPlacement
 	Alignment   Alignment
@@ -130,6 +145,7 @@ type LegendOptions struct {
 // TitleOptions controls visible chart title placement.
 type TitleOptions struct {
 	Text      string
+	Subtext   string
 	Placement HorizontalPlacement
 }
 
@@ -146,6 +162,10 @@ type Series struct {
 	// one, or multiple samples. Values and Points are mutually exclusive.
 	Values  [][]float64
 	Options Options
+	// Color and Class are mutually exclusive presentation overrides for marks
+	// and matching exact-value rows.
+	Color string
+	Class string
 }
 
 // Config describes an SSR SVG scatter chart.
@@ -224,6 +244,15 @@ func (cfg Config) validate() error {
 		if err := series.Options.validate(fmt.Sprintf("scatter chart series %q options", series.Name)); err != nil {
 			return err
 		}
+		if strings.TrimSpace(series.Color) != "" && strings.TrimSpace(series.Class) != "" {
+			return fmt.Errorf("scatter chart series %q cannot set both color and class", series.Name)
+		}
+		if unsafeCSS(series.Color) {
+			return fmt.Errorf("scatter chart series %q color is unsafe", series.Name)
+		}
+		if unsafeClass(series.Class) {
+			return fmt.Errorf("scatter chart series %q class is unsafe", series.Name)
+		}
 		resolvedOptions := series.Options.resolved(cfg.Options)
 		if resolvedOptions.Trend.Kind != TrendNone && resolvedOptions.Trend.Period > len(cfg.Categories) {
 			return fmt.Errorf("scatter chart series %q trend period cannot exceed category count", series.Name)
@@ -288,6 +317,21 @@ func (options Options) validate(prefix string) error {
 	default:
 		return fmt.Errorf("%s has unsupported value format %q", prefix, options.ValueFormat)
 	}
+	if options.TopNLabels.Count < 0 {
+		return fmt.Errorf("%s top N label count cannot be negative", prefix)
+	}
+	if math.IsNaN(options.TopNLabels.FontSize) || math.IsInf(options.TopNLabels.FontSize, 0) || options.TopNLabels.FontSize < 0 {
+		return fmt.Errorf("%s top N label font size must be a finite non-negative number", prefix)
+	}
+	if strings.TrimSpace(options.TopNLabels.Color) != "" && strings.TrimSpace(options.TopNLabels.Class) != "" {
+		return fmt.Errorf("%s top N labels cannot set both color and class", prefix)
+	}
+	if unsafeCSS(options.TopNLabels.Color) {
+		return fmt.Errorf("%s top N label color is unsafe", prefix)
+	}
+	if unsafeClass(options.TopNLabels.Class) {
+		return fmt.Errorf("%s top N label class is unsafe", prefix)
+	}
 	return nil
 }
 
@@ -307,8 +351,87 @@ func (options Options) resolved(fallback Options) Options {
 	if options.ValueFormat == ValueFormatDefault {
 		options.ValueFormat = fallback.ValueFormat
 	}
+	if options.TopNLabels.Count == 0 {
+		options.TopNLabels = fallback.TopNLabels
+	}
 	return options
 }
+
+func (cfg Config) topNLabelRows() []topNLabelRow {
+	rows := make([]topNLabelRow, 0)
+	for _, series := range cfg.Series {
+		options := series.Options.resolved(cfg.Options)
+		if options.TopNLabels.Count <= 0 {
+			continue
+		}
+		values := seriesValues(cfg.Categories, series)
+		selected := topNIndexes(values, options.TopNLabels.Count)
+		for index, value := range values {
+			rows = append(rows, topNLabelRow{Category: value.category, Series: series.Name, Value: value.value, Selected: selected[index], Class: series.Class})
+		}
+	}
+	return rows
+}
+
+type scatterValue struct {
+	category string
+	value    float64
+}
+
+type topNLabelRow struct {
+	Category string
+	Series   string
+	Value    float64
+	Selected bool
+	Class    string
+}
+
+func seriesValues(categories []string, series Series) []scatterValue {
+	values := make([]scatterValue, 0)
+	if series.Values != nil {
+		for categoryIndex, samples := range series.Values {
+			for _, value := range samples {
+				values = append(values, scatterValue{category: categories[categoryIndex], value: value})
+			}
+		}
+		return values
+	}
+	byCategory := make(map[string][]float64, len(categories))
+	for _, point := range series.Points {
+		byCategory[point.Category] = append(byCategory[point.Category], point.Value)
+	}
+	for _, category := range categories {
+		for _, value := range byCategory[category] {
+			values = append(values, scatterValue{category: category, value: value})
+		}
+	}
+	return values
+}
+
+func topNIndexes(values []scatterValue, count int) map[int]bool {
+	selected := make(map[int]bool, min(count, len(values)))
+	if count <= 0 {
+		return selected
+	}
+	indexes := make([]int, len(values))
+	for index := range values {
+		indexes[index] = index
+	}
+	sort.SliceStable(indexes, func(left, right int) bool {
+		return values[indexes[left]].value > values[indexes[right]].value
+	})
+	for _, index := range indexes[:min(count, len(indexes))] {
+		selected[index] = true
+	}
+	return selected
+}
+
+func unsafeCSS(value string) bool {
+	value = strings.ToLower(strings.TrimSpace(value))
+	return strings.ContainsAny(value, ";{}<>\\\"") || strings.Contains(value, "url(") || strings.Contains(value, "expression(")
+}
+
+func unsafeClass(value string) bool { return strings.ContainsAny(value, "\"'<>;") }
 
 func (cfg Config) validateLayout() error {
 	finiteNonNegative := func(name string, value float64) error {

@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/sha256"
 	"math"
+	"reflect"
 	"strings"
 	"testing"
 
@@ -57,6 +58,21 @@ func bollingerConfig() Config {
 		},
 		Options: Options{TitleFontSize: 18, YUnit: 1, Padding: Padding{Top: 20, Right: 20, Bottom: 20, Left: 20}},
 		Width:   800, Height: 600,
+	}
+}
+
+func patternConfig() Config {
+	return Config{
+		Label: "Candlestick patterns", Title: "Candlestick Patterns", SeriesName: "Stock Price with Patterns",
+		Data: []Datum{
+			{Label: "1", Open: 100, High: 110, Low: 95, Close: 105}, {Label: "2", Open: 105, High: 108, Low: 102, Close: 105.1},
+			{Label: "3", Open: 108, High: 109, Low: 98, Close: 107}, {Label: "4", Open: 107, High: 108, Low: 103, Close: 104},
+			{Label: "5", Open: 102, High: 115, Low: 101, Close: 113}, {Label: "6", Open: 113, High: 125, Low: 112, Close: 114},
+			{Label: "7", Open: 114, High: 118, Low: 113, Close: 117}, {Label: "8", Open: 119, High: 120, Low: 108, Close: 110},
+			{Label: "9", Open: 110, High: 113, Low: 107, Close: 109.9}, {Label: "10", Open: 109, High: 118, Low: 108, Close: 116},
+		},
+		Patterns: PatternOptions{Selection: PatternSelectionAll, PreferLabels: true, Label: PatternLabelStyle{Text: PatternLabelTextNameWithCount, Color: "#ffffff", Class: "pattern-text", BackgroundColor: "#1d4ed8", FontSize: 8, CornerRadius: 2}, References: []CloseReferenceType{CloseReferenceAverage, CloseReferenceMinimum}},
+		Width:    900, Height: 650,
 	}
 }
 
@@ -216,6 +232,69 @@ func TestCandlestickAppliesCallerColorsAndClassesToCandlesAndTrends(t *testing.T
 		if strings.Contains(svg, unwanted) {
 			t.Errorf("SVG leaked sentinel %q", unwanted)
 		}
+	}
+}
+
+func TestCandlestickPatternsUseTypedVocabularyDeterministicOrderAndAccessibleEvidence(t *testing.T) {
+	t.Parallel()
+	cfg := patternConfig()
+	results, err := DetectPatterns(cfg.Data, cfg.Patterns)
+	if err != nil {
+		t.Fatal(err)
+	}
+	got := make([]PatternType, len(results))
+	for index, result := range results {
+		got[index] = result.Type
+	}
+	want := []PatternType{PatternTypeDoji, PatternTypeHammer, PatternTypeBullishEngulfing, PatternTypeShootingStar, PatternTypeInvertedHammer, PatternTypeBearishEngulfing, PatternTypeDoji, PatternTypeBullishEngulfing}
+	if !reflect.DeepEqual(got, want) {
+		t.Fatalf("pattern order = %v, want %v", got, want)
+	}
+	if results[3].Label != "6" || results[3].Name != "Shooting Star" || results[4].Name != "Inverted Hammer" {
+		t.Fatalf("multi-match = %#v", results[3:5])
+	}
+	var output bytes.Buffer
+	if err := Candlestick(cfg).Render(context.Background(), &output); err != nil {
+		t.Fatal(err)
+	}
+	for _, want := range []string{"Detected patterns", "Shooting Star, Inverted Hammer", "Bullish Engulfing", "Bearish Engulfing", "#ffffff", "#1d4ed8", "pattern-text"} {
+		if !strings.Contains(output.String(), want) {
+			t.Errorf("rendered patterns missing %q", want)
+		}
+	}
+}
+
+func TestCandlestickPatternSelectionsAndValidation(t *testing.T) {
+	t.Parallel()
+	cfg := patternConfig()
+	for selection, wantCount := range map[PatternSelection]int{PatternSelectionAll: 8, PatternSelectionCore: 5, PatternSelectionBullish: 4} {
+		cfg.Patterns.Selection = selection
+		results, err := DetectPatterns(cfg.Data, cfg.Patterns)
+		if err != nil || len(results) != wantCount {
+			t.Errorf("%s = %d, %v; want %d", selection, len(results), err, wantCount)
+		}
+	}
+	for _, test := range []struct {
+		name, want string
+		edit       func(*Config)
+	}{
+		{"selection", "unsupported", func(c *Config) { c.Patterns.Selection = "bearish" }},
+		{"label text", "label text", func(c *Config) { c.Patterns.Label.Text = "raw" }},
+		{"font", "font size", func(c *Config) { c.Patterns.Label.FontSize = math.NaN() }},
+		{"reference", "close reference", func(c *Config) { c.Patterns.References = []CloseReferenceType{"median"} }},
+		{"duplicate reference", "duplicated", func(c *Config) {
+			c.Patterns.References = []CloseReferenceType{CloseReferenceMinimum, CloseReferenceMinimum}
+		}},
+		{"unsafe color", "unsafe", func(c *Config) { c.Patterns.Label.Color = "red;fill:blue" }},
+	} {
+		test := test
+		t.Run(test.name, func(t *testing.T) {
+			cfg := patternConfig()
+			test.edit(&cfg)
+			if err := cfg.validate(); err == nil || !strings.Contains(err.Error(), test.want) {
+				t.Fatalf("validate = %v, want %q", err, test.want)
+			}
+		})
 	}
 }
 

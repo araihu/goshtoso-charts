@@ -201,6 +201,46 @@ test("source OHLC hash, period-five bands, title, legend, padding, and default e
 });
 
 for (const width of [390, 1440]) {
+  for (const dark of [false, true]) {
+    test(`${width}px ${dark ? "dark" : "light"} pattern annotations keep source data, text evidence, and contained SVG`, async () => {
+      const { page, failures } = await chartPage({ width, height: 900 });
+      try {
+        await page.evaluate((dark) => document.documentElement.classList.toggle("dark", dark), dark);
+        const figure = page.locator('figure[aria-label="Candlestick patterns"]');
+        await figure.waitFor();
+        const wrapper = figure.locator("xpath=ancestor::*[@data-goshtoso-chart-wrapper][1]");
+        const rows = await wrapper.locator("tbody tr").evaluateAll((items) => items.map((row) =>
+          [...row.querySelectorAll("th,td")].map((cell) => cell.textContent.trim())));
+        assert.equal(rows.length, 10);
+        assert.deepEqual(rows[0].slice(0, 6), ["1", "● Increase", "100", "110", "95", "105"]);
+        assert.equal(rows[4][6], "Bullish Engulfing");
+        assert.equal(rows[7][6], "Bearish Engulfing");
+        assert.match(rows[5][6], /Shooting Star/);
+        assert.match(rows[5][6], /Inverted Hammer/);
+        const geometry = await figure.evaluate((element) => {
+          const viewport = element.querySelector(".goshtoso-charts-candlestick__viewport");
+          return {
+            documentWidth: document.documentElement.scrollWidth,
+            viewportWidth: window.innerWidth,
+            chartViewportWidth: viewport.clientWidth,
+            chartScrollWidth: viewport.scrollWidth,
+            svgWidth: viewport.querySelector("svg").getBoundingClientRect().width,
+          };
+        });
+        assert.ok(geometry.documentWidth <= geometry.viewportWidth);
+        assert.ok(geometry.chartScrollWidth >= geometry.chartViewportWidth);
+        assert.ok(geometry.svgWidth >= 600);
+        const screenshot = await figure.screenshot();
+        assert.ok(screenshot.length > 1000);
+        assert.deepEqual(failures, []);
+      } finally {
+        await page.close();
+      }
+    });
+  }
+}
+
+for (const width of [390, 1440]) {
   for (const theme of ["goshtoso", "araihu"]) {
     for (const dark of [false, true]) {
       test(`${width}px ${theme} ${dark ? "dark" : "light"} bands remain distinct, contrasting, responsive, and modal-centered`, async () => {

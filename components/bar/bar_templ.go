@@ -201,7 +201,191 @@ func barTemplate(cfg Config, chart templ.Component) templ.Component {
 					return templ_7745c5c3_Err
 				}
 			}
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</tbody></table></div></details>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 20, "</tbody></table></div></details> ")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+		}
+		if cfg.hasReferences() {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 21, "<details class=\"mt-3 max-w-full text-sm text-on-surface dark:text-on-surface-dark\" open><summary class=\"cursor-pointer font-semibold\">Exact values and reference annotations</summary><div class=\"mt-2 overflow-x-auto rounded-radius border border-outline dark:border-outline-dark\"><table class=\"min-w-full border-collapse text-left\" aria-label=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var10 string
+			templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Label + " exact values and reference annotations")
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/bar/bar.templ`, Line: 57, Col: 122}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 22, "\"><thead><tr><th class=\"px-3 py-2\" scope=\"col\">Category</th>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			for _, series := range cfg.Series {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 23, "<th class=\"px-3 py-2\" scope=\"col\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var11 string
+				templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(series.Name)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/bar/bar.templ`, Line: 60, Col: 54}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 24, "</th>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 25, "</tr></thead> <tbody>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			for categoryIndex, label := range cfg.Labels {
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 26, "<tr class=\"border-t border-outline dark:border-outline-dark\"><th class=\"px-3 py-2 font-semibold\" scope=\"row\">")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				var templ_7745c5c3_Var12 string
+				templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(label)
+				if templ_7745c5c3_Err != nil {
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/bar/bar.templ`, Line: 65, Col: 123}
+				}
+				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 27, "</th>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+				for _, series := range cfg.Series {
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 28, "<td class=\"px-3 py-2 tabular-nums\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var13 string
+					templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.JoinStringErrs(formatReferenceValue(series.Values[categoryIndex], series.References.Format))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/bar/bar.templ`, Line: 67, Col: 122}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var13))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 29, "</td>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 30, "</tr>")
+				if templ_7745c5c3_Err != nil {
+					return templ_7745c5c3_Err
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 31, "</tbody></table><table class=\"min-w-full border-collapse text-left\" aria-label=\"")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var14 string
+			templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Label + " computed reference annotations")
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/bar/bar.templ`, Line: 73, Col: 114}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 32, "\"><thead><tr><th class=\"px-3 py-2\" scope=\"col\">Series</th><th class=\"px-3 py-2\" scope=\"col\">Average</th><th class=\"px-3 py-2\" scope=\"col\">Maximum</th><th class=\"px-3 py-2\" scope=\"col\">Minimum</th></tr></thead> <tbody>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			for _, series := range cfg.Series {
+				if series.References.Average || series.References.Maximum || series.References.Minimum {
+					summary := summarizeReferences(series.Values)
+					var templ_7745c5c3_Var15 = []any{"border-t border-outline dark:border-outline-dark " + series.References.Style.Class}
+					templ_7745c5c3_Err = templ.RenderCSSItems(ctx, templ_7745c5c3_Buffer, templ_7745c5c3_Var15...)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 33, "<tr class=\"")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var16 string
+					templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var15).String())
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/bar/bar.templ`, Line: 1, Col: 0}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 34, "\"><th class=\"px-3 py-2 font-semibold\" scope=\"row\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var17 string
+					templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(series.Name)
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/bar/bar.templ`, Line: 79, Col: 167}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 35, "</th><td class=\"px-3 py-2 tabular-nums\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var18 string
+					templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(formatReferenceValue(summary.Average, series.References.Format))
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/bar/bar.templ`, Line: 80, Col: 109}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 36, "</td><td class=\"px-3 py-2 tabular-nums\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var19 string
+					templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(formatReferenceValue(summary.Maximum, series.References.Format) + " at " + cfg.Labels[summary.MaximumIndex])
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/bar/bar.templ`, Line: 81, Col: 153}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 37, "</td><td class=\"px-3 py-2 tabular-nums\">")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					var templ_7745c5c3_Var20 string
+					templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(formatReferenceValue(summary.Minimum, series.References.Format) + " at " + cfg.Labels[summary.MinimumIndex])
+					if templ_7745c5c3_Err != nil {
+						return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/bar/bar.templ`, Line: 82, Col: 153}
+					}
+					_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+					templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 38, "</td></tr>")
+					if templ_7745c5c3_Err != nil {
+						return templ_7745c5c3_Err
+					}
+				}
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 39, "</tbody></table></div></details>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}

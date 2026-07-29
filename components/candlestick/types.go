@@ -51,6 +51,82 @@ type CandleStyle struct {
 	Class string
 }
 
+// PatternType identifies a supported candlestick formation. Values are stable
+// renderer-neutral identifiers, not names from a drawing package.
+type PatternType string
+
+const (
+	PatternTypeDoji             PatternType = "doji"
+	PatternTypeHammer           PatternType = "hammer"
+	PatternTypeInvertedHammer   PatternType = "inverted-hammer"
+	PatternTypeShootingStar     PatternType = "shooting-star"
+	PatternTypeGravestoneDoji   PatternType = "gravestone-doji"
+	PatternTypeDragonflyDoji    PatternType = "dragonfly-doji"
+	PatternTypeBullishMarubozu  PatternType = "bullish-marubozu"
+	PatternTypeBearishMarubozu  PatternType = "bearish-marubozu"
+	PatternTypeBullishEngulfing PatternType = "bullish-engulfing"
+	PatternTypeBearishEngulfing PatternType = "bearish-engulfing"
+	PatternTypePiercingLine     PatternType = "piercing-line"
+	PatternTypeDarkCloudCover   PatternType = "dark-cloud-cover"
+	PatternTypeMorningStar      PatternType = "morning-star"
+	PatternTypeEveningStar      PatternType = "evening-star"
+)
+
+// PatternSelection selects a deterministic built-in vocabulary subset.
+type PatternSelection string
+
+const (
+	PatternSelectionAll     PatternSelection = "all"
+	PatternSelectionCore    PatternSelection = "core"
+	PatternSelectionBullish PatternSelection = "bullish"
+)
+
+// PatternLabelText selects safe, built-in text formatting for visual labels.
+type PatternLabelText string
+
+const (
+	PatternLabelTextName          PatternLabelText = "name"
+	PatternLabelTextNameWithCount PatternLabelText = "name-with-count"
+)
+
+// PatternLabelStyle customizes rendered pattern labels. Empty Color and
+// BackgroundColor use chart-theme tokens. Class is added to label text. No
+// callbacks are accepted.
+type PatternLabelStyle struct {
+	Text            PatternLabelText
+	Color           string
+	Class           string
+	BackgroundColor string
+	FontSize        float64
+	CornerRadius    int
+}
+
+// CloseReferenceType selects a close-value reference line.
+type CloseReferenceType string
+
+const (
+	CloseReferenceAverage CloseReferenceType = "average"
+	CloseReferenceMinimum CloseReferenceType = "minimum"
+)
+
+// PatternOptions configures detection and annotation as one Candlestick
+// behavior variant. Its zero value leaves pattern detection disabled.
+type PatternOptions struct {
+	Selection    PatternSelection
+	PreferLabels bool
+	Label        PatternLabelStyle
+	References   []CloseReferenceType
+}
+
+// PatternResult is one detected formation. Results are ordered first by datum
+// order and then by the selected vocabulary order when several patterns match.
+type PatternResult struct {
+	Index int
+	Label string
+	Type  PatternType
+	Name  string
+}
+
 // Padding controls chart inset in pixels. Its zero value keeps renderer defaults.
 type Padding struct{ Top, Right, Bottom, Left int }
 
@@ -72,6 +148,7 @@ type Config struct {
 	SeriesName string
 	Data       []Datum
 	TrendLines []TrendLine
+	Patterns   PatternOptions
 	XAxis      Axis
 	YAxis      Axis
 	Options    Options
@@ -175,7 +252,51 @@ func (cfg Config) validate() error {
 			bandPeriod = trend.Period
 		}
 	}
+	if err := validatePatternOptions(cfg.Patterns); err != nil {
+		return err
+	}
 	return nil
+}
+
+func validatePatternOptions(options PatternOptions) error {
+	if options.Selection == "" {
+		if len(options.References) > 0 || options.PreferLabels || options.Label != (PatternLabelStyle{}) {
+			return fmt.Errorf("candlestick chart pattern options need a selection")
+		}
+		return nil
+	}
+	if !validPatternSelection(options.Selection) {
+		return fmt.Errorf("candlestick chart pattern selection %q is unsupported", options.Selection)
+	}
+	if options.Label.Text != "" && options.Label.Text != PatternLabelTextName && options.Label.Text != PatternLabelTextNameWithCount {
+		return fmt.Errorf("candlestick chart pattern label text %q is unsupported", options.Label.Text)
+	}
+	if !finite(options.Label.FontSize) || options.Label.FontSize < 0 {
+		return fmt.Errorf("candlestick chart pattern label font size must be finite and non-negative")
+	}
+	if options.Label.CornerRadius < 0 {
+		return fmt.Errorf("candlestick chart pattern label corner radius cannot be negative")
+	}
+	for name, value := range map[string]string{"color": options.Label.Color, "class": options.Label.Class, "background color": options.Label.BackgroundColor} {
+		if (strings.Contains(name, "color") && unsafeCSS(value)) || (strings.Contains(name, "class") && unsafeClass(value)) {
+			return fmt.Errorf("candlestick chart pattern label %s is unsafe", name)
+		}
+	}
+	references := make(map[CloseReferenceType]struct{}, len(options.References))
+	for _, reference := range options.References {
+		if reference != CloseReferenceAverage && reference != CloseReferenceMinimum {
+			return fmt.Errorf("candlestick chart close reference %q is unsupported", reference)
+		}
+		if _, exists := references[reference]; exists {
+			return fmt.Errorf("candlestick chart close reference %q is duplicated", reference)
+		}
+		references[reference] = struct{}{}
+	}
+	return nil
+}
+
+func validPatternSelection(selection PatternSelection) bool {
+	return selection == PatternSelectionAll || selection == PatternSelectionCore || selection == PatternSelectionBullish
 }
 
 func validateCandleStyle(name string, style CandleStyle) error {

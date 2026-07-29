@@ -23,10 +23,41 @@ const (
 // Padding controls chart inset in pixels. Its zero value keeps renderer defaults.
 type Padding struct{ Top, Right, Bottom, Left int }
 
+// ValueFormat selects renderer-neutral formatting for reference annotation values.
+type ValueFormat string
+
+const (
+	// ValueFormatDefault keeps the renderer's default numeric formatting.
+	ValueFormatDefault ValueFormat = ""
+	// ValueFormatHumanized rounds values to zero decimal places for compact labels.
+	ValueFormatHumanized ValueFormat = "humanized"
+)
+
+// ReferenceStyle controls semantic presentation for one series' reference annotations.
+// Color overrides the series token used by the rendered marks. Class is applied to
+// the adjacent evidence row, allowing caller CSS without exposing renderer details.
+type ReferenceStyle struct {
+	Color string
+	Class string
+}
+
+// References selects statistical annotations for one series. Average renders a
+// reference line; Minimum and Maximum render reference points. Duplicate or
+// disabled annotations are resolved deterministically from these booleans.
+type References struct {
+	Average   bool
+	Minimum   bool
+	Maximum   bool
+	Format    ValueFormat
+	PointSize int
+	Style     ReferenceStyle
+}
+
 // Series is one named sequence of values aligned with Config.Labels.
 type Series struct {
-	Name   string
-	Values []float64
+	Name       string
+	Values     []float64
+	References References
 }
 
 // Config describes an SSR SVG categorical bar chart. Vertical is the default
@@ -93,11 +124,37 @@ func (cfg Config) validate() error {
 				return fmt.Errorf("bar chart series %q value %d must be finite", series.Name, valueIndex)
 			}
 		}
+		if series.References.Format != ValueFormatDefault && series.References.Format != ValueFormatHumanized {
+			return fmt.Errorf("bar chart series %q reference format %q is unsupported", series.Name, series.References.Format)
+		}
+		if series.References.PointSize < 0 {
+			return fmt.Errorf("bar chart series %q reference point size cannot be negative", series.Name)
+		}
+		if unsafeCSS(series.References.Style.Color) {
+			return fmt.Errorf("bar chart series %q reference color is unsafe", series.Name)
+		}
+		if strings.ContainsAny(series.References.Style.Class, "\"'<>;") {
+			return fmt.Errorf("bar chart series %q reference class is unsafe", series.Name)
+		}
 	}
 	return nil
 }
 
 func (cfg Config) horizontal() bool { return cfg.Orientation == OrientationHorizontal }
+
+func (cfg Config) hasReferences() bool {
+	for _, series := range cfg.Series {
+		if series.References.Average || series.References.Minimum || series.References.Maximum {
+			return true
+		}
+	}
+	return false
+}
+
+func unsafeCSS(value string) bool {
+	value = strings.ToLower(strings.TrimSpace(value))
+	return strings.ContainsAny(value, ";{}<>\\\"") || strings.Contains(value, "url(") || strings.Contains(value, "expression(")
+}
 
 func (cfg Config) width() int {
 	if cfg.Width > 0 {
