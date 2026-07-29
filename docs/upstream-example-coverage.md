@@ -94,6 +94,39 @@ is consumer layout and cross-family composition, not another Scatter behavior.
 It remains outside the Scatter component instead of introducing a raw painter or
 composite renderer type.
 
+## Static/vector Radar
+
+- Source repository: `github.com/go-analyze/charts`
+- Revision: `1fe31b06b8a82e00df877ff4417a75858547c1c2`
+- Status: both dedicated Radar-family files at that revision are covered by
+  the one renderer-neutral `radar.Radar` component. They contain one distinct visual
+  treatment: the option-function source repeats the Painter budget
+  comparison through a second upstream API style.
+
+| Upstream example | SHA-256 | Goshtoso coverage | Adaptation note |
+| --- | --- | --- | --- |
+| `examples/1-Painter/radar_chart-1-basic/main.go` | `0cf8dbdd72f6a398b7c560b544a0d800570d17a620549753b726171f996254d4` | Basic bounded budget comparison | Preserves all six ordered dimensions and maxima, both six-value profiles, `Basic Radar Chart` title at 16 points, right-aligned legend, and 600x400 geometry. |
+| `examples/2-OptionFunc/radar_chart-1-basic/main.go` | `39a9427d6bb3bcff7d7627943210e2b19b934785c03896e9beffb1a35462c78e` | Duplicate basic treatment | Preserves the same data and presentation once, without exposing upstream option functions. |
+
+Relevant Radar implementation and shared presentation API evidence at the same
+revision is pinned separately from the two dedicated example files:
+
+| Upstream API source | SHA-256 | Renderer-neutral coverage |
+| --- | --- | --- |
+| `radar_chart.go` | `50f9e29787665a03ab744be3081b9582cbb2d4064025245818665923849e79d7` | Indicator names, minima, maxima and label fonts; radius; chart-level value formatting. |
+| `series.go` | `953f4e5d555701348ebcb8eb0bfe1753a6df56eb4f94a86403c6dc6cecf79217` | Named aligned vectors. |
+| `series_label.go` | `d7b176bea3679542e878c4c5703db3711d1e258b64efb7d19614a16fc5722611` | Per-series label visibility, font size, and value-format overrides. |
+| `title.go` | `e85f6a0fe2e8fd7c253ac226d780164beb0cc7214e94979241d1e9fbce824b26` | Title, subtitle, logical horizontal or vertical placement, font sizes, visibility and border width. |
+| `legend.go` | `eaad1144ff1c5af84049a2968e952caba2dac3970558d542c18c6a98ba6d515b` | Visibility, flow, logical placement, alignment, font size, padding, overlay and border width. |
+| `chart_option.go` | `0b298fcd45fab6bbe476514d90e5107d65d32bd8ba985f2411e79ec88fd2b858` | Option-function parity remains behind the same typed component; chart padding and output dimensions are public renderer-neutral values. |
+
+Unsupported dedicated Radar-family behaviors: none. Every behavior in both
+dedicated files maps to typed renderer-neutral configuration. The public API
+also covers the finite Radar-specific presentation fields above. Theme objects,
+arbitrary formatter callbacks, painter hierarchy, output encoders, and upstream
+option functions remain private; typed value formats, Goshtoso theme tokens,
+shared controls, and SVG or PNG export provide the supported equivalents.
+
 ## Static/vector Line
 
 - Source repository: `github.com/go-analyze/charts`
@@ -279,3 +312,43 @@ supplementary evidence table above also bound Pie layout: centered, flex, and
 unmanaged pages do not become public chart modes. The Pie page adds one local
 selectable-sector example to document the neutral selected-state API; it is not
 counted as a tenth upstream function.
+
+## Interactive Radar
+
+- Source repository: `github.com/go-echarts/examples`
+- Source file: `examples/radar.go`
+- Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
+- Source SHA-256: `f6b8e26399826e7f979717fbb4a30b48a8c8d10e8f496da60c430aaadc0e8ffb`
+- Status: all four upstream behavior functions are covered by the one
+  renderer-neutral `interactive.Radar` component.
+- Data correction: upstream rows contain six pollutant dimensions followed by
+  a seventh value used as the day index. Goshtoso retains the first six values
+  as the aligned radar vector and names each observation from that day index.
+- Theme adaptation: the upstream fixed dark surface and fixed series colors
+  are replaced by Goshtoso theme tokens so light, dark, and named themes retain
+  contrast without exposing renderer configuration.
+
+| Upstream behavior function | Coverage | Goshtoso Charts treatment |
+| --- | --- | --- |
+| `radarBase` | Example | Twenty-one Beijing observations on the default polygon coordinate with split areas and lines |
+| `radarStyle` | Example | Circular coordinate, five splits, subtle split lines, and translucent lines and areas |
+| `radarLegendMulti` | Example | Beijing, Guangzhou, and Shanghai with independent multiple legend selection |
+| `radarLegendSingle` | Example | The same three cities with exclusive single legend selection and stronger areas |
+
+Every function and method in the pinned source file is inventoried below.
+Function SHA-256 values cover exact source text from each `func` declaration
+through its closing brace at the pinned revision.
+
+| Source function or method | SHA-256 | Role |
+| --- | --- | --- |
+| `generateRadarItems` | `f906e8292d6830bb7983f954d67de496fd21b78dc709dbc86633f1f38d6435ae` | Data adaptation |
+| `radarBase` | `e897284229b2e8a01ac1a57a65a4e779c9375083bb6fad2899ab785ce7e808d7` | Example |
+| `radarStyle` | `45738725345bf456020df60ea819afbb8931d079cfba95153dd9cfb77b529eaa` | Example |
+| `radarLegendMulti` | `692e14a0b753d77b4ea4bf47aa95192d69d42ebc82319e2e47378406b507cb59` | Example |
+| `radarLegendSingle` | `503fc8e155fc5a43597ed9fa8a015be1f743ffb865e94fb705f4eb9b2d48a528` | Example |
+| `RadarExamples.Examples` | `e5c8ddab877b5227eec0975bcdf4b36531b5212b20d058e4d785d6f99b5e91d8` | Page composition only |
+
+Unsupported dedicated Radar-family behaviors: none. Shape, split count,
+split-area visibility, split-line styling, line and area opacity, multiple or
+single legend selection, responsive sizing, exact values, theme colors,
+controls, PNG export, and wrapper lifecycle are all typed and renderer-neutral.

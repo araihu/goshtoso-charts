@@ -15,10 +15,15 @@ func TestPublicAPIDoesNotExposeRendererTypes(t *testing.T) {
 	publicTypes := []reflect.Type{
 		reflect.TypeOf(radar.Config{}),
 		reflect.TypeOf(radar.Indicator{}),
+		reflect.TypeOf(radar.IndicatorLabelOptions{}),
 		reflect.TypeOf(radar.Instance{}),
+		reflect.TypeOf(radar.LegendOptions{}),
 		reflect.TypeOf(radar.Options{}),
+		reflect.TypeOf(radar.Padding{}),
 		reflect.TypeOf(radar.Series{}),
 		reflect.TypeOf(radar.SeriesOptions{}),
+		reflect.TypeOf(radar.TitleOptions{}),
+		reflect.TypeOf(radar.ValueFormatDefault),
 		reflect.TypeOf(radar.ValueLabelsDefault),
 		reflect.TypeOf(radar.Radar),
 	}

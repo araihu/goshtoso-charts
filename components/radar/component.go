@@ -60,30 +60,125 @@ func renderSVG(cfg Config) (string, error) {
 func radarOptions(cfg Config) chart.RadarChartOption {
 	values := make([][]float64, len(cfg.Series))
 	names := make([]string, len(cfg.Series))
-	indicatorNames := make([]string, len(cfg.Indicators))
-	indicatorMaxima := make([]float64, len(cfg.Indicators))
+	indicators := make([]chart.RadarIndicator, len(cfg.Indicators))
 	for index, indicator := range cfg.Indicators {
-		indicatorNames[index] = indicator.Name
-		indicatorMaxima[index] = indicator.Max
+		indicators[index] = chart.RadarIndicator{Name: indicator.Name, Min: indicator.Min, Max: indicator.Max}
+		if indicator.Label.FontSize > 0 {
+			indicators[index].FontStyle = chart.NewFontStyleWithSize(indicator.Label.FontSize)
+		}
 	}
 	for index, series := range cfg.Series {
 		values[index] = append([]float64(nil), series.Values...)
 		names[index] = series.Name
 	}
-	options := chart.NewRadarChartOptionWithData(values, indicatorNames, indicatorMaxima)
+	options := chart.NewRadarChartOptionWithData(values, nil, nil)
+	options.RadarIndicators = indicators
 	options.Theme = tokenPalette()
 	options.Legend.SeriesNames = names
+	options.Title.Text = cfg.Title.Text
+	options.Title.Subtext = cfg.Title.Subtext
+	options.Title.Show = chart.Ptr(!cfg.Title.Hidden)
+	options.Title.Offset = rendererOffset(cfg.Title.Horizontal, cfg.Title.Vertical)
+	options.Title.BorderWidth = cfg.Title.BorderWidth
+	if cfg.Title.FontSize > 0 {
+		options.Title.FontStyle = chart.NewFontStyleWithSize(cfg.Title.FontSize)
+	}
+	if cfg.Title.SubtextFontSize > 0 {
+		options.Title.SubtextFontStyle = chart.NewFontStyleWithSize(cfg.Title.SubtextFontSize)
+	}
+	options.Legend.Show = chart.Ptr(!cfg.Legend.Hidden)
+	options.Legend.Offset = rendererOffset(cfg.Legend.Horizontal, cfg.Legend.Vertical)
+	options.Legend.Align = rendererAlignment(cfg.Legend.Alignment)
+	options.Legend.Vertical = chart.Ptr(cfg.Legend.Orientation == LegendVertical)
+	options.Legend.OverlayChart = chart.Ptr(cfg.Legend.Overlay)
+	options.Legend.BorderWidth = cfg.Legend.BorderWidth
+	if cfg.Legend.FontSize > 0 {
+		options.Legend.FontStyle = chart.NewFontStyleWithSize(cfg.Legend.FontSize)
+	}
+	if cfg.Legend.Padding != (Padding{}) {
+		options.Legend.Padding = rendererPadding(cfg.Legend.Padding)
+	}
+	if cfg.Padding != (Padding{}) {
+		options.Padding = rendererPadding(cfg.Padding)
+	}
 	radius := cfg.Options.RadiusPercent
 	if radius == 0 {
 		radius = 40
 	}
 	options.Radius = strconv.FormatFloat(radius, 'f', -1, 64) + "%"
+	options.ValueFormatter = rendererValueFormatter(cfg.Options.ValueFormat)
 	for index, series := range cfg.Series {
 		options.SeriesList[index].Name = series.Name
 		show := series.Options.ValueLabels.resolve(cfg.Options.ValueLabels) == ValueLabelsShown
 		options.SeriesList[index].Label.Show = chart.Ptr(show)
+		if series.Options.ValueFormat != ValueFormatDefault {
+			options.SeriesList[index].Label.ValueFormatter = rendererValueFormatter(series.Options.ValueFormat)
+		}
+		if series.Options.LabelFontSize > 0 {
+			options.SeriesList[index].Label.FontStyle = chart.NewFontStyleWithSize(series.Options.LabelFontSize)
+		}
 	}
 	return options
+}
+
+func rendererPadding(padding Padding) chart.Box {
+	return chart.NewBox(padding.Left, padding.Top, padding.Right, padding.Bottom)
+}
+
+func rendererOffset(horizontal, vertical Placement) chart.OffsetStr {
+	return chart.OffsetStr{Left: rendererHorizontalPlacement(horizontal), Top: rendererVerticalPlacement(vertical)}
+}
+
+func rendererHorizontalPlacement(placement Placement) string {
+	switch placement {
+	case PlacementStart:
+		return chart.PositionLeft
+	case PlacementCenter:
+		return chart.PositionCenter
+	case PlacementEnd:
+		return chart.PositionRight
+	default:
+		return ""
+	}
+}
+
+func rendererVerticalPlacement(placement Placement) string {
+	switch placement {
+	case PlacementStart:
+		return chart.PositionTop
+	case PlacementCenter:
+		return "50%"
+	case PlacementEnd:
+		return chart.PositionBottom
+	default:
+		return ""
+	}
+}
+
+func rendererAlignment(alignment Alignment) string {
+	switch alignment {
+	case AlignmentStart:
+		return chart.AlignLeft
+	case AlignmentCenter:
+		return chart.AlignCenter
+	case AlignmentEnd:
+		return chart.AlignRight
+	default:
+		return ""
+	}
+}
+
+func rendererValueFormatter(format ValueFormat) chart.ValueFormatter {
+	switch format {
+	case ValueFormatExact:
+		return formatValue
+	case ValueFormatInteger:
+		return func(value float64) string { return strconv.FormatFloat(value, 'f', 0, 64) }
+	case ValueFormatHumanized:
+		return func(value float64) string { return chart.FormatValueHumanizeShort(value, 2, false) }
+	default:
+		return nil
+	}
 }
 
 func tokenPalette() chart.ColorPalette {

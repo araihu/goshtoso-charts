@@ -194,6 +194,14 @@ func sampleBasicRadar() radar.Config {
 			{Name: "Allocated Budget", Values: []float64{4200, 3000, 20000, 35000, 50000, 18000}},
 			{Name: "Actual Spending", Values: []float64{5000, 14000, 28000, 26000, 42000, 21000}},
 		},
+		Title:  radar.TitleOptions{Text: "Basic Radar Chart", FontSize: 16},
+		Legend: radar.LegendOptions{Horizontal: radar.PlacementEnd},
+		Width:  600,
+		Height: 400,
+		RootAttrs: templ.Attributes{
+			"data-static-radar-exhaustion": "1fe31b06",
+			"data-goshtoso-candidate":      "radar-basic-0cf8dbdd72f6a398",
+		},
 		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "basic-radar-chart"},
 	}
@@ -431,15 +439,31 @@ func sampleMarketTable() charttable.Config {
 	}
 }
 
-func sampleBasicRadarOverride() radar.Config {
+func sampleReadableRadar() radar.Config {
 	cfg := sampleBasicRadar()
-	cfg.Label = "Basic radar chart with caller overrides"
+	cfg.Label = "Readable radar values and compact layout"
+	cfg.Caption = "The same budget comparison uses typed labels, compact formatting, logical placement, and caller colors."
+	cfg.Indicators = append([]radar.Indicator(nil), cfg.Indicators...)
+	for index := range cfg.Indicators {
+		cfg.Indicators[index].Label.FontSize = 10
+	}
+	cfg.Indicators[0].Min = 1000
+	cfg.Series = append([]radar.Series(nil), cfg.Series...)
+	for index := range cfg.Series {
+		cfg.Series[index].Values = append([]float64(nil), cfg.Series[index].Values...)
+	}
+	cfg.Series[0].Options.LabelFontSize = 9
+	cfg.Series[1].Options = radar.SeriesOptions{ValueLabels: radar.ValueLabelsHidden, ValueFormat: radar.ValueFormatInteger}
 	cfg.Style = charttheme.Style{
 		Palette: charttheme.PaletteAraiHu,
 		Colors:  []string{"#365314", "#c2410c"},
 		Class:   "radar-explicit-override",
 	}
-	cfg.Options = radar.Options{RadiusPercent: 44, ValueLabels: radar.ValueLabelsShown}
+	cfg.Options = radar.Options{RadiusPercent: 44, ValueLabels: radar.ValueLabelsShown, ValueFormat: radar.ValueFormatHumanized}
+	cfg.Title = radar.TitleOptions{Text: "Basic Radar Chart", Subtext: "Values at each vertex", Horizontal: radar.PlacementCenter, FontSize: 16, SubtextFontSize: 12}
+	cfg.Legend = radar.LegendOptions{Orientation: radar.LegendVertical, Horizontal: radar.PlacementEnd, Alignment: radar.AlignmentEnd, FontSize: 10, Overlay: true}
+	cfg.Padding = radar.Padding{Top: 24, Right: 84, Bottom: 24, Left: 24}
+	cfg.Export = &chartcontrol.ExportOptions{Filename: "readable-radar-values", Background: chartcontrol.ExportBackgroundTransparent}
 	return cfg
 }
 
@@ -721,15 +745,24 @@ func radarCode() string {
     {Name: "Allocated Budget", Values: []float64{4200, 3000, 20000, 35000, 50000, 18000}},
     {Name: "Actual Spending", Values: []float64{5000, 14000, 28000, 26000, 42000, 21000}},
   },
+  Title: radar.TitleOptions{Text: "Basic Radar Chart", FontSize: 16},
+  Legend: radar.LegendOptions{Horizontal: radar.PlacementEnd},
+  Width: 600, Height: 400,
 })`
 }
 
-func radarOverrideCode() string {
+func radarReadableCode() string {
 	return `cfg := sampleBasicRadar()
 cfg.Options = radar.Options{
   RadiusPercent: 44,
   ValueLabels: radar.ValueLabelsShown,
+  ValueFormat: radar.ValueFormatHumanized,
 }
+cfg.Series[0].Options.LabelFontSize = 9
+cfg.Series[1].Options = radar.SeriesOptions{ValueLabels: radar.ValueLabelsHidden}
+cfg.Title = radar.TitleOptions{Text: "Basic Radar Chart", Horizontal: radar.PlacementCenter}
+cfg.Legend = radar.LegendOptions{Orientation: radar.LegendVertical, Horizontal: radar.PlacementEnd}
+cfg.Padding = radar.Padding{Top: 24, Right: 84, Bottom: 24, Left: 24}
 cfg.Style = charttheme.Style{
   Palette: charttheme.PaletteAraiHu,
   Colors: []string{"#365314", "#c2410c"},

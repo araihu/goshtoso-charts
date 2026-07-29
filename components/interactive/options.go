@@ -39,15 +39,29 @@ type TitleOptions struct {
 
 // LegendOptions configures legend visibility, orientation, and placement.
 type LegendOptions struct {
-	Show   *bool
-	Orient string
-	Left   string
-	Right  string
-	Top    string
-	Bottom string
+	Show          *bool
+	Orient        string
+	Left          string
+	Right         string
+	Top           string
+	Bottom        string
+	SelectionMode LegendSelectionMode
 	// Padding adds top, right, bottom, and left space around legend content.
 	Padding *EdgeInsets
 }
+
+// LegendSelectionMode controls whether a legend may expose multiple series or
+// only one selected series at a time.
+type LegendSelectionMode string
+
+const (
+	// LegendSelectionDefault preserves the chart renderer's standard behavior.
+	LegendSelectionDefault LegendSelectionMode = ""
+	// LegendSelectionMultiple lets readers toggle multiple series independently.
+	LegendSelectionMultiple LegendSelectionMode = "multiple"
+	// LegendSelectionSingle keeps one legend series selected at a time.
+	LegendSelectionSingle LegendSelectionMode = "single"
+)
 
 // EdgeInsets describes nonnegative top, right, bottom, and left spacing.
 type EdgeInsets struct {
@@ -175,10 +189,15 @@ func Int(value int) *int { return &value }
 func finiteNumber(value float64) bool { return !math.IsNaN(value) && !math.IsInf(value, 0) }
 
 func validateChartOptions(options ChartOptions) error {
-	if legend := options.Legend; legend != nil && legend.Padding != nil {
-		padding := legend.Padding
-		if padding.Top < 0 || padding.Right < 0 || padding.Bottom < 0 || padding.Left < 0 {
-			return fmt.Errorf("legend padding must be nonnegative")
+	if legend := options.Legend; legend != nil {
+		if legend.SelectionMode != LegendSelectionDefault && legend.SelectionMode != LegendSelectionMultiple && legend.SelectionMode != LegendSelectionSingle {
+			return fmt.Errorf("legend selection mode %q is not supported", legend.SelectionMode)
+		}
+		if legend.Padding != nil {
+			padding := legend.Padding
+			if padding.Top < 0 || padding.Right < 0 || padding.Bottom < 0 || padding.Left < 0 {
+				return fmt.Errorf("legend padding must be nonnegative")
+			}
 		}
 	}
 	for name, axis := range map[string]*AxisOptions{"x": options.XAxis, "y": options.YAxis} {
@@ -230,7 +249,7 @@ func chartGlobalOptions(options ChartOptions) []charts.GlobalOpts {
 		}))
 	}
 	if value := options.Legend; value != nil {
-		legend := opts.Legend{Orient: value.Orient, Left: value.Left, Right: value.Right, Top: value.Top, Bottom: value.Bottom}
+		legend := opts.Legend{Orient: value.Orient, Left: value.Left, Right: value.Right, Top: value.Top, Bottom: value.Bottom, SelectedMode: string(value.SelectionMode)}
 		if value.Show != nil {
 			legend.Show = opts.Bool(*value.Show)
 		}

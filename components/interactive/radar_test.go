@@ -8,6 +8,7 @@ import (
 	"testing"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
 
@@ -67,6 +68,84 @@ func TestRadarUsesFallbackPalette(t *testing.T) {
 	}
 }
 
+func TestRadarRendersTypedCoordinateLegendAndExactValueTreatments(t *testing.T) {
+	t.Parallel()
+	instance := Radar(RadarConfig{
+		Label: "Daily air quality profiles", Caption: "Two cities across six pollutant indicators.",
+		Indicators: []RadarIndicator{
+			{Name: "AQI", Max: 300}, {Name: "PM2.5", Max: 250}, {Name: "PM10", Max: 300},
+			{Name: "CO", Max: 5}, {Name: "NO2", Max: 200}, {Name: "SO2", Max: 100},
+		},
+		Coordinate: RadarCoordinateOptions{
+			Shape: RadarShapeCircle, SplitNumber: 5, SplitArea: Bool(true),
+			SplitLine: &RadarSplitLineOptions{Show: Bool(true), Style: &LineStyle{Width: 1, Type: "dashed", Opacity: Float(0.1)}},
+		},
+		Series: []RadarSeries{
+			{Name: "Beijing", Data: []RadarData{{Name: "Day 1", Values: []float64{55, 9, 56, 0.46, 18, 6}}}},
+			{Name: "Guangzhou", Data: []RadarData{{Name: "Day 1", Values: []float64{26, 37, 27, 1.163, 27, 13}}}},
+		},
+		Options: ChartOptions{
+			Legend:   &LegendOptions{Show: Bool(true), Left: "center", Bottom: "5px", SelectionMode: LegendSelectionSingle},
+			Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "daily-air-quality"},
+		},
+		SeriesOptions: SeriesOptions{LineStyle: &LineStyle{Width: 1, Opacity: Float(0.5)}, AreaStyle: &AreaStyle{Opacity: Float(0.1)}},
+		Width:         "100%", Height: "480px", Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Class: "max-w-5xl mx-auto"},
+	})
+
+	var output bytes.Buffer
+	if err := instance.Render(context.Background(), &output); err != nil {
+		t.Fatalf("Render() error = %v", err)
+	}
+	markup := output.String()
+	for _, want := range []string{
+		`"shape":"circle"`, `"splitNumber":5`, `"splitArea":{"show":true}`,
+		`"splitLine":{"show":true,"lineStyle":{"width":1,"type":"dashed","opacity":0.1}}`,
+		`"selectedMode":"single"`, `"name":"Beijing"`, `"name":"Guangzhou"`,
+		`data-radar-exact-values`, `Daily air quality profiles exact radar values`,
+		`<th scope="col" class="px-3 py-2 font-semibold">AQI</th>`,
+		`<td class="px-3 py-2">Beijing</td>`, `<th scope="row" class="px-3 py-2 font-semibold">Day 1</th>`,
+		`<td class="px-3 py-2 tabular-nums">0.46</td>`,
+		`data-goshtoso-chart-wrapper-mode="enabled"`, `Download Daily air quality profiles as PNG`,
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("rendered markup missing %q", want)
+		}
+	}
+	if got := strings.Count(markup, `data-radar-value-row`); got != 2 {
+		t.Errorf("exact-value row count = %d, want 2", got)
+	}
+}
+
+func TestRadarPropagatesWrapperLifecycleModes(t *testing.T) {
+	t.Parallel()
+	config := RadarConfig{
+		Label:      "Profile",
+		Indicators: []RadarIndicator{{Name: "A", Max: 10}, {Name: "B", Max: 20}},
+		Series:     []RadarSeries{{Name: "Series", Data: []RadarData{{Name: "Observation", Values: []float64{4, 8}}}}},
+	}
+	for _, mode := range []chartcontrol.WrapperMode{chartcontrol.WrapperModeEnabled, chartcontrol.WrapperModeDisabled, chartcontrol.WrapperModeHidden, chartcontrol.WrapperModeOmitted} {
+		config.Options.Controls.Mode = mode
+		var output bytes.Buffer
+		if err := Radar(config).Render(context.Background(), &output); err != nil {
+			t.Fatalf("mode %q Render() error = %v", mode, err)
+		}
+		markup := output.String()
+		if mode == chartcontrol.WrapperModeOmitted {
+			if strings.Contains(markup, `data-goshtoso-chart-wrapper=`) || !strings.Contains(markup, `data-radar-exact-values`) {
+				t.Errorf("omitted wrapper markup = %q", markup)
+			}
+			continue
+		}
+		wantMode := string(mode)
+		if mode == chartcontrol.WrapperModeEnabled {
+			wantMode = "enabled"
+		}
+		if !strings.Contains(markup, `data-goshtoso-chart-wrapper-mode="`+wantMode+`"`) {
+			t.Errorf("mode %q not propagated", mode)
+		}
+	}
+}
+
 func TestRadarRejectsInvalidDataContract(t *testing.T) {
 	t.Parallel()
 	validIndicators := []RadarIndicator{{Name: "A", Max: 10}, {Name: "B", Max: 20}}
@@ -87,6 +166,12 @@ func TestRadarRejectsInvalidDataContract(t *testing.T) {
 		"empty vector":           {cfg: RadarConfig{Label: "Profile", Indicators: validIndicators, Series: []RadarSeries{{Name: "Profile", Data: []RadarData{{Name: "Current"}}}}}, wantError: `radar chart series "Profile" data "Current" values are required`},
 		"misaligned vector":      {cfg: RadarConfig{Label: "Profile", Indicators: validIndicators, Series: []RadarSeries{{Name: "Profile", Data: []RadarData{{Name: "Current", Values: []float64{1}}}}}}, wantError: `radar chart series "Profile" data "Current" has 1 values for 2 indicators`},
 		"nonfinite vector":       {cfg: RadarConfig{Label: "Profile", Indicators: validIndicators, Series: []RadarSeries{{Name: "Profile", Data: []RadarData{{Name: "Current", Values: []float64{1, math.NaN()}}}}}}, wantError: `radar chart series "Profile" data "Current" value 1 must be finite`},
+		"unsupported shape":      {cfg: RadarConfig{Label: "Profile", Indicators: validIndicators, Series: []RadarSeries{{Name: "Profile", Data: validData}}, Coordinate: RadarCoordinateOptions{Shape: "star"}}, wantError: `radar chart shape "star" is not supported`},
+		"negative split number":  {cfg: RadarConfig{Label: "Profile", Indicators: validIndicators, Series: []RadarSeries{{Name: "Profile", Data: validData}}, Coordinate: RadarCoordinateOptions{SplitNumber: -1}}, wantError: "radar chart split number must be nonnegative"},
+		"invalid line opacity":   {cfg: RadarConfig{Label: "Profile", Indicators: validIndicators, Series: []RadarSeries{{Name: "Profile", Data: validData}}, Coordinate: RadarCoordinateOptions{SplitLine: &RadarSplitLineOptions{Style: &LineStyle{Opacity: Float(1.1)}}}}, wantError: "radar chart split-line opacity must be between 0 and 1"},
+		"invalid line width":     {cfg: RadarConfig{Label: "Profile", Indicators: validIndicators, Series: []RadarSeries{{Name: "Profile", Data: validData}}, Coordinate: RadarCoordinateOptions{SplitLine: &RadarSplitLineOptions{Style: &LineStyle{Width: -1}}}}, wantError: "radar chart split-line width must be nonnegative"},
+		"invalid line type":      {cfg: RadarConfig{Label: "Profile", Indicators: validIndicators, Series: []RadarSeries{{Name: "Profile", Data: validData}}, Coordinate: RadarCoordinateOptions{SplitLine: &RadarSplitLineOptions{Style: &LineStyle{Type: "wave"}}}}, wantError: `radar chart split-line type "wave" is not supported`},
+		"invalid legend mode":    {cfg: RadarConfig{Label: "Profile", Indicators: validIndicators, Series: []RadarSeries{{Name: "Profile", Data: validData}}, Options: ChartOptions{Legend: &LegendOptions{SelectionMode: "exclusive"}}}, wantError: `legend selection mode "exclusive" is not supported`},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
