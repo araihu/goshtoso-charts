@@ -51,3 +51,32 @@ func TestLineCoverageUsesOneCanonicalLedgerWithoutLostEntries(t *testing.T) {
 		}
 	}
 }
+
+func TestInteractiveBarCoverageUsesCanonicalLedgerWithoutLostEntries(t *testing.T) {
+	t.Parallel()
+	const canonicalPath = "../../../docs/upstream-example-coverage.md"
+	data, err := os.ReadFile(canonicalPath)
+	if err != nil {
+		t.Fatalf("read canonical upstream coverage ledger: %v", err)
+	}
+	ledger := string(data)
+	for _, entry := range interactiveBarUpstreamCoverage() {
+		row := "| `" + entry.Name + "` |"
+		if count := strings.Count(ledger, row); count != 1 {
+			t.Errorf("interactive Bar coverage row %q occurs %d times, want 1", entry.Name, count)
+		}
+	}
+	if !strings.Contains(ledger, "| `barOverlap` | Unsupported |") {
+		t.Error("barOverlap must remain explicitly unsupported in canonical coverage ledger")
+	}
+	for _, source := range interactiveBarSupplementarySources() {
+		for _, want := range []string{"`" + source.Path + "`", "`" + source.SHA256 + "`"} {
+			if count := strings.Count(ledger, want); count != 1 {
+				t.Errorf("supplementary source evidence %q occurs %d times, want 1", want, count)
+			}
+		}
+	}
+	if count := strings.Count(ledger, "`"+interactiveBarUpstreamPath+"`"); count != 1 {
+		t.Errorf("canonical interactive Bar source path occurs %d times, want 1", count)
+	}
+}

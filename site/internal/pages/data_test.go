@@ -65,7 +65,7 @@ func TestAreaLineSampleMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 
 func TestInteractiveComponentPagesRemainRendererNeutral(t *testing.T) {
 	t.Parallel()
-	for _, path := range []string{"pages.templ", "interactive_components.go"} {
+	for _, path := range []string{"pages.templ", "interactive_components.go", "interactive_bar_variants.go"} {
 		source, err := os.ReadFile(path)
 		if err != nil {
 			t.Fatalf("read %s: %v", path, err)

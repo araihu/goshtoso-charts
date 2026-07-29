@@ -56,3 +56,49 @@ public type. All ten are represented by typed renderer-neutral configuration.
 | `lineMulti` | Example | Four aligned series |
 | `lineDemo` | Example | Two-series comparison with labels and average guides |
 | `lineSymbols` | Example | Smoothed multi-series line with diamond symbols |
+
+## Interactive Bar
+
+- Source repository: `github.com/go-echarts/examples`
+- Source file: `examples/bar.go`
+- Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
+- Source SHA-256: `dcda545f978fdd055ecff5a6050b2ad9dc8cf9fe350bd7e4768952e8068fc9f9`
+- Status: eighteen of nineteen upstream functions are covered by the one
+  renderer-neutral `interactive.Bar` component. `barOverlap` remains an
+  explicit unsupported case pending a renderer-neutral composite-chart API.
+- Deterministic adaptation: ambient random values are replaced by local fixed
+  seeds while preserving seven categories, two series, integer values, and the
+  upstream `[0,300)` value domain.
+
+| Upstream function | Coverage | Goshtoso Charts treatment |
+| --- | --- | --- |
+| `barBasic` | Example | Basic two-series categorical presentation |
+| `barTitle` | Example | Title and subtitle on the basic presentation |
+| `barTooltip` | Example | Axis-triggered hover details on the basic presentation |
+| `barSetToolbox` | Example | Shared Expand and PNG export controls plus an exact-value disclosure table |
+| `barShowLabel` | Example | Visible values above each bar |
+| `barXYName` | Example | Named category and value axes |
+| `barXYFormatter` | Example | Literal unit suffixes through typed axis options; no executable formatter API |
+| `barColor` | Example | Explicit caller colors overriding theme series tokens |
+| `barSplitLine` | Example | Visible split lines on both axes |
+| `barGap` | Example | 150% inter-series gap |
+| `barDataZoomInside` | Example | Inside gesture zoom over the 10–50% category window |
+| `barDataZoomSlider` | Example | Visible slider over the 10–50% category window |
+| `barReverse` | Example | Horizontal category orientation |
+| `barStack` | Example | Two series sharing one stack |
+| `barMarkPoints` | Example | Named explicit point plus calculated minimum and maximum references |
+| `barMarkLines` | Example | Calculated maximum and average guides |
+| `barOverlap` | Unsupported | Mixed Bar, Line, and Scatter composition requires a renderer-neutral composite-chart API; Bar does not expose backing-engine series types |
+| `barSize` | Example | Upstream 600-pixel height retained; fixed 1200-pixel width adapted to container width because consumers own page layout |
+| `barWidth` | Example | Absolute and percentage per-series widths |
+
+Supplementary Bar-adjacent evidence at the same revision:
+
+| Upstream source | SHA-256 | Scope boundary |
+| --- | --- | --- |
+| `examples/page_center_layout.go` | `106456904719dfacfb13adcc1b9e66df83cf28a5a801539bad4d1958554166c9` | Layout reference; chart remains centered while consumers own page layout |
+| `examples/page_flex_layout.go` | `3113b7bdf78a2365ae62502fe86ab001f3ff3034b1d77752c693e95b28a0fd68` | Layout reference; responsive chart width works inside a flex consumer |
+| `examples/page_none_layout.go` | `ce38424de2ffeb919661e536c7f44921de098ae14643d4f2975d8e72296c32f8` | Layout reference; no page-layout mode enters the chart API |
+| `examples/themes.go` | `843c478c63b9cf3ab13b1e13518ea98912332bb34caf0dae5d48343fabd121a0` | Site themes and chart tokens cover theme switching centrally |
+| `examples/renderer.go` | `c4956db261f554c6a161c0d25baa7dbd7c2c179523997d297020cd55916e6a3f` | Private renderer integration, not a public chart option |
+| `examples/bar3d.go` | `110b3b85f2528d76eb8271b64f1facd81a974e30ecc0dd77319d5a409ff64275` | Separate existing Bar 3D component, not a two-dimensional Bar variant |

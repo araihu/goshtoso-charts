@@ -4,10 +4,12 @@ import (
 	"fmt"
 	"math"
 	"strconv"
+	"strings"
 
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
+	"github.com/go-echarts/go-echarts/v2/types"
 )
 
 // ChartOptions contains renderer-neutral options shared by interactive charts.
@@ -68,6 +70,10 @@ type AxisOptions struct {
 	// ShowFirstLabel and ShowLastLabel keep category-axis endpoint labels visible.
 	ShowFirstLabel *bool
 	ShowLastLabel  *bool
+	// LabelPrefix and LabelSuffix add literal text around every axis value.
+	// They do not accept renderer templates or executable formatter code.
+	LabelPrefix string
+	LabelSuffix string
 }
 
 // SeriesOptions contains renderer-neutral presentation options shared by series.
@@ -161,6 +167,9 @@ func validateChartOptions(options ChartOptions) error {
 		if axis.LabelInterval != nil && *axis.LabelInterval < 0 {
 			return fmt.Errorf("%s axis label interval must be nonnegative", name)
 		}
+		if strings.ContainsAny(axis.LabelPrefix, "{}") || strings.ContainsAny(axis.LabelSuffix, "{}") {
+			return fmt.Errorf("%s axis label prefix and suffix must be literal text without braces", name)
+		}
 		if axis.SplitNumber < 0 {
 			return fmt.Errorf("%s axis split number must be nonnegative", name)
 		}
@@ -241,8 +250,12 @@ func chartSeriesOptions(options SeriesOptions) []charts.SeriesOpts {
 	if options.Stack != "" || options.Symbol != "" || options.SymbolSize != 0 || options.Smooth != nil ||
 		options.ShowSymbol != nil || options.Step != "" || options.BarWidth != "" || options.BarGap != "" {
 		result = append(result, func(series *charts.SingleSeries) {
-			series.Stack = options.Stack
-			series.Symbol = options.Symbol
+			if options.Stack != "" {
+				series.Stack = options.Stack
+			}
+			if options.Symbol != "" {
+				series.Symbol = options.Symbol
+			}
 			if options.SymbolSize != 0 {
 				series.SymbolSize = options.SymbolSize
 			}
@@ -255,8 +268,12 @@ func chartSeriesOptions(options SeriesOptions) []charts.SeriesOpts {
 			if options.Step != "" {
 				series.Step = options.Step
 			}
-			series.BarWidth = options.BarWidth
-			series.BarGap = options.BarGap
+			if options.BarWidth != "" {
+				series.BarWidth = options.BarWidth
+			}
+			if options.BarGap != "" {
+				series.BarGap = options.BarGap
+			}
 		})
 	}
 	return result
@@ -351,6 +368,12 @@ func rendererXAxis(value *AxisOptions) opts.XAxis {
 			result.AxisLabel.ShowMaxLabel = opts.Bool(*value.ShowLastLabel)
 		}
 	}
+	if value.LabelPrefix != "" || value.LabelSuffix != "" {
+		if result.AxisLabel == nil {
+			result.AxisLabel = &opts.AxisLabel{}
+		}
+		result.AxisLabel.Formatter = types.FuncStr(value.LabelPrefix + "{value}" + value.LabelSuffix)
+	}
 	return result
 }
 
@@ -384,6 +407,12 @@ func rendererYAxis(value *AxisOptions) opts.YAxis {
 		if value.ShowLastLabel != nil {
 			result.AxisLabel.ShowMaxLabel = opts.Bool(*value.ShowLastLabel)
 		}
+	}
+	if value.LabelPrefix != "" || value.LabelSuffix != "" {
+		if result.AxisLabel == nil {
+			result.AxisLabel = &opts.AxisLabel{}
+		}
+		result.AxisLabel.Formatter = types.FuncStr(value.LabelPrefix + "{value}" + value.LabelSuffix)
 	}
 	return result
 }
