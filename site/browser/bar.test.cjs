@@ -76,9 +76,14 @@ function horizontalWrapper(page) {
 }
 
 async function openExpand(wrapper) {
-  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
+  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  await trigger.click();
   const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (await action.count()) await action.click();
+  if (stacked) {
+    await action.waitFor({ state: "visible" });
+    await action.click();
+  }
 }
 
 async function download(page, format) {
@@ -138,7 +143,7 @@ for (const width of [390, 1440]) {
             document.documentElement.classList.toggle("dark", dark);
           }, { selected: theme, dark: mode === "dark" });
           const wrapper = horizontalWrapper(page);
-          assert.equal(await wrapper.getByRole("button").count(), width === 390 ? 2 : 3);
+          assert.equal(await wrapper.getByRole("button").count(), 2);
           assert.equal(await wrapper.locator("table").getAttribute("aria-label"), "World population by reporting series exact category values");
           assert.deepEqual(await wrapper.locator("tbody th").allTextContents(), ["UN", "Brazil", "Indonesia", "USA", "India", "China", "World"]);
           assert.deepEqual(await wrapper.locator("tbody tr").first().locator("td").allTextContents(), ["10", "20"]);

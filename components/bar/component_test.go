@@ -72,7 +72,7 @@ func TestHorizontalBarPreservesPinnedUpstreamDataGeometryAndAccessibleSummary(t 
 	cfg := horizontalWorldPopulationConfig()
 	cfg.Caption = "Population comparison for 2011 and 2012."
 	cfg.Style = charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#112233"}, Class: "caller-chart"}
-	cfg.Controls = chartcontrol.Options{Fullscreen: true, Collapsible: true}
+	cfg.Controls = chartcontrol.Options{Fullscreen: true}
 	cfg.Export = &chartcontrol.ExportOptions{Filename: "world-population"}
 
 	options := barOptions(cfg)
@@ -103,7 +103,7 @@ func TestHorizontalBarPreservesPinnedUpstreamDataGeometryAndAccessibleSummary(t 
 		"stroke:var(--color-chart-text);stroke-width:1",
 		"Population comparison for 2011 and 2012.", "goshtoso-charts-bar__viewport",
 		`aria-label="World population by reporting series exact category values"`,
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`,
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`,
 		`>SVG</button>`, `>PNG</button>`, `-fullscreen-action`,
 	} {
 		if !strings.Contains(markup, want) {

@@ -66,7 +66,7 @@ func TestRadarRendersSSRAccessibleSVGAndExactValues(t *testing.T) {
 	if got := strings.Count(markup, "<script"); got != 1 {
 		t.Errorf("SSR chart script count = %d, want shared controls runtime only", got)
 	}
-	for _, want := range []string{`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`, `>SVG</button>`, `>PNG</button>`} {
+	for _, want := range []string{`data-goshtoso-chart-expand`, `-chart-expand-export"`, `>SVG</button>`, `>PNG</button>`} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("radar shared wrapper missing %q", want)
 		}

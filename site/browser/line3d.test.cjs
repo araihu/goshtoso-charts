@@ -78,6 +78,17 @@ function wrapperFor(page, variant = "base") {
   return page.locator(`[data-line3d-variant="${variant}"] [data-goshtoso-chart-wrapper]`).first();
 }
 
+async function openExpand(wrapper) {
+  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
+  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  await trigger.click();
+  if (stacked) {
+    const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+    await action.waitFor({ state: "visible" });
+    await action.click();
+  }
+}
+
 async function measure(wrapper) {
   return wrapper.evaluate(async (element) => {
     const host = element.querySelector("[_echarts_instance_]");
@@ -236,7 +247,7 @@ test("auto-rotation obeys reduced motion and remains stable", async () => {
   }
 });
 
-test("large centered modal preserves instance, hides collapse, and exports opaque PNG", async () => {
+test("large centered modal preserves instance and exports opaque PNG", async () => {
   const page = await pageAt({ width: 1440, height: 900 });
   const errors = [];
   page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
@@ -267,7 +278,7 @@ test("large centered modal preserves instance, hides collapse, and exports opaqu
       const instance = window.echarts.getInstanceByDom(host);
       return host.clientWidth === initialWidth && instance.getWidth() === host.clientWidth;
     }, initial.hostWidth);
-    await wrapper.locator("[data-goshtoso-chart-expand] > div > button").click();
+    await openExpand(wrapper);
     const dialog = wrapper.getByRole("dialog", { name: "basic line3d example" });
     await dialog.waitFor({ state: "visible" });
     await page.waitForFunction((initialWidth) => {
@@ -277,7 +288,6 @@ test("large centered modal preserves instance, hides collapse, and exports opaqu
       return host.clientWidth > initialWidth && instance.getWidth() === host.clientWidth;
     }, initial.hostWidth);
     assert.equal((await measure(wrapper)).sameInstance, true);
-    assert.equal(await wrapper.locator('[data-goshtoso-chart-control="collapse"]').isHidden(), true);
     const panel = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((element) => {
       const rect = element.getBoundingClientRect();
       return {

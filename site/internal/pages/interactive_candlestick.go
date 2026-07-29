@@ -152,7 +152,7 @@ func interactiveCandlestickConfig() interactive.CandlestickConfig {
 			Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "axis"},
 			XAxis:    &interactive.AxisOptions{Type: "category", SplitNumber: 20},
 			YAxis:    &interactive.AxisOptions{Type: "value", Scale: interactive.Bool(true)},
-			Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Controls: chartcontrol.Options{Fullscreen: true},
 			Export:   &chartcontrol.ExportOptions{Filename: "candlestick-example"},
 		},
 		Style: charttheme.Style{Class: "max-w-full"},

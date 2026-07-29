@@ -71,13 +71,18 @@ async function tablePage(viewport = { width: 1440, height: 900 }) {
 }
 
 async function openExpand(wrapper) {
-  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
+  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  await trigger.click();
   const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (await action.count()) await action.click();
+  if (stacked) {
+    await action.waitFor({ state: "visible" });
+    await action.click();
+  }
 }
 
 async function enterFullscreen(wrapper) {
-  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  await wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first().click();
   await wrapper.locator('[id$="-fullscreen-action"]').first().click();
 }
 
@@ -141,7 +146,7 @@ for (const width of [390, 1440]) {
             document.documentElement.classList.toggle("dark", dark);
           }, { selected: theme, dark: mode === "dark" });
           const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
-          assert.equal(await wrapper.getByRole("button").count(), width === 390 ? 2 : 3);
+          assert.equal(await wrapper.getByRole("button").count(), 2);
           assert.equal(await wrapper.locator("table").getAttribute("aria-label"), "People directory data");
           assert.deepEqual(await wrapper.locator("table thead th").allTextContents(), ["Name", "Age", "Address", "Tag", "Action"]);
           assert.equal(await wrapper.locator("table tbody tr").count(), 3);
@@ -273,9 +278,9 @@ test("Table supports explicit optional controls and SVG/opaque PNG exports", asy
   const page = await tablePage();
   try {
     const wrappers = page.locator("[data-goshtoso-chart-wrapper]");
-    assert.equal(await wrappers.nth(0).locator('[data-goshtoso-chart-control="collapse"]').count(), 1);
+    assert.equal(await wrappers.nth(0).getByRole("button", { name: /^Collapse / }).count(), 0);
     assert.equal(await wrappers.nth(0).locator('[id$="-fullscreen-action"]').count(), 1);
-    assert.equal(await wrappers.nth(1).locator('[data-goshtoso-chart-control="collapse"]').count(), 0);
+    assert.equal(await wrappers.nth(1).getByRole("button", { name: /^Collapse / }).count(), 0);
     assert.equal(await wrappers.nth(1).locator('[id$="-fullscreen-action"]').count(), 0);
 
     await enterFullscreen(wrappers.nth(0));

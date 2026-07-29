@@ -170,16 +170,15 @@ instead of expanding thousands of values into the chart DOM.
 ## Shared controls and export
 
 Every current chart accepts the same renderer-neutral control contract. All
-charts default to Expand plus capability-derived Export. Fullscreen and collapse
-remain independent opt-ins. Controls require the local `assets.Handler()` mount
-shown below.
+charts default to Expand plus capability-derived Export. Fullscreen remains an
+independent opt-in. Controls require the local `assets.Handler()` mount shown
+below; Goshtoso's head dependencies provide ActionGroup measurement.
 
 ```go
 import "github.com/araihu/goshtoso-charts/components/chartcontrol"
 
 staticCfg.Controls = chartcontrol.Options{
-	Fullscreen:  true,
-	Collapsible: true,
+	Fullscreen: true,
 }
 staticCfg.Export = &chartcontrol.ExportOptions{
 	Filename: "weekly-signups",
@@ -198,12 +197,12 @@ with SVG and PNG. Current interactive components, including Sunburst, expose one
 direct PNG Export button.
 Zero proven formats render no Export control; one renders a direct button; more
 than one renders a Goshtoso Dropdown. Unsupported explicit formats fail
-rendering instead of creating dead controls. Expand, collapse, and fullscreen
+rendering instead of creating dead controls. Expand and fullscreen
 preserve chart DOM, interaction state, and live SSE instances.
-When Expand and Fullscreen are both enabled, one primary Expand Dropdown offers
-both choices. At constrained wrapper widths, Collapse and export formats move
-into one icon-only overflow Dropdown while Expand remains visible; export
-formats are flattened so menus never nest.
+When Expand and Fullscreen are both enabled, one stacked Expand Dropdown offers
+both choices at wide widths. Goshtoso ActionGroup keeps Expand primary and
+flattens stacked Fullscreen and export actions into one icon-only overflow
+Dropdown as space contracts; menus never nest.
 See the [capability matrix, layout contract, and pending integration checks](docs/chart-controls.md).
 
 ## Candlestick

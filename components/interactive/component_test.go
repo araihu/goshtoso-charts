@@ -22,7 +22,7 @@ func TestInteractiveSupportsSharedControlsAndPNGExport(t *testing.T) {
 	instance := newInstance(chartcomponents.KindInteractiveBar, renderConfig{
 		Label:    "Weekly signups",
 		Chart:    bar,
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "weekly-signups"},
 	})
 	var output bytes.Buffer
@@ -32,9 +32,8 @@ func TestInteractiveSupportsSharedControlsAndPNGExport(t *testing.T) {
 	markup := output.String()
 	for _, want := range []string{
 		`-fullscreen-action`,
-		`data-goshtoso-chart-control="collapse"`,
 		`data-goshtoso-chart-expand`,
-		`data-goshtoso-chart-export="png"`,
+		`exportFromMenu($el, &#34;png&#34;)`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("markup missing %q", want)
@@ -43,7 +42,7 @@ func TestInteractiveSupportsSharedControlsAndPNGExport(t *testing.T) {
 	if strings.Contains(markup, `data-goshtoso-chart-export="svg"`) {
 		t.Fatal("canvas interactive chart exposed unsupported SVG export")
 	}
-	if strings.Contains(markup, `data-goshtoso-chart-export-menu`) {
+	if strings.Contains(markup, `-chart-expand-export"`) {
 		t.Fatal("single interactive PNG capability rendered a dropdown")
 	}
 }

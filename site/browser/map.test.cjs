@@ -77,9 +77,14 @@ function wrapperFor(page, variant = "") {
 }
 
 async function openExpand(wrapper) {
-  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
+  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  await trigger.click();
   const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (await action.count()) await action.click();
+  if (stacked) {
+    await action.waitFor({ state: "visible" });
+    await action.click();
+  }
 }
 
 async function clickPNG(wrapper, label) {

@@ -43,7 +43,7 @@ type Config struct {
 	Width       int
 	Height      int
 	Style       charttheme.Style
-	// Controls configures shared controls; Expand defaults on while fullscreen and collapse default off.
+	// Controls configures shared controls; Expand defaults on while fullscreen defaults off.
 	Controls chartcontrol.Options
 	// Export customizes or disables default SVG and PNG export.
 	Export *chartcontrol.ExportOptions

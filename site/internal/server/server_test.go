@@ -9,6 +9,7 @@ import (
 	"testing"
 	"time"
 
+	goshtosoassets "github.com/araihu/goshtoso/assets"
 	chartassets "github.com/araihu/goshtoso-charts/assets"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 )
@@ -121,7 +122,7 @@ func TestLine3DPagePreservesBothTreatmentsAndCentralizedAttribution(t *testing.T
 		"t = i / 1000", "cos(75", "sin(75", "t domain [0, 24.999]",
 		"Line3DConfig", "Point3D", "Line3DVisualRange", "Line3DGrid", "Line3DView",
 		"ChartOptions", "SeriesOptions", "Color or Class", "Download all exact points as CSV",
-		"Reduced-motion", "Expand", "Collapse", "PNG",
+		"Reduced-motion", "Expand", "PNG",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("Line3D page missing %q", want)
@@ -157,7 +158,7 @@ func TestPiePageIncludesDoughnutVariantAndCentralizedPinnedAttribution(t *testin
 		"Search Engine", "1048", "Direct", "735", "Email", "580",
 		"Union Ads", "484", "Video Ads", "300",
 		`aria-label="Doughnut Chart exact slice values"`,
-		`data-goshtoso-chart-export-menu`, ">SVG<", ">PNG<",
+		`-chart-expand-export"`, ">SVG<", ">PNG<",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("Pie page missing %q", want)
@@ -252,7 +253,7 @@ func TestHeatMapDocumentationPreservesUpstreamBasicExampleWithoutEngineBranding(
 		"4.4", "4.9", "7", "7.5", "4.3", "2.6", "5.9", "9", "6.4", "2.3",
 		"3.3", "3.2", "1.9", "6", "4.6", "1.9 · cold", "9 · warm",
 		"heatmap.HeatMap", "components.KindHeatMapChart", "ValueRange", "GradientStop",
-		"Exact values", "Custom semantic scale", "Fullscreen", "Collapse", "Expand", "SVG", "PNG",
+		"Exact values", "Custom semantic scale", "Fullscreen", "Expand", "SVG", "PNG",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("heat-map documentation missing upstream or contract content %q", want)
@@ -473,7 +474,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 	body := attributions.Body.String()
 	for _, want := range []string{
 		"Foundation dependencies", "Chart and rendering libraries", "Bundled runtime and assets",
-		"Goshtoso", "v0.0.13", "Goshtoso App Shells", "commit 4c4aa5ae787e", "templ", "v0.3.1020",
+		"Goshtoso", "v0.0.14-0.20260729011747-809b903c1296", "Goshtoso App Shells", "commit 4c4aa5ae787e", "templ", "v0.3.1020",
 		"go-analyze/charts", "v0.6.0", "go-echarts", "v2.7.2", "Apache ECharts", "v5.4.3",
 		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 		"examples/1-Painter/radar_chart-1-basic/main.go",
@@ -1211,18 +1212,18 @@ func TestEveryCurrentChartPageUsesSharedControlsAndCapabilityGating(t *testing.T
 			}
 			body := recorder.Body.String()
 			for _, want := range []string{
-				`data-goshtoso-chart-control="collapse"`,
 				`-fullscreen-action`,
-				`data-goshtoso-chart-primary`,
-				`data-goshtoso-chart-overflow`,
+				`data-action-group-primary`,
+				`data-action-group-overflow`,
 				`data-goshtoso-chart-expand`, `role="dialog"`,
 				`src="` + chartassets.ControlRuntimeURL + `"`,
+				goshtosoassets.ActionGroupURL,
 			} {
 				if !strings.Contains(body, want) {
 					t.Errorf("GET %s missing %q", test.path, want)
 				}
 			}
-			if got := strings.Contains(body, `data-goshtoso-chart-export-menu`); got != test.wantDropdown {
+			if got := strings.Contains(body, `-chart-expand-export"`); got != test.wantDropdown {
 				t.Errorf("GET %s export dropdown presence = %t, want %t", test.path, got, test.wantDropdown)
 			}
 			if test.wantDropdown {
@@ -1231,13 +1232,10 @@ func TestEveryCurrentChartPageUsesSharedControlsAndCapabilityGating(t *testing.T
 						t.Errorf("GET %s dropdown missing %q", test.path, want)
 					}
 				}
-				if strings.Contains(body, `data-goshtoso-chart-control="fullscreen"`) {
-					t.Errorf("GET %s rendered an adjacent fullscreen peer", test.path)
-				}
 				if strings.Contains(body, `data-goshtoso-chart-export="`) {
 					t.Errorf("GET %s rendered direct export button for multi-format capability", test.path)
 				}
-			} else if !strings.Contains(body, `data-goshtoso-chart-export="png"`) {
+			} else if !strings.Contains(body, `exportFromMenu($el, &#34;png&#34;)`) {
 				t.Errorf("GET %s missing direct PNG export", test.path)
 			}
 		})
@@ -1250,6 +1248,15 @@ func TestChartControlRuntimeIsLocal(t *testing.T) {
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, chartassets.ControlRuntimeURL, nil))
 	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), "requestFullscreen") {
 		t.Fatalf("GET control runtime status/body = %d/%q", recorder.Code, recorder.Body.String())
+	}
+}
+
+func TestActionGroupRuntimeIsServedByBaseGoshtosoAssets(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, goshtosoassets.ActionGroupURL, nil))
+	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), "data-goshtoso-action-group") {
+		t.Fatalf("GET ActionGroup runtime status/body = %d/%q", recorder.Code, recorder.Body.String())
 	}
 }
 

@@ -34,7 +34,7 @@ func TestTreeRendersConfiguredHierarchy(t *testing.T) {
 		Width:  "720px", Height: "420px",
 		Options: ChartOptions{
 			Title:    &TitleOptions{Text: "Ownership"},
-			Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Controls: chartcontrol.Options{Fullscreen: true},
 			Export:   &chartcontrol.ExportOptions{Filename: "ownership"},
 		},
 		Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "overflow-x-auto"},
@@ -59,8 +59,8 @@ func TestTreeRendersConfiguredHierarchy(t *testing.T) {
 		`"text":"Ownership"`, `"color":["#654321","#ff8a3d"`,
 		`"#abcdef"`, `"#123456"`,
 		"goshtoso-charts-palette-araihu overflow-x-auto",
-		`-fullscreen-action`, `data-goshtoso-chart-control="collapse"`,
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`,
+		`-fullscreen-action`,
+		`data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
@@ -72,7 +72,7 @@ func TestTreeRendersConfiguredHierarchy(t *testing.T) {
 	if strings.Contains(markup, `data-goshtoso-chart-export="svg"`) {
 		t.Fatal("interactive tree exposed unsupported SVG export")
 	}
-	if strings.Contains(markup, `data-goshtoso-chart-export-menu`) {
+	if strings.Contains(markup, `-chart-expand-export"`) {
 		t.Fatal("interactive tree rendered dropdown for one format")
 	}
 }

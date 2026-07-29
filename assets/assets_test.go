@@ -56,13 +56,18 @@ func TestHandlerServesVersionedChartControlRuntime(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("GET %s status = %d, want %d", assets.ControlRuntimeURL, recorder.Code, http.StatusOK)
 	}
-	for _, want := range []string{"requestFullscreen", "getDataURL", "goshtoso-charts:resize", "expandFromMenu", "updateOverflowVisibility"} {
+	for _, want := range []string{"requestFullscreen", "getDataURL", "goshtoso-charts:resize", "expandFromMenu", "toggleFullscreen"} {
 		if !strings.Contains(recorder.Body.String(), want) {
 			t.Errorf("control runtime missing %q", want)
 		}
 	}
 	if strings.Contains(recorder.Body.String(), "chart.resize()") {
 		t.Fatal("renderer-neutral controls runtime resized a private chart engine directly")
+	}
+	for _, unwanted := range []string{"toggleCollapse", "goshtoso-charts-controls-constrained", "updateOverflowVisibility"} {
+		if strings.Contains(recorder.Body.String(), unwanted) {
+			t.Fatalf("controls runtime retained redundant behavior %q", unwanted)
+		}
 	}
 }
 

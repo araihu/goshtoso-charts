@@ -71,9 +71,14 @@ async function funnelPage(viewport = { width: 1440, height: 900 }) {
 }
 
 async function openExpand(wrapper) {
-  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
+  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  await trigger.click();
   const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (await action.count()) await action.click();
+  if (stacked) {
+    await action.waitFor({ state: "visible" });
+    await action.click();
+  }
 }
 
 async function download(page, label) {
@@ -125,7 +130,7 @@ for (const width of [390, 1440]) {
             document.documentElement.classList.toggle("dark", dark);
           }, { selected: theme, dark: mode === "dark" });
           const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
-          assert.equal(await wrapper.getByRole("button").count(), width === 390 ? 2 : 3);
+          assert.equal(await wrapper.getByRole("button").count(), 2);
           assert.equal(await wrapper.locator("figure").getAttribute("aria-label"), "Basic funnel");
           assert.equal(await wrapper.locator("table").getAttribute("aria-label"), "Basic funnel exact stage values");
           assert.deepEqual(await wrapper.locator("table tbody th").allTextContents(), ["Show", "Click", "Visit", "Inquiry", "Order", "Pay", "Cancel"]);

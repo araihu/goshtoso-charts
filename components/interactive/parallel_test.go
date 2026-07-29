@@ -41,7 +41,7 @@ func TestParallelRendersTypedDimensionsSeriesLayoutAndExactValues(t *testing.T) 
 		Width:  "100%", Height: "500px",
 		Options: ChartOptions{
 			Title: &TitleOptions{Text: "Multi Series"}, Legend: &LegendOptions{Show: Bool(true)},
-			Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Controls: chartcontrol.Options{Fullscreen: true},
 			Export:   &chartcontrol.ExportOptions{Filename: "air-quality-profiles"},
 		},
 		Style:     charttheme.Style{Palette: charttheme.PaletteAraiHu, Class: "max-w-full"},
@@ -64,7 +64,7 @@ func TestParallelRendersTypedDimensionsSeriesLayoutAndExactValues(t *testing.T) 
 		`"name":"Day 1","value":[1,"Moderate"],"className":"moderate"`,
 		`"name":"Day 2","value":[2,"Good"],"lineStyle":{"color":"#abcdef"}`,
 		`"text":"Multi Series"`, `"show":true`, `data-goshtoso-charts-theme-runtime`,
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`, `-fullscreen-action`, `data-goshtoso-chart-control="collapse"`,
+		`data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`, `-fullscreen-action`,
 		`>Exact observations and values</summary>`, `scope="col">Series</th>`, `scope="col">Observation</th>`,
 		`scope="col">Date</th>`, `scope="col">Level</th>`, `scope="col">Semantic class</th>`,
 		`>Beijing</th>`, `>Day 1</td>`, `>Moderate</td>`, `>city-north moderate</td>`,
@@ -78,12 +78,12 @@ func TestParallelRendersTypedDimensionsSeriesLayoutAndExactValues(t *testing.T) 
 func TestParallelDefaultsToExpandAndPNGWithoutOptionalControls(t *testing.T) {
 	t.Parallel()
 	markup := renderParallel(t, Parallel(validParallelConfig()))
-	for _, want := range []string{`data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`} {
+	for _, want := range []string{`data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
 		}
 	}
-	for _, unwanted := range []string{`data-goshtoso-chart-control="fullscreen"`, `data-goshtoso-chart-control="collapse"`} {
+	for _, unwanted := range []string{`-fullscreen-action"`} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("rendered markup unexpectedly contains %q", unwanted)
 		}

@@ -2,15 +2,15 @@
 
 `components/chartcontrol` supplies one renderer-neutral wrapper used by every
 current static/vector and interactive chart. Expand and capability-derived
-Export default on. `Fullscreen` and `Collapsible` remain independent opt-ins.
-When Expand and Fullscreen are both enabled, one visible primary Goshtoso
-Dropdown named Expand offers Expand and Fullscreen choices instead of adjacent
-peer controls. Expand retains its enlargement icon and remains the primary verb.
+Export default on. `Fullscreen` remains an independent opt-in; Collapse is not
+part of the public API or rendered controls. When Expand and Fullscreen are both
+enabled, one visible stacked Goshtoso Dropdown named Expand offers Expand and
+Fullscreen choices instead of adjacent peer controls. Expand retains its
+enlargement icon and remains the primary verb.
 Expand relocates the existing chart content into a large Goshtoso Modal and
-restores it on close; it never clones or rerenders chart DOM. Collapse uses the
-native `hidden` state without replacing chart nodes. Fullscreen uses the browser
-Fullscreen API and falls back to a fixed overlay where needed. Settled layout
-resizes preserve live renderer identity across every transition.
+restores it on close; it never clones or rerenders chart DOM. Fullscreen uses
+the browser Fullscreen API and falls back to a fixed overlay where needed.
+Settled layout resizes preserve live renderer identity across every transition.
 
 Export presentation follows capability count: zero formats render no control,
 one format renders one direct accessible Export button, and multiple formats
@@ -19,23 +19,17 @@ therefore show SVG and PNG in a dropdown; current interactive charts show one
 direct PNG button. `ExportOptions` retains filename, background, and pixel-ratio
 customization; `Disabled` is the explicit opt-out.
 
-Secondary actions stay visible beside Expand while the local wrapper is wider
-than 32rem. At constrained widths they flatten into one icon-only, end-aligned
-Goshtoso Dropdown: Collapse remains one menu action and each proven export
-format becomes one action. This avoids nesting the multi-format Export Dropdown
-inside another menu. The same zero/one/many export policy remains intact at the
-wide presentation boundary. Collapse is hidden in modal, native-fullscreen, and
-fallback-fullscreen states.
+Goshtoso `ActionGroup` measures the local container. It keeps the primary
+Expand action available, moves lower-priority actions into one icon-only,
+end-aligned overflow Dropdown, and flattens stacked Expand/Fullscreen and
+multi-format Export children into labeled sections. The same zero/one/many
+export policy remains intact at the wide boundary, without nested menus.
 
-Goshtoso v0.0.13 source and published docs were checked before implementation.
-`components/toolbar` wraps responsive regions but does not measure or prioritize
-actions and has no overflow menu. `components/dropdown` supplies the required
-icon-only trigger, action items, icons, end alignment, keyboard navigation,
-focus trap, outside-click, and Escape behavior. Generic priority-aware action
-overflow belongs in base Goshtoso; chart action priority and capability-derived
-export flattening remain chart-specific here. No cross-repository change was
-made. Controls runtime v3 owns this composition; immutable v1 and v2 paths stay
-served for compatibility.
+Goshtoso `v0.0.14-0.20260729011747-809b903c1296` provides the public
+`components/actiongroup` API and `/assets/js/action-group.js` dependency used
+here. Chart controls no longer measure width or own responsive overflow.
+Controls runtime v3 owns chart-specific modal, fullscreen, resize, and export
+behavior only; immutable v1 and v2 paths stay served for compatibility.
 
 ## Verified export matrix
 
@@ -51,11 +45,12 @@ surface; temporarily mutating that live option would risk visible state.
 
 Primary source checks:
 
-- [Goshtoso Toolbar](https://goshtoso.araihu.com/components/toolbar) documents
-  responsive wrapping only; it exposes no priority or overflow contract.
+- [Goshtoso ActionGroup](https://goshtoso.araihu.com/components/action-group)
+  provides primary/secondary priority, container measurement, stacked actions,
+  and flat responsive overflow.
 - [Goshtoso Dropdown](https://goshtoso.araihu.com/components/dropdown) documents
   icon-only triggers, item icons, action handlers, end alignment, and keyboard
-  behavior used by both Expand and secondary overflow menus.
+  behavior used by stacked and overflow actions.
 - [Goshtoso component model](https://goshtoso.araihu.com/docs/component-model)
   keeps component-specific config types and concrete renderable primitives;
   the chart wrapper adds no generic library API.
@@ -98,8 +93,8 @@ Map owns named region values; Geo owns longitude/latitude coordinate series.
 ## Pair-integration coverage
 
 Static Scatter and Radar use `ExportCapabilityStaticSVG`, expose SVG and PNG,
-and run through the same artifact, theme, responsive-layout, collapse,
-fullscreen, and modal checks as other static components. Interactive Tree and
+and run through the same artifact, theme, responsive-layout, fullscreen, and
+modal checks as other static components. Interactive Tree and
 Sunburst carry `ChartOptions` into the shared wrapper and expose PNG only. Tree
 disclosure and Sunburst drill-down/back state remain on the same browser chart
 instance across theme, resize, modal, and fullscreen transitions. All routes

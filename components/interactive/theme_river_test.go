@@ -30,7 +30,7 @@ func TestThemeRiverRendersTypedAlignedStreamsAndExactValues(t *testing.T) {
 		Legend:    &LegendOptions{Show: Bool(true), Top: "top"},
 		Tooltip:   &TooltipOptions{Show: Bool(true), Trigger: "axis"},
 		Animation: Bool(false),
-		Controls:  chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls:  chartcontrol.Options{Fullscreen: true},
 		Export:    &chartcontrol.ExportOptions{Filename: "theme-river"},
 	}
 
@@ -52,8 +52,8 @@ func TestThemeRiverRendersTypedAlignedStreamsAndExactValues(t *testing.T) {
 		`Six aligned temporal streams.`, `>Exact stream values</summary>`,
 		`scope="col">Date</th>`, `scope="col">Stream</th>`, `scope="col">Value</th>`, `scope="col">Class</th>`,
 		`>2015/11/08</th>`, `>DQ</td>`, `>10</td>`, `>stream-dq</td>`,
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-control="collapse"`,
-		`-fullscreen-action`, `data-goshtoso-chart-export="png"`,
+		`data-goshtoso-chart-expand`,
+		`-fullscreen-action`, `exportFromMenu($el, &#34;png&#34;)`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
@@ -65,14 +65,14 @@ func TestThemeRiverDefaultsToSharedExpandAndDirectPNG(t *testing.T) {
 	t.Parallel()
 	markup := renderThemeRiver(t, ThemeRiver(validThemeRiverConfig()))
 	for _, want := range []string{
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`,
+		`data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`,
 		`goshtoso-charts-theme-river`, `aspect-ratio: 9 / 5`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("default markup missing %q", want)
 		}
 	}
-	for _, unwanted := range []string{`data-goshtoso-chart-control="collapse"`, `data-goshtoso-chart-control="fullscreen"`, `__goshtosoChartsThemeRiverRuntime`, `echarts.dispose`} {
+	for _, unwanted := range []string{`-fullscreen-action"`, `__goshtosoChartsThemeRiverRuntime`, `echarts.dispose`} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("default markup contains %q", unwanted)
 		}

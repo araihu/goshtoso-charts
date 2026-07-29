@@ -89,9 +89,14 @@ async function linePage(viewport = { width: 1440, height: 900 }) {
 }
 
 async function openExpand(wrapper) {
-  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
+  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  await trigger.click();
   const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (await action.count()) await action.click();
+  if (stacked) {
+    await action.waitFor({ state: "visible" });
+    await action.click();
+  }
 }
 
 function rgb(value) {
@@ -250,7 +255,7 @@ for (const width of [390, 1440]) {
             document.documentElement.dataset.theme = selected;
             document.documentElement.classList.toggle("dark", dark);
           }, { selected: theme, dark: mode === "dark" });
-          assert.equal(await wrapper.getByRole("button").count(), width === 390 ? 2 : 3);
+          assert.equal(await wrapper.getByRole("button").count(), 2);
           const state = await figure.evaluate((root) => {
             const svg = root.querySelector("svg");
             const viewport = root.querySelector(".goshtoso-charts-line__viewport");

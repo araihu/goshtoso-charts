@@ -9,13 +9,12 @@ import (
 	"strings"
 
 	"github.com/a-h/templ"
-	"github.com/araihu/goshtoso/components/dropdown"
+	"github.com/araihu/goshtoso/components/actiongroup"
 )
 
-// Options configures chart controls. Expand defaults on; fullscreen and collapse default off.
+// Options configures chart controls. Expand defaults on; fullscreen defaults off.
 type Options struct {
-	Fullscreen  bool
-	Collapsible bool
+	Fullscreen bool
 	// Expand opens the same chart instance in a large Goshtoso modal. Nil enables it.
 	Expand *bool
 }
@@ -185,7 +184,7 @@ func exportPixelRatio(cfg WrapperConfig) string {
 }
 
 func hasRuntime(cfg WrapperConfig, formats []ExportFormat) bool {
-	return cfg.Controls.Fullscreen || cfg.Controls.Collapsible || expandEnabled(cfg.Controls) || len(formats) > 0
+	return cfg.Controls.Fullscreen || expandEnabled(cfg.Controls) || len(formats) > 0
 }
 
 // Bool returns a pointer for explicit opt-out settings whose zero value is enabled.
@@ -203,73 +202,119 @@ func exportFormatLabel(format ExportFormat) string {
 	return strings.ToUpper(string(format))
 }
 
-func exportItems(formats []ExportFormat) []dropdown.Item {
-	items := make([]dropdown.Item, len(formats))
-	for index, format := range formats {
-		items[index] = dropdown.Item{
-			Label: exportFormatLabel(format),
-			OnClick: fmt.Sprintf(
-				`window.__goshtosoChartsControls.exportFromMenu($el, %q); isOpen = false; openedWithKeyboard = false`,
-				format,
-			),
+func chartActions(cfg WrapperConfig, formats []ExportFormat) actiongroup.Config {
+	primary, stacked := primaryAction(cfg, formats)
+	secondary := make([]actiongroup.Action, 0, 2)
+	if stacked != nil {
+		secondary = append(secondary, *stacked)
+	}
+	if expandEnabled(cfg.Controls) || cfg.Controls.Fullscreen {
+		if action, ok := exportAction(cfg, formats); ok {
+			secondary = append(secondary, action)
 		}
 	}
-	return items
-}
 
-func expandItems(cfg WrapperConfig) []dropdown.Item {
-	return []dropdown.Item{
-		{
-			ID:    expandID(cfg) + "-action",
-			Label: "Expand",
-			Icon:  expandIcon(),
-			OnClick: `window.__goshtosoChartsControls.expandFromMenu($el); ` +
-				`isOpen = false; openedWithKeyboard = false`,
-		},
-		{
-			ID:    expandID(cfg) + "-fullscreen-action",
-			Label: "Fullscreen",
-			Icon:  fullscreenIcon(),
-			OnClick: `window.__goshtosoChartsControls.toggleFullscreen($el); ` +
-				`isOpen = false; openedWithKeyboard = false`,
+	rootClass := "goshtoso-charts-controls mb-2"
+	if stacked != nil {
+		rootClass += " goshtoso-charts-stacked-primary"
+	}
+	return actiongroup.Config{
+		Label:         cfg.Label + " chart controls",
+		Primary:       primary,
+		Secondary:     secondary,
+		OverflowLabel: "More " + cfg.Label + " chart actions",
+		RootClass:     rootClass,
+		RootAttrs: templ.Attributes{
+			"data-goshtoso-chart-actions": true,
 		},
 	}
 }
 
-func secondaryActionsEnabled(cfg WrapperConfig, formats []ExportFormat) bool {
-	return cfg.Controls.Collapsible || (!expandEnabled(cfg.Controls) && cfg.Controls.Fullscreen) || len(formats) > 0
+func primaryAction(cfg WrapperConfig, formats []ExportFormat) (actiongroup.Action, *actiongroup.Action) {
+	if expandEnabled(cfg.Controls) {
+		primary := expandAction(expandID(cfg) + "-primary-action")
+		if cfg.Controls.Fullscreen {
+			stacked := actiongroup.Action{
+				ID:    expandID(cfg) + "-stacked",
+				Label: "Expand",
+				Items: []actiongroup.Action{
+					expandAction(expandID(cfg) + "-action"),
+					fullscreenAction(cfg),
+				},
+			}
+			return primary, &stacked
+		}
+		return primary, nil
+	}
+	if cfg.Controls.Fullscreen {
+		return fullscreenAction(cfg), nil
+	}
+	if len(formats) == 1 {
+		return directExportAction(cfg, formats[0]), nil
+	}
+	stacked, _ := exportAction(cfg, formats)
+	primary := directExportAction(cfg, formats[0])
+	return primary, &stacked
 }
 
-func overflowItems(cfg WrapperConfig, formats []ExportFormat) []dropdown.Item {
-	items := make([]dropdown.Item, 0, 2+len(formats))
-	if cfg.Controls.Collapsible {
-		items = append(items, dropdown.Item{
-			ID:    expandID(cfg) + "-collapse-action",
-			Label: "Collapse",
-			Icon:  collapseIcon(),
-			OnClick: `window.__goshtosoChartsControls.toggleCollapse($el); ` +
-				`isOpen = false; openedWithKeyboard = false`,
-		})
+func expandAction(id string) actiongroup.Action {
+	return actiongroup.Action{
+		ID:      id,
+		Label:   "Expand",
+		Icon:    expandIcon(),
+		OnClick: `window.__goshtosoChartsControls.expandFromMenu($el)`,
 	}
-	if !expandEnabled(cfg.Controls) && cfg.Controls.Fullscreen {
-		items = append(items, dropdown.Item{
-			ID:    expandID(cfg) + "-fullscreen-action",
-			Label: "Fullscreen",
-			Icon:  fullscreenIcon(),
-			OnClick: `window.__goshtosoChartsControls.toggleFullscreen($el); ` +
-				`isOpen = false; openedWithKeyboard = false`,
-		})
+}
+
+func fullscreenAction(cfg WrapperConfig) actiongroup.Action {
+	return actiongroup.Action{
+		ID:      expandID(cfg) + "-fullscreen-action",
+		Label:   "Fullscreen",
+		Icon:    fullscreenIcon(),
+		OnClick: `window.__goshtosoChartsControls.toggleFullscreen($el)`,
 	}
-	for _, format := range formats {
-		items = append(items, dropdown.Item{
+}
+
+func exportAction(cfg WrapperConfig, formats []ExportFormat) (actiongroup.Action, bool) {
+	switch len(formats) {
+	case 0:
+		return actiongroup.Action{}, false
+	case 1:
+		return directExportAction(cfg, formats[0]), true
+	default:
+		return actiongroup.Action{
+			ID:    expandID(cfg) + "-export",
+			Label: "Export",
+			Items: exportItems(cfg, formats),
+		}, true
+	}
+}
+
+func directExportAction(cfg WrapperConfig, format ExportFormat) actiongroup.Action {
+	return actiongroup.Action{
+		ID:      expandID(cfg) + "-export-" + string(format) + "-action",
+		Label:   "Export",
+		Icon:    downloadIcon(),
+		Tooltip: "Download " + cfg.Label + " as " + exportFormatLabel(format),
+		OnClick: fmt.Sprintf(
+			`window.__goshtosoChartsControls.exportFromMenu($el, %q)`,
+			format,
+		),
+	}
+}
+
+func exportItems(cfg WrapperConfig, formats []ExportFormat) []actiongroup.Action {
+	items := make([]actiongroup.Action, len(formats))
+	for index, format := range formats {
+		items[index] = actiongroup.Action{
 			ID:    expandID(cfg) + "-export-" + string(format) + "-action",
-			Label: "Export " + exportFormatLabel(format),
+			Label: exportFormatLabel(format),
 			Icon:  downloadIcon(),
 			OnClick: fmt.Sprintf(
 				`window.__goshtosoChartsControls.exportFromMenu($el, %q); isOpen = false; openedWithKeyboard = false`,
 				format,
 			),
-		})
+		}
 	}
 	return items
 }

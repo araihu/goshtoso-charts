@@ -64,7 +64,7 @@ func sampleInteractiveLine3D(label, filename string, autoRotate bool) interactiv
 		},
 		Options: interactive.ChartOptions{
 			Title:    &interactive.TitleOptions{Text: label},
-			Controls: chartcontrol.Options{Collapsible: true},
+			Controls: chartcontrol.Options{},
 			Export:   &chartcontrol.ExportOptions{Filename: filename},
 		},
 	})

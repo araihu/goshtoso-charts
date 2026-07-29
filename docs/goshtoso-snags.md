@@ -1,5 +1,19 @@
 # Goshtoso integration snags
 
+## 2026-07-29: ActionGroup primary does not render stacked items
+
+Goshtoso `v0.0.14-0.20260729011747-809b903c1296` removes the chart-owned
+responsive toolbar: ActionGroup now measures the local container, renders small
+buttons, and flattens grouped children into one overflow Dropdown. Its
+`Action.Items` contract is rendered only for secondary actions, however; a
+grouped primary is rendered as a plain button.
+
+The chart consumer keeps a direct primary Expand action for constrained widths
+and an equivalent first-priority stacked Expand/Fullscreen secondary action for
+wide widths. Consumer CSS swaps their presentation when ActionGroup moves that
+stacked action into overflow. Goshtoso remains unchanged. Collapse was removed
+from the chart public API and runtime rather than carried into the new group.
+
 ## 2026-07-28: responsive action overflow is not a generic primitive
 
 Goshtoso v0.0.13 `Toolbar` wraps search, filter, and action regions but exposes

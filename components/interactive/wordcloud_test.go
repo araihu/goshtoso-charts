@@ -35,7 +35,7 @@ func TestWordCloudRendersTypedWordsOptionsAndExactValues(t *testing.T) {
 	cfg.Options = ChartOptions{
 		Title:     &TitleOptions{Text: "basic WordCloud example"},
 		Tooltip:   &TooltipOptions{Show: Bool(true), Trigger: "item"},
-		Animation: Bool(false), Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Animation: Bool(false), Controls: chartcontrol.Options{Fullscreen: true},
 		Export: &chartcontrol.ExportOptions{Filename: "word-cloud"},
 	}
 
@@ -56,8 +56,8 @@ func TestWordCloudRendersTypedWordsOptionsAndExactValues(t *testing.T) {
 		`data-goshtoso-charts-theme-runtime`, `series.type === "wordCloud"`,
 		`Twenty weighted search terms.`, `>Exact word values</summary>`, `scope="col">Word</th>`,
 		`scope="col">Value</th>`, `scope="col">Class</th>`, `>Sam S Club</th>`, `>10000</td>`, `>retail-anchor</td>`,
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-control="collapse"`,
-		`-fullscreen-action`, `data-goshtoso-chart-export="png"`,
+		`data-goshtoso-chart-expand`,
+		`-fullscreen-action`, `exportFromMenu($el, &#34;png&#34;)`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
@@ -74,14 +74,14 @@ func TestWordCloudDefaultsToSharedExpandDirectPNGAndOneRuntime(t *testing.T) {
 	t.Parallel()
 	markup := renderWordCloud(t, WordCloud(validWordCloudConfig()))
 	for _, want := range []string{
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`,
+		`data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`,
 		`goshtoso-charts-word-cloud`, `aspect-ratio: 9 / 5`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("default markup missing %q", want)
 		}
 	}
-	for _, unwanted := range []string{`data-goshtoso-chart-control="collapse"`, `data-goshtoso-chart-control="fullscreen"`, `__goshtosoChartsWordCloudRuntime`, `echarts.dispose`, `Math.random`} {
+	for _, unwanted := range []string{`-fullscreen-action"`, `__goshtosoChartsWordCloudRuntime`, `echarts.dispose`, `Math.random`} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("default markup contains %q", unwanted)
 		}

@@ -77,6 +77,17 @@ function wrapperFor(page, variant = "base") {
   return page.locator(`[data-surface3d-variant="${variant}"] [data-goshtoso-chart-wrapper]`).first();
 }
 
+async function openExpand(wrapper) {
+  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
+  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  await trigger.click();
+  if (stacked) {
+    const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+    await action.waitFor({ state: "visible" });
+    await action.click();
+  }
+}
+
 async function measure(wrapper) {
   return wrapper.evaluate(async (element) => {
     const host = element.querySelector("[_echarts_instance_]");
@@ -246,7 +257,7 @@ test("large centered modal preserves instance and opaque direct PNG", async () =
       const instance = window.echarts.getInstanceByDom(host);
       return host.clientWidth === initialWidth && instance.getWidth() === host.clientWidth;
     }, initial.hostWidth);
-    await wrapper.locator("[data-goshtoso-chart-expand] > div > button").click();
+    await openExpand(wrapper);
     const dialog = wrapper.getByRole("dialog", { name: "basic surface3D example" });
     await dialog.waitFor({ state: "visible" });
     await page.waitForFunction((initialWidth) => {

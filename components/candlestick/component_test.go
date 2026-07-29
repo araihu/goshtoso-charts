@@ -83,7 +83,7 @@ func TestCandlestickRendersAccessibleSSRAndExactValues(t *testing.T) {
 		`id="stock-price"`, `data-chart-purpose="ohlc"`, "<svg", "Candlestick Chart", "Stock Price", "Day", "Price",
 		"Seven daily OHLC observations.", "Exact OHLC values", "Increase means close", "Day 4", "Decrease", "115", "120", "104", "108",
 		"var(--color-chart-increasing)", "var(--color-chart-decreasing)", "min-width: 37.5rem",
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`,
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`,
 		`>SVG</button>`, `>PNG</button>`,
 	} {
 		if !strings.Contains(markup, want) {

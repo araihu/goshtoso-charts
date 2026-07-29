@@ -36,7 +36,7 @@ func TestHeatMapRendersUpstreamGeometryAccessibleDataAndWrapper(t *testing.T) {
 	cfg.Caption = "Values across the X and Y categories."
 	cfg.Style = charttheme.Style{Palette: charttheme.PaletteAraiHu, Class: "mx-auto"}
 	cfg.RootAttrs = templ.Attributes{"id": "basic-heat-map", "data-purpose": "comparison"}
-	cfg.Controls = chartcontrol.Options{Fullscreen: true, Collapsible: true}
+	cfg.Controls = chartcontrol.Options{Fullscreen: true}
 	cfg.Export = &chartcontrol.ExportOptions{Filename: "basic-heat-map"}
 
 	instance := HeatMap(cfg)
@@ -52,8 +52,8 @@ func TestHeatMapRendersUpstreamGeometryAccessibleDataAndWrapper(t *testing.T) {
 		"var(--color-chart-surface)", "var(--color-chart-text)", "var(--font-paragraph), sans-serif",
 		"goshtoso-charts-heatmap__viewport", "min-width: 36rem", "goshtoso-charts-palette-araihu mx-auto",
 		"goshtoso-charts-expanded .goshtoso-charts-heatmap__viewport", "aspect-ratio: 3 / 2",
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`, `>SVG</button>`, `>PNG</button>`,
-		`data-goshtoso-chart-control="collapse"`, `-fullscreen-action`,
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`, `>SVG</button>`, `>PNG</button>`,
+		`-fullscreen-action`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

@@ -36,7 +36,7 @@ func TestBar3DRendersCategoricalSourceSemantics(t *testing.T) {
 		`"color":["#313695","#4575b4","#74add1","#abd9e9","#e0f3f8","#fee090","#fdae61","#f46d43","#d73027","#a50026"]`,
 		`"grid3D":{"boxWidth":200,"boxDepth":80}`, `{"value":[0,0,5]}`, `{"value":[1,0,1]}`,
 		`data-goshtoso-charts-bar3d-cold-to-warm="true"`, `Exact 3D bar values`, `2 cells across 1 series.`,
-		`>12a</th>`, `>Saturday</td>`, `data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`,
+		`>12a</th>`, `>Saturday</td>`, `data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`,
 		`var resizeObserver = window.ResizeObserver ? new ResizeObserver`, `series.type === "bar3D"`,
 	} {
 		if !strings.Contains(markup, want) {

@@ -81,19 +81,14 @@ function wrapperFor(page, variant = "circle") {
 }
 
 async function openExpand(wrapper) {
-  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
+  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  await trigger.click();
   const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (await action.count()) await action.click();
-}
-
-async function toggleCollapse(wrapper) {
-  const direct = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
-  if (await direct.isVisible()) {
-    await direct.click();
-    return;
+  if (stacked) {
+    await action.waitFor({ state: "visible" });
+    await action.click();
   }
-  await wrapper.getByRole("button", { name: /More .* chart actions/ }).click();
-  await wrapper.locator('[id$="-collapse-action"]').first().click();
 }
 
 async function clickPNG(wrapper, label) {
@@ -189,12 +184,6 @@ test("flex-parent and modal size changes reuse one observed host and chart insta
     assert.deepEqual(modal, { centered: true, large: true, contained: true });
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden" });
-
-    await toggleCollapse(wrapper);
-    await toggleCollapse(wrapper);
-    await page.waitForTimeout(350);
-    state = await measure(wrapper);
-    assert.equal(state.sameInstance, true);
 
     const pending = page.waitForEvent("download");
     await clickPNG(wrapper, "basic WordCloud example");

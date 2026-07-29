@@ -76,6 +76,17 @@ function wrapperFor(page, variant) {
   return page.locator(`[data-geo-variant="${variant}"] [data-goshtoso-chart-wrapper]`).first();
 }
 
+async function openExpand(wrapper) {
+  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
+  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  await trigger.click();
+  if (stacked) {
+    const action = wrapper.locator('[id$="-chart-expand-action"]').first();
+    await action.waitFor({ state: "visible" });
+    await action.click();
+  }
+}
+
 async function measure(wrapper) {
   return wrapper.evaluate((element) => {
     const host = element.querySelector("[_echarts_instance_]");
@@ -219,7 +230,7 @@ test("320, 390, 768, and 1440 modals keep the same geo instance centered and con
         const host = element.querySelector("[_echarts_instance_]");
         element.__geoInstance = window.echarts.getInstanceByDom(host);
       });
-      await wrapper.locator("[data-goshtoso-chart-expand] > div > button").click();
+      await openExpand(wrapper);
       const dialog = wrapper.getByRole("dialog", { name: "Brazil capitals" });
       await dialog.waitFor({ state: "visible" });
       await page.waitForTimeout(450);
@@ -252,7 +263,7 @@ test("Goshtoso modal resizes same observed instance and direct PNG is fully opaq
       element.__geoInstance = window.echarts.getInstanceByDom(host);
     });
     const initial = await measure(wrapper);
-    await wrapper.locator("[data-goshtoso-chart-expand] > div > button").click();
+    await openExpand(wrapper);
 	    const dialog = wrapper.getByRole("dialog", { name: "Brazil capitals" });
     await dialog.waitFor({ state: "visible" });
     await page.waitForFunction((initialWidth) => {

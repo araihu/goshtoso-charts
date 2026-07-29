@@ -45,7 +45,7 @@ func TestRenderIsDeterministicAccessibleAndThemeAware(t *testing.T) {
 		"25% = 45.00", "75% = 54.00", "distribution-normal", "#365314",
 		`preserveAspectRatio="xMidYMid meet"`,
 		"var(--color-chart-surface)", "var(--color-chart-text)", "var(--font-paragraph)",
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`, ">SVG</button>", ">PNG</button>",
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`, ">SVG</button>", ">PNG</button>",
 	} {
 		if !strings.Contains(first, want) {
 			t.Errorf("rendered markup missing %q", want)
@@ -109,15 +109,15 @@ func TestValidationRejectsInvalidContracts(t *testing.T) {
 func TestControlsRemainExplicitOptIns(t *testing.T) {
 	t.Parallel()
 	cfg := validConfig()
-	cfg.Controls = chartcontrol.Options{Fullscreen: true, Collapsible: true, Expand: chartcontrol.Bool(false)}
+	cfg.Controls = chartcontrol.Options{Fullscreen: true, Expand: chartcontrol.Bool(false)}
 	cfg.Export = &chartcontrol.ExportOptions{Disabled: true}
 	markup := render(t, cfg)
-	for _, want := range []string{`data-goshtoso-chart-control="fullscreen"`, `data-goshtoso-chart-control="collapse"`} {
+	for _, want := range []string{`-fullscreen-action"`} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("opt-in markup missing %q", want)
 		}
 	}
-	for _, unwanted := range []string{"data-goshtoso-chart-expand", "data-goshtoso-chart-export-menu"} {
+	for _, unwanted := range []string{"data-goshtoso-chart-expand", "-chart-expand-export"} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("opted-out markup contains %q", unwanted)
 		}

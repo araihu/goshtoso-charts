@@ -1,8 +1,7 @@
 package chartcontrol
 
 import (
-	"github.com/araihu/goshtoso/components/button"
-	"github.com/araihu/goshtoso/components/dropdown"
+	"github.com/araihu/goshtoso/components/actiongroup"
 	"github.com/araihu/goshtoso/components/modal"
 	"github.com/araihu/goshtoso-charts/assets"
 )
@@ -17,108 +16,18 @@ templ wrapperTemplate(cfg WrapperConfig, formats []ExportFormat, chart templ.Com
 		data-goshtoso-chart-export-background={ exportBackground(cfg) }
 		data-goshtoso-chart-export-pixel-ratio={ exportPixelRatio(cfg) }
 	>
-		if cfg.Controls.Fullscreen || cfg.Controls.Collapsible || expandEnabled(cfg.Controls) || len(formats) > 0 {
-			<div class="goshtoso-charts-controls mb-2 flex items-center justify-end gap-2" role="group" aria-label={ cfg.Label + " chart controls" }>
-				if expandEnabled(cfg.Controls) && cfg.Controls.Fullscreen {
-					<div class="goshtoso-charts-primary-expand" data-goshtoso-chart-primary>
-						@dropdown.Dropdown(dropdown.Config{
-							ID: expandID(cfg) + "-menu",
-							Label: "Expand",
-							TriggerMode: dropdown.TriggerClick,
-							MenuAlign: dropdown.AlignEnd,
-							Sections: []dropdown.Section{{Items: expandItems(cfg)}},
-						})
-					</div>
-					<div class="goshtoso-charts-expand-control goshtoso-charts-combined-expand-modal" data-goshtoso-chart-expand>
-						@modal.Modal(modal.Config{
-							ID: expandID(cfg),
-							Title: cfg.Label,
-							TriggerLabel: "Expand",
-							PrimaryLabel: "Close",
-							PanelClass: "goshtoso-charts-expand-panel relative z-[2147483001]",
-						})
-					</div>
-				} else if expandEnabled(cfg.Controls) {
-					<div class="goshtoso-charts-expand-control" data-goshtoso-chart-expand data-goshtoso-chart-primary>
-						@modal.Modal(modal.Config{
-							ID: expandID(cfg),
-							Title: cfg.Label,
-							TriggerLabel: "Expand",
-							PrimaryLabel: "Close",
-							PanelClass: "goshtoso-charts-expand-panel relative z-[2147483001]",
-						})
-					</div>
-				}
-				if secondaryActionsEnabled(cfg, formats) {
-					<div class="goshtoso-charts-secondary-actions" data-goshtoso-chart-secondary-actions>
-						if cfg.Controls.Collapsible {
-							@button.Button(
-								button.WithTone(button.ToneAlternate),
-								button.WithSize(button.SizeSmall),
-								button.WithRootClass("goshtoso-charts-control"),
-								button.WithAttrs(templ.Attributes{
-									"aria-expanded": "true",
-									"aria-label": "Collapse " + cfg.Label,
-									"data-goshtoso-chart-control": "collapse",
-								}),
-							) {
-								@collapseIcon()
-								<span data-goshtoso-chart-control-label>Collapse</span>
-							}
-						}
-						if !expandEnabled(cfg.Controls) && cfg.Controls.Fullscreen {
-							@button.Button(
-								button.WithTone(button.ToneAlternate),
-								button.WithSize(button.SizeSmall),
-								button.WithRootClass("goshtoso-charts-control"),
-								button.WithAttrs(templ.Attributes{
-									"aria-pressed": "false",
-									"aria-label": "Enter fullscreen for " + cfg.Label,
-									"data-goshtoso-chart-control": "fullscreen",
-								}),
-							) {
-								@fullscreenIcon()
-								<span data-goshtoso-chart-control-label>Fullscreen</span>
-							}
-						}
-						if len(formats) == 1 {
-							@button.Button(
-								button.WithTone(button.ToneAlternate),
-								button.WithSize(button.SizeSmall),
-								button.WithRootClass("goshtoso-charts-control"),
-								button.WithAttrs(templ.Attributes{
-									"aria-label": "Download " + cfg.Label + " as " + exportFormatLabel(formats[0]),
-									"data-goshtoso-chart-export": string(formats[0]),
-								}),
-							) {
-								@downloadIcon()
-								<span>Export</span>
-							}
-						}
-						if len(formats) > 1 {
-							<div data-goshtoso-chart-export-menu>
-								@dropdown.Dropdown(dropdown.Config{
-									ID: expandID(cfg) + "-export",
-									Label: "Export",
-									TriggerMode: dropdown.TriggerClick,
-									MenuAlign: dropdown.AlignEnd,
-									Sections: []dropdown.Section{{Items: exportItems(formats)}},
-								})
-							</div>
-						}
-					</div>
-					<div class="goshtoso-charts-overflow-actions" data-goshtoso-chart-overflow>
-						@dropdown.Dropdown(dropdown.Config{
-							ID: expandID(cfg) + "-overflow",
-							Label: "More " + cfg.Label + " chart actions",
-							TriggerMode: dropdown.TriggerClick,
-							TriggerIcon: ellipsisIcon(),
-							TriggerIconOnly: true,
-							MenuAlign: dropdown.AlignEnd,
-							Sections: []dropdown.Section{{Items: overflowItems(cfg, formats)}},
-						})
-					</div>
-				}
+		if cfg.Controls.Fullscreen || expandEnabled(cfg.Controls) || len(formats) > 0 {
+			@actiongroup.ActionGroup(chartActions(cfg, formats))
+		}
+		if expandEnabled(cfg.Controls) {
+			<div class="goshtoso-charts-expand-control goshtoso-charts-hidden-expand-modal" data-goshtoso-chart-expand>
+				@modal.Modal(modal.Config{
+					ID: expandID(cfg),
+					Title: cfg.Label,
+					TriggerLabel: "Expand",
+					PrimaryLabel: "Close",
+					PanelClass: "goshtoso-charts-expand-panel relative z-[2147483001]",
+				})
 			</div>
 		}
 		<div class="goshtoso-charts-control-content" data-goshtoso-chart-content>
@@ -131,12 +40,6 @@ templ wrapperTemplate(cfg WrapperConfig, formats []ExportFormat, chart templ.Com
 			<script src={ templ.SafeURL(assets.ControlRuntimeURL) } defer></script>
 		}
 	</div>
-}
-
-templ collapseIcon() {
-	<svg class="size-4 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-		<path d="M5 10h10"></path>
-	</svg>
 }
 
 templ fullscreenIcon() {
@@ -155,13 +58,5 @@ templ expandIcon() {
 templ downloadIcon() {
 	<svg class="size-4 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
 		<path d="M10 3v9m0 0 3-3m-3 3L7 9M4 16h12"></path>
-	</svg>
-}
-
-templ ellipsisIcon() {
-	<svg class="size-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
-		<circle cx="4" cy="10" r="1.5"></circle>
-		<circle cx="10" cy="10" r="1.5"></circle>
-		<circle cx="16" cy="10" r="1.5"></circle>
 	</svg>
 }

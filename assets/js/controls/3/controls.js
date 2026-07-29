@@ -18,13 +18,15 @@
   function actionsFor(wrapper, action) {
     if (!wrapper) return [];
     return Array.from(wrapper.querySelectorAll(
-      '[data-goshtoso-chart-control="' + action + '"], [id$="-' + action + '-action"]'
+      '[data-goshtoso-chart-control="' + action + '"], [id*="-' + action + '-action"], ' +
+      '[id*="-' + action + '-primary-action"]'
     ));
   }
 
   function actionTrigger(action) {
-    var menu = action && action.closest('[id$="-menu"], [id$="-overflow"]');
-    return (menu && menu.querySelector(":scope > button")) || action;
+    var menu = action && action.closest('[role="menu"]');
+    var dropdown = menu && menu.parentElement;
+    return (dropdown && dropdown.querySelector(":scope > button")) || action;
   }
 
   function setActionLabel(action, text) {
@@ -38,6 +40,8 @@
       node.textContent = text;
       return true;
     });
+    var nested = action.querySelector("span > span:last-child");
+    if (nested) nested.textContent = text;
   }
 
   function chartInstance(wrapper) {
@@ -61,18 +65,6 @@
     wrapper.__goshtosoChartResizeTimer = setTimeout(function () { resizeOnce(wrapper); }, 250);
   }
 
-  function fullPageActive(wrapper) {
-    return document.fullscreenElement === wrapper || fallbackWrapper === wrapper ||
-      wrapper.classList.contains("goshtoso-charts-expanded");
-  }
-
-  function updateCollapseVisibility(wrapper) {
-    actionsFor(wrapper, "collapse").forEach(function (collapse) {
-      collapse.hidden = fullPageActive(wrapper);
-    });
-    updateOverflowVisibility(wrapper);
-  }
-
   function setFullscreenState(wrapper, active) {
     actionsFor(wrapper, "fullscreen").forEach(function (button) {
       button.setAttribute("aria-pressed", active ? "true" : "false");
@@ -80,7 +72,6 @@
         chartLabel(wrapper));
       setActionLabel(button, active ? "Exit fullscreen" : "Fullscreen");
     });
-    updateCollapseVisibility(wrapper);
   }
 
   function leaveFallback() {
@@ -122,20 +113,6 @@
     enterFallback(wrapper);
   }
 
-  function toggleCollapse(button) {
-    var wrapper = wrapperFor(button);
-    var content = wrapper && wrapper.querySelector("[data-goshtoso-chart-content]");
-    if (!content) return;
-    var expanded = button.getAttribute("aria-expanded") !== "false";
-    content.hidden = expanded;
-    actionsFor(wrapper, "collapse").forEach(function (action) {
-      action.setAttribute("aria-expanded", expanded ? "false" : "true");
-      action.setAttribute("aria-label", (expanded ? "Expand " : "Collapse ") + chartLabel(wrapper));
-      setActionLabel(action, expanded ? "Expand" : "Collapse");
-    });
-    if (!expanded) settledResize(wrapper);
-  }
-
   function expandParts(wrapper) {
     var expand = wrapper && wrapper.querySelector("[data-goshtoso-chart-expand]");
     var modalRoot = expand && expand.firstElementChild;
@@ -158,7 +135,6 @@
       delete content.__goshtosoChartOrigin;
     }
     wrapper.classList.remove("goshtoso-charts-expanded");
-    updateCollapseVisibility(wrapper);
     settledResize(wrapper);
     var returnFocus = wrapper.__goshtosoChartExpandReturnFocus;
     delete wrapper.__goshtosoChartExpandReturnFocus;
@@ -179,7 +155,6 @@
     content.hidden = false;
     parts.body.appendChild(content);
     wrapper.classList.add("goshtoso-charts-expanded");
-    updateCollapseVisibility(wrapper);
     settledResize(wrapper);
   }
 
@@ -201,51 +176,22 @@
     parts.trigger.click();
   }
 
-  function prepareExportLabel(wrapper) {
-    var menu = wrapper && wrapper.querySelector("[data-goshtoso-chart-export-menu]");
-    var trigger = menu && menu.querySelector(":scope > div > button");
-    var group = wrapper && wrapper.querySelector("[role=group]");
-    if (!trigger || !group) return;
-    var label = group.getAttribute("aria-label").replace(/ chart controls$/, "");
-    trigger.setAttribute("aria-label", "Export " + label);
-  }
-
-  function updateOverflowVisibility(wrapper) {
-    var overflow = wrapper && wrapper.querySelector("[data-goshtoso-chart-overflow]");
-    if (!overflow) return;
-    var items = Array.from(overflow.querySelectorAll('[role="menuitem"]'));
-    overflow.hidden = items.length > 0 && items.every(function (item) { return item.hidden; });
-  }
-
   function prepareActions(wrapper) {
-    var content = wrapper && wrapper.querySelector("[data-goshtoso-chart-content]");
-    actionsFor(wrapper, "collapse").forEach(function (action) {
-      action.setAttribute("aria-expanded", content && content.hidden ? "false" : "true");
-      action.setAttribute("aria-label", (content && content.hidden ? "Expand " : "Collapse ") + chartLabel(wrapper));
-    });
     setFullscreenState(wrapper, document.fullscreenElement === wrapper || fallbackWrapper === wrapper);
-    var combinedTrigger = wrapper && wrapper.querySelector(
-      "[data-goshtoso-chart-primary] > div > button"
-    );
-    if (combinedTrigger) combinedTrigger.setAttribute("aria-label", "Expand " + chartLabel(wrapper));
+    actionsFor(wrapper, "expand").forEach(function (action) {
+      action.setAttribute("aria-label", "Expand " + chartLabel(wrapper));
+    });
+    var stackedTrigger = wrapper && wrapper.querySelector('[id$="-stacked"] > button');
+    if (stackedTrigger) stackedTrigger.setAttribute("aria-label", "Expand " + chartLabel(wrapper));
+    var exportTrigger = wrapper && wrapper.querySelector('[id$="-export"] > button');
+    if (exportTrigger) exportTrigger.setAttribute("aria-label", "Export " + chartLabel(wrapper));
+    wrapper.querySelectorAll('[id*="-export-"][title]').forEach(function (action) {
+      action.setAttribute("aria-label", action.getAttribute("title"));
+    });
     var parts = expandParts(wrapper);
-    if (parts.trigger && parts.expand.classList.contains("goshtoso-charts-combined-expand-modal")) {
+    if (parts.trigger) {
       parts.trigger.setAttribute("aria-hidden", "true");
       parts.trigger.setAttribute("tabindex", "-1");
-    }
-    updateOverflowVisibility(wrapper);
-  }
-
-  function prepareResponsiveActions(wrapper) {
-    function update() {
-      wrapper.classList.toggle("goshtoso-charts-controls-constrained", wrapper.clientWidth <= 512);
-    }
-    update();
-    if (window.ResizeObserver) {
-      wrapper.__goshtosoChartControlsObserver = new ResizeObserver(update);
-      wrapper.__goshtosoChartControlsObserver.observe(wrapper);
-    } else {
-      window.addEventListener("resize", update);
     }
   }
 
@@ -405,7 +351,6 @@
   document.addEventListener("click", function (event) {
     var control = event.target.closest("[data-goshtoso-chart-control]");
     if (control) {
-      if (control.dataset.goshtosoChartControl === "collapse") toggleCollapse(control);
       if (control.dataset.goshtosoChartControl === "fullscreen") toggleFullscreen(control);
       return;
     }
@@ -439,8 +384,8 @@
 
   document.addEventListener("keydown", function (event) {
     if (event.key === "Escape") {
-      var menu = event.target.closest('[id$="-menu"], [id$="-overflow"], [id$="-export"]');
-      var trigger = menu && menu.querySelector(":scope > button");
+      var menu = event.target.closest('[role="menu"]');
+      var trigger = menu && menu.parentElement && menu.parentElement.querySelector(":scope > button");
       if (trigger) setTimeout(function () { trigger.focus(); }, 50);
     }
     if (event.key === "Escape" && fallbackWrapper) leaveFallback();
@@ -451,13 +396,10 @@
     dimensions: dimensions,
     exportFromMenu: function (element, format) { exportChart(element, format); },
     expandFromMenu: expandFromMenu,
-    toggleCollapse: toggleCollapse,
     toggleFullscreen: toggleFullscreen
   };
 
   document.querySelectorAll("[data-goshtoso-chart-wrapper]").forEach(function (wrapper) {
-    prepareExportLabel(wrapper);
     prepareActions(wrapper);
-    prepareResponsiveActions(wrapper);
   });
 }());

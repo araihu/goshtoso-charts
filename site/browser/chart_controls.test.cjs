@@ -101,10 +101,11 @@ async function download(page, label) {
 }
 
 async function openExpand(wrapper) {
-  const trigger = wrapper.locator("[data-goshtoso-chart-primary] > div > button").first();
+  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
+  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
   await trigger.click();
-  const menuItem = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (await menuItem.count()) {
+  if (stacked) {
+    const menuItem = wrapper.locator('[id$="-chart-expand-action"]').first();
     await menuItem.waitFor({ state: "visible" });
     await menuItem.click();
   }
@@ -112,7 +113,7 @@ async function openExpand(wrapper) {
 }
 
 async function enterFullscreen(wrapper) {
-  const trigger = wrapper.locator("[data-goshtoso-chart-primary] > div > button").first();
+  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
   await trigger.click();
   const action = wrapper.locator('[id$="-fullscreen-action"]').first();
   await action.click();
@@ -127,46 +128,55 @@ test("responsive controls keep one primary Expand and flatten overflow at 320, 3
       await page.setViewportSize({ width, height: 900 });
       await page.waitForTimeout(100);
       const state = await wrapper.evaluate((element) => {
-        const primary = element.querySelector("[data-goshtoso-chart-primary] > div > button");
-        const secondary = element.querySelector("[data-goshtoso-chart-secondary-actions]");
-        const overflow = element.querySelector("[data-goshtoso-chart-overflow]");
+        const root = element.querySelector("[data-goshtoso-action-group]");
+        const expand = Array.from(root.querySelectorAll('[id$="-stacked"] > button, [data-action-group-primary] button'))
+          .find((button) => button.getBoundingClientRect().width > 0 && getComputedStyle(button).visibility !== "hidden");
+        const secondaries = Array.from(root.querySelectorAll(":scope > [data-action-group-secondary]"));
+        const overflow = root.querySelector(":scope > [data-action-group-overflow]");
         return {
           wrapperWidth: element.clientWidth,
           pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-          primaryVisible: Boolean(primary && primary.getBoundingClientRect().width),
-          primaryText: primary && primary.textContent.trim(),
-          secondaryVisible: Boolean(secondary && secondary.getBoundingClientRect().width),
+          primaryVisible: Boolean(expand),
+          primaryText: expand && expand.textContent.trim(),
+          secondaryVisible: secondaries.filter((secondary) => secondary.getBoundingClientRect().width > 0).length,
           overflowVisible: Boolean(overflow && overflow.getBoundingClientRect().width),
-          adjacentFullscreen: element.querySelectorAll('[data-goshtoso-chart-control="fullscreen"]').length,
+          collapseCount: Array.from(element.querySelectorAll("button")).filter((button) => /collapse/i.test(button.textContent)).length,
         };
       });
       assert.equal(state.pageOverflow, 0, `${width}px page overflow`);
       assert.equal(state.primaryVisible, true, `${width}px primary Expand hidden`);
       assert.match(state.primaryText, /^Expand/);
-      assert.equal(state.adjacentFullscreen, 0);
-      assert.equal(state.secondaryVisible, state.wrapperWidth > 512, `${width}px secondary visibility at ${state.wrapperWidth}px wrapper`);
-      assert.equal(state.overflowVisible, state.wrapperWidth <= 512, `${width}px overflow visibility at ${state.wrapperWidth}px wrapper`);
+      assert.equal(state.collapseCount, 0);
+      const expectedSecondary = width === 320 ? 0 : width === 390 ? 1 : 2;
+      assert.equal(state.secondaryVisible, expectedSecondary, `${width}px secondary count at ${state.wrapperWidth}px wrapper`);
+      assert.equal(state.overflowVisible, width <= 390, `${width}px overflow visibility at ${state.wrapperWidth}px wrapper`);
 
-      const primary = wrapper.locator("[data-goshtoso-chart-primary] > div > button").first();
+      const primary = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
       await primary.focus();
-      await primary.press("Enter");
-      const primaryMenu = wrapper.locator("#https-monitor-latency-in-milliseconds-chart-expand-menu [role=menu]");
-      await primaryMenu.waitFor({ state: "visible" });
-      assert.deepEqual(
-        (await primaryMenu.getByRole("menuitem").allTextContents()).map((text) => text.trim()),
-        ["Expand", "Fullscreen"],
-      );
-      await page.keyboard.press("Escape");
-      await primaryMenu.waitFor({ state: "hidden" });
+      assert.equal(await primary.evaluate((button) => button === document.activeElement), true);
+      if (width > 320) {
+        await primary.press("Enter");
+        const primaryMenu = wrapper.locator('[id$="-stacked"] [role=menu]');
+        await primaryMenu.waitFor({ state: "visible" });
+        assert.deepEqual(
+          (await primaryMenu.getByRole("menuitem").allTextContents()).map((text) => text.trim()),
+          ["Expand", "Fullscreen"],
+        );
+        await page.keyboard.press("Escape");
+        await primaryMenu.waitFor({ state: "hidden" });
+      }
 
-      if (state.wrapperWidth <= 512) {
+      if (state.overflowVisible) {
         const overflow = wrapper.getByRole("button", { name: /More .* chart actions/ });
         await overflow.click();
-        const menu = wrapper.locator("[data-goshtoso-chart-overflow] [role=menu]");
+        const menu = wrapper.locator("[data-action-group-overflow] [role=menu]");
         await menu.waitFor({ state: "visible" });
+        const expected = width === 320
+          ? ["Expand", "Expand", "Fullscreen", "Export", "SVG", "PNG"]
+          : ["Export", "SVG", "PNG"];
         assert.deepEqual(
-          (await menu.getByRole("menuitem").allTextContents()).map((text) => text.trim()),
-          ["Collapse", "Export SVG", "Export PNG"],
+          (await menu.getByRole("menuitem").filter({ visible: true }).allTextContents()).map((text) => text.trim()),
+          expected,
         );
         await page.mouse.click(1, 1);
         await menu.waitFor({ state: "hidden" });
@@ -177,40 +187,69 @@ test("responsive controls keep one primary Expand and flatten overflow at 320, 3
   }
 });
 
-test("collapse preserves static DOM and interactive instance, then resizes on expand", async () => {
-  for (const route of ["/components/line", "/components/scatter", "/components/interactive/bar", "/components/interactive/tree"]) {
-    const page = await pageAt(route);
-    try {
-      const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
-      await wrapper.evaluate((element) => {
-        element.__contentIdentity = element.querySelector("[data-goshtoso-chart-content]").firstElementChild;
-        const host = element.querySelector("[_echarts_instance_]");
-        element.__instanceIdentity = host && window.echarts.getInstanceByDom(host);
-        element.__resizeEvents = 0;
-        element.addEventListener("goshtoso-charts:resize", () => { element.__resizeEvents += 1; });
-      });
-      const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
-      await collapse.press("Enter");
-      assert.equal(await collapse.getAttribute("aria-expanded"), "false");
-      assert.equal(await wrapper.locator("[data-goshtoso-chart-content]").getAttribute("hidden"), "");
-      await collapse.press(" ");
-      assert.equal(await collapse.getAttribute("aria-expanded"), "true");
-      await page.waitForTimeout(100);
-      const result = await wrapper.evaluate((element) => ({
-        sameContent: element.__contentIdentity === element.querySelector("[data-goshtoso-chart-content]").firstElementChild,
-        sameInstance: !element.__instanceIdentity || element.__instanceIdentity === window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]")),
-        resizeEvents: element.__resizeEvents,
-      }));
-      assert.equal(result.sameContent, true);
-      assert.equal(result.sameInstance, true);
-      assert.ok(result.resizeEvents >= 2, `resize events = ${result.resizeEvents}`);
-    } finally {
-      await page.close();
+test("Word Cloud, Line, Gauge, Pie, Map, and Tree controls stay usable across the full width and theme matrix", async () => {
+  const routes = [
+    ["/components/interactive/word-cloud", "word-cloud"],
+    ["/components/line", "line"],
+    ["/components/interactive/gauge", "gauge"],
+    ["/components/pie", "pie"],
+    ["/components/interactive/map", "map"],
+    ["/components/interactive/tree", "tree"],
+  ];
+  const page = await browser.newPage({ viewport: { width: 320, height: 900 } });
+  try {
+    for (const width of [320, 390, 768, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const theme of ["goshtoso", "araihu"]) {
+        for (const mode of ["light", "dark"]) {
+          for (const [route, slug] of routes) {
+            await page.goto(`${baseURL}${route}`);
+            const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+            await wrapper.waitFor();
+            await page.waitForFunction(() => Boolean(window.__goshtosoChartsControls));
+            await page.waitForFunction(() => document.querySelector('[data-goshtoso-action-group][data-action-group-initialized="true"]'));
+            await page.evaluate(({ selected, dark }) => {
+              document.documentElement.dataset.theme = selected;
+              document.documentElement.classList.toggle("dark", dark);
+            }, { selected: theme, dark: mode === "dark" });
+            await page.waitForTimeout(75);
+            const state = await wrapper.evaluate((element) => {
+              const group = element.querySelector("[data-goshtoso-action-group]");
+              const visibleExpand = Array.from(group.querySelectorAll("button")).filter((button) =>
+                button.textContent.trim() === "Expand" &&
+                button.getBoundingClientRect().width > 0 &&
+                getComputedStyle(button).visibility !== "hidden");
+              return {
+                initialized: group.dataset.actionGroupInitialized === "true",
+                aria: group.getAttribute("aria-label"),
+                collapse: Array.from(group.querySelectorAll("button")).filter((button) => /collapse/i.test(button.textContent)).length,
+                expandCount: visibleExpand.length,
+                small: getComputedStyle(visibleExpand[0]).fontSize === "12px",
+                pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+              };
+            });
+            assert.equal(state.initialized, true, `${width}px ${theme} ${mode} ${slug} ActionGroup not initialized`);
+            assert.match(state.aria, / chart controls$/, `${width}px ${theme} ${mode} ${slug} group label`);
+            assert.equal(state.collapse, 0, `${width}px ${theme} ${mode} ${slug} leaked Collapse`);
+            assert.equal(state.expandCount, 1, `${width}px ${theme} ${mode} ${slug} primary Expand count`);
+            assert.equal(state.small, true, `${width}px ${theme} ${mode} ${slug} Expand is not small`);
+            assert.equal(state.pageOverflow, 0, `${width}px ${theme} ${mode} ${slug} page overflow`);
+            if (screenshotDirectory && (width === 320 || width === 1440)) {
+              await page.screenshot({
+                path: path.join(screenshotDirectory, `${slug}-${width}-${theme}-${mode}.png`),
+                fullPage: true,
+              });
+            }
+          }
+        }
+      }
     }
+  } finally {
+    await page.close();
   }
 });
 
-test("tree expansion state and instance survive collapse and fullscreen", async () => {
+test("tree expansion state and instance survive fullscreen", async () => {
   const page = await pageAt("/components/interactive/tree");
   try {
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
@@ -231,11 +270,6 @@ test("tree expansion state and instance survive collapse and fullscreen", async 
       return { initiallyExpanded, expanded: node.isExpand };
     });
     assert.deepEqual(state, { initiallyExpanded: false, expanded: true });
-
-    const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
-    await collapse.click();
-    await collapse.click();
-    await page.waitForTimeout(100);
 
     await enterFullscreen(wrapper);
     await page.waitForFunction(() => Boolean(document.fullscreenElement));
@@ -365,8 +399,6 @@ test("Bar, Line, Pie, and Tree settle across narrow/dark and wide/light modal ge
         const dialog = wrapper.getByRole("dialog", { name: label });
         await dialog.waitFor({ state: "visible" });
         await page.waitForTimeout(350);
-        const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
-        if (await collapse.count()) assert.equal(await collapse.isHidden(), true);
         await dialog.locator(".goshtoso-charts-expand-panel").evaluate((panel) => {
           panel.style.width = "70vw";
           window.dispatchEvent(new Event("resize"));
@@ -406,12 +438,10 @@ test("Bar, Line, Pie, and Tree settle across narrow/dark and wide/light modal ge
           sameHost: element.__responsiveHost === element.querySelector("[_echarts_instance_]"),
           sameInstance: element.__responsiveInstance === window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]")),
           resizeOptions: element.__responsiveResizeOptions,
-          collapseVisible: !element.querySelector('[data-goshtoso-chart-control="collapse"]').hidden,
         }));
         assert.equal(restored.sameContent, true);
         assert.equal(restored.sameHost, true);
         assert.equal(restored.sameInstance, true);
-        assert.equal(restored.collapseVisible, true);
         assert.ok(restored.resizeOptions.length >= 2, `${route} observed ${restored.resizeOptions.length} resize calls`);
         for (const options of restored.resizeOptions) {
           assert.equal(options?.animation?.duration, 0, `${route} resize restarted animation`);
@@ -531,21 +561,17 @@ test("Tree node hit targets settle cleanly and plot bounds remain centered", asy
   }
 });
 
-test("Expand uses Goshtoso Modal, scales static Scatter, preserves collapse, and restores focus", async () => {
+test("Expand uses Goshtoso Modal, scales static Scatter, and restores focus", async () => {
   const page = await pageAt("/components/scatter");
   try {
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
-    const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
     await wrapper.evaluate((element) => {
       element.__expandedContent = element.querySelector("[data-goshtoso-chart-content]");
     });
-    await collapse.click();
-    assert.equal(await collapse.getAttribute("aria-expanded"), "false");
     const trigger = await openExpand(wrapper);
 		const dialog = wrapper.getByRole("dialog", { name: "Dense scatter data" });
     await dialog.waitFor({ state: "visible" });
     await page.waitForTimeout(350);
-    assert.equal(await collapse.isHidden(), true);
     assert.equal(await dialog.getAttribute("aria-modal"), "true");
     const geometry = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((panel) => {
       const body = panel.children[1];
@@ -575,10 +601,8 @@ test("Expand uses Goshtoso Modal, scales static Scatter, preserves collapse, and
     await page.waitForTimeout(350);
     assert.deepEqual(await wrapper.evaluate((element) => ({
       sameContent: element.__expandedContent === element.querySelector("[data-goshtoso-chart-content]"),
-      collapsed: element.querySelector("[data-goshtoso-chart-content]").hidden,
-      collapseVisible: !element.querySelector('[data-goshtoso-chart-control="collapse"]').hidden,
-      focusReturned: document.activeElement === element.querySelector("[data-goshtoso-chart-primary] > div > button"),
-    })), { sameContent: true, collapsed: true, collapseVisible: true, focusReturned: true });
+      focusReturned: document.activeElement === element.querySelector('[id$="-stacked"] > button'),
+    })), { sameContent: true, focusReturned: true });
   } finally {
     await page.close();
   }
@@ -603,7 +627,6 @@ test("Expand scales interactive Tree and preserves renderer, hierarchy state, an
     const dialog = wrapper.getByRole("dialog", { name: "Basic tree example" });
     await dialog.waitFor({ state: "visible" });
     await page.waitForTimeout(350);
-    assert.equal(await wrapper.locator('[data-goshtoso-chart-control="collapse"]').isHidden(), true);
     const expanded = await wrapper.evaluate((element) => {
       const host = element.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);
@@ -644,9 +667,8 @@ test("Expand scales interactive Tree and preserves renderer, hierarchy state, an
     await page.waitForTimeout(350);
     assert.deepEqual(await wrapper.evaluate((element) => ({
       sameInstance: window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]")) === element.__modalTreeInstance,
-      collapseVisible: !element.querySelector('[data-goshtoso-chart-control="collapse"]').hidden,
-      focusReturned: document.activeElement === element.querySelector("[data-goshtoso-chart-primary] > div > button"),
-    })), { sameInstance: true, collapseVisible: true, focusReturned: true });
+      focusReturned: document.activeElement === element.querySelector('[id$="-stacked"] > button'),
+    })), { sameInstance: true, focusReturned: true });
   } finally {
     await page.close();
   }
@@ -668,7 +690,6 @@ test("native fullscreen enters and exits, preserves instance, resizes, and retur
     await page.waitForFunction(() => Boolean(document.fullscreenElement));
     await page.waitForTimeout(350);
     assert.equal(await button.getAttribute("aria-pressed"), "true");
-    assert.equal(await wrapper.locator('[data-goshtoso-chart-control="collapse"]').isHidden(), true);
     const full = await wrapper.evaluate((element) => {
       const host = element.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);
@@ -692,12 +713,10 @@ test("native fullscreen enters and exits, preserves instance, resizes, and retur
     const restored = await wrapper.evaluate((element) => ({
       sameInstance: element.__instanceIdentity === window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]")),
       resizeEvents: element.__resizeEvents,
-      focusReturned: document.activeElement === element.querySelector("[data-goshtoso-chart-primary] > div > button"),
-      collapseVisible: !element.querySelector('[data-goshtoso-chart-control="collapse"]').hidden,
+      focusReturned: document.activeElement === element.querySelector('[id$="-stacked"] > button'),
     }));
     assert.equal(restored.sameInstance, true);
     assert.equal(restored.focusReturned, true);
-    assert.equal(restored.collapseVisible, true);
     assert.ok(restored.resizeEvents >= 4, `resize events = ${restored.resizeEvents}`);
   } finally {
     await page.close();
@@ -719,7 +738,6 @@ test("Escape exits the safe fullscreen fallback and returns focus", async () => 
     await page.waitForTimeout(350);
     assert.equal(await wrapper.evaluate((element) => element.classList.contains("goshtoso-charts-fullscreen-fallback")), true);
     assert.equal(await button.getAttribute("aria-pressed"), "true");
-    assert.equal(await wrapper.locator('[data-goshtoso-chart-control="collapse"]').isHidden(), true);
     const full = await wrapper.evaluate((element) => {
       const host = element.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);
@@ -732,10 +750,9 @@ test("Escape exits the safe fullscreen fallback and returns focus", async () => 
     await page.waitForTimeout(350);
     assert.deepEqual(await wrapper.evaluate((element) => ({
       active: element.classList.contains("goshtoso-charts-fullscreen-fallback"),
-      focusReturned: document.activeElement === element.querySelector("[data-goshtoso-chart-primary] > div > button"),
+      focusReturned: document.activeElement === element.querySelector('[id$="-stacked"] > button'),
       sameInstance: element.__fallbackInstance === window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]")),
-      collapseVisible: !element.querySelector('[data-goshtoso-chart-control="collapse"]').hidden,
-    })), { active: false, focusReturned: true, sameInstance: true, collapseVisible: true });
+    })), { active: false, focusReturned: true, sameInstance: true });
   } finally {
     await page.close();
   }
@@ -818,7 +835,6 @@ test("Sunburst drill-down and back survive modal, theme, resize, and fullscreen 
     assert.equal(state.sameInstance, true);
     assert.equal(state.viewRoot, initial.target);
     assert.equal(state.canvasWidth, state.hostWidth);
-    assert.equal(await wrapper.getByRole("button", { name: /^Collapse / }).isHidden(), true);
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden" });
 
@@ -829,7 +845,6 @@ test("Sunburst drill-down and back survive modal, theme, resize, and fullscreen 
     assert.equal(state.sameInstance, true);
     assert.equal(state.viewRoot, initial.target);
     assert.equal(state.canvasWidth, state.hostWidth);
-    assert.equal(await wrapper.getByRole("button", { name: /^Collapse / }).isHidden(), true);
     await page.evaluate(() => document.exitFullscreen());
     await page.waitForFunction(() => document.fullscreenElement === null);
     await page.waitForTimeout(350);
@@ -864,7 +879,7 @@ test("Sunburst drill-down and back survive modal, theme, resize, and fullscreen 
   }
 });
 
-test("Treemap focus and native breadcrumb back survive collapse, modal, theme, resize, and fullscreen on one instance", async () => {
+test("Treemap focus and native breadcrumb back survive modal, theme, resize, and fullscreen on one instance", async () => {
   const page = await pageAt("/components/interactive/treemap");
   try {
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
@@ -891,10 +906,6 @@ test("Treemap focus and native breadcrumb back survive collapse, modal, theme, r
       };
     });
 
-	const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
-	await collapse.click();
-	await collapse.click();
-	await page.waitForTimeout(350);
 	let state = await measure();
 	assert.equal(state.sameInstance, true);
 	assert.equal(state.viewRoot, "d1");
@@ -989,13 +1000,6 @@ test("Parallel coordinates preserve instance, data, theme lines, resize, control
     assert.deepEqual(state.seriesRows, [21, 21, 21]);
     assert.deepEqual(state.seriesNames, ["Beijing", "Guangzhou", "Shanghai"]);
     assert.equal(new Set(state.colors).size, 3);
-
-    const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
-    await collapse.click();
-    await collapse.click();
-    await page.waitForTimeout(350);
-    state = await measure();
-    assert.equal(state.sameInstance, true);
 
     await openExpand(wrapper);
     const dialog = wrapper.getByRole("dialog", { name: "Multi Series parallel coordinates" });
@@ -1421,10 +1425,6 @@ test("static Radar controls preserve DOM and export resolved 600x400 SVG and opa
   try {
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
     await wrapper.evaluate((element) => { element.__radarContent = element.querySelector("[data-goshtoso-chart-content]"); });
-    const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
-    await collapse.click();
-    assert.equal(await wrapper.locator("[data-goshtoso-chart-content]").getAttribute("hidden"), "");
-    await collapse.click();
     assert.equal(await wrapper.evaluate((element) => element.__radarContent === element.querySelector("[data-goshtoso-chart-content]")), true);
 
     await openExpand(wrapper);
@@ -1434,14 +1434,12 @@ test("static Radar controls preserve DOM and export resolved 600x400 SVG and opa
       (element) => element.classList.contains("goshtoso-charts-expanded"),
       await wrapper.elementHandle(),
     );
-    assert.equal(await collapse.isHidden(), true);
     assert.equal(await dialog.locator("[data-goshtoso-chart-content]").count(), 1);
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden" });
 
     await enterFullscreen(wrapper);
     await page.waitForFunction(() => document.fullscreenElement !== null);
-    assert.equal(await collapse.isHidden(), true);
     await page.evaluate(() => document.exitFullscreen());
     await page.waitForFunction(() => document.fullscreenElement === null);
 
@@ -1532,7 +1530,7 @@ test("Theme river stays responsive and theme-distinguishable across viewport and
   }
 });
 
-test("Theme river preserves one instance through host resize, collapse, modal, theme, and native fullscreen; PNG stays opaque", async () => {
+test("Theme river preserves one instance through host resize, modal, theme, and native fullscreen; PNG stays opaque", async () => {
   const page = await pageAt("/components/interactive/theme-river", { width: 1440, height: 900 });
   try {
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
@@ -1560,13 +1558,6 @@ test("Theme river preserves one instance through host resize, collapse, modal, t
     });
     let state = await measure();
     assert.deepEqual({ same: state.sameInstance, host: state.hostWidth, chart: state.chartWidth, canvas: state.canvasWidth }, { same: true, host: 607, chart: 607, canvas: 607 });
-
-    const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
-    await collapse.click();
-    await collapse.click();
-    await page.waitForTimeout(350);
-    state = await measure();
-    assert.equal(state.sameInstance, true);
 
     await openExpand(wrapper);
     const dialog = wrapper.getByRole("dialog", { name: "ThemeRiver-SingleAxis-Time" });
@@ -1671,7 +1662,7 @@ for (const width of [390, 1440]) {
           }, { selected: theme, dark: mode === "dark" });
           const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
           assert.equal(await wrapper.getByRole("group", { name: /chart controls/ }).count(), 1);
-          assert.equal(await wrapper.getByRole("button").count(), width === 390 ? 2 : 3);
+          assert.equal(await wrapper.locator("button:visible").count(), 2);
           const dimensions = await page.evaluate(() => ({
             client: document.documentElement.clientWidth,
             scroll: document.documentElement.scrollWidth,
@@ -1683,19 +1674,12 @@ for (const width of [390, 1440]) {
               contained: element.scrollWidth >= element.clientWidth,
             })), { localOverflow: "auto", contained: true });
           }
-          let collapse;
-          let focusTarget;
-          if (width === 390) {
-            focusTarget = wrapper.getByRole("button", { name: /More .* chart actions/ });
-            await focusTarget.click();
-            collapse = wrapper.locator('[id$="-collapse-action"]').first();
-          } else {
-            collapse = wrapper.getByRole("button", { name: /^Collapse / });
-            focusTarget = collapse;
-          }
+          const focusTarget = width === 390
+            ? wrapper.getByRole("button", { name: /More .* chart actions/ })
+            : wrapper.locator('[id$="-stacked"] > button');
           await focusTarget.focus();
           assert.equal(await focusTarget.evaluate((element) => element === document.activeElement), true);
-          if (width === 390) await page.keyboard.press("Escape");
+          assert.equal(await wrapper.getByRole("button", { name: /^Collapse / }).count(), 0);
           if (screenshotDirectory) {
             await page.screenshot({
               path: path.join(screenshotDirectory, `chart-controls-${width}-${theme}-${mode}.png`),

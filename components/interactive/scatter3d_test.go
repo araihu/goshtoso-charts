@@ -36,7 +36,7 @@ func TestScatter3DRendersSourceSemanticsAndExactPoints(t *testing.T) {
 		`"calculable":true`, `"max":100`, `"color":["#313695","#4575b4","#74add1","#abd9e9","#e0f3f8","#fee090","#fdae61","#f46d43","#d73027","#a50026"]`,
 		`{"name":"point-01","value":[10,20,30]}`, `"symbol":"diamond","symbolSize":14`,
 		`data-goshtoso-charts-scatter3d-cold-to-warm="true"`, `Exact 3D point values`, `2 points across 1 series.`,
-		`>point-01</th>`, `>30</td>`, `data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`,
+		`>point-01</th>`, `>30</td>`, `data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`,
 		`var resizeObserver = window.ResizeObserver ? new ResizeObserver`, `series.type === "scatter3D"`,
 	} {
 		if !strings.Contains(markup, want) {

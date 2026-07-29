@@ -35,7 +35,7 @@ func TestCandlestickRendersTypedOHLCOptionsAndAccessibleTable(t *testing.T) {
 		Tooltip:  &TooltipOptions{Show: Bool(true), Trigger: "axis"},
 		XAxis:    &AxisOptions{Type: "category", SplitNumber: 20},
 		YAxis:    &AxisOptions{Type: "value", Scale: Bool(true)},
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "candlestick-example"},
 	}
 	cfg.Style = charttheme.Style{Palette: charttheme.PaletteAraiHu, Class: "caller-class"}
@@ -65,8 +65,8 @@ func TestCandlestickRendersTypedOHLCOptionsAndAccessibleTable(t *testing.T) {
 		`scope="col">Open</th>`, `scope="col">Close</th>`, `scope="col">Low</th>`, `scope="col">High</th>`,
 		`>2018/1/24</th>`, `>2320.26</td>`, `>Rise</td>`, `>price-rise</td>`,
 		`>2018/1/25</th>`, `>2291.3</td>`, `>Fall</td>`, `>price-fall</td>`,
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-control="collapse"`,
-		`-fullscreen-action`, `data-goshtoso-chart-export="png"`,
+		`data-goshtoso-chart-expand`,
+		`-fullscreen-action`, `exportFromMenu($el, &#34;png&#34;)`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
@@ -81,15 +81,15 @@ func TestCandlestickDefaultsToSemanticThemeAndSharedWrapper(t *testing.T) {
 		`width:100%;height:500px`, `goshtoso-charts-interactive-candlestick`,
 		`aspect-ratio: 9 / 5`, `--color-chart-increasing`, `--color-chart-decreasing`,
 		`series.type === "candlestick"`, `data-goshtoso-chart-expand`,
-		`data-goshtoso-chart-export="png"`, `>rise</td>`, `>fall</td>`,
+		`exportFromMenu($el, &#34;png&#34;)`, `>rise</td>`, `>fall</td>`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("default markup missing %q", want)
 		}
 	}
 	for _, unwanted := range []string{
-		`data-goshtoso-chart-control="collapse"`, `data-goshtoso-chart-control="fullscreen"`,
-		`echarts.dispose`, `data-goshtoso-chart-export-menu`,
+		`-fullscreen-action"`,
+		`echarts.dispose`, `-chart-expand-export"`,
 	} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("default markup contains %q", unwanted)

@@ -19,7 +19,7 @@ type ChartOptions struct {
 	XAxis     *AxisOptions
 	YAxis     *AxisOptions
 	Animation *bool
-	// Controls configures shared controls; Expand defaults on while fullscreen and collapse default off.
+	// Controls configures shared controls; Expand defaults on while fullscreen defaults off.
 	Controls chartcontrol.Options
 	// Export customizes or disables default PNG export.
 	Export *chartcontrol.ExportOptions

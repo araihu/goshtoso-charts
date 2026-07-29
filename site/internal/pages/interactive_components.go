@@ -13,7 +13,7 @@ import (
 func controlledOptions(title, filename string) interactive.ChartOptions {
 	return interactive.ChartOptions{
 		Title:    &interactive.TitleOptions{Text: title},
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: filename},
 	}
 }
@@ -277,7 +277,7 @@ func sampleInteractiveSunburst() interactive.Instance {
 			Title:    &interactive.TitleOptions{Text: "Basic sunburst example"},
 			Legend:   &interactive.LegendOptions{Show: interactive.Bool(false)},
 			Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "item"},
-			Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Controls: chartcontrol.Options{Fullscreen: true},
 			Export:   &chartcontrol.ExportOptions{Filename: "basic-sunburst-example"},
 		},
 	})
@@ -337,7 +337,7 @@ func sampleInteractiveTreemap() interactive.Instance {
 			Title:    &interactive.TitleOptions{Text: "Basic treemap example", Subtitle: "File system usage", Left: "center"},
 			Legend:   &interactive.LegendOptions{Show: interactive.Bool(false)},
 			Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "item"},
-			Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Controls: chartcontrol.Options{Fullscreen: true},
 			Export:   &chartcontrol.ExportOptions{Filename: "basic-treemap-example"},
 		},
 	})
@@ -436,7 +436,7 @@ func sampleInteractiveParallel() interactive.Instance {
 		Width: "900px", Height: "500px",
 		Options: interactive.ChartOptions{
 			Title:    &interactive.TitleOptions{Text: "Multi Series"},
-			Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Controls: chartcontrol.Options{Fullscreen: true},
 			Export:   &chartcontrol.ExportOptions{Filename: "multi-series-parallel-coordinates"},
 		},
 		Style: charttheme.Style{Class: "max-w-full"},
@@ -461,7 +461,7 @@ func sampleInteractiveThemeRiver() interactive.Instance {
 		Label: "ThemeRiver-SingleAxis-Time", Caption: "Six named streams across aligned daily values from 8–28 November 2015.",
 		Streams: sampleThemeRiverStreams(), Layout: interactive.ThemeRiverLayout{BottomPercent: interactive.Float(10)},
 		Width: "100%", Height: "500px",
-		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "ThemeRiver-SingleAxis-Time"}, Tooltip: &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "axis"}, Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true}, Export: &chartcontrol.ExportOptions{Filename: "theme-river-single-axis-time"}},
+		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "ThemeRiver-SingleAxis-Time"}, Tooltip: &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "axis"}, Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "theme-river-single-axis-time"}},
 	})
 }
 
@@ -502,7 +502,7 @@ func sampleInteractiveWordCloud(title string, shape interactive.WordCloudShape) 
 		Options: interactive.ChartOptions{
 			Title:    &interactive.TitleOptions{Text: title},
 			Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "item"},
-			Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Controls: chartcontrol.Options{Fullscreen: true},
 			Export:   &chartcontrol.ExportOptions{Filename: strings.ReplaceAll(strings.ToLower(title), " ", "-")},
 		},
 	})
@@ -556,7 +556,7 @@ func liveAvailabilityBar(label, caption string, states []int) interactive.BarCon
 			},
 			YAxis:     &interactive.AxisOptions{Min: interactive.Float(0), Max: interactive.Float(1), Show: interactive.Bool(false)},
 			Animation: interactive.Bool(false),
-			Controls:  chartcontrol.Options{Fullscreen: true, Collapsible: true},
+			Controls:  chartcontrol.Options{Fullscreen: true},
 			Export:    &chartcontrol.ExportOptions{Filename: "live-availability"},
 		},
 		SeriesOptions: interactive.SeriesOptions{Stack: "availability", BarWidth: "70%", BarGap: "0%"},

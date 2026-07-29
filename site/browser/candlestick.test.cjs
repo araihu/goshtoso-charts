@@ -65,13 +65,18 @@ async function candlestickPage(viewport = { width: 1440, height: 900 }) {
 }
 
 async function openExpand(wrapper) {
-  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
+  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  await trigger.click();
   const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (await action.count()) await action.click();
+  if (stacked) {
+    await action.waitFor({ state: "visible" });
+    await action.click();
+  }
 }
 
 async function enterFullscreen(wrapper) {
-  await wrapper.locator("[data-goshtoso-chart-primary] > div > button").first().click();
+  await wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first().click();
   await wrapper.locator('[id$="-fullscreen-action"]').first().click();
 }
 
@@ -192,11 +197,6 @@ test("flex-parent resize, theme, and modal preserve one chart instance with exac
       host: resized.host, chart: resized.host, canvas: resized.host,
     });
 
-    const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]');
-    await collapse.click();
-    assert.equal(await wrapper.locator("[data-goshtoso-chart-content]").getAttribute("hidden"), "");
-    await collapse.click();
-    await page.waitForTimeout(100);
     assert.equal(await wrapper.evaluate((element) =>
       window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]")) === element.__candlestickInstance), true);
 
@@ -207,7 +207,11 @@ test("flex-parent resize, theme, and modal preserve one chart instance with exac
     await openExpand(wrapper);
     const dialog = wrapper.getByRole("dialog", { name: "Candlestick example" });
     await dialog.waitFor({ state: "visible" });
-    await page.waitForTimeout(350);
+    await page.waitForFunction(() => {
+      const host = document.querySelector(".goshtoso-charts-expand-panel [_echarts_instance_]");
+      const instance = host && window.echarts.getInstanceByDom(host);
+      return instance && instance.getWidth() === host.clientWidth && instance.getHeight() === host.clientHeight;
+    });
     const geometry = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((panel) => {
       const body = panel.children[1];
       const host = body.querySelector("[_echarts_instance_]");

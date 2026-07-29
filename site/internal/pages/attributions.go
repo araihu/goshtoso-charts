@@ -10,7 +10,7 @@ type attribution struct {
 }
 
 var foundationAttributions = []attribution{
-	{Name: "Goshtoso", Version: "v0.0.13", ProjectURL: "https://github.com/araihu/goshtoso", License: "MIT", LicenseURL: "https://github.com/araihu/goshtoso/blob/v0.0.13/LICENSE", UsedFor: "UI components, theme tokens, and shared browser assets."},
+	{Name: "Goshtoso", Version: "v0.0.14-0.20260729011747-809b903c1296", ProjectURL: "https://github.com/araihu/goshtoso", License: "MIT", LicenseURL: "https://github.com/araihu/goshtoso/blob/809b903c1296/LICENSE", UsedFor: "UI components, responsive ActionGroup controls, theme tokens, and shared browser assets."},
 	{Name: "Goshtoso App Shells", Version: "commit 4c4aa5ae787e", ProjectURL: "https://github.com/araihu/goshtoso-app-shells", License: "MIT", LicenseURL: "https://github.com/araihu/goshtoso-app-shells/blob/4c4aa5ae787e/LICENSE", UsedFor: "Documentation shell, categorized navigation, page structure, and responsive layout."},
 	{Name: "templ", Version: "v0.3.1020", ProjectURL: "https://github.com/a-h/templ", License: "MIT", LicenseURL: "https://github.com/a-h/templ/blob/v0.3.1020/LICENSE", UsedFor: "Type-safe Go templates for chart components and documentation pages."},
 }

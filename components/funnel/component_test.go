@@ -35,7 +35,7 @@ func TestFunnelRendersAccessibleUpstreamShapeAndSharedControls(t *testing.T) {
 	cfg.Stages[0].Color = "#365314"
 	cfg.Stages[0].Class = "stage-show"
 	cfg.RootAttrs = templ.Attributes{"id": "basic-funnel", "data-chart-purpose": "conversion"}
-	cfg.Controls = chartcontrol.Options{Fullscreen: true, Collapsible: true}
+	cfg.Controls = chartcontrol.Options{Fullscreen: true}
 	cfg.Export = &chartcontrol.ExportOptions{Filename: "basic-funnel"}
 
 	instance := Funnel(cfg)
@@ -54,8 +54,8 @@ func TestFunnelRendersAccessibleUpstreamShapeAndSharedControls(t *testing.T) {
 		"100", "80", "60", "40", "20", "10", "2", "Seven ordered stages from Show to Cancel.",
 		"Exact stage values", "Share of first stage", `aria-label="Basic funnel exact stage values"`, "stage-show", "#365314",
 		"var(--color-chart-series-2)", "var(--color-chart-text-strong)", "var(--font-paragraph), sans-serif",
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`, `>SVG</button>`, `>PNG</button>`,
-		`data-goshtoso-chart-control="collapse"`, `-fullscreen-action`,
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`, `>SVG</button>`, `>PNG</button>`,
+		`-fullscreen-action`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

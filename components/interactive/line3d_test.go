@@ -31,7 +31,7 @@ func TestLine3DRendersTypedPathAndExactDataAccess(t *testing.T) {
 		`data-goshtoso-charts-line3d-cold-to-warm="true"`, `Exact line data`, `2 ordered points.`,
 		`Formula:`, `t = i / 1000`, `t domain [0, 0.001]`, `Download all exact points as CSV`,
 		`download="basic-line3d-example-exact-data.csv"`, `series%2Cindex%2Cx%2Cy%2Cz`,
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`,
+		`data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

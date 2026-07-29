@@ -21,7 +21,7 @@ func TestScatterSupportsSharedControlsAndExport(t *testing.T) {
 	instance := Scatter(Config{
 		Label: "Samples", Categories: []string{"A"},
 		Series:   []Series{{Name: "Values", Points: []Point{{Category: "A", Value: 1}}}},
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "samples"},
 	})
 	var output bytes.Buffer
@@ -30,8 +30,7 @@ func TestScatterSupportsSharedControlsAndExport(t *testing.T) {
 	}
 	for _, want := range []string{
 		`-fullscreen-action`,
-		`data-goshtoso-chart-control="collapse"`,
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`,
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`,
 		`>SVG</button>`, `>PNG</button>`,
 	} {
 		if !strings.Contains(output.String(), want) {

@@ -89,7 +89,7 @@ func sampleLatency() line.Config {
 		Caption:  "Median latency, last seven checks.",
 		Labels:   []string{"08:00", "08:01", "08:02", "08:03", "08:04", "08:05", "08:06"},
 		Series:   []line.Series{{Name: "Latency (ms)", Values: []float64{42, 47, 900, 51, 2_000, 44, 46}}},
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "https-monitor-latency"},
 	}
 }
@@ -107,7 +107,7 @@ func sampleDualAxisLine() line.Config {
 		YAxes:    []line.Axis{{}, {}},
 		Width:    600,
 		Height:   400,
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "dual-axis-line"},
 	}
 }
@@ -127,7 +127,7 @@ func sampleAreaLine() line.Config {
 		YAxes:    []line.Axis{{Min: &minimum}},
 		Width:    600,
 		Height:   400,
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "filled-area-line"},
 	}
 }
@@ -153,7 +153,7 @@ func sampleDeployments() bar.Config {
 			{Name: "Failed", Values: []float64{1, 2, 1}},
 		},
 		Stacked:  true,
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "deployments-by-environment"},
 	}
 }
@@ -172,7 +172,7 @@ func sampleHorizontalWorldPopulation() bar.Config {
 		Padding:  bar.Padding{Top: 20, Right: 40, Bottom: 20, Left: 20},
 		Width:    600,
 		Height:   400,
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "world-population"},
 	}
 }
@@ -186,7 +186,7 @@ func sampleObservationStates() pie.Config {
 			{Name: "Degraded", Value: 4},
 			{Name: "Down", Value: 2},
 		},
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export: &chartcontrol.ExportOptions{
 			Filename: "observation-states", Background: chartcontrol.ExportBackgroundTransparent,
 		},
@@ -215,7 +215,7 @@ func sampleDoughnutChart() pie.Config {
 			{Name: "Video Ads", Value: 300},
 		},
 		Width: 600, Height: 400,
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "doughnut-chart"},
 	}
 }
@@ -236,7 +236,7 @@ func sampleBasicRadar() radar.Config {
 			{Name: "Allocated Budget", Values: []float64{4200, 3000, 20000, 35000, 50000, 18000}},
 			{Name: "Actual Spending", Values: []float64{5000, 14000, 28000, 26000, 42000, 21000}},
 		},
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "basic-radar-chart"},
 	}
 }
@@ -256,7 +256,7 @@ func sampleBasicCandlestick() candlestick.Config {
 			{Label: "Day 6", Open: 109, High: 116, Low: 106, Close: 114},
 			{Label: "Day 7", Open: 114, High: 121, Low: 111, Close: 119},
 		},
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "basic-candlestick-chart"},
 	}
 }
@@ -307,7 +307,7 @@ func sampleCandlestickBollingerBands() candlestick.Config {
 		},
 		Width: 800, Height: 600,
 		RootAttrs: templ.Attributes{"data-goshtoso-candidate": "candlestick-bollinger-fc218c7fedf84c7a"},
-		Controls:  chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls:  chartcontrol.Options{Fullscreen: true},
 		Export:    &chartcontrol.ExportOptions{Filename: "candlestick-bollinger-bands"},
 	}
 }
@@ -338,7 +338,7 @@ func sampleBasicFunnel() funnel.Config {
 			{Label: "Cancel", Value: 2},
 		},
 		Options:  funnel.Options{Legend: funnel.Legend{Padding: funnel.Padding{Left: 100}}},
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "basic-funnel"},
 	}
 }
@@ -359,7 +359,7 @@ func samplePeopleTable() charttable.Config {
 			{"Jim Green", "42", "London No. 1 Lake Park", "wow", "Send Mail"},
 			{"Joe Black", "32", "Sidney No. 1 Lake Park", "cool, teacher", "Send Mail"},
 		},
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "people-directory"},
 	}
 }
@@ -419,7 +419,7 @@ func sampleBasicHeatMap() heatmap.Config {
 			{4.4, 5.9, 7.0, 6.4, 4.6},
 		},
 		ValueRange: heatmap.ValueRange{Min: 1.9, Max: 9.0},
-		Controls:   chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls:   chartcontrol.Options{Fullscreen: true},
 		Export:     &chartcontrol.ExportOptions{Filename: "basic-heat-map"},
 	}
 }
@@ -495,7 +495,7 @@ func sampleDenseScatter() scatter.Config {
 		XAxis:    scatter.CategoryAxisOptions{BoundaryGap: &noGap, LabelCount: 10, LabelFontSize: 6, LabelRotation: 45},
 		YAxis:    scatter.ValueAxisOptions{Min: &zero, Max: &maximum, Unit: 10, LabelSkip: 1, LabelFontSize: 6},
 		Padding:  scatter.Padding{Top: 16, Right: 32, Bottom: 16, Left: 16},
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "dense-scatter-data"},
 	}
 }

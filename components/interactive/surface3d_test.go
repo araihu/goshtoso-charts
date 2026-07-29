@@ -29,7 +29,7 @@ func TestSurface3DRendersTypedSurfaceAndDenseDataAccess(t *testing.T) {
 		`"color":["#313695","#4575b4","#74add1","#abd9e9","#e0f3f8","#fee090","#fdae61","#f46d43","#d73027","#a50026"]`,
 		`data-goshtoso-charts-surface3d-cold-to-warm="true"`, `Exact surface data`, `2 ordered points.`,
 		`Formula:`, `z = sin(x`, `Download all exact points as CSV`, `download="basic-surface3d-example-exact-data.csv"`,
-		`data:text/csv;charset=utf-8,`, `series%2Cx%2Cy%2Cz`, `data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`,
+		`data:text/csv;charset=utf-8,`, `series%2Cx%2Cy%2Cz`, `data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

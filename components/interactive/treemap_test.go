@@ -84,7 +84,7 @@ func TestTreemapRendersTypedHierarchyNavigationLevelsAndExactValues(t *testing.T
 		`"text":"Basic treemap example"`, `"subtext":"File system usage"`, `"left":"center"`,
 		`"animation":false`, `"color":["#654321","#ff8a3d"`,
 		`data-goshtoso-charts-theme-runtime`, `File system usage. Select a directory`,
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`,
+		`data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`,
 		`data-goshtoso-charts-theme-series-items=""`,
 		`<details class="mt-3 max-w-full`, `>Exact hierarchy and values</summary>`,
 		`scope="col">Path</th>`, `scope="col">Parent</th>`, `scope="col">Value</th>`, `scope="col">Class</th>`,

@@ -34,7 +34,7 @@ func TestTableRendersUpstreamShapeAccessibleFallbackAndSharedControls(t *testing
 	cfg.Caption = "Three contacts and available actions."
 	cfg.Style = charttheme.Style{Palette: charttheme.PaletteAraiHu, Class: "mx-auto"}
 	cfg.RootAttrs = templ.Attributes{"id": "people", "data-table-purpose": "directory"}
-	cfg.Controls = chartcontrol.Options{Fullscreen: true, Collapsible: true}
+	cfg.Controls = chartcontrol.Options{Fullscreen: true}
 	cfg.Export = &chartcontrol.ExportOptions{Filename: "people-directory"}
 
 	instance := Table(cfg)
@@ -53,8 +53,8 @@ func TestTableRendersUpstreamShapeAccessibleFallbackAndSharedControls(t *testing
 		"Jim Green", "42", "London No. 1 Lake Park", "wow", "Joe Black", "Sidney No. 1 Lake Park", "cool, teacher",
 		"Three contacts and available actions.", "Accessible data table", `aria-label="People directory data"`,
 		"var(--color-chart-surface", "var(--color-chart-surface-alt", "var(--color-chart-text",
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`, `>SVG</button>`, `>PNG</button>`,
-		`data-goshtoso-chart-control="collapse"`, `-fullscreen-action`,
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`, `>SVG</button>`, `>PNG</button>`,
+		`-fullscreen-action`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

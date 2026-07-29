@@ -26,7 +26,7 @@ func TestMapRendersTypedRegionsResourceScaleThemeAndExactValues(t *testing.T) {
 	cfg.RootAttrs = templ.Attributes{"id": "regional-values", "data-purpose": "geography"}
 	cfg.Options = ChartOptions{
 		Title: &TitleOptions{Text: "VisualMap"}, Tooltip: &TooltipOptions{Show: Bool(true), Trigger: "item"},
-		Animation: Bool(false), Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Animation: Bool(false), Controls: chartcontrol.Options{Fullscreen: true},
 		Export: &chartcontrol.ExportOptions{Filename: "regional-values"},
 	}
 
@@ -45,7 +45,7 @@ func TestMapRendersTypedRegionsResourceScaleThemeAndExactValues(t *testing.T) {
 		`{"name":"Acre","code":"AC","value":28,"sourceColor":"#123456","itemStyle":{"color":"#123456"}}`,
 		`data-goshtoso-charts-explicit-visual-map-colors="true"`, `series.type === "map"`,
 		`Twenty-seven state values.`, `>Exact region values</summary>`, `scope="col">Region</th>`, `scope="col">UF</th>`, `>Rondônia</th>`, `>RO</td>`, `>42</td>`, `>capital-region</td>`,
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-control="collapse"`, `-fullscreen-action`, `data-goshtoso-chart-export="png"`,
+		`data-goshtoso-chart-expand`, `-fullscreen-action`, `exportFromMenu($el, &#34;png&#34;)`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
@@ -76,12 +76,12 @@ func TestMapVariantsPreserveOneKindAndBrazilGeometry(t *testing.T) {
 func TestMapDefaultsToSharedExpandDirectPNGAndResponsiveSize(t *testing.T) {
 	t.Parallel()
 	markup := renderMap(t, Map(validMapConfig()))
-	for _, want := range []string{`data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`, `aspect-ratio: 9 / 5`, `style="width:100%;height:500px;"`, `var resizeObserver = window.ResizeObserver ? new ResizeObserver`} {
+	for _, want := range []string{`data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`, `aspect-ratio: 9 / 5`, `style="width:100%;height:500px;"`, `var resizeObserver = window.ResizeObserver ? new ResizeObserver`} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("default markup missing %q", want)
 		}
 	}
-	for _, unwanted := range []string{`data-goshtoso-chart-control="collapse"`, `data-goshtoso-chart-control="fullscreen"`, `echarts.dispose`} {
+	for _, unwanted := range []string{`-fullscreen-action"`, `echarts.dispose`} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("default markup contains %q", unwanted)
 		}

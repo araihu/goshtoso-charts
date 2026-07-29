@@ -133,7 +133,7 @@ func TestLineSupportsSharedControlsAndExport(t *testing.T) {
 		Label:    "Latency",
 		Labels:   []string{"Mon"},
 		Series:   []Series{{Name: "p95", Values: []float64{12}}},
-		Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "latency"},
 	})
 	var output bytes.Buffer
@@ -143,8 +143,7 @@ func TestLineSupportsSharedControlsAndExport(t *testing.T) {
 	markup := output.String()
 	for _, want := range []string{
 		`-fullscreen-action`,
-		`data-goshtoso-chart-control="collapse"`,
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`,
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`,
 		`>SVG</button>`, `>PNG</button>`,
 	} {
 		if !strings.Contains(markup, want) {
@@ -261,7 +260,7 @@ func TestLineDualAxisRendersThemeMatchedAxesAndExactMapping(t *testing.T) {
 	t.Parallel()
 	cfg := dualAxisConfig()
 	cfg.Caption = "Two scales."
-	cfg.Controls = chartcontrol.Options{Fullscreen: true, Collapsible: true}
+	cfg.Controls = chartcontrol.Options{Fullscreen: true}
 	cfg.Export = &chartcontrol.ExportOptions{Filename: "dual-axis-line"}
 	var output bytes.Buffer
 	if err := Line(cfg).Render(context.Background(), &output); err != nil {
@@ -274,7 +273,7 @@ func TestLineDualAxisRendersThemeMatchedAxesAndExactMapping(t *testing.T) {
 		"var(--color-chart-series-1)", "var(--color-chart-series-2)",
 		`aria-label="Dual Axis Line exact series values and Y axis mapping"`,
 		"Exact series values", "Two scales.",
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export-menu`,
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`,
 		`>SVG</button>`, `>PNG</button>`,
 	} {
 		if !strings.Contains(markup, want) {

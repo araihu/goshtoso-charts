@@ -23,7 +23,7 @@ func TestGeoRendersTypedCoordinatesRippleThemeAndExactValues(t *testing.T) {
 	cfg.Series[0].Options = SeriesOptions{Label: &LabelOptions{Show: Bool(true)}, SymbolSize: 18}
 	cfg.Options = ChartOptions{
 		Title: &TitleOptions{Text: "basic geo example"}, Tooltip: &TooltipOptions{Show: Bool(true), Trigger: "item"},
-		Animation: Bool(false), Controls: chartcontrol.Options{Fullscreen: true, Collapsible: true},
+		Animation: Bool(false), Controls: chartcontrol.Options{Fullscreen: true},
 		Export: &chartcontrol.ExportOptions{Filename: "national-geo"},
 	}
 	cfg.Style = charttheme.Style{Palette: charttheme.PaletteAraiHu, Class: "caller-class"}
@@ -44,8 +44,8 @@ func TestGeoRendersTypedCoordinatesRippleThemeAndExactValues(t *testing.T) {
 		`data-goshtoso-charts-geo-series-paints="[{&#34;color&#34;:&#34;#123456&#34;}]"`,
 		`National coordinate values.`, `>Exact coordinate values</summary>`, `scope="col">Longitude</th>`,
 		`scope="row">Manaus</th>`, `>-60.02</td>`, `>-3.12</td>`, `>81</td>`, `>capital-point</td>`,
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-control="collapse"`,
-		`-fullscreen-action`, `data-goshtoso-chart-export="png"`,
+		`data-goshtoso-chart-expand`,
+		`-fullscreen-action`, `exportFromMenu($el, &#34;png&#34;)`,
 		`var resizeObserver = window.ResizeObserver ? new ResizeObserver`,
 	} {
 		if !strings.Contains(markup, want) {
@@ -128,14 +128,14 @@ func TestGeoDefaultsToSharedExpandDirectPNGAndResponsiveSize(t *testing.T) {
 	t.Parallel()
 	markup := renderGeo(t, Geo(validGeoConfig()))
 	for _, want := range []string{
-		`data-goshtoso-chart-expand`, `data-goshtoso-chart-export="png"`,
+		`data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`,
 		`style="width:100%;height:500px;"`, `margin-inline: auto`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("default markup missing %q", want)
 		}
 	}
-	for _, unwanted := range []string{`data-goshtoso-chart-control="collapse"`, `data-goshtoso-chart-control="fullscreen"`, `echarts.dispose`} {
+	for _, unwanted := range []string{`-fullscreen-action"`, `echarts.dispose`} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("default markup contains %q", unwanted)
 		}
