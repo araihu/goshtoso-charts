@@ -107,6 +107,7 @@ func TestCandlestickCoversPinnedZoomAndStyleBehaviors(t *testing.T) {
 		name       string
 		configure  func(*CandlestickConfig)
 		want       []string
+		wantCount  map[string]int
 		wantAbsent []string
 	}{
 		{
@@ -135,8 +136,8 @@ func TestCandlestickCoversPinnedZoomAndStyleBehaviors(t *testing.T) {
 			},
 			want: []string{
 				`"type":"inside","start":50,"end":100,"xAxisIndex":[0]`,
-				`"start":50,"end":100,"xAxisIndex":[0]`,
 			},
+			wantCount:  map[string]int{`"xAxisIndex":[0]`: 2},
 			wantAbsent: []string{`"yAxisIndex":[0]`},
 		},
 		{
@@ -182,6 +183,11 @@ func TestCandlestickCoversPinnedZoomAndStyleBehaviors(t *testing.T) {
 			for _, unwanted := range test.wantAbsent {
 				if strings.Contains(markup, unwanted) {
 					t.Errorf("rendered markup contains %q", unwanted)
+				}
+			}
+			for value, want := range test.wantCount {
+				if got := strings.Count(markup, value); got != want {
+					t.Errorf("rendered markup contains %q %d times, want %d", value, got, want)
 				}
 			}
 		})

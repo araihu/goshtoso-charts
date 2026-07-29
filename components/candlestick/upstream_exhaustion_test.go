@@ -132,6 +132,14 @@ func TestCandlestickNewOptionValidation(t *testing.T) {
 		{"duplicate series name", func(cfg *Config) { *cfg = multipleSeriesConfig(); cfg.Series[1].Name = " Stock A " }, `series name "Stock A" is duplicated`},
 		{"series labels", func(cfg *Config) { *cfg = multipleSeriesConfig(); cfg.Series[1].Data[1].Label = "Other" }, "labels must align"},
 		{"body style", func(cfg *Config) { *cfg = multipleSeriesConfig(); cfg.Series[0].BodyStyle = "gradient" }, "body style"},
+		{"trend lines with multiple series", func(cfg *Config) {
+			*cfg = multipleSeriesConfig()
+			cfg.TrendLines = []TrendLine{{Type: TrendTypeSimpleMovingAverage, Period: 2}}
+		}, "cannot combine"},
+		{"patterns with multiple series", func(cfg *Config) {
+			*cfg = multipleSeriesConfig()
+			cfg.Patterns.Selection = PatternSelectionAll
+		}, "cannot combine"},
 		{"aggregation multi", func(cfg *Config) { *cfg = multipleSeriesConfig(); cfg.Aggregation.WindowSize = 2 }, "single series"},
 		{"candle width", func(cfg *Config) { cfg.Options.Geometry.CandleWidth = 1.1 }, "candle width"},
 		{"wick width", func(cfg *Config) { cfg.Options.Geometry.WickWidth = math.NaN() }, "wick width"},
