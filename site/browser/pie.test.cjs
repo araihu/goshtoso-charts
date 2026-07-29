@@ -7,7 +7,7 @@ const net = require("node:net");
 const { chromium } = require("playwright");
 const sharp = require("sharp");
 
-const candidateMarker = 'data-goshtoso-candidate="pie-doughnut-b97bca2322e90e2f"';
+const candidateMarker = 'data-static-pie-exhaustion="1fe31b06"';
 let baseURL;
 const screenshotDirectory = process.env.SCREENSHOT_DIR;
 let browser;
@@ -62,7 +62,9 @@ test("Pie browser server is exact candidate worktree build on a test-owned non-8
     const response = await fetch(`${baseURL}${route}`);
     assert.equal(response.status, 200, route);
     if (route === "/components/pie") {
-      assert.match(await response.text(), /data-goshtoso-candidate="pie-doughnut-b97bca2322e90e2f"/);
+      const markup = await response.text();
+      assert.match(markup, /data-goshtoso-candidate="pie-doughnut-b97bca2322e90e2f"/);
+      assert.match(markup, /data-static-pie-exhaustion="1fe31b06"/);
     }
   }
 });
@@ -89,14 +91,17 @@ async function piePage(viewport = { width: 1440, height: 900 }) {
     };
   });
   const failed = [];
+  const errors = [];
   page.on("response", (response) => {
     if (response.status() >= 400) failed.push(`${response.status()} ${response.url()}`);
   });
+  page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+  page.on("pageerror", (error) => errors.push(error.message));
   await page.goto(`${baseURL}/components/pie`);
-  const figure = page.locator('figure[aria-label="Doughnut Chart"]');
+  const figure = page.locator('figure[aria-label="Legend"]');
   await figure.waitFor();
   await page.waitForFunction(() => Boolean(window.__goshtosoChartsControls));
-  return { page, failed, wrapper: figure.locator("xpath=ancestor::*[@data-goshtoso-chart-wrapper][1]") };
+  return { page, failed, errors, wrapper: figure.locator("xpath=ancestor::*[@data-goshtoso-chart-wrapper][1]") };
 }
 
 async function openExpand(wrapper) {
@@ -130,7 +135,7 @@ function contrast(first, second) {
 async function download(page, wrapper, format) {
   await page.evaluate(() => { globalThis.__pieBlobTypes.length = 0; });
   const pending = page.waitForEvent("download", { timeout: 10000 });
-  await wrapper.getByRole("button", { name: "Export Doughnut Chart" }).click();
+  await wrapper.getByRole("button", { name: "Export Legend" }).click();
   const menu = wrapper.locator('[role="menu"]:visible');
   await menu.waitFor({ state: "visible" });
   await menu.getByRole("menuitem", { name: format, exact: true }).click();
@@ -158,11 +163,8 @@ async function download(page, wrapper, format) {
 for (const width of [390, 1440]) {
   for (const theme of ["goshtoso", "araihu"]) {
     for (const mode of ["light", "dark"]) {
-      test(`${width}px ${theme} ${mode} keeps Doughnut responsive, contrasting, exact, and modal-contained`, async () => {
-        const { page, failed, wrapper } = await piePage({ width, height: 900 });
-        const errors = [];
-        page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
-        page.on("pageerror", (error) => errors.push(error.message));
+      test(`${width}px ${theme} ${mode} keeps Pie variants responsive, contrasting, exact, and modal-contained`, async () => {
+        const { page, failed, errors, wrapper } = await piePage({ width, height: 900 });
         try {
           await page.evaluate(({ selected, dark }) => {
             document.documentElement.dataset.theme = selected;
@@ -170,11 +172,50 @@ for (const width of [390, 1440]) {
           }, { selected: theme, dark: mode === "dark" });
           assert.equal(await wrapper.locator("button:visible").count(), 2);
           assert.deepEqual(await wrapper.locator("table tbody th").allTextContents(), [
-            "Search Engine", "Direct", "Email", "Union Ads", "Video Ads",
+            "Direct", "Search Engine", "Referral", "Email", "Video Ads",
           ]);
           assert.deepEqual(await wrapper.locator("table tbody td:nth-child(2)").allTextContents(), [
             "1048", "735", "580", "484", "300",
           ]);
+          const variants = await page.locator(".goshtoso-charts-pie").evaluateAll((figures) => figures.map((figure) => {
+            const wrapper = figure.closest("[data-goshtoso-chart-wrapper]");
+            const viewport = figure.querySelector(".goshtoso-charts-pie__viewport");
+            const svg = viewport.querySelector("svg");
+            return {
+              label: figure.getAttribute("aria-label"),
+              wrapperClient: wrapper.clientWidth,
+              wrapperScroll: wrapper.scrollWidth,
+              viewportClient: viewport.clientWidth,
+              viewportScroll: viewport.scrollWidth,
+              svgWidth: svg.getBoundingClientRect().width,
+            };
+          }));
+          assert.deepEqual(variants.map((variant) => variant.label), [
+            "Pie Chart", "Area-scaled Pie Chart", "Pie Chart With Segment Gap", "Doughnut Chart", "Labels Outside", "Labels Inside", "Legend",
+          ]);
+          for (const variant of variants) {
+            assert.ok(variant.wrapperScroll <= variant.wrapperClient + 1, JSON.stringify(variant));
+            assert.ok(variant.viewportScroll <= variant.viewportClient + 1, JSON.stringify(variant));
+            assert.ok(variant.svgWidth <= variant.viewportClient + 1, JSON.stringify(variant));
+          }
+          const semantics = await page.evaluate(() => {
+            const svg = (label) => document.querySelector(`figure[aria-label="${label}"] svg`);
+            const areaRadii = [...svg("Area-scaled Pie Chart").querySelectorAll("path")]
+              .filter((path) => path.getAttribute("style")?.includes("--color-chart-series-"))
+              .map((path) => Math.round(Math.max(path.getBBox().width, path.getBBox().height)));
+            return {
+              areaRadiusSizes: [...new Set(areaRadii)].length,
+              gapUsesSurfaceStroke: [...svg("Pie Chart With Segment Gap").querySelectorAll("path")]
+                .some((path) => path.getAttribute("style")?.includes("stroke:var(--color-chart-surface)")),
+              insideHasReferral: [...svg("Labels Inside").querySelectorAll("text")].some((node) => node.textContent.includes("Referral")),
+              totalText: [...svg("Legend").querySelectorAll("text")].map((node) => node.textContent).find((text) => text.startsWith("Total Response:")),
+            };
+          });
+          assert.ok(semantics.areaRadiusSizes >= 3, JSON.stringify(semantics));
+          assert.equal(semantics.gapUsesSurfaceStroke, true);
+          assert.equal(semantics.insideHasReferral, true);
+          assert.equal(semantics.totalText, "Total Response: 3.15k");
+
           const layout = await wrapper.evaluate((element) => {
             const resolveRGB = (color) => {
               const canvas = document.createElement("canvas");
@@ -190,7 +231,7 @@ for (const width of [390, 1440]) {
             const svg = viewport.querySelector("svg");
             const rect = svg.getBoundingClientRect();
             const texts = [...svg.querySelectorAll("text")];
-            const title = texts.find((node) => node.textContent === "Doughnut Chart");
+            const title = texts.find((node) => node.textContent === "Legend");
             const mark = [...svg.querySelectorAll("path")].find((node) => node.getAttribute("style")?.includes("--color-chart-series-1"));
             const surfaceProbe = document.createElement("span");
             surfaceProbe.style.color = "var(--color-chart-surface)";
@@ -215,9 +256,9 @@ for (const width of [390, 1440]) {
           assert.equal(layout.documentScroll, layout.documentClient);
           assert.ok(layout.contentScroll <= layout.contentClient + 1);
           assert.ok(layout.viewportScroll <= layout.viewportClient + 1);
-          assert.equal(layout.viewBox, "0 0 600 400");
+          assert.equal(layout.viewBox, "0 0 400 400");
           assert.ok(layout.svgWidth <= layout.viewportClient + 1);
-          assert.ok(Math.abs(layout.svgWidth / layout.svgHeight - 1.5) < 0.02);
+          assert.ok(Math.abs(layout.svgWidth / layout.svgHeight - 1) < 0.02);
           assert.ok(contrast(layout.titleColor, layout.surfaceColor) >= 4.5, JSON.stringify(layout));
           assert.ok(contrast(layout.markColor, layout.surfaceColor) >= 2, JSON.stringify(layout));
           if (screenshotDirectory) {
@@ -226,7 +267,7 @@ for (const width of [390, 1440]) {
 
           await wrapper.evaluate((element) => { element.__pieContent = element.querySelector("[data-goshtoso-chart-content]"); });
           await openExpand(wrapper);
-          const dialog = wrapper.getByRole("dialog", { name: "Doughnut Chart" });
+          const dialog = wrapper.getByRole("dialog", { name: "Legend" });
           await dialog.waitFor({ state: "visible" });
           await page.waitForTimeout(350);
           const geometry = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((panel) => {
@@ -269,15 +310,15 @@ for (const width of [390, 1440]) {
   }
 }
 
-test("Doughnut exports parseable 600x400 SVG and opaque PNG", async () => {
-  const { page, wrapper } = await piePage();
+test("representative doughnut exports parseable 400x400 SVG and opaque PNG", async () => {
+  const { page, failed, errors, wrapper } = await piePage();
   try {
     const svg = await download(page, wrapper, "SVG");
-    assert.equal(svg.filename, "doughnut-chart.svg");
+    assert.equal(svg.filename, "doughnut-center-total.svg");
     assert.equal(svg.types.at(-1), "image/svg+xml;charset=utf-8");
     const markup = svg.bytes.toString("utf8");
     assert.match(markup, /^<svg\b/);
-    assert.match(markup, /viewBox="0 0 600 400"/);
+    assert.match(markup, /viewBox="0 0 400 400"/);
     assert.doesNotMatch(markup, /(?:var\(|url\(|@import)/i);
     const parsed = await page.evaluate((source) => {
       const document = new DOMParser().parseFromString(source, "image/svg+xml");
@@ -289,16 +330,18 @@ test("Doughnut exports parseable 600x400 SVG and opaque PNG", async () => {
         viewBox: root.getAttribute("viewBox"),
       };
     }, markup);
-    assert.deepEqual(parsed, { parserErrors: 0, width: 600, height: 400, viewBox: "0 0 600 400" });
+    assert.deepEqual(parsed, { parserErrors: 0, width: 400, height: 400, viewBox: "0 0 400 400" });
 
     const png = await download(page, wrapper, "PNG");
-    assert.equal(png.filename, "doughnut-chart.png");
+    assert.equal(png.filename, "doughnut-center-total.png");
     assert.equal(png.types.at(-1), "image/png");
     assert.deepEqual([...png.bytes.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
     const metadata = await sharp(png.bytes).metadata();
-    assert.deepEqual({ width: metadata.width, height: metadata.height }, { width: 600, height: 400 });
+    assert.deepEqual({ width: metadata.width, height: metadata.height }, { width: 400, height: 400 });
     const pixels = await sharp(png.bytes).ensureAlpha().raw().toBuffer();
     for (let index = 3; index < pixels.length; index += 4) assert.equal(pixels[index], 255);
+    assert.deepEqual(errors, []);
+    assert.deepEqual(failed, []);
   } finally {
     await page.close();
   }

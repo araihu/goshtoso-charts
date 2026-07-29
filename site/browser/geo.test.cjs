@@ -312,7 +312,7 @@ test("explicit CDN runtime keeps pinned Brazil geometries on application-owned l
   page.on("pageerror", (error) => errors.push(error.message));
   try {
     await page.setContent(`<!doctype html><html><head>
-      <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js" integrity="sha384-BQKzmHvQLMCAnL3UtDBA1Al5tFjsCz1wrMlIUA1wkzo14DYkRWjywW+p9pCj0cwd" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js" integrity="sha384-pPi0zxBAoDu6+JXW/C68UZLvBUUtU+7zonhif43rqj7pxsGyqyqzcian2Rj37Rss" crossorigin="anonymous"></script>
 	      <script src="${baseURL}/charts/assets/js/maps/ibge-mmd-2025/brazil.js"></script>
 	      <script src="${baseURL}/charts/assets/js/maps/ibge-mmd-2025/sao-paulo.js"></script>
     </head><body></body></html>`, { waitUntil: "networkidle" });

@@ -529,14 +529,14 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 	for _, want := range []string{
 		"Foundation dependencies", "Chart and rendering libraries", "Bundled runtime and assets",
 		"Goshtoso", "v0.0.14-0.20260729011747-809b903c1296", "Goshtoso App Shells", "commit 4c4aa5ae787e", "templ", "v0.3.1020",
-		"go-analyze/charts", "v0.6.0", "go-echarts", "v2.7.2", "Apache ECharts", "v5.4.3",
+		"go-analyze/charts", "v0.6.0", "go-echarts", "v2.7.2", "Apache ECharts", "v5.6.0",
 		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 		"examples/pie.go",
 		"examples/1-Painter/radar_chart-1-basic/main.go",
 		"examples/1-Painter/candlestick_chart-1-basic/main.go", "examples/1-Painter/funnel_chart-1-basic/main.go", "examples/1-Painter/heat_map-1-basic/main.go", "examples/parallel.go",
 		"examples/1-Painter/table-1/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2",
 		`href="https://github.com/araihu/goshtoso"`, `href="https://github.com/go-echarts/go-echarts"`,
-		`href="https://echarts.apache.org/"`, `href="https://github.com/apache/echarts/blob/5.4.3/LICENSE"`,
+		`href="https://echarts.apache.org/"`, `href="https://github.com/apache/echarts/blob/5.6.0/LICENSE"`,
 		`bg-primary/10`, "MIT", "Apache-2.0",
 		"SHA-256 987554a0014ad7be585eccc91c4329d050b40c2c0ebd2e8ec84adca82c0eb843", "assets/NOTICE.md",
 		`class="overflow-x-auto rounded-radius border`, `class="min-w-full w-full`,
@@ -1233,8 +1233,8 @@ func TestInteractiveRendererRuntimeIsLocal(t *testing.T) {
 
 	recorder := httptest.NewRecorder()
 	handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, chartassets.RuntimeURL, nil))
-	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), `version="5.4.3"`) {
-		t.Fatalf("GET modern runtime status/version = %d/%t", recorder.Code, strings.Contains(recorder.Body.String(), `version="5.4.3"`))
+	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), `version="5.6.0"`) {
+		t.Fatalf("GET modern runtime status/version = %d/%t", recorder.Code, strings.Contains(recorder.Body.String(), `version="5.6.0"`))
 	}
 
 	threeD := httptest.NewRecorder()

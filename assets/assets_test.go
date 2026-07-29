@@ -29,8 +29,36 @@ func TestHandlerServesVersionedRuntimeAtDefaultMount(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("GET %s status = %d, want %d", assets.RuntimeURL, recorder.Code, http.StatusOK)
 	}
-	if !strings.Contains(recorder.Body.String(), `version="5.4.3"`) {
-		t.Fatal("embedded runtime does not report pinned version 5.4.3")
+	if !strings.Contains(recorder.Body.String(), `version="5.6.0"`) {
+		t.Fatal("embedded runtime does not report pinned version 5.6.0")
+	}
+	const wantSHA256 = "bf4a223524e40b77c304bec67e1222cf551f14880cf42c69dc046558e11c07b1"
+	if got := fmt.Sprintf("%x", sha256.Sum256(recorder.Body.Bytes())); got != wantSHA256 {
+		t.Fatalf("GET %s SHA-256 = %s, want %s", assets.RuntimeURL, got, wantSHA256)
+	}
+}
+
+func TestHandlerServesPinnedRuntimeLegalFiles(t *testing.T) {
+	t.Parallel()
+
+	for _, test := range []struct {
+		url, contains, sha256 string
+	}{
+		{assets.RuntimeLicenseURL, "Apache License", "634293835b43a6dd2094fa39182a3d9a6b9ca43b7fdb9ac354e8037af2a3093a"},
+		{assets.RuntimeNoticeURL, "Apache ECharts", "4dd56fd5a0ac348fb8cf5dc46d8ce0a7090fb1856ce39c5baa90e13f9ae356c1"},
+		{assets.RuntimeD3LicenseURL, "Copyright 2010-2016 Mike Bostock", "e1211892da0b0e0585b7aebe8f98c1274fba15bafe47fa1f4ee8a7a502c06304"},
+	} {
+		recorder := httptest.NewRecorder()
+		assets.Handler().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, test.url, nil))
+		if recorder.Code != http.StatusOK {
+			t.Errorf("GET %s status = %d, want %d", test.url, recorder.Code, http.StatusOK)
+		}
+		if !strings.Contains(recorder.Body.String(), test.contains) {
+			t.Errorf("GET %s missing %q", test.url, test.contains)
+		}
+		if got := fmt.Sprintf("%x", sha256.Sum256(recorder.Body.Bytes())); got != test.sha256 {
+			t.Errorf("GET %s SHA-256 = %s, want %s", test.url, got, test.sha256)
+		}
 	}
 }
 

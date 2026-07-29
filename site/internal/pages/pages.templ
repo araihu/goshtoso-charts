@@ -450,7 +450,7 @@ templ interactiveChartPieContent() {
 			Preview:      interactivePieVariants(),
 			Code:         interactiveChartPieCode(),
 		},
-		After: interactiveDocumentation(demoNote("Rose and nested treatments", "Area roses use equal angles; radius roses retain value-driven angles. Nested series share one center and use non-overlapping radii. Exact values and shares remain available beside every chart.")),
+		After: interactiveDocumentation(interactivePieUsage()),
 	})
 }
 
@@ -459,6 +459,15 @@ templ interactivePieVariants() {
 		<div data-pie-variant="base">
 			@interactive.Pie(sampleInteractivePie())
 		</div>
+		<div data-pie-variant="labels">
+			@interactive.Pie(sampleInteractivePieLabels())
+		</div>
+		<div data-pie-variant="radius">
+			@interactive.Pie(sampleInteractivePieRadius())
+		</div>
+		<div data-pie-variant="padded">
+			@interactive.Pie(sampleInteractivePiePadded())
+		</div>
 		<div class="space-y-10" data-pie-rose-variants>
 			<div data-pie-variant="rose-area">
 				@interactive.Pie(sampleInteractivePieRoseArea())
@@ -466,10 +475,28 @@ templ interactivePieVariants() {
 			<div data-pie-variant="rose-radius">
 				@interactive.Pie(sampleInteractivePieRoseRadius())
 			</div>
+			<div data-pie-variant="paired-roses">
+				@interactive.Pie(sampleInteractivePiePairedRoses())
+			</div>
 		</div>
 		<div data-pie-variant="nested">
 			@interactive.Pie(sampleInteractivePieNested())
 		</div>
+		<div data-pie-variant="auto-emphasis">
+			@interactive.Pie(sampleInteractivePieAutoEmphasis())
+		</div>
+		<div data-pie-variant="selected">
+			@interactive.Pie(sampleInteractivePieSelected())
+		</div>
+	</div>
+}
+
+templ interactivePieUsage() {
+	<div class="space-y-4">
+		@demoNote("Accessibility", "The figure name comes from Label and Caption remains visible. Every example includes a keyboard-accessible exact-value disclosure with series, sector, value, and share; do not make hover, motion, or color the only route to meaning.")
+		@demoNote("Choose the encoding", "A standard pie maps value to angle. A donut reserves a non-data center. Area roses use equal angles and encode values by sector area; radius roses retain proportional angles and add radial variation. Side-by-side and nested series need clearly separated centers or non-overlapping radii.")
+		@demoNote("Interactive capabilities", "Hover tooltips, selectable sectors, typed emphasis, and optional rotating emphasis support exploration. Rotating emphasis stops for reduced-motion users. Exact values and shares remain in the adjacent disclosure rather than depending on hover, motion, or color.")
+		@demoNote("Shared controls and modes", "Expand, fullscreen, PNG export, hidden/disabled/unwrapped lifecycle modes, resize events, and HTMX replacement behavior come from the shared chart wrapper. Static/vector pie is the better choice for print, server-only delivery, SVG output, or a page that must work without the browser runtime.")
 	</div>
 }
 
@@ -831,23 +858,53 @@ templ interactiveChartFunnelContent() {
 templ pieContent() {
 	@componentpage.Page(componentpage.Config{
 		Title:       "Pie chart",
-		Description: "Compact part-to-whole summaries with full pie and doughnut treatments.",
+		Description: "Static/vector part-to-whole summaries with pie, area-scaled radius, and doughnut treatments.",
 		Primary: componentpage.Example{
-			AbovePreview: visualizationGuide("Summarize a small categorical distribution as parts of one total.", "Use when there are few, clearly distinct slices and the part-to-whole relationship matters more than close ranking.", "Avoid for many slices or small differences; a bar chart is easier to compare precisely.", "An adjacent table preserves every exact value and share; do not make users infer either from sector size or color."),
-			Preview:      pie.Pie(sampleObservationStates()),
-			Code:         pieCode(),
+			AbovePreview: visualizationGuide("Summarize a small categorical distribution as parts of one total.", "Use when there are few, clearly distinct slices and the part-to-whole relationship matters more than close ranking.", "Avoid for many slices, negative values, or small differences; a bar chart is easier to compare precisely.", "Every treatment retains an adjacent exact-value and share table. Slice names, values, totals, and label meaning never depend on geometry or color alone."),
+			Preview:      pie.Pie(sampleBasicPie()),
+			Code:         basicPieCode(),
 		},
 		Sections: []componentpage.Example{
 			{
+				Title:       "Area-scaled radii",
+				Description: "A rose-style treatment scales each radius by the square root of its value, so visible radius area carries the same value order while sector angles retain part-to-whole meaning. Use this redundant encoding only when it helps broad comparison; consult exact values for close differences.",
+				Preview:     pie.Pie(sampleAreaScaledPie()),
+				Code:        areaScaledPieCode(),
+			},
+			{
+				Title:       "Segment spacing",
+				Description: "Explicit slice gaps separate adjacent sectors. Spacing is presentation only and does not change totals, order, labels, or exact shares.",
+				Preview:     pie.Pie(sampleSegmentGapPie()),
+				Code:        segmentGapPieCode(),
+			},
+			{
 				Title:       "Doughnut treatment",
-				Description: "Open the center with a validated inner radius while preserving the same slice semantics, exact-value summary, theme tokens, controls, and exports.",
-				RootAttrs:   templ.Attributes{"data-goshtoso-candidate": "pie-doughnut-b97bca2322e90e2f"},
-				Preview:     pie.Pie(sampleDoughnutChart()),
-				Code:        doughnutCode(),
+				Description: "Open the center with an inner radius relative to the outer ring while preserving the same five values, title, legend, exact-value summary, theme tokens, controls, and exports.",
+				Preview:     pie.Pie(sampleBasicDoughnutChart()),
+				Code:        basicDoughnutCode(),
+			},
+			{
+				Title:       "Outside and inside labels",
+				Description: "Exterior labels maximize room around the ring. Inside labels use the open center for a compact square treatment; both keep the adjacent table as the accessible source of exact names, values, and shares.",
+				Preview:     doughnutLabelPlacementComparison(),
+				Code:        doughnutLabelPlacementCode(),
+			},
+			{
+				Title:       "Center total and overlay legend",
+				Description: "A compact humanized total occupies the center while slice labels are hidden and an overlay legend names every channel. The exact table preserves the unrounded total and each contribution.",
+				Preview:     pie.Pie(sampleDoughnutCenterTotal()),
+				Code:        doughnutCenterTotalCode(),
 			},
 		},
-		After: chartDocumentation("Choosing a treatment", "Use the doughnut treatment only when the open center improves surrounding context. It does not make small slice differences easier to read.", "pie"),
+		After: chartDocumentation("Static/vector behavior", "Pie renders inline SVG on the server, follows both Goshtoso themes in light and dark mode, supports decoded SVG and opaque or transparent PNG download through the shared wrapper, and remains readable in print or without chart JavaScript. Wrapper lifecycle and delivery-mode choices stay in the shared chart controls and chart modes guides.", "pie"),
 	})
+}
+
+templ doughnutLabelPlacementComparison() {
+	<div class="grid min-w-0 gap-4 lg:grid-cols-2">
+		<div class="min-w-0">@pie.Pie(sampleDoughnutOutsideLabels())</div>
+		<div class="min-w-0">@pie.Pie(sampleDoughnutInsideLabels())</div>
+	</div>
 }
 
 templ scatterContent() {

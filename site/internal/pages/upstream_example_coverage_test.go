@@ -105,3 +105,31 @@ func TestInteractiveBarCoverageUsesCanonicalLedgerWithoutLostEntries(t *testing.
 		t.Errorf("canonical interactive Bar source path occurs %d times, want 1", count)
 	}
 }
+
+func TestInteractivePieCoverageUsesCanonicalLedgerWithoutLostEntries(t *testing.T) {
+	t.Parallel()
+	data, err := os.ReadFile("../../../docs/upstream-example-coverage.md")
+	if err != nil {
+		t.Fatalf("read canonical upstream coverage ledger: %v", err)
+	}
+	ledger := string(data)
+	if !strings.Contains(ledger, "## Interactive Pie") || !strings.Contains(ledger, interactivePieUpstreamRevision) || !strings.Contains(ledger, interactivePieUpstreamSHA256) {
+		t.Fatal("canonical ledger is missing the pinned interactive Pie section")
+	}
+	for _, entry := range interactivePieUpstreamCoverage() {
+		row := "| `" + entry.Name + "` | Example |"
+		if count := strings.Count(ledger, row); count != 1 {
+			t.Errorf("interactive Pie coverage row %q occurs %d times, want 1", entry.Name, count)
+		}
+	}
+	if !strings.Contains(ledger, "all nine upstream Pie behavior functions") || strings.Contains(ledger, "pieWithDispatchAction` | Unsupported") {
+		t.Error("interactive Pie ledger must record exhaustive nine-of-nine coverage")
+	}
+	for _, source := range interactivePieSupplementarySources() {
+		for _, want := range []string{"`" + source.Path + "`", "`" + source.SHA256 + "`"} {
+			if count := strings.Count(ledger, want); count != 1 {
+				t.Errorf("shared Pie layout source evidence %q occurs %d times, want 1", want, count)
+			}
+		}
+	}
+}

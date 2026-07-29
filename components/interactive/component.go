@@ -61,6 +61,8 @@ type renderConfig struct {
 	Line3DColdToWarm bool
 	// Line3DAutoRotate lets the runtime disable motion for reduced-motion users.
 	Line3DAutoRotate bool
+	// PieAutoEmphasis is private JSON consumed by the shared theme runtime.
+	PieAutoEmphasis string
 	// ScriptReplacements restore values that the private renderer cannot
 	// distinguish from omitted zero values.
 	ScriptReplacements []scriptReplacement

@@ -1,19 +1,24 @@
 # Interactive runtime notice
 
-Goshtoso Charts embeds Apache ECharts 5.4.3 for interactive charts. The local
-file comes from the `github.com/go-echarts/go-echarts/v2` v2.7.2 asset
-distribution and is licensed under Apache-2.0.
+Goshtoso Charts embeds Apache ECharts 5.6.0 for interactive charts. The local
+file is the official npm `echarts@5.6.0` distribution and is licensed under
+Apache-2.0.
 
-- Local path: `js/runtime/echarts/5.4.3/echarts.min.js`
-- Local SHA-256: `987554a0014ad7be585eccc91c4329d050b40c2c0ebd2e8ec84adca82c0eb843`
-- Local SHA-384 SRI: `sha384-PpgrXpnquO1pL7h9CGCAR6K7B62r8ZFzdHKzC/FtQ/0Pm4MLQNTcS2yt12JX+rkb`
-- Upstream: `https://github.com/apache/echarts/tree/5.4.3`
-- License: `https://github.com/apache/echarts/blob/5.4.3/LICENSE`
+- Local path: `js/runtime/echarts/5.6.0/echarts.min.js`
+- Bundled license: `js/runtime/echarts/5.6.0/LICENSE`
+- Bundled notice: `js/runtime/echarts/5.6.0/NOTICE`
+- Bundled d3 license: `js/runtime/echarts/5.6.0/LICENSE-d3`
+- Local/CDN SHA-256: `bf4a223524e40b77c304bec67e1222cf551f14880cf42c69dc046558e11c07b1`
+- Local/CDN SHA-384 SRI: `sha384-pPi0zxBAoDu6+JXW/C68UZLvBUUtU+7zonhif43rqj7pxsGyqyqzcian2Rj37Rss`
+- npm tarball shasum: `2377874dca9fb50f104051c3553544752da3c9d6`
+- npm tarball integrity: `sha512-oTbVTsXfKuEhxftHqL5xprgLoc0k7uScAwtryCgWF6hPYFLRwOUHiFmHGCBKP5NPFNkDVopOieyUqYGH8Fa3kA==`
+- Published package: `https://www.npmjs.com/package/echarts/v/5.6.0`
+- Upstream: `https://github.com/apache/echarts/tree/5.6.0`
+- License: `https://github.com/apache/echarts/blob/5.6.0/LICENSE`
 
 The explicit CDN option uses the pinned jsDelivr npm URL declared in
-`assets.RuntimeCDNURL`. Its bytes differ from the embedded file only by CRLF
-line endings, so it has a distinct SRI value declared in
-`assets.RuntimeCDNIntegrity`.
+`assets.RuntimeCDNURL`. Its bytes match the embedded file and use the same SRI
+value declared in `assets.RuntimeCDNIntegrity`.
 
 ## Word-cloud extension
 
@@ -35,7 +40,7 @@ license notice.
 
 Goshtoso Charts embeds `echarts-liquidfill` 3.1.0 for the liquid Gauge
 treatment. Version 3 declares compatibility with ECharts 5; its peer range is
-`^5.0.1`, which includes the bundled 5.4.3 runtime. Package metadata declares
+`^5.0.1`, which includes the bundled 5.6.0 runtime. Package metadata declares
 MIT while the distributed `license.md` contains BSD-3-Clause terms. The
 embedded distribution is therefore attributed under BSD-3-Clause.
 
@@ -79,7 +84,7 @@ the runtime assets retain official IBGE names, UF codes, and geography identifie
 
 Goshtoso Charts embeds the official `echarts-gl` 2.0.9 npm distribution for
 three-dimensional interactive charts. Its package declares peer compatibility
-with `echarts ^5.1.2`, which includes the bundled ECharts 5.4.3 runtime.
+with `echarts ^5.1.2`, which includes the bundled ECharts 5.6.0 runtime.
 
 - Local path: `js/runtime/three-d/2.0.9/runtime.min.js`
 - Bundled license: `js/runtime/three-d/2.0.9/LICENSE`

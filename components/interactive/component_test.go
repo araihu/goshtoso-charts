@@ -78,6 +78,8 @@ func TestEChartRendersTrustedSnippet(t *testing.T) {
 		`themedVisualMaps`, `current.color`, `themeSeriesItems`,
 		`matchMedia("(prefers-color-scheme: dark)")`,
 		`matchMedia("(prefers-reduced-motion: reduce)")`,
+		`data-goshtoso-charts-pie-auto-emphasis`, `syncPieAutoEmphasis`,
+		`clearInterval(state.timer)`, `type: "highlight"`, `type: "showTip"`,
 		`data-goshtoso-charts-line3d-auto-rotate`, `series.type === "line3D"`,
 		`autoRotate: !reduceMotion`,
 		`ResizeObserver`, `chart.resize({ width: width, height: height, animation: { duration: 0 } })`,
