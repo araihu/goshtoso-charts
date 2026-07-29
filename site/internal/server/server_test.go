@@ -66,6 +66,31 @@ func TestDemoRoutesRender(t *testing.T) {
 	}
 }
 
+func TestInteractivePieDocumentsRoseAndNestedVariantsWithoutEngineBranding(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/pie", nil))
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("GET interactive Pie status = %d", recorder.Code)
+	}
+	body := recorder.Body.String()
+	for _, want := range []string{
+		`data-pie-variant="base"`, `data-pie-variant="rose-area"`, `data-pie-variant="rose-radius"`, `data-pie-variant="nested"`,
+		"Rose area", "Rose radius", "Nested seasonal pie", "Exact pie values",
+		`"roseType":"area"`, `"roseType":"radius"`, `"formatter":"{b}: {c}"`,
+		"Spring", "Summer", "Autumn", "Winter", "Open v0.0.1 API",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("interactive Pie page missing %q", want)
+		}
+	}
+	for _, unwanted := range []string{"go-echarts", "Apache ECharts", "examples/pie.go", "infrastructure", "operations"} {
+		if strings.Contains(body, unwanted) {
+			t.Errorf("interactive Pie page contains private or invented content %q", unwanted)
+		}
+	}
+}
+
 func TestLinePageIncludesPinnedDualAxisTreatmentWithoutEngineBranding(t *testing.T) {
 	t.Parallel()
 	handler := New()
@@ -504,6 +529,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		"Goshtoso", "v0.0.14-0.20260729011747-809b903c1296", "Goshtoso App Shells", "commit 4c4aa5ae787e", "templ", "v0.3.1020",
 		"go-analyze/charts", "v0.6.0", "go-echarts", "v2.7.2", "Apache ECharts", "v5.4.3",
 		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
+		"examples/pie.go",
 		"examples/1-Painter/radar_chart-1-basic/main.go",
 		"examples/1-Painter/candlestick_chart-1-basic/main.go", "examples/1-Painter/funnel_chart-1-basic/main.go", "examples/1-Painter/heat_map-1-basic/main.go", "examples/parallel.go",
 		"examples/1-Painter/table-1/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2",

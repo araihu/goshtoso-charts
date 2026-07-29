@@ -188,6 +188,67 @@ func TestDoughnutSampleMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 	}
 }
 
+func TestInteractivePieVariantsMechanicallyMatchPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if interactivePieUpstreamPath != "examples/pie.go" ||
+		interactivePieUpstreamRevision != "bda428480a82d6d77ebb9fa939cf8d52528453dd" ||
+		interactivePieUpstreamSHA256 != "a59bb6f11818d4175d033f025f00a58e6a191eff5acf30f0e0cd5f98cd493ada" {
+		t.Fatalf("interactive Pie upstream source = %s@%s SHA-256 %s", interactivePieUpstreamPath, interactivePieUpstreamRevision, interactivePieUpstreamSHA256)
+	}
+	if !reflect.DeepEqual(interactivePieSeasons, []string{"Spring", "Summer", "Autumn", "Winter"}) {
+		t.Fatalf("normalized season names = %#v", interactivePieSeasons)
+	}
+
+	areaChart := sampleInteractivePieRoseArea()
+	if areaChart.Label != "Rose area" || areaChart.Width != "100%" || areaChart.Height != "420px" || len(areaChart.Series) != 1 {
+		t.Fatalf("area rose chart identity/geometry = %#v", areaChart)
+	}
+	if areaChart.Options.Legend == nil || areaChart.Options.Legend.Left != "center" || areaChart.Options.Legend.Bottom != "0" {
+		t.Fatalf("area rose responsive legend = %#v", areaChart.Options.Legend)
+	}
+	area := areaChart.Series[0]
+	if area.Name != "Area" || area.RoseMode != interactive.PieRoseArea || area.InnerRadius != 40 || area.OuterRadius != 75 ||
+		area.Center != nil || area.LabelContent != interactive.PieLabelNameAndValue {
+		t.Fatalf("area rose series = %#v", area)
+	}
+	assertInteractivePieValues(t, area.Data, []float64{11, 45, 37, 6})
+
+	radiusChart := sampleInteractivePieRoseRadius()
+	if radiusChart.Label != "Rose radius" || radiusChart.Width != "100%" || radiusChart.Height != "420px" || len(radiusChart.Series) != 1 {
+		t.Fatalf("radius rose chart identity/geometry = %#v", radiusChart)
+	}
+	radius := radiusChart.Series[0]
+	if radius.Name != "Radius" || radius.RoseMode != interactive.PieRoseRadius || radius.InnerRadius != 30 || radius.OuterRadius != 75 ||
+		radius.Center != nil || radius.LabelContent != interactive.PieLabelNameAndValue {
+		t.Fatalf("radius rose series = %#v", radius)
+	}
+	assertInteractivePieValues(t, radius.Data, []float64{95, 66, 28, 58})
+
+	nested := sampleInteractivePieNested()
+	if nested.Label != "Nested seasonal pie" || nested.Width != "100%" || nested.Height != "440px" || len(nested.Series) != 2 {
+		t.Fatalf("nested chart identity/geometry = %#v", nested)
+	}
+	outer, inner := nested.Series[0], nested.Series[1]
+	if outer.InnerRadius != 50 || outer.OuterRadius != 55 || outer.RoseMode != interactive.PieRoseArea || outer.Center != nil ||
+		inner.InnerRadius != 0 || inner.OuterRadius != 45 || inner.RoseMode != interactive.PieRoseRadius || inner.Center != nil {
+		t.Fatalf("nested radii/centers = %#v / %#v", outer, inner)
+	}
+	assertInteractivePieValues(t, outer.Data, []float64{87, 31, 29, 56})
+	assertInteractivePieValues(t, inner.Data, []float64{37, 31, 85, 26})
+}
+
+func assertInteractivePieValues(t *testing.T, data []interactive.PieData, values []float64) {
+	t.Helper()
+	if len(data) != len(interactivePieSeasons) || len(data) != len(values) {
+		t.Fatalf("Pie data length = %d, want %d", len(data), len(values))
+	}
+	for index, point := range data {
+		if point.Name != interactivePieSeasons[index] || point.Value != values[index] || point.Value < 0 || point.Value >= 100 {
+			t.Errorf("Pie data %d = %#v, want %s/%v in [0,100)", index, point, interactivePieSeasons[index], values[index])
+		}
+	}
+}
+
 func TestHorizontalBarMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 	t.Parallel()
 	if horizontalBarUpstreamPath != "examples/1-Painter/horizontal_bar_chart-1-basic/main.go" ||

@@ -3,11 +3,13 @@ package interactive
 import (
 	"fmt"
 	"math"
+	"strconv"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	"github.com/go-echarts/go-echarts/v2/charts"
 	"github.com/go-echarts/go-echarts/v2/opts"
+	"github.com/go-echarts/go-echarts/v2/types"
 )
 
 // PieRoseMode controls Nightingale (rose) rendering.
@@ -21,6 +23,23 @@ const (
 	// PieRoseArea gives sectors equal angles and maps values to sector area.
 	PieRoseArea PieRoseMode = "area"
 )
+
+// PieLabelContent controls typed sector-label content.
+type PieLabelContent string
+
+const (
+	// PieLabelDefault preserves the renderer's default label content.
+	PieLabelDefault PieLabelContent = ""
+	// PieLabelNameAndValue shows each sector name and exact value.
+	PieLabelNameAndValue PieLabelContent = "name-value"
+)
+
+// PieCenter places one pie series as percentages of chart width and height.
+// Nil Center preserves the chart's centered default.
+type PieCenter struct {
+	X float64
+	Y float64
+}
 
 // PieConfig describes an accessible, browser-rendered pie chart.
 //
@@ -40,13 +59,15 @@ type PieConfig struct {
 // OuterRadius are percentages in the inclusive range 0..100. OuterRadius
 // defaults to 75 when zero.
 type PieSeries struct {
-	Name        string
-	Data        []PieData
-	InnerRadius float64
-	OuterRadius float64
-	RoseMode    PieRoseMode
-	PadAngle    float64
-	Options     SeriesOptions
+	Name         string
+	Data         []PieData
+	InnerRadius  float64
+	OuterRadius  float64
+	Center       *PieCenter
+	RoseMode     PieRoseMode
+	LabelContent PieLabelContent
+	PadAngle     float64
+	Options      SeriesOptions
 }
 
 // PieData describes one nonnegative named sector. ItemStyle, Label, and
@@ -85,12 +106,24 @@ func Pie(cfg PieConfig) Instance {
 			outerRadius = 75
 		}
 		options := make([]charts.SeriesOpts, 0, 1+len(chartSeriesOptions(cfg.SeriesOptions))+len(chartSeriesOptions(series.Options)))
-		options = append(options, charts.WithPieChartOpts(opts.PieChart{
+		pieOptions := opts.PieChart{
 			Radius:   []string{percentage(series.InnerRadius), percentage(outerRadius)},
 			RoseType: string(series.RoseMode),
 			PadAngle: series.PadAngle,
-		}))
+		}
+		if series.Center != nil {
+			pieOptions.Center = []string{percentage(series.Center.X), percentage(series.Center.Y)}
+		}
+		options = append(options, charts.WithPieChartOpts(pieOptions))
 		options = append(options, mergeSeriesOptions(cfg.SeriesOptions, series.Options)...)
+		if formatter := pieLabelFormatter(series.LabelContent); formatter != "" {
+			options = append(options, func(value *charts.SingleSeries) {
+				if value.Label == nil {
+					value.Label = &opts.Label{}
+				}
+				value.Label.Formatter = types.FuncStr(formatter)
+			})
+		}
 
 		data := make([]opts.PieData, len(series.Data))
 		for index, sector := range series.Data {
@@ -113,7 +146,45 @@ func Pie(cfg PieConfig) Instance {
 
 	return newInstance(chartcomponents.KindInteractivePie, renderConfig{
 		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, ResponsiveWidth: responsiveWidth(cfg.Width),
+		Details: pieExactValues(pieDetailRows(cfg.Series)),
 	})
+}
+
+func pieLabelFormatter(content PieLabelContent) string {
+	if content == PieLabelNameAndValue {
+		return "{b}: {c}"
+	}
+	return ""
+}
+
+type pieValueRow struct {
+	Series string
+	Name   string
+	Value  string
+	Share  string
+}
+
+func pieDetailRows(series []PieSeries) []pieValueRow {
+	rows := make([]pieValueRow, 0)
+	for _, current := range series {
+		total := 0.0
+		for _, sector := range current.Data {
+			total += sector.Value
+		}
+		for _, sector := range current.Data {
+			share := "0%"
+			if total > 0 {
+				share = strconv.FormatFloat(sector.Value/total*100, 'f', 1, 64) + "%"
+			}
+			rows = append(rows, pieValueRow{
+				Series: current.Name,
+				Name:   sector.Name,
+				Value:  strconv.FormatFloat(sector.Value, 'f', -1, 64),
+				Share:  share,
+			})
+		}
+	}
+	return rows
 }
 
 func percentage(value float64) string { return fmt.Sprintf("%g%%", value) }
@@ -147,6 +218,17 @@ func validatePieConfig(cfg PieConfig) error {
 		}
 		if series.RoseMode != PieRoseNone && series.RoseMode != PieRoseRadius && series.RoseMode != PieRoseArea {
 			return fmt.Errorf("pie chart series %q rose mode %q is not supported", series.Name, series.RoseMode)
+		}
+		if series.Center != nil {
+			if !validPercentage(series.Center.X) {
+				return fmt.Errorf("pie chart series %q center x must be between 0 and 100", series.Name)
+			}
+			if !validPercentage(series.Center.Y) {
+				return fmt.Errorf("pie chart series %q center y must be between 0 and 100", series.Name)
+			}
+		}
+		if series.LabelContent != PieLabelDefault && series.LabelContent != PieLabelNameAndValue {
+			return fmt.Errorf("pie chart series %q label content %q is not supported", series.Name, series.LabelContent)
 		}
 		if math.IsNaN(series.PadAngle) || math.IsInf(series.PadAngle, 0) || series.PadAngle < 0 {
 			return fmt.Errorf("pie chart series %q pad angle must be a finite nonnegative value", series.Name)
