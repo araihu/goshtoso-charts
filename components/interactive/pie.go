@@ -1,6 +1,7 @@
 package interactive
 
 import (
+	"encoding/json"
 	"fmt"
 	"math"
 	"strconv"
@@ -34,6 +35,24 @@ const (
 	PieLabelNameAndValue PieLabelContent = "name-value"
 )
 
+// PieTooltipContent controls typed item-tooltip content.
+type PieTooltipContent string
+
+const (
+	// PieTooltipDefault preserves the renderer's default item tooltip.
+	PieTooltipDefault PieTooltipContent = ""
+	// PieTooltipNameAndShare shows the sector name and its percentage share.
+	PieTooltipNameAndShare PieTooltipContent = "name-share"
+)
+
+// PieAutoEmphasisOptions cycles emphasis across one series. The private
+// runtime stops the cycle for reduced-motion users.
+type PieAutoEmphasisOptions struct {
+	SeriesIndex          int
+	IntervalMilliseconds int
+	ShowTooltip          *bool
+}
+
 // PieCenter places one pie series as percentages of chart width and height.
 // Nil Center preserves the chart's centered default.
 type PieCenter struct {
@@ -45,14 +64,16 @@ type PieCenter struct {
 //
 // Values must be application-owned because the browser renderer serializes them.
 type PieConfig struct {
-	Label         string
-	Caption       string
-	Series        []PieSeries
-	Width         string
-	Height        string
-	Options       ChartOptions
-	SeriesOptions SeriesOptions
-	Style         charttheme.Style
+	Label          string
+	Caption        string
+	Series         []PieSeries
+	Width          string
+	Height         string
+	Options        ChartOptions
+	SeriesOptions  SeriesOptions
+	Style          charttheme.Style
+	TooltipContent PieTooltipContent
+	AutoEmphasis   *PieAutoEmphasisOptions
 }
 
 // PieSeries describes one named pie or donut series. InnerRadius and
@@ -67,7 +88,9 @@ type PieSeries struct {
 	RoseMode     PieRoseMode
 	LabelContent PieLabelContent
 	PadAngle     float64
-	Options      SeriesOptions
+	// Selectable allows readers to toggle one or more sectors.
+	Selectable bool
+	Options    SeriesOptions
 }
 
 // PieData describes one nonnegative named sector. ItemStyle, Label, and
@@ -78,6 +101,7 @@ type PieData struct {
 	ItemStyle *ItemStyle
 	Label     *LabelOptions
 	Tooltip   *TooltipOptions
+	Selected  bool
 }
 
 // Pie builds a reusable interactive pie component.
@@ -89,6 +113,14 @@ func Pie(cfg PieConfig) Instance {
 	chart := charts.NewPie()
 	globalOptions := []charts.GlobalOpts{charts.WithColorsOpts(opts.Colors(cfg.Style.ResolvedColors()))}
 	globalOptions = append(globalOptions, chartGlobalOptions(cfg.Options)...)
+	if formatter := pieTooltipFormatter(cfg.TooltipContent); formatter != "" {
+		tooltip := opts.Tooltip{}
+		if cfg.Options.Tooltip != nil {
+			tooltip = rendererTooltip(cfg.Options.Tooltip)
+		}
+		tooltip.Formatter = types.FuncStr(formatter)
+		globalOptions = append(globalOptions, charts.WithTooltipOpts(tooltip))
+	}
 	// Explicit component colors remain authoritative over escape-hatch options.
 	if len(cfg.Style.Colors) > 0 {
 		globalOptions = append(globalOptions, charts.WithColorsOpts(opts.Colors(cfg.Style.ResolvedColors())))
@@ -116,6 +148,11 @@ func Pie(cfg PieConfig) Instance {
 		}
 		options = append(options, charts.WithPieChartOpts(pieOptions))
 		options = append(options, mergeSeriesOptions(cfg.SeriesOptions, series.Options)...)
+		if series.Selectable {
+			options = append(options, func(value *charts.SingleSeries) {
+				value.SelectedMode = opts.Bool(true)
+			})
+		}
 		if formatter := pieLabelFormatter(series.LabelContent); formatter != "" {
 			options = append(options, func(value *charts.SingleSeries) {
 				if value.Label == nil {
@@ -128,6 +165,9 @@ func Pie(cfg PieConfig) Instance {
 		data := make([]opts.PieData, len(series.Data))
 		for index, sector := range series.Data {
 			data[index] = opts.PieData{Name: sector.Name, Value: sector.Value}
+			if sector.Selected {
+				data[index].Selected = opts.Bool(true)
+			}
 			if sector.ItemStyle != nil {
 				style := rendererItemStyle(sector.ItemStyle)
 				data[index].ItemStyle = &style
@@ -146,7 +186,7 @@ func Pie(cfg PieConfig) Instance {
 
 	return newInstance(chartcomponents.KindInteractivePie, renderConfig{
 		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, ResponsiveWidth: responsiveWidth(cfg.Width),
-		Details: pieExactValues(pieDetailRows(cfg.Series)),
+		Details: pieExactValues(pieDetailRows(cfg.Series)), PieAutoEmphasis: pieAutoEmphasisMetadata(cfg.AutoEmphasis),
 	})
 }
 
@@ -155,6 +195,33 @@ func pieLabelFormatter(content PieLabelContent) string {
 		return "{b}: {c}"
 	}
 	return ""
+}
+
+func pieTooltipFormatter(content PieTooltipContent) string {
+	if content == PieTooltipNameAndShare {
+		return "{b}: {d}%"
+	}
+	return ""
+}
+
+func pieAutoEmphasisMetadata(value *PieAutoEmphasisOptions) string {
+	if value == nil {
+		return ""
+	}
+	interval := value.IntervalMilliseconds
+	if interval == 0 {
+		interval = 1000
+	}
+	showTooltip := true
+	if value.ShowTooltip != nil {
+		showTooltip = *value.ShowTooltip
+	}
+	encoded, _ := json.Marshal(struct {
+		SeriesIndex int  `json:"seriesIndex"`
+		Interval    int  `json:"interval"`
+		ShowTooltip bool `json:"showTooltip"`
+	}{SeriesIndex: value.SeriesIndex, Interval: interval, ShowTooltip: showTooltip})
+	return string(encoded)
 }
 
 type pieValueRow struct {
@@ -190,11 +257,28 @@ func pieDetailRows(series []PieSeries) []pieValueRow {
 func percentage(value float64) string { return fmt.Sprintf("%g%%", value) }
 
 func validatePieConfig(cfg PieConfig) error {
+	if err := validateChartOptions(cfg.Options); err != nil {
+		return err
+	}
 	if cfg.Label == "" {
 		return fmt.Errorf("pie chart label is required")
 	}
 	if len(cfg.Series) == 0 {
 		return fmt.Errorf("pie chart series is required")
+	}
+	if cfg.TooltipContent != PieTooltipDefault && cfg.TooltipContent != PieTooltipNameAndShare {
+		return fmt.Errorf("pie chart tooltip content %q is not supported", cfg.TooltipContent)
+	}
+	if cfg.AutoEmphasis != nil {
+		if cfg.AutoEmphasis.SeriesIndex < 0 || cfg.AutoEmphasis.SeriesIndex >= len(cfg.Series) {
+			return fmt.Errorf("pie chart auto emphasis series index must identify a configured series")
+		}
+		if cfg.AutoEmphasis.IntervalMilliseconds < 0 {
+			return fmt.Errorf("pie chart auto emphasis interval must be nonnegative")
+		}
+	}
+	if err := validatePieSeriesOptions(cfg.SeriesOptions); err != nil {
+		return err
 	}
 	for seriesIndex, series := range cfg.Series {
 		if series.Name == "" {
@@ -233,6 +317,9 @@ func validatePieConfig(cfg PieConfig) error {
 		if math.IsNaN(series.PadAngle) || math.IsInf(series.PadAngle, 0) || series.PadAngle < 0 {
 			return fmt.Errorf("pie chart series %q pad angle must be a finite nonnegative value", series.Name)
 		}
+		if err := validatePieSeriesOptions(series.Options); err != nil {
+			return err
+		}
 		for dataIndex, sector := range series.Data {
 			if sector.Name == "" {
 				return fmt.Errorf("pie chart series %q data point %d name is required", series.Name, dataIndex)
@@ -240,7 +327,27 @@ func validatePieConfig(cfg PieConfig) error {
 			if math.IsNaN(sector.Value) || math.IsInf(sector.Value, 0) || sector.Value < 0 {
 				return fmt.Errorf("pie chart series %q data point %q value must be a finite nonnegative value", series.Name, sector.Name)
 			}
+			if err := validatePieItemStyle(sector.ItemStyle); err != nil {
+				return err
+			}
 		}
+	}
+	return nil
+}
+
+func validatePieSeriesOptions(options SeriesOptions) error {
+	if err := validatePieItemStyle(options.ItemStyle); err != nil {
+		return err
+	}
+	if options.Emphasis != nil {
+		return validatePieItemStyle(options.Emphasis.ItemStyle)
+	}
+	return nil
+}
+
+func validatePieItemStyle(style *ItemStyle) error {
+	if style != nil && style.ShadowBlur < 0 {
+		return fmt.Errorf("pie chart item shadow blur must be nonnegative")
 	}
 	return nil
 }

@@ -68,10 +68,76 @@ type TitleOptions struct {
 
 // LegendOptions controls renderer-neutral legend presentation.
 type LegendOptions struct {
+	Hidden            bool
 	Orientation       LegendOrientation
 	LeftPercent       float64
 	VerticalPlacement VerticalPlacement
 	FontSize          float64
+	// Overlay places a horizontal legend over the chart instead of reserving layout space.
+	Overlay bool
+}
+
+// RadiusScale controls whether every slice shares one radius or also encodes
+// value through its visible area.
+type RadiusScale string
+
+const (
+	// RadiusScaleUniform is the zero-value shared-radius treatment.
+	RadiusScaleUniform RadiusScale = ""
+	// RadiusScaleArea makes radius proportional to the square root of value.
+	RadiusScaleArea RadiusScale = "area"
+)
+
+// RadiusOptions controls renderer-neutral radial geometry.
+type RadiusOptions struct {
+	// OuterPixels fixes the largest outer radius in CSS pixels. Zero uses the
+	// responsive renderer default.
+	OuterPixels float64
+	Scale       RadiusScale
+}
+
+// LabelPlacement controls where slice labels are drawn.
+type LabelPlacement string
+
+const (
+	// LabelPlacementOutside is the zero-value exterior label treatment.
+	LabelPlacementOutside LabelPlacement = ""
+	// LabelPlacementInside places labels inside a doughnut's open center.
+	LabelPlacementInside LabelPlacement = "inside"
+)
+
+// LabelOptions controls visible labels attached to slices.
+type LabelOptions struct {
+	Hidden    bool
+	Placement LabelPlacement
+	FontSize  float64
+}
+
+// ValueFormat selects a renderer-neutral numeric label format.
+type ValueFormat string
+
+const (
+	// ValueFormatExact is the zero-value decimal representation.
+	ValueFormatExact ValueFormat = ""
+	// ValueFormatHumanized uses a compact magnitude suffix.
+	ValueFormatHumanized ValueFormat = "humanized"
+)
+
+// CenterContent selects content placed in a doughnut hole.
+type CenterContent string
+
+const (
+	CenterContentNone  CenterContent = ""
+	CenterContentTotal CenterContent = "total"
+)
+
+// CenterOptions configures an optional doughnut-center total.
+type CenterOptions struct {
+	Content  CenterContent
+	Prefix   string
+	Format   ValueFormat
+	Decimals int
+	FontSize float64
 }
 
 // Padding is chart inset in pixels.
@@ -91,11 +157,16 @@ type Config struct {
 	InnerRadiusPercent float64
 	Title              TitleOptions
 	Legend             LegendOptions
-	Padding            Padding
-	Width              int
-	Height             int
-	Style              charttheme.Style
-	RootAttrs          templ.Attributes
+	Radius             RadiusOptions
+	Labels             LabelOptions
+	Center             CenterOptions
+	// SegmentGap is visible separation between adjacent slices in CSS pixels.
+	SegmentGap float64
+	Padding    Padding
+	Width      int
+	Height     int
+	Style      charttheme.Style
+	RootAttrs  templ.Attributes
 	// Controls configures shared controls; Expand defaults on while fullscreen defaults off.
 	Controls chartcontrol.Options
 	// Export customizes or disables default SVG and PNG export.
@@ -128,6 +199,24 @@ func (cfg Config) validate() error {
 	}
 	if err := cfg.Legend.validate(); err != nil {
 		return err
+	}
+	if err := cfg.Radius.validate(); err != nil {
+		return err
+	}
+	if cfg.Radius.Scale == RadiusScaleArea && cfg.Variant == VariantDoughnut {
+		return fmt.Errorf("pie chart area radius scale requires pie variant")
+	}
+	if err := cfg.Labels.validate(cfg.Variant); err != nil {
+		return err
+	}
+	if err := cfg.Center.validate(cfg.Variant); err != nil {
+		return err
+	}
+	if cfg.Labels.Placement == LabelPlacementInside && cfg.Center.Content != CenterContentNone {
+		return fmt.Errorf("pie chart inside labels and center total cannot be combined")
+	}
+	if !finite(cfg.SegmentGap) || cfg.SegmentGap < 0 {
+		return fmt.Errorf("pie chart segment gap must be finite and non-negative")
 	}
 	if err := cfg.Padding.validate(); err != nil {
 		return err
@@ -189,6 +278,67 @@ func (options LegendOptions) validate() error {
 	}
 	if !finite(options.FontSize) || options.FontSize < 0 {
 		return fmt.Errorf("pie chart legend font size must be finite and non-negative")
+	}
+	return nil
+}
+
+func (options RadiusOptions) validate() error {
+	if !finite(options.OuterPixels) || options.OuterPixels < 0 {
+		return fmt.Errorf("pie chart outer radius must be finite and non-negative")
+	}
+	switch options.Scale {
+	case RadiusScaleUniform, RadiusScaleArea:
+	default:
+		return fmt.Errorf("pie chart radius scale %q is unsupported", options.Scale)
+	}
+	if options.Scale == RadiusScaleArea && options.OuterPixels == 0 {
+		return fmt.Errorf("pie chart area radius scale requires an outer radius")
+	}
+	return nil
+}
+
+func (options LabelOptions) validate(variant Variant) error {
+	switch options.Placement {
+	case LabelPlacementOutside:
+	case LabelPlacementInside:
+		if variant != VariantDoughnut {
+			return fmt.Errorf("pie chart inside labels require doughnut variant")
+		}
+	default:
+		return fmt.Errorf("pie chart label placement %q is unsupported", options.Placement)
+	}
+	if options.Hidden && options.Placement != LabelPlacementOutside {
+		return fmt.Errorf("pie chart labels cannot be hidden and placed inside")
+	}
+	if !finite(options.FontSize) || options.FontSize < 0 {
+		return fmt.Errorf("pie chart label font size must be finite and non-negative")
+	}
+	return nil
+}
+
+func (options CenterOptions) validate(variant Variant) error {
+	switch options.Content {
+	case CenterContentNone:
+	case CenterContentTotal:
+		if variant != VariantDoughnut {
+			return fmt.Errorf("pie chart center total requires doughnut variant")
+		}
+	default:
+		return fmt.Errorf("pie chart center content %q is unsupported", options.Content)
+	}
+	switch options.Format {
+	case ValueFormatExact, ValueFormatHumanized:
+	default:
+		return fmt.Errorf("pie chart center value format %q is unsupported", options.Format)
+	}
+	if options.Decimals < 0 {
+		return fmt.Errorf("pie chart center decimals cannot be negative")
+	}
+	if !finite(options.FontSize) || options.FontSize < 0 {
+		return fmt.Errorf("pie chart center font size must be finite and non-negative")
+	}
+	if options.Content == CenterContentNone && (options.Prefix != "" || options.Format != ValueFormatExact || options.Decimals != 0 || options.FontSize != 0) {
+		return fmt.Errorf("pie chart center formatting requires center total content")
 	}
 	return nil
 }

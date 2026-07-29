@@ -1950,12 +1950,12 @@ test("static Export dropdown uses Goshtoso keyboard and Escape semantics", async
 test("static transparent exports retain transparent pixels", async () => {
   const page = await pageAt("/components/pie");
   try {
-    const svg = await download(page, "Download Observation states as SVG");
+    const svg = await download(page, "Download Pie Chart as SVG");
     const markup = svg.bytes.toString("utf8");
     assert.doesNotMatch(markup, /data-goshtoso-chart-export-surface/);
     assert.doesNotMatch(markup, /var\(/);
 
-    const png = await download(page, "Download Observation states as PNG");
+    const png = await download(page, "Download Pie Chart as PNG");
     assert.equal(png.types.at(-1), "image/png");
     const pixels = await sharp(png.bytes).ensureAlpha().raw().toBuffer();
     let transparentPixels = 0;

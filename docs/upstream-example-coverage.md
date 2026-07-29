@@ -32,6 +32,42 @@ engine-specific public type. Generic multi-chart and web examples exercise page
 composition rather than additional Bar-family behavior and remain outside this
 component coverage count.
 
+## Static/vector Pie
+
+- Source repository: `github.com/go-analyze/charts`
+- Revision: `1fe31b06b8a82e00df877ff4417a75858547c1c2`
+- Status: all seven dedicated Pie-family files at that revision are covered by
+  the one renderer-neutral `pie.Pie` component. They contain seven distinct visual treatments:
+  basic Pie, area-scaled slice radii, Pie segment spacing, basic doughnut,
+  outside doughnut labels, inside doughnut labels, and a doughnut center total
+  with an overlay legend. The two option-function files duplicate the
+  corresponding basic treatments through another upstream API style.
+
+| Upstream example | SHA-256 | Goshtoso coverage | Adaptation note |
+| --- | --- | --- | --- |
+| `examples/1-Painter/doughnut_chart-1-basic/main.go` | `b97bca2322e90e2f03ab49aa77f683d0c58e027846b939e5a61100602dad1ebf` | Basic doughnut presentation | Preserves values, names, title and subtitle, 20-pixel padding, vertical bottom legend at 80%, 600x400 geometry, and a 60%-of-ring center opening. |
+| `examples/1-Painter/doughnut_chart-2-styles/main.go` | `5816db5dd035c8607b2929779353c32d2bca78ed5f6244b3fc04e65292ac3610` | Outside labels, inside labels, and center total | Preserves the separate style dataset and all three outputs: 24-pixel gaps with outside labels, labels inside an enlarged 80%-of-ring opening, and hidden slice labels plus `Total Response: 3.15k`, 8-pixel gaps, and a bottom overlay legend. The fixed dark-gray center text follows theme text tokens instead. |
+| `examples/1-Painter/pie_chart-1-basic/main.go` | `06183e92e75445d89917af5dfd318c8b45f624c4efa6565b626a6aff6b3b128f` | Basic pie presentation | Preserves five channel values, title and subtitle, padding, legend placement, and 600x400 geometry. |
+| `examples/1-Painter/pie_chart-2-series_radius/main.go` | `54d85c6420a5e8f4fca7691c4969be80cc6bc52f8d4f10cbe5e499715875cbf6` | Area-scaled slice radii | Preserves the 120-pixel maximum and square-root scaling, yielding radii 120, 101, 90, 82, and 65 while retaining proportional sector angles. |
+| `examples/1-Painter/pie_chart-3-gap/main.go` | `2392d1fd1a7644158626a261344e79b18bef2c3d802fa1cea8c3add413b980f6` | Segment gap and hidden legend | Preserves the five values, centered title, hidden legend, 16-pixel separation, and 600x400 geometry. |
+| `examples/2-OptionFunc/doughnut_chart-1-basic/main.go` | `1936ff4508d6ef3967185e4076804bf53dc0bf8c64a254a569081fb1d399b453` | Duplicate basic doughnut | Same data and presentation as the Painter basic doughnut; covered once without exposing upstream option functions. |
+| `examples/2-OptionFunc/pie_chart-1-basic/main.go` | `d09222d5febf104f07a81e05a4235d96004b61e5c032dd3513a501a840bbe9b7` | Duplicate basic pie | Same data and presentation as the Painter basic Pie; covered once without exposing upstream option functions. |
+
+Unsupported dedicated Pie-family behaviors: none. Every behavior in the seven
+dedicated files maps to typed renderer-neutral configuration. No dedicated Pie-family source defines statistical references, so Pie does not invent
+cross-family reference lines or points.
+
+Supplementary Pie-adjacent evidence at the same revision:
+
+| Upstream source | SHA-256 | Scope boundary |
+| --- | --- | --- |
+| `examples/2-OptionFunc/web-1/main.go` | `96f110afd2d34cb3b823f3b36ecc4a48692bad91991f4010eb09322b747d20a1` | Generic web catalog and cross-family composition; its Pie snippets add no dedicated Pie behavior or renderer-neutral API requirement. |
+| `examples/demo/themes/main.go` | `10e7fc1b80f2b8d151a957f2cb1b4273f7822788282e6bbb104d137fda2d621b` | Multi-family theme demonstration; shared Goshtoso light/dark theme tokens provide the equivalent behavior centrally. |
+
+Raw renderer options, callbacks, and cross-family composition remain outside
+the public Pie API. Supporting such inputs would leak engine-specific types or
+turn one chart component into a composite-chart API.
+
 ## Static/vector Line
 
 - Source repository: `github.com/go-analyze/charts`
@@ -130,3 +166,37 @@ Supplementary Bar-adjacent evidence at the same revision:
 | `examples/themes.go` | `843c478c63b9cf3ab13b1e13518ea98912332bb34caf0dae5d48343fabd121a0` | Site themes and chart tokens cover theme switching centrally |
 | `examples/renderer.go` | `c4956db261f554c6a161c0d25baa7dbd7c2c179523997d297020cd55916e6a3f` | Private renderer integration, not a public chart option |
 | `examples/bar3d.go` | `110b3b85f2528d76eb8271b64f1facd81a974e30ecc0dd77319d5a409ff64275` | Separate existing Bar 3D component, not a two-dimensional Bar variant |
+
+## Interactive Pie
+
+- Source repository: `github.com/go-echarts/examples`
+- Source file: `examples/pie.go`
+- Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
+- Source SHA-256: `a59bb6f11818d4175d033f025f00a58e6a191eff5acf30f0e0cd5f98cd493ada`
+- Status: all nine upstream Pie behavior functions are covered by the one
+  renderer-neutral `interactive.Pie` component. No Pie function requires a raw
+  renderer option or backing-engine public type.
+- Deterministic adaptation: the upstream ambient random sequence is replaced by
+  its recorded seed-1 value groups in original call order. The upstream
+  `Autumn ` label typo is corrected to `Autumn`.
+- Runtime compatibility: `pieRadiusWithPadAngle` requires Apache ECharts 5.6 or
+  newer. The vendored and pinned CDN core is therefore 5.6.0; the compatible
+  runtime is an implementation dependency, not part of the chart API.
+
+| Upstream function | Coverage | Goshtoso Charts treatment |
+| --- | --- | --- |
+| `pieBase` | Example | Basic four-season distribution |
+| `pieShowLabel` | Example | Visible sector names and exact values |
+| `pieRadius` | Example | 40–75% donut radii with labels |
+| `pieRadiusWithPadAngle` | Example | Five-degree sector padding, 40/50% center, vertical legend with four-side padding, hidden labels, and name/share item tooltip |
+| `pieRoseArea` | Example | Equal-angle area rose with 40–75% radii |
+| `pieRoseRadius` | Example | Proportional-angle radius rose with 30–75% radii |
+| `pieRoseAreaRadius` | Example | Area and radius roses at independent 25/50% and 75/50% centers |
+| `pieInPie` | Example | Thin outer area ring and inner radius rose at one center |
+| `pieWithDispatchAction` | Example | Typed one-second rotating emphasis and item tooltip, implemented in the private runtime and disabled for reduced-motion users |
+
+The three page-layout sources and immutable hashes listed in the shared
+supplementary evidence table above also bound Pie layout: centered, flex, and
+unmanaged pages do not become public chart modes. The Pie page adds one local
+selectable-sector example to document the neutral selected-state API; it is not
+counted as a tenth upstream function.

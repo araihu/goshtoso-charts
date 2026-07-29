@@ -238,7 +238,7 @@ bounded adjacent table remains the exact descendant-value source.
 ## 2026-07-28: WordCloud adapter targets an older browser extension
 
 go-echarts v2.7.2 registers an ECharts 4 compatibility runtime and an older
-word-cloud extension, while Goshtoso Charts embeds ECharts 5.4.3. Its typed
+word-cloud extension, while Goshtoso Charts embeds ECharts 5.6.0. Its typed
 `WordCloudChart` also exposes only shape, size range, and rotation range; the
 supported rotation step, grid, draw-out-of-bound, layout animation, and layout
 fields are absent. The component therefore vendors the ECharts-5-compatible
