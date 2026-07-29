@@ -14,7 +14,6 @@ import (
 	"github.com/araihu/goshtoso-charts/components/funnel"
 	"github.com/araihu/goshtoso-charts/components/heatmap"
 	"github.com/araihu/goshtoso-charts/components/line"
-	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/components/radar"
 	"github.com/araihu/goshtoso-charts/components/scatter"
 	charttable "github.com/araihu/goshtoso-charts/components/table"
@@ -29,9 +28,6 @@ const (
 	barReferencesUpstreamPath     = "examples/1-Painter/bar_chart-4-mark/main.go"
 	barReferencesUpstreamRevision = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
 	barReferencesUpstreamSHA256   = "544fea22c29db4225c7b10bb6d12137d484a4ca9b6c647dc29730a61ce4ced4c"
-	doughnutUpstreamPath          = "examples/1-Painter/doughnut_chart-1-basic/main.go"
-	doughnutUpstreamRevision      = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
-	doughnutUpstreamSHA256        = "b97bca2322e90e2f03ab49aa77f683d0c58e027846b939e5a61100602dad1ebf"
 	dualAxisLineUpstreamPath      = "examples/1-Painter/line_chart-8-dual_y_axis/main.go"
 	dualAxisLineUpstreamRevision  = "1fe31b06b8a82e00df877ff4417a75858547c1c2"
 	dualAxisLineUpstreamSHA256    = "78a3edd9aa356dc798c367b40cc5abecdb765b634795c38767f34bf266b805af"
@@ -182,49 +178,6 @@ func sampleBarReferences() bar.Config {
 		Width:  600, Height: 400,
 		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: "monthly-rainfall-and-evaporation"},
-	}
-}
-
-func sampleObservationStates() pie.Config {
-	return pie.Config{
-		Label:   "Observation states",
-		Caption: "Most recent 100 retained monitor observations.",
-		Slices: []pie.Slice{
-			{Name: "Up", Value: 94},
-			{Name: "Degraded", Value: 4},
-			{Name: "Down", Value: 2},
-		},
-		Controls: chartcontrol.Options{Fullscreen: true},
-		Export: &chartcontrol.ExportOptions{
-			Filename: "observation-states", Background: chartcontrol.ExportBackgroundTransparent,
-		},
-	}
-}
-
-func sampleDoughnutChart() pie.Config {
-	return pie.Config{
-		Label:              "Doughnut Chart",
-		Variant:            pie.VariantDoughnut,
-		InnerRadiusPercent: 60,
-		Title: pie.TitleOptions{
-			Text: "Doughnut Chart", Subtitle: "(Fake Data)",
-			Placement: pie.PlacementCenter, FontSize: 16, SubtitleFontSize: 10,
-		},
-		Legend: pie.LegendOptions{
-			Orientation: pie.LegendVertical, LeftPercent: 80,
-			VerticalPlacement: pie.VerticalPlacementBottom, FontSize: 10,
-		},
-		Padding: pie.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20},
-		Slices: []pie.Slice{
-			{Name: "Search Engine", Value: 1048},
-			{Name: "Direct", Value: 735},
-			{Name: "Email", Value: 580},
-			{Name: "Union Ads", Value: 484},
-			{Name: "Video Ads", Value: 300},
-		},
-		Width: 600, Height: 400,
-		Controls: chartcontrol.Options{Fullscreen: true},
-		Export:   &chartcontrol.ExportOptions{Filename: "doughnut-chart"},
 	}
 }
 
@@ -715,42 +668,6 @@ func barReferencesCode() string {
   Series: []bar.Series{
     {Name: "Rainfall", Values: rainfall, References: references},
     {Name: "Evaporation", Values: evaporation, References: references},
-  },
-  Width: 600, Height: 400,
-})`
-}
-
-func pieCode() string {
-	return `@pie.Pie(pie.Config{
-  Label: "Observation states",
-  Slices: []pie.Slice{
-    {Name: "Up", Value: 94},
-    {Name: "Degraded", Value: 4},
-    {Name: "Down", Value: 2},
-  },
-})`
-}
-
-func doughnutCode() string {
-	return `@pie.Pie(pie.Config{
-  Label: "Doughnut Chart",
-  Variant: pie.VariantDoughnut,
-  InnerRadiusPercent: 60,
-  Title: pie.TitleOptions{
-    Text: "Doughnut Chart", Subtitle: "(Fake Data)",
-    Placement: pie.PlacementCenter, FontSize: 16, SubtitleFontSize: 10,
-  },
-  Legend: pie.LegendOptions{
-    Orientation: pie.LegendVertical, LeftPercent: 80,
-    VerticalPlacement: pie.VerticalPlacementBottom, FontSize: 10,
-  },
-  Padding: pie.Padding{Top: 20, Right: 20, Bottom: 20, Left: 20},
-  Slices: []pie.Slice{
-    {Name: "Search Engine", Value: 1048},
-    {Name: "Direct", Value: 735},
-    {Name: "Email", Value: 580},
-    {Name: "Union Ads", Value: 484},
-    {Name: "Video Ads", Value: 300},
   },
   Width: 600, Height: 400,
 })`

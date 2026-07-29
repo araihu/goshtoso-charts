@@ -167,7 +167,7 @@ func chartModesContent() templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(row.Capability)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/guides.templ`, Line: 64, Col: 146}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/guides.templ`, Line: 64, Col: 146}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -180,7 +180,7 @@ func chartModesContent() templ.Component {
 			var templ_7745c5c3_Var6 string
 			templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(row.Static)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/guides.templ`, Line: 64, Col: 251}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/guides.templ`, Line: 64, Col: 251}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 			if templ_7745c5c3_Err != nil {
@@ -193,7 +193,7 @@ func chartModesContent() templ.Component {
 			var templ_7745c5c3_Var7 string
 			templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(row.Interactive)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/guides.templ`, Line: 64, Col: 361}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/guides.templ`, Line: 64, Col: 361}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 			if templ_7745c5c3_Err != nil {
@@ -417,7 +417,7 @@ func controlFact(title string, text string) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/guides.templ`, Line: 209, Col: 234}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/guides.templ`, Line: 209, Col: 234}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
@@ -430,7 +430,7 @@ func controlFact(title string, text string) templ.Component {
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/guides.templ`, Line: 209, Col: 325}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/guides.templ`, Line: 209, Col: 325}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 		if templ_7745c5c3_Err != nil {
@@ -485,7 +485,7 @@ func guideAPIReferences(packageNames []string) templ.Component {
 				var templ_7745c5c3_Var14 string
 				templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.JoinStringErrs(packageName)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/guides.templ`, Line: 219, Col: 18}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/guides.templ`, Line: 219, Col: 18}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var14))
 				if templ_7745c5c3_Err != nil {

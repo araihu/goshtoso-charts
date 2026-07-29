@@ -12,7 +12,9 @@ func TestPiePublicAPIDoesNotLeakRendererTypes(t *testing.T) {
 	t.Parallel()
 	seen := map[reflect.Type]bool{}
 	for _, value := range []any{
-		Slice{}, VariantPie, TitleOptions{}, LegendOptions{}, Padding{}, Config{}, Instance{},
+		Slice{}, VariantPie, TitleOptions{}, LegendOptions{}, RadiusOptions{}, RadiusScaleArea,
+		LabelOptions{}, LabelPlacementInside, CenterOptions{}, CenterContentTotal,
+		ValueFormatHumanized, Padding{}, Config{}, Instance{},
 		Pie,
 	} {
 		assertNoRendererType(t, reflect.TypeOf(value), seen)

@@ -13,6 +13,7 @@ import (
 	"github.com/a-h/templ"
 	chartassets "github.com/araihu/goshtoso-charts/assets"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
 
@@ -42,6 +43,44 @@ func TestPieRendersSSRAccessibleSVG(t *testing.T) {
 	}
 	if got := strings.Count(markup, "<script"); got != 1 {
 		t.Errorf("SSR chart script count = %d, want shared controls runtime only", got)
+	}
+}
+
+func TestPiePreservesSharedFourModeWrapperContract(t *testing.T) {
+	t.Parallel()
+	for _, testCase := range []struct {
+		name string
+		mode chartcontrol.WrapperMode
+		want string
+	}{
+		{name: "enabled", mode: chartcontrol.WrapperModeEnabled, want: `data-goshtoso-chart-wrapper-mode="enabled"`},
+		{name: "disabled", mode: chartcontrol.WrapperModeDisabled, want: `data-goshtoso-chart-wrapper-mode="disabled"`},
+		{name: "hidden", mode: chartcontrol.WrapperModeHidden, want: `data-goshtoso-chart-wrapper-mode="hidden"`},
+		{name: "omitted", mode: chartcontrol.WrapperModeOmitted},
+	} {
+		t.Run(testCase.name, func(t *testing.T) {
+			t.Parallel()
+			var output bytes.Buffer
+			err := Pie(Config{Label: "Wrapper mode Pie", Slices: []Slice{{Name: "A", Value: 1}}, Controls: chartcontrol.Options{Mode: testCase.mode}}).Render(context.Background(), &output)
+			if err != nil {
+				t.Fatalf("Render() error = %v", err)
+			}
+			markup := output.String()
+			if !strings.Contains(markup, `<figure class="goshtoso-charts-pie`) || !strings.Contains(markup, "<svg") {
+				t.Fatal("wrapper mode lost chart DOM")
+			}
+			if testCase.mode == chartcontrol.WrapperModeOmitted {
+				for _, forbidden := range []string{"data-goshtoso-chart-wrapper", chartassets.ControlRuntimeURL} {
+					if strings.Contains(markup, forbidden) {
+						t.Errorf("omitted wrapper retains %q", forbidden)
+					}
+				}
+				return
+			}
+			if !strings.Contains(markup, testCase.want) || !strings.Contains(markup, chartassets.ControlRuntimeURL) {
+				t.Errorf("wrapper mode markup missing %q or runtime", testCase.want)
+			}
+		})
 	}
 }
 
@@ -145,6 +184,18 @@ func TestPieStrictValidation(t *testing.T) {
 		{name: "title placement", cfg: Config{Label: "Pie", Title: TitleOptions{Placement: "left"}}, want: "title placement"},
 		{name: "legend orientation", cfg: Config{Label: "Pie", Legend: LegendOptions{Orientation: "diagonal"}}, want: "legend orientation"},
 		{name: "legend left", cfg: Config{Label: "Pie", Legend: LegendOptions{LeftPercent: 101}}, want: "legend left"},
+		{name: "outer radius", cfg: Config{Label: "Pie", Radius: RadiusOptions{OuterPixels: math.NaN()}}, want: "outer radius"},
+		{name: "radius scale", cfg: Config{Label: "Pie", Radius: RadiusOptions{OuterPixels: 120, Scale: "diameter"}}, want: "radius scale"},
+		{name: "area radius needs outer", cfg: Config{Label: "Pie", Radius: RadiusOptions{Scale: RadiusScaleArea}}, want: "requires an outer radius"},
+		{name: "area radius doughnut", cfg: Config{Label: "Pie", Variant: VariantDoughnut, Radius: RadiusOptions{OuterPixels: 120, Scale: RadiusScaleArea}}, want: "requires pie variant"},
+		{name: "label placement", cfg: Config{Label: "Pie", Labels: LabelOptions{Placement: "edge"}}, want: "label placement"},
+		{name: "inside label pie", cfg: Config{Label: "Pie", Labels: LabelOptions{Placement: LabelPlacementInside}}, want: "require doughnut"},
+		{name: "inside and hidden", cfg: Config{Label: "Pie", Variant: VariantDoughnut, Labels: LabelOptions{Hidden: true, Placement: LabelPlacementInside}}, want: "cannot be hidden"},
+		{name: "center total pie", cfg: Config{Label: "Pie", Center: CenterOptions{Content: CenterContentTotal}}, want: "requires doughnut"},
+		{name: "center format", cfg: Config{Label: "Pie", Variant: VariantDoughnut, Center: CenterOptions{Content: CenterContentTotal, Format: "currency"}}, want: "value format"},
+		{name: "center formatting without total", cfg: Config{Label: "Pie", Variant: VariantDoughnut, Center: CenterOptions{Prefix: "Total: "}}, want: "requires center total"},
+		{name: "inside and total", cfg: Config{Label: "Pie", Variant: VariantDoughnut, Labels: LabelOptions{Placement: LabelPlacementInside}, Center: CenterOptions{Content: CenterContentTotal}}, want: "cannot be combined"},
+		{name: "segment gap", cfg: Config{Label: "Pie", SegmentGap: -1}, want: "segment gap"},
 		{name: "padding", cfg: Config{Label: "Pie", Padding: Padding{Left: -1}}, want: "padding"},
 		{name: "reserved root", cfg: Config{Label: "Pie", RootAttrs: templ.Attributes{"role": "presentation"}}, want: "reserved"},
 		{name: "duplicate", cfg: Config{Label: "Pie", Slices: []Slice{{Name: "A", Value: 1}, {Name: "A", Value: 2}}}, want: "duplicated"},

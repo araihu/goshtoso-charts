@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"io"
+	"math"
 	"regexp"
 	"strconv"
 	"strings"
@@ -63,14 +64,7 @@ func renderSVG(cfg Config) (string, error) {
 // renderPieSVG intentionally retains the pre-extension render path. Its
 // serialized output is guarded by TestPieDefaultSVGCompatibilityHash.
 func renderPieSVG(cfg Config) (string, error) {
-	values := make([]float64, 0, len(cfg.Slices))
-	names := make([]string, 0, len(cfg.Slices))
-	for _, slice := range cfg.Slices {
-		values, names = append(values, slice.Value), append(names, slice.Name)
-	}
-	options := chart.NewPieChartOptionWithData(values)
-	options.Legend.SeriesNames = names
-	options.Theme = tokenPalette()
+	options := pieOptions(cfg)
 	painter := chart.NewPainter(chart.PainterOptions{
 		OutputFormat: chart.ChartOutputSVG,
 		Width:        cfg.width(),
@@ -85,6 +79,35 @@ func renderPieSVG(cfg Config) (string, error) {
 		return "", fmt.Errorf("encode pie chart SVG: %w", err)
 	}
 	return decorateSVG(tokenizedSVG(string(data), cfg), cfg), nil
+}
+
+func pieOptions(cfg Config) chart.PieChartOption {
+	values, names := sliceData(cfg)
+	options := chart.NewPieChartOptionWithData(values)
+	options.Theme = tokenPalette()
+	applyTitle(&options.Title, cfg.Title)
+	applyLegend(&options.Legend, names, cfg.Legend)
+	applyPadding(&options.Padding, cfg.Padding)
+	options.SegmentGap = cfg.SegmentGap
+	label := seriesLabel(cfg.Labels)
+	for index := range options.SeriesList {
+		options.SeriesList[index].Label = label
+	}
+	if cfg.Radius.OuterPixels > 0 {
+		outer := strconv.FormatFloat(cfg.Radius.OuterPixels, 'f', -1, 64)
+		if cfg.Radius.Scale == RadiusScaleArea {
+			maximum := options.SeriesList.MaxValue()
+			if maximum > 0 {
+				for index := range options.SeriesList {
+					radius := cfg.Radius.OuterPixels * math.Sqrt(options.SeriesList[index].Value/maximum)
+					options.SeriesList[index].Radius = strconv.FormatFloat(math.Ceil(radius), 'f', -1, 64)
+				}
+			}
+		} else {
+			options.Radius = outer
+		}
+	}
+	return options
 }
 
 func renderDoughnutSVG(cfg Config) (string, error) {
@@ -109,44 +132,110 @@ func doughnutOptions(cfg Config) chart.DoughnutChartOption {
 	values, names := sliceData(cfg)
 	options := chart.NewDoughnutChartOptionWithData(values)
 	options.Theme = tokenPalette()
-	options.Title.Text = cfg.Title.Text
-	options.Title.Subtext = cfg.Title.Subtitle
-	if cfg.Title.Placement == PlacementCenter {
-		options.Title.Offset = chart.OffsetCenter
+	applyTitle(&options.Title, cfg.Title)
+	applyLegend(&options.Legend, names, cfg.Legend)
+	applyPadding(&options.Padding, cfg.Padding)
+	options.SegmentGap = cfg.SegmentGap
+	label := seriesLabel(cfg.Labels)
+	for index := range options.SeriesList {
+		options.SeriesList[index].Label = label
 	}
-	if cfg.Title.FontSize > 0 {
-		options.Title.FontStyle = chart.NewFontStyleWithSize(cfg.Title.FontSize)
+	if cfg.Radius.OuterPixels > 0 {
+		options.RadiusRing = strconv.FormatFloat(cfg.Radius.OuterPixels, 'f', -1, 64)
 	}
-	if cfg.Title.SubtitleFontSize > 0 {
-		options.Title.SubtextFontStyle = chart.NewFontStyleWithSize(cfg.Title.SubtitleFontSize)
-	}
-	options.Legend.SeriesNames = names
-	if cfg.Legend.Orientation == LegendVertical {
-		options.Legend.Vertical = chart.Ptr(true)
-	}
-	if cfg.Legend.LeftPercent > 0 {
-		options.Legend.Offset.Left = strconv.FormatFloat(cfg.Legend.LeftPercent, 'f', -1, 64) + "%"
-	}
-	switch cfg.Legend.VerticalPlacement {
-	case VerticalPlacementTop:
-		options.Legend.Offset.Top = chart.PositionTop
-	case VerticalPlacementMiddle:
-		options.Legend.Offset.Top = chart.PositionCenter
-	case VerticalPlacementBottom:
-		options.Legend.Offset.Top = chart.PositionBottom
-	}
-	if cfg.Legend.FontSize > 0 {
-		options.Legend.FontStyle = chart.NewFontStyleWithSize(cfg.Legend.FontSize)
-	}
-	if cfg.Padding != (Padding{}) {
-		options.Padding = chart.NewBox(cfg.Padding.Left, cfg.Padding.Top, cfg.Padding.Right, cfg.Padding.Bottom)
+	if cfg.Labels.Placement == LabelPlacementInside {
+		options.CenterValues = "labels"
+	} else if cfg.Center.Content == CenterContentTotal {
+		options.CenterValues = "sum"
+		if cfg.Center.FontSize > 0 {
+			options.CenterValuesFontStyle = chart.NewFontStyleWithSize(cfg.Center.FontSize)
+		}
+		options.ValueFormatter = centerValueFormatter(cfg.Center)
 	}
 	if cfg.InnerRadiusPercent > 0 {
-		// Upstream expresses radii against chart diameter. Goshtoso exposes the
-		// hole relative to the stable default outer ring instead.
-		options.RadiusCenter = strconv.FormatFloat(cfg.InnerRadiusPercent*0.4, 'f', -1, 64) + "%"
+		if cfg.Radius.OuterPixels > 0 {
+			options.RadiusCenter = strconv.FormatFloat(cfg.Radius.OuterPixels*cfg.InnerRadiusPercent/100, 'f', -1, 64)
+		} else {
+			// Upstream expresses radii against chart diameter. Goshtoso exposes
+			// the hole relative to the active default outer ring instead.
+			outerFactor := 0.4
+			if cfg.Labels.Placement == LabelPlacementInside {
+				outerFactor = 0.5
+			}
+			options.RadiusCenter = strconv.FormatFloat(cfg.InnerRadiusPercent*outerFactor, 'f', -1, 64) + "%"
+		}
 	}
 	return options
+}
+
+func applyTitle(options *chart.TitleOption, cfg TitleOptions) {
+	options.Text = cfg.Text
+	options.Subtext = cfg.Subtitle
+	if cfg.Placement == PlacementCenter {
+		options.Offset = chart.OffsetCenter
+	}
+	if cfg.FontSize > 0 {
+		options.FontStyle = chart.NewFontStyleWithSize(cfg.FontSize)
+	}
+	if cfg.SubtitleFontSize > 0 {
+		options.SubtextFontStyle = chart.NewFontStyleWithSize(cfg.SubtitleFontSize)
+	}
+}
+
+func applyLegend(options *chart.LegendOption, names []string, cfg LegendOptions) {
+	options.SeriesNames = names
+	if cfg.Hidden {
+		options.Show = chart.Ptr(false)
+	}
+	if cfg.Orientation == LegendVertical {
+		options.Vertical = chart.Ptr(true)
+	}
+	if cfg.LeftPercent > 0 {
+		options.Offset.Left = strconv.FormatFloat(cfg.LeftPercent, 'f', -1, 64) + "%"
+	}
+	switch cfg.VerticalPlacement {
+	case VerticalPlacementTop:
+		options.Offset.Top = chart.PositionTop
+	case VerticalPlacementMiddle:
+		options.Offset.Top = chart.PositionCenter
+	case VerticalPlacementBottom:
+		options.Offset.Top = chart.PositionBottom
+	}
+	if cfg.FontSize > 0 {
+		options.FontStyle = chart.NewFontStyleWithSize(cfg.FontSize)
+	}
+	if cfg.Overlay {
+		options.OverlayChart = chart.Ptr(true)
+	}
+}
+
+func applyPadding(options *chart.Box, cfg Padding) {
+	if cfg != (Padding{}) {
+		*options = chart.NewBox(cfg.Left, cfg.Top, cfg.Right, cfg.Bottom)
+	}
+}
+
+func seriesLabel(cfg LabelOptions) chart.SeriesLabel {
+	var result chart.SeriesLabel
+	if cfg.Hidden {
+		result.Show = chart.Ptr(false)
+	}
+	if cfg.FontSize > 0 {
+		result.FontStyle = chart.NewFontStyleWithSize(cfg.FontSize)
+	}
+	return result
+}
+
+func centerValueFormatter(cfg CenterOptions) chart.ValueFormatter {
+	return func(value float64) string {
+		formatted := strconv.FormatFloat(value, 'f', -1, 64)
+		if cfg.Format == ValueFormatHumanized {
+			formatted = chart.FormatValueHumanizeShort(value, cfg.Decimals, false)
+		} else if cfg.Decimals > 0 {
+			formatted = strconv.FormatFloat(value, 'f', cfg.Decimals, 64)
+		}
+		return cfg.Prefix + formatted
+	}
 }
 
 func sliceData(cfg Config) ([]float64, []string) {
