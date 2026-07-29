@@ -77,6 +77,8 @@ for (const width of [390, 1440]) {
             await page.locator("[data-wrapper-mode-comparison]").waitFor();
             await page.getByText("goshtoso-charts:set-wrapper-mode", { exact: true }).waitFor();
             await page.getByRole("heading", { name: "No-JavaScript behavior", exact: true }).waitFor();
+            await page.getByRole("heading", { name: "Caller responsibilities", exact: true }).waitFor();
+            await page.getByText("window.__goshtosoChartsControls.setWrapperMode", { exact: false }).first().waitFor();
           } else {
             await page.getByText("chart controls and wrapper lifecycle", { exact: true }).waitFor();
           }
@@ -87,12 +89,16 @@ for (const width of [390, 1440]) {
             tableOverflow: [...document.querySelectorAll(".overflow-x-auto")].every((element) => element.scrollWidth >= element.clientWidth),
             activeGuide: document.querySelector("[data-chart-guide-nav] [aria-current='page']")?.textContent.trim(),
             apiLinks: document.querySelectorAll("[data-guide-api-link]").length,
+            duplicateIDs: [...document.querySelectorAll("[id]")]
+              .map((element) => element.id)
+              .filter((id, index, ids) => ids.indexOf(id) !== index),
           }));
           assert.equal(state.scrollWidth, state.clientWidth, JSON.stringify(state));
           assert.equal(state.mode, mode);
           assert.equal(state.tableOverflow, true);
           assert.ok(state.activeGuide.length > 0);
           assert.ok(state.apiLinks >= 3);
+          assert.deepEqual(state.duplicateIDs, []);
           assert.deepEqual(browserIssues, []);
           const text = (await page.locator("main").innerText()).toLowerCase();
           for (const forbidden of ["go-echarts", "apache echarts", "go-analyze/charts"]) assert.equal(text.includes(forbidden), false);
@@ -107,6 +113,32 @@ for (const width of [390, 1440]) {
   }
 }
 
+for (const width of [390, 1440]) {
+  for (const mode of ["light", "dark"]) {
+    test(`Getting Started exposes the shared decisions at ${width}px in ${mode} mode`, async () => {
+      const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: mode });
+      try {
+        await page.goto(`${baseURL}/`);
+        await page.evaluate((dark) => document.documentElement.classList.toggle("dark", dark), mode === "dark");
+        const section = page.locator("#choose-delivery-and-wrapper-behavior").locator("..");
+        await section.waitFor();
+        assert.equal(await section.locator('a[href="/docs/chart-modes"]').count(), 1);
+        assert.equal(await section.locator('a[href="/docs/chart-controls"]').count(), 1);
+        const geometry = await page.evaluate(() => ({
+          clientWidth: document.documentElement.clientWidth,
+          scrollWidth: document.documentElement.scrollWidth,
+        }));
+        assert.equal(geometry.scrollWidth, geometry.clientWidth, JSON.stringify(geometry));
+        if (screenshotDirectory) {
+          await page.screenshot({ path: path.join(screenshotDirectory, `getting-started-${width}-${mode}.png`), fullPage: true });
+        }
+      } finally {
+        await page.close();
+      }
+    });
+  }
+}
+
 test("guide links navigate with HTMX and update active state", async () => {
   const page = await browser.newPage({ viewport: { width: 960, height: 900 } });
   try {
@@ -118,6 +150,27 @@ test("guide links navigate with HTMX and update active state", async () => {
     assert.match(await page.title(), /^Chart controls/);
     await page.locator("#wrapper-lifecycle").waitFor();
     assert.equal(await page.locator("[data-wrapper-mode-comparison] tbody tr").count(), 4);
+  } finally {
+    await page.close();
+  }
+});
+
+test("documentation search finds shared wrapper and mode behavior", async () => {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+  try {
+    await page.goto(`${baseURL}/docs/chart-modes`);
+    const input = page.locator("#docs-search");
+    for (const [query, label] of [
+      ["disabled hidden omitted", "Chart controls"],
+      ["htmx alpine", "Chart controls"],
+      ["export svg png", "Chart controls"],
+      ["static vector interactive", "Static and interactive"],
+    ]) {
+      await input.fill(query);
+      const visible = page.locator("[data-docs-search-item]:visible");
+      assert.ok(await visible.count() >= 1, query);
+      assert.ok(await visible.filter({ hasText: label }).count() >= 1, query);
+    }
   } finally {
     await page.close();
   }

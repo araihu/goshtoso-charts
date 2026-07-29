@@ -8,6 +8,7 @@
   },
   "scripts": {
     "test:chart-controls": "node --test browser/chart_controls.test.cjs",
+    "test:wrapper-lifecycle": "node --test browser/wrapper_lifecycle_matrix.test.cjs",
     "test:documentation-footer": "node --test browser/documentation_footer.test.cjs",
     "test:candlestick": "node --test browser/candlestick.test.cjs",
     "test:static-candlestick": "node --test browser/static_candlestick_bollinger.test.cjs",

@@ -104,10 +104,12 @@ wrapper.addEventListener("goshtoso-charts:wrapper-mode-change", (event) => {
   console.log(event.detail.previousMode, event.detail.mode);
 });
 
-wrapper.dispatchEvent(new CustomEvent("goshtoso-charts:set-wrapper-mode", {
-  bubbles: true,
-  detail: { mode: "hidden", focusReturn: showButton },
-}));`
+// The helper returns false for an unknown mode or a missing wrapper.
+const changed = window.__goshtosoChartsControls.setWrapperMode(
+  wrapper,
+  "hidden",
+  showButton,
+);`
 
 const wrapperModeAlpineCode = `<div
   x-data="{

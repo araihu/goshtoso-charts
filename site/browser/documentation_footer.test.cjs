@@ -87,6 +87,9 @@ for (const width of [390, 1440]) {
           await expectVisibleText(page, "Use when");
           await expectVisibleText(page, "Avoid when");
           await expectVisibleText(footer, "Open v0.0.1 API");
+          assert.equal(await footer.locator("[data-shared-chart-guidance]").count(), 1);
+          assert.equal(await footer.locator('a[href="/docs/chart-controls"]').count(), 1);
+          assert.equal(await footer.locator('a[href="/docs/chart-modes"]').count(), 1);
           const state = await footer.evaluate((element) => {
             const link = element.querySelector("[data-go-api-link]");
             const footerStyle = getComputedStyle(element);
@@ -99,10 +102,14 @@ for (const width of [390, 1440]) {
               linkBackground: linkStyle.backgroundColor,
               footerText: footerStyle.color,
               footerBackground: footerStyle.backgroundColor,
+              apiTarget: link.getAttribute("target"),
+              apiRel: link.getAttribute("rel"),
             };
           });
           assert.equal(state.disabled, false);
           assert.equal(state.documentScroll, state.documentClient);
+          assert.equal(state.apiTarget, "_blank");
+          assert.match(state.apiRel || "", /noopener/);
           assert.ok(contrastRatio(state.linkText, state.linkBackground) >= 4.5, JSON.stringify(state));
           if (name === "sunburst") {
             for (const text of ["shallow hierarchy", "Deep hierarchies", "keyboard navigation", "path-and-value table"]) await expectVisibleText(page, text);

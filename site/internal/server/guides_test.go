@@ -33,6 +33,9 @@ func TestChartGuidesDocumentActualRendererNeutralCapabilities(t *testing.T) {
 				"WrapperModeDisabled", "WrapperModeHidden", "WrapperModeOmitted", "data-wrapper-mode-comparison",
 				"goshtoso-charts:set-wrapper-mode", "goshtoso-charts:wrapper-mode-change", "previousMode", "focusReturn",
 				"HTMX swaps", "No-JavaScript behavior", "Omitted skips wrapper-only export validation",
+				"window.__goshtosoChartsControls.setWrapperMode", "returns false", "htmx:load", "htmx:afterSwap", "MutationObserver",
+				"Unknown modes", "Unsupported export", "Caller responsibilities",
+				"Lifecycle hooks remain available when every action is disabled", "Omitted mode alone suppresses the wrapper runtime",
 			},
 		},
 	}
@@ -56,6 +59,24 @@ func TestChartGuidesDocumentActualRendererNeutralCapabilities(t *testing.T) {
 				}
 			}
 		})
+	}
+}
+
+func TestGettingStartedMakesModeAndWrapperChoiceExplicit(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Choose delivery and wrapper behavior",
+		`href="/docs/chart-modes"`,
+		`href="/docs/chart-controls"`,
+		"Static/vector and interactive charts solve different jobs",
+		"enabled, disabled, hidden, or omitted",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("Getting Started missing %q", want)
+		}
 	}
 }
 
