@@ -106,7 +106,7 @@ func gettingStartedContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"render-an-interactive-chart\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">5. Render an interactive chart</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Interactive components use the same typed component contract while keeping browser-renderer details private.</p>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"render-an-interactive-chart\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">5. Render an interactive chart</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Interactive components use typed configuration while examples keep the focus on visual behavior and composition.</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -205,7 +205,7 @@ func barContent() templ.Component {
 			Title:       "Bar chart",
 			Description: "Categorical SSR SVG for vertical or horizontal comparisons. Set Stacked for composition within each category.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare named values across categories, including stacked outcomes, horizontal treatments, and per-series statistical references.", "Primitive", "bar.Bar", "Kind", "components.KindBarChart", "Configuration", "Label, Caption, Title, category Labels, named Series, Stacked, typed Orientation and Padding, References with average/minimum/maximum, value format and safe style controls, optional Width, and Height.", "Accessibility", "Figure name comes from Label and Caption stays visible. Horizontal charts include exact category values; reference variants include all values and computed average/minimum/maximum evidence."),
+				AbovePreview: visualizationGuide("Compare named values across categories, including stacked outcomes and per-series reference markers.", "Use for a small set of discrete categories, especially when bar length makes rank and difference easy to scan.", "Avoid when categories are numerous, labels need rotation, or the key task is showing change over continuous time.", "The examples include exact category values and reference evidence; keep equivalent values in text or a table when users must compare precisely."),
 				Preview:      bar.Bar(sampleDeployments()),
 				Code:         barCode(),
 			},
@@ -223,7 +223,7 @@ func barContent() templ.Component {
 					Code:        barReferencesCode(),
 				},
 			},
-			After: demoNote("Behavior variants", "Vertical is the zero-value default. Horizontal changes axis treatment on this Bar component; typed references add average lines and minimum/maximum points with adjacent exact evidence."),
+			After: chartDocumentation("Interpretation", "Vertical and horizontal layouts communicate the same comparisons. Choose horizontal bars when labels are long; use reference markers to provide context, not as a substitute for exact values.", "bar"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -518,7 +518,7 @@ func interactiveChartBarContent() templ.Component {
 			Title:       "Interactive bar",
 			Description: "Reusable interactive bar component for categorical comparisons.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Interactive categorical comparisons.", "Primitive", "interactive.Bar", "Kind", "components.KindInteractiveBar", "Configuration", "Label, Caption, XAxis, typed Series, size, renderer-neutral ChartOptions and SeriesOptions.", "Accessibility", "Figure name comes from Label; Caption stays visible."),
+				AbovePreview: visualizationGuidance("Compare named values across categories.", "You need direct category comparisons, including positive and negative values.", "Many categories make labels and comparisons crowded; use a table for exact values.", "Keep category names and exact values in nearby text or a table."),
 				Preview:      interactive.Bar(sampleInteractiveBar()),
 				Code:         interactiveChartBarCode(),
 			},
@@ -584,7 +584,7 @@ func interactiveChartLineContent() templ.Component {
 			Title:       "Interactive line",
 			Description: "Reusable interactive line component for ordered trends.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Interactive ordered trends.", "Primitive", "interactive.Line", "Kind", "components.KindInteractiveLine", "Configuration", "Label, Caption, XAxis, typed Series, size, renderer-neutral ChartOptions and SeriesOptions.", "Accessibility", "Figure name comes from Label; Caption stays visible."),
+				AbovePreview: visualizationGuidance("Show change across an ordered sequence.", "Order and direction matter, especially for a small number of time series.", "Unordered categories or many crossing series obscure comparison.", "Provide the ordered values in an adjacent table when exact readings matter."),
 				Preview:      interactive.Line(sampleInteractiveLine()),
 				Code:         interactiveChartLineCode(),
 			},
@@ -594,7 +594,7 @@ func interactiveChartLineContent() templ.Component {
 				Preview:     interactive.Line(sampleInteractiveLineTime()),
 				Code:        interactiveLineTimeCode(),
 			}},
-			After: demoNote("Axis contract", "LineConfig accepts exactly one X-axis representation: categorical XAxis or typed TimeAxis. TimeAxis values are non-zero, within the declared lower bound, and strictly chronological. Its optional SplitNumber recommends tick density; zero defaults to four readable temporal segments. LiveData remains categorical because its complete snapshot contract carries categories."),
+			After: demoNote("Time series", "Use a time axis for chronological observations; keep timestamps strictly ordered and show exact readings beside the chart when people need to compare them."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -657,11 +657,11 @@ func interactiveChartScatterContent() templ.Component {
 			Title:       "Interactive scatter",
 			Description: "Reusable interactive scatter component for quantitative relationships or categorical points. The effect variant adds ripple emphasis without changing component identity.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Explore correlation, clusters, and outliers; optionally call attention to exceptional points.", "Primitive", "interactive.Scatter", "Kind", "components.KindInteractiveScatter", "Configuration", "Label, Caption, standard or effect Variant, optional Ripple, category or value axis mode, typed Series, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Animation is supplemental. Figure name comes from Label and Caption stays visible; pair the canvas with a table or text summary when exact points matter."),
+				AbovePreview: visualizationGuidance("Reveal relationships, clusters, and outliers among paired values.", "You are comparing two quantitative measures and position conveys the relationship.", "Precise point lookup or many overlapping points is primary; use a table or summary too.", "Pair the chart with a table or text summary of points; animation is supplemental."),
 				Preview:      interactive.Scatter(sampleInteractiveScatter()),
 				Code:         interactiveChartScatterCode(),
 			},
-			After: demoNote("Variant contract", "ScatterVariantStandard is the zero-value default. ScatterVariantEffect adds ripple rendering while the constructor, config, Instance, and stable Kind remain the same."),
+			After: demoNote("Emphasis", "Ripple can call attention to points, but it does not add data. Keep it restrained so motion does not hide the relationship."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -724,11 +724,11 @@ func interactiveScatter3DContent() templ.Component {
 			Title:       "Interactive scatter 3D",
 			Description: "Reusable three-dimensional point chart with typed axes, visual ranges, symbols, caller paint, responsive sizing, and exact adjacent values.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Explore the spatial relationship among three finite quantitative dimensions.", "Primitive", "interactive.Scatter3D", "Kind", "components.KindInteractiveScatter3D", "Configuration", "Label, Caption, typed Point3D series, named three-axis options, visual range, symbol and paint options, size, renderer-neutral chart options, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Every exact coordinate remains in a collapsed adjacent table, including the dense 80-point treatment."),
+				AbovePreview: visualizationGuidance("Explore spatial patterns across three quantitative dimensions.", "A rotatable view helps identify broad clusters or separation.", "Exact comparison, dense points, or a fixed reading order matters; use a two-dimensional view or table.", "The adjacent table exposes every coordinate, including dense samples."),
 				Preview:      interactiveScatter3DVariants(),
 				Code:         interactiveScatter3DCode(),
 			},
-			After: demoNote("Three-dimensional contract", "All point coordinates and optional visual values are finite. Axis names are required when custom axes are supplied. Color and semantic class are mutually exclusive at each paint boundary; visual ranges cannot conflict with fixed series or point paint."),
+			After: demoNote("Reading the data", "Treat rotation and color as exploratory aids. Use the adjacent coordinate table for exact values and non-visual review."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -894,11 +894,11 @@ func interactiveLine3DContent() templ.Component {
 			Title:       "Interactive line 3D",
 			Description: "Reusable three-dimensional ordered line with typed points, visual range, grid view, accessible rotation behavior, responsive sizing, and deterministic exact-data access.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Trace one ordered parametric path across three finite quantitative dimensions.", "Primitive", "interactive.Line3D", "Kind", "components.KindInteractiveLine3D", "Configuration", "Label, Caption, typed Point3D series, typed visual range and palette, grid and view options, auto-rotation, size, renderer-neutral ChartOptions and SeriesOptions, caller Color or Class, root attributes, controls, export, and chart style.", "Accessibility", "Figure name comes from Label. Formula, point count, parameter and coordinate domains remain visible beside a deterministic CSV download. Auto-rotation stops when reduced motion is preferred."),
+				AbovePreview: visualizationGuidance("Trace one ordered path through three quantitative dimensions.", "Path shape matters more than precise point-by-point comparison.", "Readers need exact coordinates or cannot use a rotatable view.", "The formula, domains, and CSV provide a non-visual equivalent; reduced motion keeps the view still."),
 				Preview:      interactiveLine3DVariants(),
 				Code:         interactiveLine3DCode(),
 			},
-			After: demoNote("Variant contract", "The stationary base and auto-rotating treatment preserve the same 25,000 ordered points, formula, visual range, and palette on one Line3D component, route, Instance, and stable Kind. Reduced-motion users receive the stationary treatment."),
+			After: demoNote("Motion", "Auto-rotation is optional exploration. The stationary treatment remains available, including for reduced-motion preferences."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -977,11 +977,11 @@ func interactiveSurface3DContent() templ.Component {
 			Title:       "Interactive surface 3D",
 			Description: "Reusable three-dimensional mathematical surface with typed points, axes, visual range, grid, view, caller paint, responsive sizing, and deterministic exact-data access.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Explore a sampled mathematical surface across two input dimensions and one output dimension.", "Primitive", "interactive.Surface3D", "Kind", "components.KindInteractiveSurface3D", "Configuration", "Label, Caption, typed Point3D series, named three-axis options, visual range and palette, grid and view options, shading, caller Color or Class, renderer-neutral chart options, exact-data formula, size, root attributes, controls, export, and chart style.", "Accessibility", "Figure name comes from Label and formula remains visible. Each variant reports exact count and domains, then offers an adjacent user-triggered CSV containing every ordered point without adding 18,000 table rows to the initial DOM."),
+				AbovePreview: visualizationGuidance("Explore a sampled surface over two inputs and one output.", "Overall shape, peaks, and valleys matter more than a single exact sample.", "Users need to compare individual values or cannot use a three-dimensional view.", "Formula, domains, sample count, and downloadable CSV expose the full dataset."),
 				Preview:      interactiveSurface3DVariants(),
 				Code:         interactiveSurface3DCode(),
 			},
-			After: demoNote("Variant contract", "The base grid and Rose style preserve their formulas, loop order, domains, visual range, and ten-color scale as two datasets on one Surface3D component, route, Instance, and stable Kind."),
+			After: demoNote("Surface variants", "Compare the examples as distinct sampled surfaces. Their formulas and domains identify what changes."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1060,11 +1060,11 @@ func interactiveBar3DContent() templ.Component {
 			Title:       "Interactive bar 3D",
 			Description: "Reusable three-dimensional categorical bars with typed axes, cells, visual ranges, grid size, view rotation, shading, caller paint, responsive sizing, and exact adjacent values.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare values across two ordered categorical dimensions while preserving magnitude as bar height.", "Primitive", "interactive.Bar3D", "Kind", "components.KindInteractiveBar3D", "Configuration", "Label, Caption, typed categorical axes, Bar3D cells and series, visual range and palette, grid size, view rotation and speed, shading, caller Color or Class, renderer-neutral chart and series options, size, root attributes, controls, export, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Every variant includes an adjacent disclosure with all 168 exact cells, category labels, source-swapped indexes, values, and semantic classes."),
+				AbovePreview: visualizationGuidance("Compare values at intersections of two ordered categories with height.", "A compact overview of a small category grid is useful.", "Exact cell comparison or many categories matter; a heat map or table reads better.", "The adjacent disclosure lists every category pair and exact value."),
 				Preview:      interactiveBar3DVariants(),
 				Code:         interactiveBar3DCode(),
 			},
-			After: demoNote("Variant contract", "Base, auto rotation, faster rotation, and Lambert shading remain typed options on one Bar3D component, route, Instance, and stable Kind. Category indexes must remain in range; visual mapping cannot conflict with fixed series or cell paint."),
+			After: demoNote("View treatments", "Rotation and shading change presentation, not values. Use the exact-cell disclosure to compare values."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1186,9 +1186,9 @@ func interactiveChartPieContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive pie",
-			Description: "Reusable interactive pie component for compact part-to-whole views, including donut and rose treatments within one stable component contract.",
+			Description: "Interactive pie for compact part-to-whole views, including donut and rose treatments.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Summarize a small named distribution as parts of a total.", "Primitive", "interactive.Pie", "Kind", "components.KindInteractivePie", "Configuration", "Label, Caption, typed Series and sectors, radii, rose mode, pad angle, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Pair the canvas with exact values in text or a table."),
+				AbovePreview: visualizationGuidance("Summarize a small named distribution as parts of a total.", "Few categories and approximate share comparison are the goal.", "There are many slices or close values; use bars for reliable comparison.", "Pair the chart with exact values and shares in text or a table."),
 				Preview:      interactive.Pie(sampleInteractivePie()),
 				Code:         interactiveChartPieCode(),
 			},
@@ -1255,7 +1255,7 @@ func interactiveChartRadarContent() templ.Component {
 			Title:       "Interactive radar",
 			Description: "Reusable interactive radar component for comparing aligned multidimensional profiles against explicit indicator maxima.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare a small number of profiles across the same bounded dimensions.", "Primitive", "interactive.Radar", "Kind", "components.KindInteractiveRadar", "Configuration", "Label, Caption, typed Indicators, aligned named vectors, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve indicator names and exact values in adjacent content."),
+				AbovePreview: visualizationGuidance("Compare a small number of profiles over the same bounded dimensions.", "Overall profile shape and common scales help a quick comparison.", "Exact values, many profiles, or unequal scales are important; use a table or bars.", "Keep indicator names and exact values in adjacent content."),
 				Preview:      interactive.Radar(sampleInteractiveRadar()),
 				Code:         interactiveChartRadarCode(),
 			},
@@ -1319,13 +1319,13 @@ func interactiveChartHeatMapContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive heatmap",
-			Description: "Reusable interactive heatmap component for comparing intensity across category grids or calendar dates within one stable component contract.",
+			Description: "Interactive heatmap for comparing intensity across category grids or calendar dates.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Reveal concentration, gaps, and patterns across two dimensions.", "Primitive", "interactive.HeatMap", "Kind", "components.KindInteractiveHeatMap", "Configuration", "Label, Caption, Cartesian or Calendar coordinate variant, typed value range and Series, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Provide an adjacent table or text summary when exact cell values matter."),
+				AbovePreview: visualizationGuidance("Reveal concentration, gaps, and patterns across two dimensions.", "Relative intensity across a manageable grid is the question.", "Exact cell comparison or color-independent interpretation is required.", "Provide a nearby table or text summary for exact cell values."),
 				Preview:      interactive.HeatMap(sampleInteractiveHeatMap()),
 				Code:         interactiveChartHeatMapCode(),
 			},
-			After: demoNote("Coordinate contract", "HeatMapCoordinateCartesian is the zero-value default. HeatMapCoordinateCalendar replaces category axes with an explicit inclusive date range while the constructor, config, Instance, and stable Kind remain the same."),
+			After: demoNote("Coordinates", "Use Cartesian axes for category grids and calendar coordinates for date patterns. Keep date ranges explicit."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1417,7 +1417,7 @@ func interactiveCandlestickContent() templ.Component {
 			Title:       "Interactive candlestick",
 			Description: "Reusable interactive candlestick component for inspecting aligned open, close, low, and high observations with typed zoom and reference marks.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Inspect OHLC movement across ordered dates with inside and slider zoom.", "Primitive", "interactive.Candlestick", "Kind", "components.KindInteractiveCandlestick", "Configuration", "Label, Caption, aligned Categories and named Series of typed Candle values, rise/fall semantic classes or colors, geometry, highest/lowest marks, typed chart, axis, tooltip and data-zoom options, size, controls, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded adjacent table preserves exact OHLC values, direction text, and semantic classes without relying on candle color."),
+				AbovePreview: visualizationGuidance("Inspect open, high, low, and close movement across ordered dates.", "Range and direction over time matter, with a limited enough period to inspect.", "Readers only need one measure or exact comparisons; use a line or OHLC table.", "The adjacent table gives exact OHLC values and text direction without color."),
 				Preview:      sampleInteractiveCandlestick(),
 				Code:         interactiveCandlestickCode(),
 			},
@@ -1429,7 +1429,7 @@ func interactiveCandlestickContent() templ.Component {
 					Code:        interactiveCandlestickStyleCode(),
 				},
 			},
-			After: demoNote("OHLC and interaction contract", "Every finite Candle satisfies Low <= Open/Close <= High. Slider, inside, combined X-axis, and Y-axis zoom remain typed variants on the same component. Rise/fall classes and colors are optional; Goshtoso and AraiHu light/dark semantic defaults remain readable and distinct."),
+			After: demoNote("Ranges and zoom", "Each candle has a low, open, close, and high value. Zoom supports exploration; the table remains source for exact values."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1463,11 +1463,11 @@ func interactiveChartBoxPlotContent() templ.Component {
 			Title:       "Interactive box plot",
 			Description: "Reusable interactive box plot component for comparing validated five-number summaries across aligned categories.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare distribution centers, spreads, and ranges across categories.", "Primitive", "interactive.BoxPlot", "Kind", "components.KindInteractiveBoxPlot", "Configuration", "Label, Caption, Categories, typed single or multiple Series, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve the five-number summaries in adjacent content for exact comparison."),
+				AbovePreview: visualizationGuidance("Compare distribution centers, spreads, and ranges across categories.", "Five-number summaries reveal how groups differ.", "Individual observations or unusual distribution shape must be inspected.", "Preserve five-number summaries in nearby content for exact comparison."),
 				Preview:      interactive.BoxPlot(sampleInteractiveBoxPlot()),
 				Code:         interactiveChartBoxPlotCode(),
 			},
-			After: demoNote("Summary contract", "Each category accepts one finite, ordered summary: minimum, first quartile, median, third quartile, and maximum. Multiple series share the same categories."),
+			After: demoNote("Five-number summary", "Read minimum, first quartile, median, third quartile, and maximum together; this summary does not reveal individual observations."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1528,9 +1528,9 @@ func interactiveChartGaugeContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive gauge",
-			Description: "Reusable interactive gauge component for bounded readings, with standard, progress, and liquid treatments under one stable component contract.",
+			Description: "Interactive gauge for bounded readings, with standard, progress, and liquid treatments.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Show one or more current readings against an explicit bounded range.", "Primitive", "interactive.Gauge", "Kind", "components.KindInteractiveGauge", "Configuration", "Label, Caption, standard, progress, or liquid Variant, Min and Max, typed Series/readings, dial Scale, typed Liquid wave, shape, outline, background, label, and style options, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Liquid variants include an adjacent exact reading and range summary; every treatment remains color-independent."),
+				AbovePreview: visualizationGuidance("Show one or more current readings against an explicit bounded range.", "A small number of status-like readings need range context.", "Trend, history, or precise comparison is central; use a line or table instead.", "State the exact reading, range, and status in nearby text; do not rely on color or fill level."),
 				Preview:      interactiveGaugeVariants(),
 				Code:         interactiveChartGaugeCode(),
 			},
@@ -1669,7 +1669,7 @@ func interactiveGaugeUsage() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = demoNote("Variant contract", "GaugeVariantStandard is the zero-value default and Max defaults to 100. Progress and liquid change visual treatment while Gauge, GaugeConfig, Instance, route, navigation entry, and stable Kind remain the same. Liquid readings normalize privately from Min and Max; wave count equals reading count.").Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = demoNote("Gauge treatments", "Progress and liquid treatments change presentation only. Keep each reading's numeric value and range visible.").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -1766,13 +1766,13 @@ func interactiveGraphContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive graph",
-			Description: "Reusable relationship graph for connected entities, categories, and weighted links under one renderer-neutral contract.",
+			Description: "Relationship graph for connected entities, categories, and weighted links.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Explore relationships, neighborhoods, and topology among named entities.", "Primitive", "interactive.Graph", "Kind", "components.KindInteractiveGraph", "Configuration", "Label, Caption, typed Nodes, Links, Categories, layout, roam, force options, size, chart options, series options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Pair the canvas with a textual relationship summary when exact topology matters."),
+				AbovePreview: visualizationGuidance("Explore relationships, neighborhoods, and topology among named entities.", "Connections and clusters matter more than a fixed ordered comparison.", "People need an exact path, complete adjacency, or deterministic positions.", "Pair the graph with a textual relationship summary or adjacency list."),
 				Preview:      sampleInteractiveGraph(),
 				Code:         interactiveGraphCode(),
 			},
-			After: demoNote("Layout contract", "Force is the zero-value default. Fixed-coordinate and circular layouts remain variants of the same Graph component."),
+			After: demoNote("Layouts", "Choose a layout that makes the relationships readable; layout changes placement, not the underlying nodes and links."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -1833,13 +1833,13 @@ func interactiveSankeyContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive Sankey",
-			Description: "Reusable flow chart for weighted movement between named stages under one renderer-neutral contract.",
+			Description: "Flow chart for weighted movement between named stages.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Show how quantities move, split, and converge across named stages.", "Primitive", "interactive.Sankey", "Kind", "components.KindInteractiveSankey", "Configuration", "Label, Caption, typed Series, Nodes, Links, orientation, alignment, node sizing, chart options, series options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve the weighted links in adjacent text or a table when exact flow values matter."),
+				AbovePreview: visualizationGuidance("Show how quantities move, split, and converge across named stages.", "Flows between a small set of stages are the main story.", "Exact link comparison or many crossings make the layout hard to read.", "Preserve weighted links in adjacent text or a table."),
 				Preview:      sampleInteractiveSankey(),
 				Code:         interactiveSankeyCode(),
 			},
-			After: demoNote("Flow contract", "Nodes are uniquely named within each series. Every weighted link references declared source and target nodes."),
+			After: demoNote("Flows", "Each link connects declared source and target stages. Use the adjacent values for precise flow comparison."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2074,13 +2074,13 @@ func interactiveGeoContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive geo",
-			Description: "Reusable coordinate series over registered national or regional geometry with one typed, renderer-neutral contract.",
+			Description: "Coordinate series over registered national or regional geometry.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Plot named longitude, latitude, and value tuples over geographic geometry.", "Primitive", "interactive.Geo", "Kind", "components.KindInteractiveGeo", "Configuration", "Label, Caption, typed Geometry, VisualRange, GeoSeries kind and points, ripple, labels, size, renderer-neutral ChartOptions and SeriesOptions, semantic Color or Class paint, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Every variant includes a bounded exact series, point, coordinate, value, and semantic-class table."),
+				AbovePreview: visualizationGuidance("Plot named coordinates and values over geographic geometry.", "Location and spatial distribution provide important context.", "Precise coordinates, values, or geographic detail must be compared.", "Every variant includes a table with series, point, coordinate, value, and class."),
 				Preview:      interactiveGeoVariants(),
 				Code:         interactiveGeoCode(),
 			},
-			After: demoNote("Geometry contract", "Geo plots coordinate series over registered geometry; Map remains the region-value choropleth component. Brazil effect scatter and São Paulo scatter stay variants on one Geo identity. Local Brazil-state and São Paulo-municipality geometry resources are reused without a default network request."),
+			After: demoNote("Choose a map type", "Use Geo for positioned points. Use Map when values belong to geographic regions."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2172,13 +2172,13 @@ func interactiveMapContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive map",
-			Description: "Reusable geographic values across national and regional geometry with one typed, renderer-neutral contract.",
+			Description: "Geographic values across national and regional geometry.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare named values across geographic regions.", "Primitive", "interactive.Map", "Kind", "components.KindInteractiveMap", "Configuration", "Label, Caption, typed Geometry, Variant, Series and Region values, optional labels, continuous Scale, size, semantic classes or explicit colors, root attributes, controls, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Every variant includes a bounded exact region, value, and semantic-class table."),
+				AbovePreview: visualizationGuidance("Compare named values across geographic regions.", "Regional distribution and broad geographic patterns matter.", "Precise regional values or a color-independent reading is needed.", "Every variant includes a table with region, value, and semantic class."),
 				Preview:      interactiveMapVariants(),
 				Code:         interactiveMapCode(),
 			},
-			After: demoNote("Geometry contract", "Brazil state geometry ships locally by default. Basic, labels, continuous scale, regional focus, and theme-aware behavior remain variants and options on one Map component. Consumer flex layout owns placement; each map owns only its responsive renderer surface."),
+			After: demoNote("Regional values", "Use labels or the adjacent table when readers need exact regional values; color alone is not enough."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2272,11 +2272,11 @@ func interactiveWordCloudContent() templ.Component {
 			Title:       "Interactive word cloud",
 			Description: "Reusable weighted word layouts with typed silhouettes, deterministic data order, and renderer-neutral styling.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare relative prominence across a bounded set of named weighted terms.", "Primitive", "interactive.WordCloud", "Kind", "components.KindInteractiveWordCloud", "Configuration", "Label, Caption, typed Word and Series values, shape, size range, rotation, grid, draw-out-of-bound, layout animation, percentage layout, tooltip, controls, semantic classes or explicit colors, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Each variant includes a bounded exact word, value, and semantic-class list."),
+				AbovePreview: visualizationGuidance("Compare relative prominence across a bounded set of weighted terms.", "A quick impression of a small vocabulary is useful.", "Exact ranking, close weights, or complete reading order matters; use a sorted list or bars.", "Each variant includes an exact word, value, and semantic-class list."),
 				Preview:      wordCloudVariants(),
 				Code:         interactiveWordCloudCode(),
 			},
-			After: demoNote("Variant contract", "Circle, cardioid, and star remain typed Shape options on one WordCloud component. The consumer-owned flex wrapper controls page layout; each chart owns only its responsive renderer surface."),
+			After: demoNote("Shapes", "Shapes alter layout only. The exact weighted list remains the reliable comparison surface."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2363,11 +2363,11 @@ func interactiveThemeRiverContent() templ.Component {
 			Title:       "Interactive theme river",
 			Description: "Reusable temporal stream graph for comparing how named categories rise, fall, and overlap across aligned dates.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare evolving magnitude across named temporal streams while preserving their shared shape.", "Primitive", "interactive.ThemeRiver", "Kind", "components.KindInteractiveThemeRiver", "Configuration", "Label, Caption, typed named Streams and time Points, semantic classes or explicit colors, axis layout, boundary gap, labels, size, renderer-neutral title, legend, tooltip, controls, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded adjacent table preserves dates, stream names, exact values, and semantic classes."),
+				AbovePreview: visualizationGuidance("Compare how named temporal streams rise, fall, and overlap.", "Shared movement and temporal pattern matter more than a single exact value.", "Precise values, many streams, or a stable baseline is required.", "An adjacent table preserves dates, stream names, exact values, and classes."),
 				Preview:      sampleInteractiveThemeRiver(),
 				Code:         interactiveThemeRiverCode(),
 			},
-			After: demoNote("Temporal contract", "Every stream has one finite nonnegative value for each shared strictly increasing date. Streams remain one component; palette, labels, axis insets, and boundary gap are typed options."),
+			After: demoNote("Shared dates", "Compare streams only over shared, strictly ordered dates. Use the table for exact readings."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2428,13 +2428,13 @@ func interactiveParallelContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive parallel coordinates",
-			Description: "Reusable multivariate profiles across ordered numeric and categorical dimensions under one renderer-neutral contract.",
+			Description: "Multivariate profiles across ordered numeric and categorical dimensions.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare many observations across the same ordered dimensions and reveal multivariate profiles.", "Primitive", "interactive.Parallel", "Kind", "components.KindInteractiveParallel", "Configuration", "Label, Caption, typed unique Dimensions with numeric ranges or categorical values, aligned named Series and Observations, semantic classes or explicit colors, percentage layout, axis labels and lines, smoothing, inactive opacity, size, chart options, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded adjacent table preserves series and observation names, every exact dimension value, and semantic classes without relying on line color."),
+				AbovePreview: visualizationGuidance("Compare multivariate profiles across the same ordered dimensions.", "You need to spot broad profile differences across a modest number of observations.", "Exact values, many crossing lines, or unfamiliar dimensions dominate.", "An adjacent table preserves series, observation names, and every dimension value."),
 				Preview:      sampleInteractiveParallel(),
 				Code:         interactiveParallelCode(),
 			},
-			After: demoNote("Dimension contract", "Dimension names and series names are unique. Every observation supplies exactly one typed value per dimension; numeric values must be finite and within declared bounds, while categorical values must name a declared category."),
+			After: demoNote("Comparable dimensions", "Each observation has one value for every declared dimension. Keep dimension names and scales clear before comparing paths."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2466,13 +2466,13 @@ func interactiveTreemapContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive treemap",
-			Description: "Reusable space-filling hierarchy for comparing weighted branches and focusing nested rectangles under one renderer-neutral contract.",
+			Description: "Space-filling hierarchy for comparing weighted branches and nested rectangles.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Explore weighted recursive hierarchies while using area to compare leaves and branch totals.", "Primitive", "interactive.Treemap", "Kind", "components.KindInteractiveTreemap", "Configuration", "Label, Caption, typed recursive Nodes, semantic class or color, drill-down navigation, roam, breadcrumb, labels, borders and gaps, optional leaf depth, levels, size, renderer-neutral chart options, root attributes, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded adjacent table preserves node paths, parents, computed branch totals, leaf values, and semantic classes."),
+				AbovePreview: visualizationGuidance("Explore weighted hierarchies with area for leaves and branch totals.", "Relative size within a recursive structure is more important than precise comparison.", "Deep nesting or exact values must be compared; use a tree and table.", "An adjacent table preserves node paths, parents, totals, leaf values, and classes."),
 				Preview:      sampleInteractiveTreemap(),
 				Code:         interactiveTreemapCode(),
 			},
-			After: demoNote("Hierarchy contract", "Leaf values must be finite and nonnegative. Parent values stay zero because child values determine parent area. Drill-down and breadcrumb back-navigation update the same chart instance."),
+			After: demoNote("Hierarchy values", "Leaf values determine branch area. Use the table for exact totals and paths; drill-down is only a visual exploration aid."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2504,13 +2504,13 @@ func interactiveSunburstContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive sunburst",
-			Description: "Reusable radial hierarchy for comparing weighted parent-child sectors and focusing nested branches under one renderer-neutral contract.",
+			Description: "Radial hierarchy for comparing weighted parent-child sectors and nested branches.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Explore weighted recursive hierarchies as concentric sectors.", "Primitive", "interactive.Sunburst", "Kind", "components.KindInteractiveSunburst", "Configuration", "Label, Caption, typed recursive Nodes, drill-down navigation, sibling ordering, labels, inner and outer radii, size, renderer-neutral chart options, root class and attributes, and chart palette with explicit colors.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent exact-value table preserves every node path, parent, and value."),
+				AbovePreview: visualizationGuidance("Explore a weighted hierarchy as concentric radial sectors.", "A compact overview of a shallow hierarchy and its branch proportions is useful.", "Deep hierarchies, close comparisons, or a clear reading order matter; use a tree or table.", "Use the adjacent path-and-value table to inspect the same hierarchy with keyboard navigation and without relying on the radial graphic."),
 				Preview:      sampleInteractiveSunburst(),
 				Code:         interactiveSunburstCode(),
 			},
-			After: demoNote("Hierarchy contract", "Drill-down with center-back navigation and descending sibling order are zero-value defaults. Disable navigation or preserve caller order with typed options on the same Sunburst component."),
+			After: demoNote("Explore the hierarchy", "Visual drill-down can focus a branch, but it is not the accessible navigation path. Use the keyboard-accessible adjacent table to inspect every parent-child path and value."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2542,13 +2542,13 @@ func interactiveTreeContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive tree",
-			Description: "Reusable hierarchy for parent-child relationships, layered or radial arrangement, and progressive disclosure under one renderer-neutral contract.",
+			Description: "Hierarchy for parent-child relationships, layered or radial arrangement, and progressive disclosure.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Explore ownership, taxonomy, ancestry, or other recursive parent-child structures.", "Primitive", "interactive.Tree", "Kind", "components.KindInteractiveTree", "Configuration", "Label, Caption, typed recursive Roots, layout, orientation, initial depth, collapsed nodes, labels, roam, symbols, insets, size, chart options, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve every node name, value, and parent-child path in adjacent text or a table when exact data matters."),
+				AbovePreview: visualizationGuidance("Explore ownership, taxonomy, ancestry, and other parent-child structures.", "Paths and progressive disclosure are more useful than size comparison.", "The hierarchy is very deep or exact values must be compared.", "Preserve node names, values, and parent-child paths in adjacent text or a table."),
 				Preview:      sampleInteractiveTree(),
 				Code:         interactiveTreeCode(),
 			},
-			After: demoNote("Hierarchy contract", "Layered is the zero-value layout; radial remains a variant of the same Tree component. InitialDepth and per-node Collapsed state control initial disclosure. Keep an adjacent nested list or table as the exact-data source."),
+			After: demoNote("Reading the tree", "Layered and radial views change layout. Keep an adjacent nested list or table as the exact-data source."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2580,13 +2580,13 @@ func interactiveChartFunnelContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive funnel",
-			Description: "Reusable interactive funnel component for comparing named stage volumes with typed ordering under one stable component contract.",
+			Description: "Interactive funnel for comparing named stage volumes in a fixed order.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Show progressive reduction or conversion across a small sequence of named stages.", "Primitive", "interactive.Funnel", "Kind", "components.KindInteractiveFunnel", "Configuration", "Label, Caption, descending, ascending, or caller-data Order, typed Series and stages, size, renderer-neutral ChartOptions and SeriesOptions, and chart style.", "Accessibility", "Figure name comes from Label and Caption stays visible. Preserve stage names, values, and intended order in adjacent content."),
+				AbovePreview: visualizationGuidance("Show progressive reduction or conversion across a small sequence of stages.", "The stage order and relative loss are meaningful.", "Stages are not a sequence or exact conversion rates are the primary task.", "Preserve stage names, values, and intended order in adjacent content."),
 				Preview:      interactive.Funnel(sampleInteractiveFunnel()),
 				Code:         interactiveChartFunnelCode(),
 			},
-			After: demoNote("Ordering contract", "FunnelOrderDescending is the zero-value default. Ascending and caller-data ordering remain variants of the same constructor, config, Instance, and stable Kind."),
+			After: demoNote("Stage order", "Make intended stage order explicit. Sorting by value can be useful, but must not replace process order."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2620,7 +2620,7 @@ func pieContent() templ.Component {
 			Title:       "Pie chart",
 			Description: "Categorical SSR SVG for compact part-to-whole summaries, with full pie and doughnut treatments on one typed component.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Summarize a small categorical distribution as parts of a total.", "Primitive", "pie.Pie", "Kind", "components.KindPieChart", "Configuration", "Label, Caption, named Slices, typed pie or doughnut Variant, validated inner radius, title, legend, padding, dimensions, root attributes, controls, export, and chart style.", "Accessibility", "Figure name comes from Label; Caption stays visible. An adjacent table always preserves exact values and shares."),
+				AbovePreview: visualizationGuide("Summarize a small categorical distribution as parts of one total.", "Use when there are few, clearly distinct slices and the part-to-whole relationship matters more than close ranking.", "Avoid for many slices or small differences; a bar chart is easier to compare precisely.", "An adjacent table preserves every exact value and share; do not make users infer either from sector size or color."),
 				Preview:      pie.Pie(sampleObservationStates()),
 				Code:         pieCode(),
 			},
@@ -2633,7 +2633,7 @@ func pieContent() templ.Component {
 					Code:        doughnutCode(),
 				},
 			},
-			After: demoNote("Treatment contract", "Pie is the zero-value treatment. Doughnut changes only center geometry and remains the same Pie component, stable Kind, route, and catalog entry."),
+			After: chartDocumentation("Choosing a treatment", "Use the doughnut treatment only when the open center improves surrounding context. It does not make small slice differences easier to read.", "pie"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2667,7 +2667,7 @@ func scatterContent() templ.Component {
 			Title:       "Scatter chart",
 			Description: "Dense categorical SSR SVG for repeated observations, trends, clusters, and outliers across an explicit ordered set of keys.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare dense or sparse distributions across ordered categories without browser rendering.", "Primitive", "scatter.Scatter", "Kind", "components.KindScatterChart", "Configuration", "Label, Caption, ordered Categories, named Series with sparse Points or aligned multi-sample Values, typed top-N label/trend/reference/axis/legend/title/padding/marker/value-format options, dimensions, root attributes, and chart palette.", "Accessibility", "Figure name comes from Label; Caption stays bounded and visible. Top-N labels add an exact-value and selection-state summary. Applications provide an adjacent exact-data table, download, or drill-down when all samples matter; dense charts never expand thousands of points into DOM text."),
+				AbovePreview: visualizationGuide("Compare repeated observations, trends, clusters, and outliers across an ordered set of categories.", "Use when point position and density reveal variation that bars would hide.", "Avoid when readers need every observation in the initial page or categories lack a meaningful order.", "Top-value labels include exact values and selection state. For dense data, provide a table, download, or drill-down instead of expanding thousands of points into page text."),
 				Preview:      scatter.Scatter(sampleDenseScatter()),
 				Code:         scatterCode(),
 			},
@@ -2679,7 +2679,7 @@ func scatterContent() templ.Component {
 					Code:        topNScatterCode(),
 				},
 			},
-			After: demoNote("Scatter variants", "Dense category contract: primary preview adapts upstream examples/1-Painter/scatter_chart-3-dense_data/main.go with a fixed local RNG seed: three 1,000-category bounded random walks, repeated samples, SMA(100), maximum references, compact axes and legend. Top labels adapts examples/1-Painter/scatter_chart-4-top_n_labels/main.go: the 30-day visitor series, top five selection, 0–50 domain, hidden legend, 16px label intent, 20px padding, and 800×500 sizing. Categories define aligned slots; Values permits zero, one, or multiple samples without repeated category lookups. Sparse Points remains supported but cannot be mixed within one series."),
+			After: chartDocumentation("Reading dense data", "The primary example adapts `examples/1-Painter/scatter_chart-3-dense_data/main.go`; top labels adapt `examples/1-Painter/scatter_chart-4-top_n_labels/main.go`. Labels identify selected observations, not every point, so retain an equivalent data source for complete inspection.", "scatter"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2713,7 +2713,7 @@ func radarContent() templ.Component {
 			Title:       "Radar chart",
 			Description: "SSR SVG for comparing a small number of profiles across shared bounded dimensions.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare named profiles across the same bounded dimensions without browser rendering.", "Primitive", "radar.Radar", "Kind", "components.KindRadarChart", "Configuration", "Label, Caption, named Indicators with maxima, named aligned Series, typed radius and value-label options, Width, Height, root class and attributes, and chart palette with explicit colors.", "Accessibility", "Figure name comes from Label; Caption stays visible. An adjacent disclosure preserves indicator maxima and every exact series value."),
+				AbovePreview: visualizationGuide("Compare a small number of profiles across the same bounded dimensions.", "Use when shared dimensions and overall profile shape help readers spot broad strengths and gaps.", "Avoid when precise values or more than a few profiles must be compared; aligned bars or a table are clearer.", "Keep indicator maxima and every series value in adjacent text or a table; shape and color alone are not equivalent data."),
 				Preview:      radar.Radar(sampleBasicRadar()),
 				Code:         radarCode(),
 			},
@@ -2725,7 +2725,7 @@ func radarContent() templ.Component {
 					Code:        radarOverrideCode(),
 				},
 			},
-			After: demoNote("Radar contract", "Indicators define caller order and positive maxima. Every named series supplies one finite, non-negative value per indicator and may not exceed that indicator maximum."),
+			After: chartDocumentation("Reading profiles", "All profiles use the same ordered dimensions and bounds. Compare broad patterns first, then consult the adjacent values for exact differences.", "radar"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2759,7 +2759,7 @@ func candlestickContent() templ.Component {
 			Title:       "Candlestick",
 			Description: "SSR SVG for ordered open-high-low-close observations, using conventional increase and decrease treatments.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare open, high, low, and close values across ordered categories or times without browser rendering.", "Primitive", "candlestick.Candlestick", "Kind", "components.KindCandlestickChart", "Configuration", "Label, Caption, renderer-neutral Title and Axis labels, SeriesName, typed OHLC Data, close TrendLines, presentation Options, Width, Height, root class and attributes, chart palette, and shared controls/export.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent disclosure states direction in text and preserves every exact OHLC and computed trend value."),
+				AbovePreview: visualizationGuide("Compare open, high, low, and close values across ordered periods.", "Use for financial or similarly structured ranges where intraperiod movement matters.", "Avoid for a single value per period or when a simple trend line communicates the question more directly.", "The adjacent disclosure states increase or decrease in text and preserves exact OHLC and trend values, so meaning never depends on candle color."),
 				Preview:      candlestick.Candlestick(sampleBasicCandlestick()),
 				Code:         candlestickCode(),
 			},
@@ -2801,7 +2801,7 @@ func candlestickContent() templ.Component {
 					Code:        candlestickPatternVariantCode(),
 				},
 			},
-			After: demoNote("OHLC contract", "Each finite datum satisfies Low <= Open/Close <= High. Close greater than or equal to open is stated as Increase; a lower close is stated as Decrease, so meaning never depends on color alone."),
+			After: chartDocumentation("Reading price movement", "Each candle shows a period range plus opening and closing positions. Use the exact-value table for comparisons that cannot be reliably judged from mark geometry.", "candlestick"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2835,11 +2835,11 @@ func funnelContent() templ.Component {
 			Title:       "Funnel chart",
 			Description: "SSR SVG for ordered stages whose non-increasing values narrow from the first stage to the last.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Show progressive reduction through a small ordered sequence without browser rendering.", "Primitive", "funnel.Funnel", "Kind", "components.KindFunnelChart", "Configuration", "Label, Caption, Title, typed Stages with caller Color and Class, typed label and legend options, chart and legend Padding, Width, Height, root attributes, palette, and shared controls/export options.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent disclosure preserves every exact stage value and its share of the first stage."),
+				AbovePreview: visualizationGuide("Show progressive reduction through a small ordered sequence of stages.", "Use for a fixed process such as conversion or completion, where each stage follows the previous one.", "Avoid when stages can increase, branch, recur, or lack a single meaningful order.", "The adjacent disclosure preserves every stage value and its share of the first stage; width and color are not the only source of meaning."),
 				Preview:      funnel.Funnel(sampleBasicFunnel()),
 				Code:         funnelCode(),
 			},
-			After: demoNote("Funnel contract", "Stages keep caller order, use unique non-empty labels, and carry finite non-negative values that never increase. Label variants and legend layout remain options on one component."),
+			After: chartDocumentation("Interpreting stages", "A funnel communicates a deliberate ordered progression. If values rise or paths split, choose a chart that represents that behavior directly.", "funnel"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2873,7 +2873,7 @@ func heatMapContent() templ.Component {
 			Title:       "Heat map",
 			Description: "Categorical SSR SVG for comparing values across a two-dimensional matrix with a sequential color scale.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare magnitude across the intersections of two ordered categorical axes.", "Primitive", "heatmap.HeatMap", "Kind", "components.KindHeatMapChart", "Configuration", "Label, Caption, Title, typed XAxis and YAxis labels, either a complete Rows matrix or indexed Cells, finite ValueRange, theme-aware sequential Gradient, dimensions, root attributes, and shared controls/export options.", "Accessibility", "Figure name comes from Label and Caption stays visible. A bounded exact-value table preserves axis labels and numeric values so color is never the only signal."),
+				AbovePreview: visualizationGuide("Compare magnitude at the intersections of two ordered categorical axes.", "Use to reveal concentration, gaps, and broad patterns across a complete matrix.", "Avoid when exact cell-by-cell comparison is primary or the matrix is too large to scan.", "A bounded exact-value table preserves both axis labels and numeric values, so the color scale never carries meaning by itself."),
 				Preview:      heatmap.HeatMap(sampleBasicHeatMap()),
 				Code:         heatMapCode(),
 			},
@@ -2885,7 +2885,7 @@ func heatMapContent() templ.Component {
 					Code:        heatMapOverrideCode(),
 				},
 			},
-			After: demoNote("Matrix contract", "Rows use Y-major order and contain one finite value for every X label. Indexed Cells cover the same complete matrix exactly once. The zero-value gradient is theme-aware cold to warm; every value remains inside the explicit range."),
+			After: chartDocumentation("Reading a matrix", "Read across and down for patterns, then use the adjacent values for exact cells. Reverse scale direction only when it improves the familiar interpretation of high and low values.", "heatmap"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2919,7 +2919,7 @@ func tableContent() templ.Component {
 			Title:       "Table",
 			Description: "SSR SVG for compact tabular presentation with weighted columns, alignment, semantic theme colors, and typed per-cell presentation.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Present aligned text values in a static vector table without browser rendering.", "Primitive", "table.Table", "Kind", "components.KindTable", "Configuration", "Label, Caption, typed Columns with width spans and alignment, Rows, optional Width, Padding, FontSize, semantic Colors, CellStyle, root class and attributes.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent semantic HTML table preserves headers and every cell value."),
+				AbovePreview: visualizationGuide("Present compact aligned text values when row and column comparison is the task.", "Use for a small table that benefits from a graphic layout while retaining a clear row-and-column structure.", "Avoid for long, sortable, filterable, or interactive data sets; use semantic HTML tables for those jobs.", "The adjacent semantic HTML table preserves headers and every cell value for keyboard and assistive-technology navigation."),
 				Preview:      charttable.Table(samplePeopleTable()),
 				Code:         tableCode(),
 			},
@@ -2931,7 +2931,7 @@ func tableContent() templ.Component {
 					Code:        marketTableCode(),
 				},
 			},
-			After: demoNote("Table contract", "Every row supplies exactly one string value per named column. Span controls relative width, alignment is typed, and cell meaning remains available in the adjacent semantic table without depending on color."),
+			After: chartDocumentation("Choosing a table", "Use the vector treatment for concise visual presentation. Keep the semantic table beside it whenever readers need to navigate headers and cells directly.", "table"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2965,11 +2965,11 @@ func violinContent() templ.Component {
 			Title:       "Violin chart",
 			Description: "SSR SVG for comparing complete distribution shapes, centers, spread, skew, and multimodality from exact named samples.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare probability-density shapes across named sample populations without browser rendering.", "Primitive", "violin.Violin", "Kind", "components.KindViolinChart", "Configuration", "Label, Caption, Title, typed named sample Series, deterministic density point count, bandwidth and normalization, typed mean and median mark lines, typed quantile summaries, axis, padding, dimensions, semantic classes, explicit colors, root attributes, chart style, and shared controls/export.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent exact statistical summary preserves sample count, minimum, quartiles, median, mean, and maximum without relying on shape or color."),
+				AbovePreview: visualizationGuide("Compare distribution shape, center, spread, skew, and multiple peaks across named samples.", "Use when the sample distribution itself matters, not just a summary statistic.", "Avoid for very small samples or when a simple five-number summary answers the question.", "The adjacent statistical summary preserves sample count, minimum, quartiles, median, mean, and maximum without relying on shape or color."),
 				Preview:      violin.Violin(sampleDistributionShapes()),
 				Code:         violinCode(),
 			},
-			After: demoNote("Distribution contract", "This deterministic four-distribution sample preserves 200 observations per series, 80 Gaussian density bands, 1200 x 800 dimensions, right-side labels, and mean markers. Median markers and quartile summaries remain typed variants on the same component."),
+			After: chartDocumentation("Interpreting distributions", "Width estimates density, not individual observations. Compare the summary statistics alongside the shape, especially when distributions overlap.", "violin"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -3003,7 +3003,7 @@ func lineContent() templ.Component {
 			Title:       "Line chart",
 			Description: "Quantitative SSR SVG for latency, queue depth, or any ordered numeric series. Renderer stays Go-native; surrounding panel stays application-owned.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Summarize one or more ordered numeric series without browser rendering.", "Primitive", "line.Line", "Kind", "components.KindLineChart", "Configuration", "Label, Caption, typed Title, axis Labels, named Series, optional filled Area, XAxis boundary gap, Legend padding, one or two YAxes with finite ranges and units, Width, Height, chart palette, and shared controls/export.", "Accessibility", "Figure name comes from Label and Caption stays visible. An adjacent table maps every exact value to its named series and Y axis."),
+				AbovePreview: visualizationGuide("Summarize one or more ordered numeric series and their change over time or sequence.", "Use when order is meaningful and readers need to see trend, rate of change, or turning points.", "Avoid for unordered categories or dual scales that could make unrelated values appear directly comparable.", "An adjacent table maps every exact value to its series and axis; do not require readers to estimate values from line position."),
 				Preview:      line.Line(sampleLatency()),
 				Code:         lineCode(),
 			},
@@ -3027,7 +3027,7 @@ func lineContent() templ.Component {
 					Code:        dualAxisLineOverridesCode(),
 				},
 			},
-			After: demoNote("Theme contract", "Static line charts resolve Goshtoso semantic CSS tokens at display time. One SSR response follows every built-in theme and its dark mode; no browser chart renderer is involved."),
+			After: chartDocumentation("Reading series", "Filled areas emphasize magnitude; dual axes suit distinct units but require clearly labeled scales. Use a shared axis whenever direct value comparison matters.", "line"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -3245,7 +3245,7 @@ func demoNote(title string, text string) templ.Component {
 	})
 }
 
-func componentContract(purposeLabel string, purpose string, primitiveLabel string, primitive string, kindLabel string, kind string, configLabel string, config string, accessibilityLabel string, accessibility string) templ.Component {
+func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equivalentData string) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -3266,137 +3266,253 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 			templ_7745c5c3_Var90 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<section class=\"rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt\" aria-label=\"Component contract\"><dl class=\"grid gap-4 lg:grid-cols-2\"><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 55, "<section class=\"rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt\"><dl class=\"grid gap-4 lg:grid-cols-2\"><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">Purpose</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var91 string
-		templ_7745c5c3_Var91, templ_7745c5c3_Err = templ.JoinStringErrs(purposeLabel)
+		templ_7745c5c3_Var91, templ_7745c5c3_Err = templ.JoinStringErrs(purpose)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 889, Col: 130}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 889, Col: 204}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var91))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 56, "</dd></div><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">Use when</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var92 string
-		templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinStringErrs(purpose)
+		templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinStringErrs(useWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 889, Col: 213}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 890, Col: 205}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var92))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</dd></div><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 57, "</dd></div><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">Avoid when</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var93 string
-		templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.JoinStringErrs(primitiveLabel)
+		templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.JoinStringErrs(avoidWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 890, Col: 132}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 891, Col: 209}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var93))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</dt><dd class=\"mt-1 break-words font-mono text-sm text-on-surface dark:text-on-surface-dark\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 58, "</dd></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var94 string
-		templ_7745c5c3_Var94, templ_7745c5c3_Err = templ.JoinStringErrs(primitive)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 890, Col: 239}
+		if equivalentData != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "<div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">Equivalent data</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var94 string
+			templ_7745c5c3_Var94, templ_7745c5c3_Err = templ.JoinStringErrs(equivalentData)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 893, Col: 220}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var94))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</dd></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var94))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</dl></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 59, "</dd></div><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">")
+		templ_7745c5c3_Err = goAPIReference("interactive").Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var95 string
-		templ_7745c5c3_Var95, templ_7745c5c3_Err = templ.JoinStringErrs(kindLabel)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 891, Col: 127}
+		return nil
+	})
+}
+
+func visualizationGuide(purpose string, useWhen string, avoidWhen string, equivalentData string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var95))
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 60, "</dt><dd class=\"mt-1 break-words font-mono text-sm text-on-surface dark:text-on-surface-dark\">")
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var95 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var95 == nil {
+			templ_7745c5c3_Var95 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "<section class=\"rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt\"><dl class=\"grid gap-4 lg:grid-cols-2\"><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">Purpose</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var96 string
-		templ_7745c5c3_Var96, templ_7745c5c3_Err = templ.JoinStringErrs(kind)
+		templ_7745c5c3_Var96, templ_7745c5c3_Err = templ.JoinStringErrs(purpose)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 891, Col: 229}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 903, Col: 204}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var96))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 61, "</dd></div><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</dd></div><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">Use when</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var97 string
-		templ_7745c5c3_Var97, templ_7745c5c3_Err = templ.JoinStringErrs(configLabel)
+		templ_7745c5c3_Var97, templ_7745c5c3_Err = templ.JoinStringErrs(useWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 892, Col: 129}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 904, Col: 205}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var97))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 62, "</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</dd></div><div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">Avoid when</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
 		var templ_7745c5c3_Var98 string
-		templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.JoinStringErrs(config)
+		templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.JoinStringErrs(avoidWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 892, Col: 211}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 905, Col: 209}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var98))
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 63, "</dd></div><div class=\"lg:col-span-2\"><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</dd></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var99 string
-		templ_7745c5c3_Var99, templ_7745c5c3_Err = templ.JoinStringErrs(accessibilityLabel)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 893, Col: 158}
+		if equivalentData != "" {
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 66, "<div><dt class=\"text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted\">Equivalent data</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			var templ_7745c5c3_Var99 string
+			templ_7745c5c3_Var99, templ_7745c5c3_Err = templ.JoinStringErrs(equivalentData)
+			if templ_7745c5c3_Err != nil {
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 907, Col: 220}
+			}
+			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var99))
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 67, "</dd></div>")
+			if templ_7745c5c3_Err != nil {
+				return templ_7745c5c3_Err
+			}
 		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var99))
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 68, "</dl></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 64, "</dt><dd class=\"mt-1 text-sm text-on-surface dark:text-on-surface-dark\">")
+		return nil
+	})
+}
+
+func chartDocumentation(title string, text string, packageName string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var100 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var100 == nil {
+			templ_7745c5c3_Var100 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		templ_7745c5c3_Err = demoNote(title, text).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		var templ_7745c5c3_Var100 string
-		templ_7745c5c3_Var100, templ_7745c5c3_Err = templ.JoinStringErrs(accessibility)
-		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 893, Col: 247}
-		}
-		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var100))
+		templ_7745c5c3_Err = goAPIReference(packageName).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 65, "</dd></div></dl></section>")
+		return nil
+	})
+}
+
+func goAPIReference(packageName string) templ.Component {
+	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
+		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
+		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
+			return templ_7745c5c3_CtxErr
+		}
+		templ_7745c5c3_Buffer, templ_7745c5c3_IsBuffer := templruntime.GetBuffer(templ_7745c5c3_W)
+		if !templ_7745c5c3_IsBuffer {
+			defer func() {
+				templ_7745c5c3_BufErr := templruntime.ReleaseBuffer(templ_7745c5c3_Buffer)
+				if templ_7745c5c3_Err == nil {
+					templ_7745c5c3_Err = templ_7745c5c3_BufErr
+				}
+			}()
+		}
+		ctx = templ.InitializeContext(ctx)
+		templ_7745c5c3_Var101 := templ.GetChildren(ctx)
+		if templ_7745c5c3_Var101 == nil {
+			templ_7745c5c3_Var101 = templ.NopComponent
+		}
+		ctx = templ.ClearChildren(ctx)
+		packagePath := "github.com/araihu/goshtoso-charts/components/" + packageName
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 69, "<section data-api-reference data-go-api-reference data-go-api-version=\"v0.0.1\" class=\"mt-10 scroll-mt-8 rounded-radius border border-outline bg-surface p-5 dark:border-outline-dark dark:bg-surface-dark\"><div class=\"flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between\"><div class=\"min-w-0\"><div class=\"mb-2 flex flex-wrap items-center gap-2\"><h2 id=\"api-reference\" data-toc-heading class=\"scroll-mt-8 font-title text-lg font-semibold\">Go API</h2><span class=\"rounded-radius border border-outline px-2 py-0.5 font-mono text-xs text-on-surface-muted dark:border-outline-dark dark:text-on-surface-dark-muted\">v0.0.1</span></div><p class=\"max-w-2xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted\">The examples above cover behavior and composition. pkg.go.dev is the canonical reference for exported types, functions, methods, and Go documentation.</p><code class=\"mt-3 block break-all font-mono text-xs text-on-surface-strong dark:text-on-surface-dark-strong\">")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var102 string
+		templ_7745c5c3_Var102, templ_7745c5c3_Err = templ.JoinStringErrs(packagePath)
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 925, Col: 126}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var102))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 70, "</code></div><a href=\"")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		var templ_7745c5c3_Var103 templ.SafeURL
+		templ_7745c5c3_Var103, templ_7745c5c3_Err = templ.JoinURLErrs(templ.URL("https://pkg.go.dev/github.com/araihu/goshtoso-charts@v0.0.1/components/" + packageName))
+		if templ_7745c5c3_Err != nil {
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 927, Col: 111}
+		}
+		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var103))
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 71, "\" target=\"_blank\" rel=\"noopener noreferrer\" data-go-api-link class=\"inline-flex shrink-0 items-center justify-center gap-2 rounded-radius bg-primary px-4 py-2 text-sm font-semibold text-on-primary transition-colors hover:bg-primary-hover dark:bg-primary-dark dark:text-on-primary-dark dark:hover:bg-primary-dark-hover\">Open v0.0.1 API <span aria-hidden=\"true\">↗</span></a></div></section>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

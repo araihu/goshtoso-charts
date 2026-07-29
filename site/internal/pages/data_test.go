@@ -79,6 +79,61 @@ func TestInteractiveComponentPagesRemainRendererNeutral(t *testing.T) {
 	}
 }
 
+func TestInteractivePageSourceUsesVisualizationGuidance(t *testing.T) {
+	t.Parallel()
+	source, err := os.ReadFile("pages.templ")
+	if err != nil {
+		t.Fatalf("read pages.templ: %v", err)
+	}
+	interactive := string(source)
+	start := strings.Index(interactive, "templ InteractiveBarPage")
+	end := strings.Index(interactive, "templ pieContent")
+	if start < 0 || end < 0 || start >= end {
+		t.Fatal("cannot isolate interactive component pages")
+	}
+	interactive = interactive[start:end]
+	if got := strings.Count(interactive, "AbovePreview: visualizationGuidance("); got != 24 {
+		t.Fatalf("interactive guidance count = %d, want 24 canonical component routes", got)
+	}
+	for _, forbidden := range []string{"AbovePreview: componentContract(", `"Primitive"`, `"Kind"`, `"Configuration"`, `"Component contract"`} {
+		if strings.Contains(interactive, forbidden) {
+			t.Errorf("interactive component pages retain %q", forbidden)
+		}
+	}
+}
+
+func TestInteractiveSunburstSourceExplainsAccessibleHierarchyReading(t *testing.T) {
+	t.Parallel()
+	source, err := os.ReadFile("pages.templ")
+	if err != nil {
+		t.Fatalf("read pages.templ: %v", err)
+	}
+	page := string(source)
+	start := strings.Index(page, "templ interactiveSunburstContent")
+	if start < 0 {
+		t.Fatal("cannot isolate sunburst page")
+	}
+	end := strings.Index(page[start:], "templ interactiveTreeContent")
+	if end < 0 {
+		t.Fatal("cannot isolate sunburst page")
+	}
+	sunburst := page[start : start+end]
+	for _, want := range []string{"shallow hierarchy", "Deep hierarchies", "keyboard navigation", "Hierarchy contract"} {
+		if want == "Hierarchy contract" {
+			if strings.Contains(sunburst, want) {
+				t.Errorf("sunburst retains %q", want)
+			}
+			continue
+		}
+		if !strings.Contains(sunburst, want) {
+			t.Errorf("sunburst guidance missing %q", want)
+		}
+	}
+	if !strings.Contains(sunburst, "not the accessible navigation path") {
+		t.Error("sunburst must not present visual drill-down as accessible navigation")
+	}
+}
+
 func TestDoughnutSampleMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 	t.Parallel()
 	if doughnutUpstreamPath != "examples/1-Painter/doughnut_chart-1-basic/main.go" ||

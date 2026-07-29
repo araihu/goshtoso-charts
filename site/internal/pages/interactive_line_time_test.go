@@ -35,7 +35,7 @@ func TestInteractiveLineTimePageRendersOneLineComponentWithEvidence(t *testing.T
 	if err := InteractiveLinePage(false).Render(context.Background(), &output); err != nil {
 		t.Fatalf("render line page: %v", err)
 	}
-	for _, want := range []string{"Temporal X-axis treatment", "Exact time and values", "2025-01-31T00:00:00Z", "UTC timestamps.", "Axis contract"} {
+	for _, want := range []string{"Temporal X-axis treatment", "Exact time and values", "2025-01-31T00:00:00Z", "UTC timestamps.", "Show change across an ordered sequence."} {
 		if !strings.Contains(output.String(), want) {
 			t.Errorf("line page missing %q", want)
 		}

@@ -81,7 +81,7 @@ func TestLinePageIncludesPinnedDualAxisTreatmentWithoutEngineBranding(t *testing
 		"820", "932", "901", "934", "1290", "1330", "1320",
 		"Left Y axis", "Right Y axis", "Exact series values", "Y axis mapping",
 		`data-goshtoso-candidate="line-dual-axis-78a3edd9aa356dc7"`,
-		"line.Line", "components.KindLineChart", "YAxes", "YAxisIndex",
+		"YAxes", "YAxisIndex", "Reading series",
 		"Presentation overrides", "caller-right-series", "caller-left-axis",
 		"Expand", "SVG", "PNG",
 	} {
@@ -120,8 +120,8 @@ func TestLine3DPagePreservesBothTreatmentsAndCentralizedAttribution(t *testing.T
 	for _, want := range []string{
 		"Interactive line 3D", "basic line3d example", "auto rotating", "25000 ordered points",
 		"t = i / 1000", "cos(75", "sin(75", "t domain [0, 24.999]",
-		"Line3DConfig", "Point3D", "Line3DVisualRange", "Line3DGrid", "Line3DView",
-		"ChartOptions", "SeriesOptions", "Color or Class", "Download all exact points as CSV",
+		"Line3DConfig", "Line3DVisualRange", "Line3DGrid", "Line3DView",
+		"Download all exact points as CSV",
 		"Reduced-motion", "Expand", "PNG",
 	} {
 		if !strings.Contains(body, want) {
@@ -194,7 +194,7 @@ func TestBarDocumentationPreservesHorizontalExampleWithoutEngineBranding(t *test
 		"20", "40", "60", "80", "100", "120", "140",
 		"OrientationHorizontal", "Padding", "600", "400",
 		"Exact category values", "Expand", "SVG", "PNG",
-		"bar.Bar", "components.KindBarChart",
+		"Interpretation",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("bar documentation missing horizontal example content %q", want)
@@ -229,8 +229,8 @@ func TestViolinDocumentationPreservesUpstreamSamplesWithoutEngineBranding(t *tes
 	body := recorder.Body.String()
 	for _, want := range []string{
 		"Violin chart", "Distribution Shapes", "Normal", "Right Skewed", "Bimodal", "Tight",
-		"200", "80 Gaussian density bands", "1200 x 800", "Mean", "Median", "Q1", "Q3",
-		"violin.Violin", "components.KindViolinChart", "Distribution", "MarkLines", "Quantiles",
+		"200", "Mean", "Median", "Q1", "Q3",
+		"Distribution", "MarkLines", "Quantiles", "Interpreting distributions",
 		"Exact sample statistics", "Expand", "SVG", "PNG",
 	} {
 		if !strings.Contains(body, want) {
@@ -260,7 +260,7 @@ func TestHeatMapDocumentationPreservesUpstreamBasicExampleWithoutEngineBranding(
 		"Basic heat map", "Heat Map Chart", "X-Axis", "Y-Axis",
 		"4.4", "4.9", "7", "7.5", "4.3", "2.6", "5.9", "9", "6.4", "2.3",
 		"3.3", "3.2", "1.9", "6", "4.6", "1.9 · cold", "9 · warm",
-		"heatmap.HeatMap", "components.KindHeatMapChart", "ValueRange", "GradientStop",
+		"ValueRange", "GradientStop", "Reading a matrix",
 		"Exact values", "Custom semantic scale", "Fullscreen", "Expand", "SVG", "PNG",
 	} {
 		if !strings.Contains(body, want) {
@@ -285,7 +285,7 @@ func TestTableDocumentationPreservesOfficialExampleWithoutEngineBranding(t *test
 		"Jim Green", "42", "London No. 1 Lake Park", "wow",
 		"Joe Black", "Sidney No. 1 Lake Park", "cool, teacher",
 		"Market changes", "Datadog Inc", "97.32", "-7.49%", "Hashicorp Inc", "28.66", "-9.25%", "Gitlab Inc", "51.63", "+4.32%",
-		"Accessible data table", "components.KindTable", "Explicit presentation overrides",
+		"Accessible data table", "Explicit presentation overrides", "Choosing a table",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("table documentation missing upstream example content %q", want)
@@ -313,7 +313,7 @@ func TestFunnelDocumentationPreservesPinnedOfficialExampleWithoutEngineBranding(
 	for _, want := range []string{
 		"Basic funnel", "Funnel", "Show", "Click", "Visit", "Inquiry", "Order", "Pay", "Cancel",
 		"100", "80", "60", "40", "20", "10", "2", "Exact stage values", "Share of first stage",
-		"funnel.Funnel", "components.KindFunnelChart", "typed Stages", "Color and Class", "SVG", "PNG",
+		"SVG", "PNG", "Interpreting stages",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("funnel documentation missing upstream or contract content %q", want)
@@ -363,7 +363,7 @@ func TestCandlestickDocumentationPreservesUpstreamBasicExampleWithoutEngineBrand
 	for _, want := range []string{
 		"Candlestick Chart", "Stock Price", "Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7",
 		"100", "110", "95", "105", "115", "112", "118", "108", "120", "104", "113", "109", "116", "106", "114", "121", "111", "119",
-		"Exact OHLC values", "Increase", "Decrease", "Low &lt;= Open/Close &lt;= High", "components.KindCandlestickChart",
+		"Exact OHLC values", "Increase", "Decrease", "Reading price movement",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("candlestick documentation missing upstream example content %q", want)
@@ -397,7 +397,7 @@ func TestThemeRiverDocumentationPreservesPinnedUpstreamExampleWithoutEngineBrand
 	for _, want := range []string{
 		"ThemeRiver-SingleAxis-Time", "DQ", "TY", "SS", "QG", "SY", "DD",
 		"2015/11/08", "2015/11/28", "Exact stream values",
-		"components.KindInteractiveThemeRiver",
+		"Compare how named temporal streams rise, fall, and overlap.",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("theme river documentation missing upstream example content %q", want)
@@ -425,7 +425,7 @@ func TestInteractiveCandlestickDocumentationPreservesPinnedUpstreamExampleWithou
 	for _, want := range []string{
 		"Interactive candlestick", "Candlestick example", "2018/1/24", "2018/6/13",
 		"2320.26", "2287.3", "2362.94", "2148.35", "2126.22", "2190.1",
-		"Exact OHLC values", "Rise", "Fall", "components.KindInteractiveCandlestick",
+		"Exact OHLC values", "Rise", "Fall", "Ranges and zoom",
 		`"type":"inside"`, `"start":50`, `"end":100`, `"valueDim":"highest"`, `"valueDim":"lowest"`,
 	} {
 		if !strings.Contains(body, want) {
@@ -543,7 +543,7 @@ func TestParallelDocumentationPreservesOfficialMultiSeriesExampleWithoutEngineBr
 		`"value":[9,267,216,280,4.8,108,64,"Heavily"]`,
 		`"value":[20,73,102,182,2.787,44,19,"Moderate"]`,
 		`"value":[16,134,83,167,1.16,57,43,"Lightly"]`,
-		"Exact observations and values", "Semantic class", "components.KindInteractiveParallel",
+		"Exact observations and values", "Semantic class", "Compare multivariate profiles across the same ordered dimensions.",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("parallel documentation missing upstream example content %q", want)
@@ -579,7 +579,7 @@ func TestGaugeDocumentationConsolidatesOfficialLiquidVariantsWithoutEngineBrandi
 	}
 	body := recorder.Body.String()
 	for _, want := range []string{
-		"Interactive gauge", "interactive.Gauge", "components.KindInteractiveGauge", "GaugeVariantLiquid",
+		"Interactive gauge", "GaugeVariantLiquid", "Show one or more current readings against an explicit bounded range.",
 		"basic liquid example", "show label", "show outline", "disable wave animation",
 		"shape(Diamond)", "shape(Pin)", "shape(Arrow)", "shape(Triangle)",
 		"Wave 1", "0.3", "Wave 2", "0.4", "Wave 3", "0.5", "Range: 0 to 1",
@@ -619,9 +619,9 @@ func TestWordCloudDocumentationPreservesOfficialVariantsWithoutEngineBranding(t 
 	}
 	body := recorder.Body.String()
 	for _, want := range []string{
-		"Interactive word cloud", "interactive.WordCloud", "components.KindInteractiveWordCloud",
+		"Interactive word cloud", "Compare relative prominence across a bounded set of weighted terms.",
 		"basic WordCloud example", "cardioid shape", "star shape", "Sam S Club", "Macys",
-		"NCAA baseball tournament", "Point Break", "Exact word values", "semantic classes or explicit colors",
+		"NCAA baseball tournament", "Point Break", "Exact word values",
 		`"sizeRange":[14,80]`, `"shape":"cardioid"`, `"shape":"star"`,
 		`aria-label="basic WordCloud example"`, `data-word-cloud-variants`, "Interactive / Statistical",
 	} {
@@ -656,7 +656,7 @@ func TestScatter3DDocumentationPreservesOfficialVariantsWithoutEngineBranding(t 
 	}
 	body := recorder.Body.String()
 	for _, want := range []string{
-		"Interactive scatter 3D", "interactive.Scatter3D", "components.KindInteractiveScatter3D",
+		"Interactive scatter 3D", "Explore spatial patterns across three quantitative dimensions.",
 		"Interactive / 3D", "basic Scatter3D example", "user-defined item style",
 		"80 points across 1 series", "MY-X-AXIS", "MY-Y-AXIS", "MY-Z-AXIS",
 		"point1", "point2", "point3", "green", "blue", "red",
@@ -691,7 +691,7 @@ func TestBar3DDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *tes
 	}
 	body := recorder.Body.String()
 	for _, want := range []string{
-		"Interactive bar 3D", "interactive.Bar3D", "components.KindInteractiveBar3D", "Interactive / 3D",
+		"Interactive bar 3D", "Compare values at intersections of two ordered categories with height.", "Interactive / 3D",
 		"basic bar3d example", "auto rotating", "rotating faster", "Bar3D-shading(lambert)",
 		"168 cells across 1 series", "Saturday", "Friday", "Thursday", "Wednesday", "Tuesday", "Monday", "Sunday",
 		"12a", "11a", "12p", "11p", "Bar3DPaletteColdToWarm", "Bar3DGridSize", "Bar3DShadingLambert",
@@ -726,7 +726,7 @@ func TestSurface3DDocumentationPreservesOfficialVariantsWithoutEngineBranding(t 
 	}
 	body := recorder.Body.String()
 	for _, want := range []string{
-		"Interactive surface 3D", "interactive.Surface3D", "components.KindInteractiveSurface3D", "Interactive / 3D",
+		"Interactive surface 3D", "Explore a sampled surface over two inputs and one output.", "Interactive / 3D",
 		"basic surface3D example", "Rose style", "14400 ordered points", "3600 ordered points",
 		"y = i / 60", "x = j / 60", "y = i / 10", "x = j / 10",
 		"Download all exact points as CSV", "Surface3DPaletteColdToWarm",
@@ -764,12 +764,12 @@ func TestMapDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testi
 	}
 	body := recorder.Body.String()
 	for _, want := range []string{
-		"Interactive map", "interactive.Map", "components.KindInteractiveMap", "Interactive / Geographic",
+		"Interactive map", "Compare named values across geographic regions.", "Interactive / Geographic",
 		"Brazil states", "State labels", "Brazil value scale", "Southeast focus", "Theme-aware Brazil",
 		"Rondônia", "Acre", "Amazonas", "Roraima", "Pará", "Amapá", "Tocantins", "Maranhão", "Piauí", "Ceará",
 		"Rio Grande do Norte", "Paraíba", "Pernambuco", "Alagoas", "Sergipe", "Bahia", "Minas Gerais", "Espírito Santo",
 		"Rio de Janeiro", "São Paulo", "Paraná", "Santa Catarina", "Rio Grande do Sul", "Mato Grosso do Sul", "Mato Grosso", "Goiás", "Distrito Federal",
-		"Exact region values", "semantic classes or explicit colors", `data-map-variants`, `"map":"brazil"`, "UF",
+		"Exact region values", `data-map-variants`, `"map":"brazil"`, "UF",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("map documentation missing upstream content %q", want)
@@ -802,12 +802,12 @@ func TestGeoDocumentationPreservesOfficialVariantsWithoutEngineBranding(t *testi
 	}
 	body := recorder.Body.String()
 	for _, want := range []string{
-		"Interactive geo", "interactive.Geo", "components.KindInteractiveGeo", "Interactive / Geographic",
-		"Brazil capitals", "São Paulo cities", "Geo plots coordinate series", "Map remains the region-value choropleth",
+		"Interactive geo", "Plot named coordinates and values over geographic geometry.", "Interactive / Geographic",
+		"Brazil capitals", "São Paulo cities",
 		"Manaus", "Recife", "Brasília", "Rio de Janeiro", "São Paulo", "Porto Alegre", "Campinas", "Ribeirão Preto",
 		"-60.02", "-3.12", "-34.88", "-8.05", "-47.88", "-15.79", "-43.17", "-22.91",
 		"-46.63", "-23.55", "-51.23", "-30.03", "-47.06", "-47.81", "-21.18",
-		"Exact coordinate values", "semantic Color or Class paint", `data-geo-variants`,
+		"Exact coordinate values", `data-geo-variants`,
 		`data-geo-variant="effect-scatter"`, `data-geo-variant="scatter"`,
 		`"type":"effectScatter"`, `"type":"scatter"`, `"map":"brazil-sao-paulo"`,
 		`"period":4`, `"scale":6`, `"brushType":"stroke"`, `"calculable":true`, `"max":100`,
@@ -844,7 +844,7 @@ func TestSunburstDocumentationPreservesOfficialBasicExample(t *testing.T) {
 	body := recorder.Body.String()
 	for _, want := range []string{
 		"Basic sunburst example", "parent-0", "child-0", "parent-6", "child-6",
-		"Exact hierarchy and values", "root class and attributes",
+		"Exact hierarchy and values", "keyboard navigation",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("sunburst documentation missing upstream example content %q", want)
@@ -869,7 +869,7 @@ func TestTreemapDocumentationPreservesOfficialBasicExample(t *testing.T) {
 	body := recorder.Body.String()
 	for _, want := range []string{
 		"Basic treemap example", "File system usage", "d1", "d2", "d3", "f39",
-		"1000", "450", "Exact hierarchy and values", "typed recursive Nodes",
+		"1000", "450", "Exact hierarchy and values", "Explore weighted hierarchies",
 		"breadcrumb", "same chart", `style="width:100%;height:500px;"`,
 		`aria-label="Basic treemap example"`, `"leafDepth":1`, "LeafDepth",
 		"Interactive / Relationships",
@@ -897,7 +897,7 @@ func TestScatterDocumentationPreservesUpstreamDenseExample(t *testing.T) {
 	body := recorder.Body.String()
 	for _, want := range []string{
 		"Dense scatter data", "Dense Scatter Chart Demo", "One", "Two", "Three",
-		"1,000 categories", "SMA(100)", "maximum references", "foo 0", "foo 999",
+		"1,000 categories", "maximum references", "foo 0", "foo 999",
 		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 	} {
 		if !strings.Contains(body, want) {
@@ -1299,7 +1299,7 @@ func TestComponentDocsNavigationHasSearchGroupsAndComponentContract(t *testing.T
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/line", nil))
 	body := recorder.Body.String()
-	for _, want := range []string{"Search docs...", "Static / Vector", "Interactive / Cartesian", "Interactive / 3D", "Interactive / Geographic", "Interactive / Relationships", "Examples", "component-doc-shell__sidebar", "components.KindLineChart", "Live availability", "Bar chart", "Pie chart", "Scatter chart", "Scatter 3D", "Map", "Geo", "Tree", "Accessibility", "lg:grid-cols-2"} {
+	for _, want := range []string{"Search docs...", "Static / Vector", "Interactive / Cartesian", "Interactive / 3D", "Interactive / Geographic", "Interactive / Relationships", "Examples", "component-doc-shell__sidebar", "Go API", "Live availability", "Bar chart", "Pie chart", "Scatter chart", "Scatter 3D", "Map", "Geo", "Tree", "Equivalent data", "lg:grid-cols-2"} {
 		if !strings.Contains(body, want) {
 			t.Errorf("component docs page missing %q", want)
 		}
@@ -1318,8 +1318,7 @@ func TestInteractiveTreeDocsStayRendererNeutralAndExposeExactDataGuidance(t *tes
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/tree", nil))
 	body := recorder.Body.String()
 	for _, want := range []string{
-		"Interactive tree", "interactive.Tree", "components.KindInteractiveTree",
-		"typed recursive Roots", "Layered is the zero-value layout",
+		"Interactive tree", "Explore ownership, taxonomy, ancestry, and other parent-child structures.",
 		"exact-data source", "Basic tree example",
 		"One root with three branches", "Node3", "Child3",
 		`aria-label="Basic tree example"`, `"collapsed":true`,
@@ -1381,7 +1380,7 @@ func TestHTMXNavigationRendersContentAndSidebarFragment(t *testing.T) {
 	if strings.Contains(body, "<html") {
 		t.Fatal("HTMX response contains a complete document")
 	}
-	for _, want := range []string{`<title>Line chart · Goshtoso Charts</title>`, `id="main-content"`, `id="componentdocshell-sidebar-content"`, `hx-swap-oob`, `components.KindLineChart`} {
+	for _, want := range []string{`<title>Line chart · Goshtoso Charts</title>`, `id="main-content"`, `id="componentdocshell-sidebar-content"`, `hx-swap-oob`, `Go API`} {
 		if !strings.Contains(body, want) {
 			t.Errorf("HTMX response missing %q", want)
 		}
