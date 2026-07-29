@@ -44,6 +44,49 @@ func TestEveryComponentRouteUsesGuidanceAndGoAPIFooter(t *testing.T) {
 	}
 }
 
+func TestComponentIntroductionsAndTopGuidanceAvoidImplementationBoilerplate(t *testing.T) {
+	for path := range componentDocumentationRoutes {
+		t.Run(path, func(t *testing.T) {
+			recorder := httptest.NewRecorder()
+			New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, path, nil))
+			if recorder.Code != http.StatusOK {
+				t.Fatalf("status = %d", recorder.Code)
+			}
+			introduction, guidance := visibleIntroductionAndGuidance(t, recorder.Body.String())
+			for section, text := range map[string]string{"introduction": introduction, "top guidance": guidance} {
+				for _, forbidden := range []string{"ssr", "svg", "renderer", "go-native", "browser runtime", "renderer-neutral", "typed", "component contract", "primitive", "backing engine", "reusable"} {
+					if strings.Contains(strings.ToLower(text), forbidden) {
+						t.Errorf("%s retains implementation boilerplate %q: %q", section, forbidden, text)
+					}
+				}
+			}
+		})
+	}
+}
+
+func visibleIntroductionAndGuidance(t *testing.T, body string) (string, string) {
+	t.Helper()
+	introductionStart := strings.Index(body, `<p data-component-description`)
+	if introductionStart < 0 {
+		t.Fatal("component introduction not found")
+	}
+	introductionEnd := strings.Index(body[introductionStart:], "</p>")
+	if introductionEnd < 0 {
+		t.Fatal("component introduction does not close")
+	}
+	introduction := body[introductionStart : introductionStart+introductionEnd]
+	purpose := strings.Index(body, ">Purpose</dt>")
+	if purpose < 0 {
+		t.Fatal("top visualization guidance not found")
+	}
+	guidanceStart := strings.LastIndex(body[:purpose], "<section")
+	guidanceEnd := strings.Index(body[purpose:], "</section>")
+	if guidanceStart < 0 || guidanceEnd < 0 {
+		t.Fatal("top visualization guidance is incomplete")
+	}
+	return introduction, body[guidanceStart : purpose+guidanceEnd+len("</section>")]
+}
+
 func TestSunburstDocumentationExplainsNonVisualHierarchyAccess(t *testing.T) {
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/interactive/sunburst", nil))

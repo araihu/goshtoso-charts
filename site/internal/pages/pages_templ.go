@@ -75,7 +75,7 @@ func gettingStartedContent() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-3xl space-y-12\"><section class=\"space-y-4\"><p class=\"text-sm font-semibold text-primary dark:text-primary-dark\">Goshtoso Charts</p><h1 class=\"font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong\">Getting Started</h1><p class=\"text-lg text-on-surface-muted dark:text-on-surface-dark-muted\">Install the module, wire the local chart runtime once, then render typed static or interactive charts with renderer-neutral APIs.</p></section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"install-the-module\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">1. Install the module</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Add Goshtoso Charts to an existing Go and templ application.</p>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-3xl space-y-12\"><section class=\"space-y-4\"><p class=\"text-sm font-semibold text-primary dark:text-primary-dark\">Goshtoso Charts</p><h1 class=\"font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong\">Getting Started</h1><p class=\"text-lg text-on-surface-muted dark:text-on-surface-dark-muted\">Add chart examples that help people compare categories, trends, distributions, relationships, and geographic patterns.</p></section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"install-the-module\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">1. Install the module</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Add Goshtoso Charts to an existing Go and templ application.</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -107,7 +107,7 @@ func gettingStartedContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"render-an-interactive-chart\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">5. Render an interactive chart</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Interactive components use typed configuration while examples keep the focus on visual behavior and composition.</p>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"render-an-interactive-chart\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">5. Render an interactive chart</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Interactive examples focus on visual behavior, exploration, and composition.</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -115,7 +115,7 @@ func gettingStartedContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"explore-the-catalog\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">6. Explore the catalog</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Browse categorized <a class=\"font-semibold text-primary underline dark:text-primary-dark\" href=\"/components/line\">static/vector</a>, <a class=\"font-semibold text-primary underline dark:text-primary-dark\" href=\"/components/interactive/bar\">interactive Cartesian</a>, and <a class=\"font-semibold text-primary underline dark:text-primary-dark\" href=\"/components/interactive/graph\">relationship</a> components. The <a class=\"font-semibold text-primary underline dark:text-primary-dark\" href=\"/examples/live-availability\">Live availability</a> example demonstrates renderer-neutral full-snapshot SSE updates.</p></section></div>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "</section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"explore-the-catalog\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">6. Explore the catalog</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Browse categorized <a class=\"font-semibold text-primary underline dark:text-primary-dark\" href=\"/components/line\">static/vector</a>, <a class=\"font-semibold text-primary underline dark:text-primary-dark\" href=\"/components/interactive/bar\">interactive Cartesian</a>, and <a class=\"font-semibold text-primary underline dark:text-primary-dark\" href=\"/components/interactive/graph\">relationship</a> charts. The <a class=\"font-semibold text-primary underline dark:text-primary-dark\" href=\"/examples/live-availability\">Live availability</a> example shows a current status snapshot.</p></section></div>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -204,7 +204,7 @@ func barContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Bar chart",
-			Description: "Categorical SSR SVG for vertical or horizontal comparisons. Set Stacked for composition within each category.",
+			Description: "Categorical comparisons in vertical, horizontal, grouped, or stacked layouts.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuide("Compare named values across categories, including stacked outcomes and per-series reference markers.", "Use for a small set of discrete categories, especially when bar length makes rank and difference easy to scan.", "Avoid when categories are numerous, labels need rotation, or the key task is showing change over continuous time.", "The examples include exact category values and reference evidence; keep equivalent values in text or a table when users must compare precisely."),
 				Preview:      bar.Bar(sampleDeployments()),
@@ -213,13 +213,13 @@ func barContent() templ.Component {
 			Sections: []componentpage.Example{
 				{
 					Title:       "Horizontal orientation",
-					Description: "Use the typed horizontal variant when category labels read more naturally beside bars. Vertical remains the zero-value default.",
+					Description: "Use horizontal bars when category labels read more naturally beside values. Vertical remains the default.",
 					Preview:     bar.Bar(sampleHorizontalWorldPopulation()),
 					Code:        horizontalBarCode(),
 				},
 				{
 					Title:       "Statistical reference annotations",
-					Description: "Average lines and minimum/maximum points stay typed per series. Exact values and computed references remain adjacent to chart without relying on color.",
+					Description: "Average lines and minimum/maximum points add context. Exact values and computed references remain adjacent to the chart without relying on color.",
 					Preview:     bar.Bar(sampleBarReferences()),
 					Code:        barReferencesCode(),
 				},
@@ -517,7 +517,7 @@ func interactiveChartBarContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive bar",
-			Description: "Reusable interactive bar component for categorical comparisons.",
+			Description: "Categorical comparisons with direct values, positive and negative ranges, and responsive exploration.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Compare named values across categories.", "You need direct category comparisons, including positive and negative values.", "Many categories make labels and comparisons crowded; use a table for exact values.", "Keep category names and exact values in nearby text or a table."),
 				Preview:      interactive.Bar(sampleInteractiveBar()),
@@ -584,7 +584,7 @@ func interactiveChartLineContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive line",
-			Description: "Reusable interactive line component for ordered trends.",
+			Description: "Ordered numeric series for trends, rates of change, and turning points over time or sequence.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Show change across an ordered sequence.", "Order and direction matter, especially for a small number of time series.", "Unordered categories or many crossing series obscure comparison.", "Provide the ordered values in an adjacent table when exact readings matter."),
 				Preview:      interactive.Line(sampleInteractiveLine()),
@@ -592,7 +592,7 @@ func interactiveChartLineContent() templ.Component {
 			},
 			Sections: []componentpage.Example{{
 				Title:       "Temporal X-axis treatment",
-				Description: "Typed UTC timestamps preserve one ordered time series with a fixed lower bound and an adjacent exact-data table.",
+				Description: "UTC timestamps keep one chronological series in order, with exact values beside the chart.",
 				Preview:     interactive.Line(sampleInteractiveLineTime()),
 				Code:        interactiveLineTimeCode(),
 			}},
@@ -657,7 +657,7 @@ func interactiveChartScatterContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive scatter",
-			Description: "Reusable interactive scatter component for quantitative relationships or categorical points. The effect variant adds ripple emphasis without changing component identity.",
+			Description: "Paired values for finding relationships, clusters, outliers, and exceptional points.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Reveal relationships, clusters, and outliers among paired values.", "You are comparing two quantitative measures and position conveys the relationship.", "Precise point lookup or many overlapping points is primary; use a table or summary too.", "Pair the chart with a table or text summary of points; animation is supplemental."),
 				Preview:      interactive.Scatter(sampleInteractiveScatter()),
@@ -724,7 +724,7 @@ func interactiveScatter3DContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive scatter 3D",
-			Description: "Reusable three-dimensional point chart with typed axes, visual ranges, symbols, caller paint, responsive sizing, and exact adjacent values.",
+			Description: "Three-dimensional point clouds for exploring broad spatial clusters and separation across three measures.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Explore spatial patterns across three quantitative dimensions.", "A rotatable view helps identify broad clusters or separation.", "Exact comparison, dense points, or a fixed reading order matters; use a two-dimensional view or table.", "The adjacent table exposes every coordinate, including dense samples."),
 				Preview:      interactiveScatter3DVariants(),
@@ -894,7 +894,7 @@ func interactiveLine3DContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive line 3D",
-			Description: "Reusable three-dimensional ordered line with typed points, visual range, grid view, accessible rotation behavior, responsive sizing, and deterministic exact-data access.",
+			Description: "Ordered paths through three measures when overall trajectory matters more than individual coordinates.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Trace one ordered path through three quantitative dimensions.", "Path shape matters more than precise point-by-point comparison.", "Readers need exact coordinates or cannot use a rotatable view.", "The formula, domains, and CSV provide a non-visual equivalent; reduced motion keeps the view still."),
 				Preview:      interactiveLine3DVariants(),
@@ -977,7 +977,7 @@ func interactiveSurface3DContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive surface 3D",
-			Description: "Reusable three-dimensional mathematical surface with typed points, axes, visual range, grid, view, caller paint, responsive sizing, and deterministic exact-data access.",
+			Description: "Sampled mathematical surfaces for seeing peaks, valleys, and overall shape across two inputs.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Explore a sampled surface over two inputs and one output.", "Overall shape, peaks, and valleys matter more than a single exact sample.", "Users need to compare individual values or cannot use a three-dimensional view.", "Formula, domains, sample count, and downloadable CSV expose the full dataset."),
 				Preview:      interactiveSurface3DVariants(),
@@ -1060,7 +1060,7 @@ func interactiveBar3DContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive bar 3D",
-			Description: "Reusable three-dimensional categorical bars with typed axes, cells, visual ranges, grid size, view rotation, shading, caller paint, responsive sizing, and exact adjacent values.",
+			Description: "Category-grid comparisons where height gives a compact overview of two intersecting dimensions.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Compare values at intersections of two ordered categories with height.", "A compact overview of a small category grid is useful.", "Exact cell comparison or many categories matter; a heat map or table reads better.", "The adjacent disclosure lists every category pair and exact value."),
 				Preview:      interactiveBar3DVariants(),
@@ -1188,7 +1188,7 @@ func interactiveChartPieContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive pie",
-			Description: "Interactive pie for compact part-to-whole views, including donut and rose treatments.",
+			Description: "Compact part-to-whole views for a few named categories and their shares of one total.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Summarize a small named distribution as parts of a total.", "Few categories and approximate share comparison are the goal.", "There are many slices or close values; use bars for reliable comparison.", "Pair the chart with exact values and shares in text or a table."),
 				Preview:      interactive.Pie(sampleInteractivePie()),
@@ -1255,7 +1255,7 @@ func interactiveChartRadarContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive radar",
-			Description: "Reusable interactive radar component for comparing aligned multidimensional profiles against explicit indicator maxima.",
+			Description: "Aligned multidimensional profiles for comparing broad strengths, gaps, and overall shape.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Compare a small number of profiles over the same bounded dimensions.", "Overall profile shape and common scales help a quick comparison.", "Exact values, many profiles, or unequal scales are important; use a table or bars.", "Keep indicator names and exact values in adjacent content."),
 				Preview:      interactive.Radar(sampleInteractiveRadar()),
@@ -1322,7 +1322,7 @@ func interactiveChartHeatMapContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive heatmap",
-			Description: "Interactive heatmap for comparing intensity across category grids or calendar dates.",
+			Description: "Intensity patterns across category grids or calendar dates.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Reveal concentration, gaps, and patterns across two dimensions.", "Relative intensity across a manageable grid is the question.", "Exact cell comparison or color-independent interpretation is required.", "Provide a nearby table or text summary for exact cell values."),
 				Preview:      interactive.HeatMap(sampleInteractiveHeatMap()),
@@ -1418,7 +1418,7 @@ func interactiveCandlestickContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive candlestick",
-			Description: "Reusable interactive candlestick component for inspecting aligned open, close, low, and high observations with typed zoom and reference marks.",
+			Description: "Open, high, low, and close movement across ordered periods, with range and direction in view.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Inspect open, high, low, and close movement across ordered dates.", "Range and direction over time matter, with a limited enough period to inspect.", "Readers only need one measure or exact comparisons; use a line or OHLC table.", "The adjacent table gives exact OHLC values and text direction without color."),
 				Preview:      sampleInteractiveCandlestick(),
@@ -1427,7 +1427,7 @@ func interactiveCandlestickContent() templ.Component {
 			Sections: []componentpage.Example{
 				{
 					Title:       "Explicit direction style",
-					Description: "Caller colors, border colors, and semantic classes preserve the pinned source treatment while remaining renderer-neutral typed options on the same component.",
+					Description: "Direction colors and borders distinguish rising and falling periods while text and the exact-value table preserve meaning without color alone.",
 					Preview:     sampleInteractiveCandlestickUpstreamStyle(),
 					Code:        interactiveCandlestickStyleCode(),
 				},
@@ -1464,7 +1464,7 @@ func interactiveChartBoxPlotContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive box plot",
-			Description: "Reusable interactive box plot component for comparing validated five-number summaries across aligned categories.",
+			Description: "Distribution centers, spread, and range across categories through five-number summaries.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Compare distribution centers, spreads, and ranges across categories.", "Five-number summaries reveal how groups differ.", "Individual observations or unusual distribution shape must be inspected.", "Preserve five-number summaries in nearby content for exact comparison."),
 				Preview:      interactive.BoxPlot(sampleInteractiveBoxPlot()),
@@ -1531,7 +1531,7 @@ func interactiveChartGaugeContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive gauge",
-			Description: "Interactive gauge for bounded readings, with standard, progress, and liquid treatments.",
+			Description: "Current bounded readings where range context and status matter more than history.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Show one or more current readings against an explicit bounded range.", "A small number of status-like readings need range context.", "Trend, history, or precise comparison is central; use a line or table instead.", "State the exact reading, range, and status in nearby text; do not rely on color or fill level."),
 				Preview:      interactiveGaugeVariants(),
@@ -1769,7 +1769,7 @@ func interactiveGraphContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive graph",
-			Description: "Relationship graph for connected entities, categories, and weighted links.",
+			Description: "Connections, neighborhoods, clusters, and weighted links among named entities.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Explore relationships, neighborhoods, and topology among named entities.", "Connections and clusters matter more than a fixed ordered comparison.", "People need an exact path, complete adjacency, or deterministic positions.", "Pair the graph with a textual relationship summary or adjacency list."),
 				Preview:      sampleInteractiveGraph(),
@@ -1836,7 +1836,7 @@ func interactiveSankeyContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive Sankey",
-			Description: "Flow chart for weighted movement between named stages.",
+			Description: "Weighted movement, splitting, and convergence between named stages.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Show how quantities move, split, and converge across named stages.", "Flows between a small set of stages are the main story.", "Exact link comparison or many crossings make the layout hard to read.", "Preserve weighted links in adjacent text or a table."),
 				Preview:      sampleInteractiveSankey(),
@@ -2077,7 +2077,7 @@ func interactiveGeoContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive geo",
-			Description: "Coordinate series over registered national or regional geometry.",
+			Description: "Named coordinates and values over national or regional geography.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Plot named coordinates and values over geographic geometry.", "Location and spatial distribution provide important context.", "Precise coordinates, values, or geographic detail must be compared.", "Every variant includes a table with series, point, coordinate, value, and class."),
 				Preview:      interactiveGeoVariants(),
@@ -2175,7 +2175,7 @@ func interactiveMapContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive map",
-			Description: "Geographic values across national and regional geometry.",
+			Description: "Regional values for comparing broad geographic distribution and patterns.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Compare named values across geographic regions.", "Regional distribution and broad geographic patterns matter.", "Precise regional values or a color-independent reading is needed.", "Every variant includes a table with region, value, and semantic class."),
 				Preview:      interactiveMapVariants(),
@@ -2273,7 +2273,7 @@ func interactiveWordCloudContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive word cloud",
-			Description: "Reusable weighted word layouts with typed silhouettes, deterministic data order, and renderer-neutral styling.",
+			Description: "Relative prominence across a bounded vocabulary of weighted terms.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Compare relative prominence across a bounded set of weighted terms.", "A quick impression of a small vocabulary is useful.", "Exact ranking, close weights, or complete reading order matters; use a sorted list or bars.", "Each variant includes an exact word, value, and semantic-class list."),
 				Preview:      wordCloudVariants(),
@@ -2364,7 +2364,7 @@ func interactiveThemeRiverContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive theme river",
-			Description: "Reusable temporal stream graph for comparing how named categories rise, fall, and overlap across aligned dates.",
+			Description: "How named categories rise, fall, and overlap across aligned dates.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Compare how named temporal streams rise, fall, and overlap.", "Shared movement and temporal pattern matter more than a single exact value.", "Precise values, many streams, or a stable baseline is required.", "An adjacent table preserves dates, stream names, exact values, and classes."),
 				Preview:      sampleInteractiveThemeRiver(),
@@ -2431,7 +2431,7 @@ func interactiveParallelContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive parallel coordinates",
-			Description: "Multivariate profiles across ordered numeric and categorical dimensions.",
+			Description: "Multivariate profiles across the same ordered numeric and categorical dimensions.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Compare multivariate profiles across the same ordered dimensions.", "You need to spot broad profile differences across a modest number of observations.", "Exact values, many crossing lines, or unfamiliar dimensions dominate.", "An adjacent table preserves series, observation names, and every dimension value."),
 				Preview:      sampleInteractiveParallel(),
@@ -2469,7 +2469,7 @@ func interactiveTreemapContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive treemap",
-			Description: "Space-filling hierarchy for comparing weighted branches and nested rectangles.",
+			Description: "Weighted hierarchies shown as nested areas for broad branch-size comparison.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Explore weighted hierarchies with area for leaves and branch totals.", "Relative size within a recursive structure is more important than precise comparison.", "Deep nesting or exact values must be compared; use a tree and table.", "An adjacent table preserves node paths, parents, totals, leaf values, and classes."),
 				Preview:      sampleInteractiveTreemap(),
@@ -2507,7 +2507,7 @@ func interactiveSunburstContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive sunburst",
-			Description: "Radial hierarchy for comparing weighted parent-child sectors and nested branches.",
+			Description: "Weighted parent-child hierarchy shown as concentric sectors and nested branches.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Explore a weighted hierarchy as concentric radial sectors.", "A compact overview of a shallow hierarchy and its branch proportions is useful.", "Deep hierarchies, close comparisons, or a clear reading order matter; use a tree or table.", "Use the adjacent path-and-value table to inspect the same hierarchy with keyboard navigation and without relying on the radial graphic."),
 				Preview:      sampleInteractiveSunburst(),
@@ -2545,7 +2545,7 @@ func interactiveTreeContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive tree",
-			Description: "Hierarchy for parent-child relationships, layered or radial arrangement, and progressive disclosure.",
+			Description: "Parent-child relationships for following paths, ancestry, taxonomy, and progressive disclosure.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Explore ownership, taxonomy, ancestry, and other parent-child structures.", "Paths and progressive disclosure are more useful than size comparison.", "The hierarchy is very deep or exact values must be compared.", "Preserve node names, values, and parent-child paths in adjacent text or a table."),
 				Preview:      sampleInteractiveTree(),
@@ -2583,7 +2583,7 @@ func interactiveChartFunnelContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive funnel",
-			Description: "Interactive funnel for comparing named stage volumes in a fixed order.",
+			Description: "Named stage volumes in a fixed order, emphasizing reduction or conversion.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Show progressive reduction or conversion across a small sequence of stages.", "The stage order and relative loss are meaningful.", "Stages are not a sequence or exact conversion rates are the primary task.", "Preserve stage names, values, and intended order in adjacent content."),
 				Preview:      interactive.Funnel(sampleInteractiveFunnel()),
@@ -2621,7 +2621,7 @@ func pieContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Pie chart",
-			Description: "Categorical SSR SVG for compact part-to-whole summaries, with full pie and doughnut treatments on one typed component.",
+			Description: "Compact part-to-whole summaries with full pie and doughnut treatments.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuide("Summarize a small categorical distribution as parts of one total.", "Use when there are few, clearly distinct slices and the part-to-whole relationship matters more than close ranking.", "Avoid for many slices or small differences; a bar chart is easier to compare precisely.", "An adjacent table preserves every exact value and share; do not make users infer either from sector size or color."),
 				Preview:      pie.Pie(sampleObservationStates()),
@@ -2668,7 +2668,7 @@ func scatterContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Scatter chart",
-			Description: "Dense categorical SSR SVG for repeated observations, trends, clusters, and outliers across an explicit ordered set of keys.",
+			Description: "Repeated observations across an ordered set for trends, clusters, density, and outliers.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuide("Compare repeated observations, trends, clusters, and outliers across an ordered set of categories.", "Use when point position and density reveal variation that bars would hide.", "Avoid when readers need every observation in the initial page or categories lack a meaningful order.", "Top-value labels include exact values and selection state. For dense data, provide a table, download, or drill-down instead of expanding thousands of points into page text."),
 				Preview:      scatter.Scatter(sampleDenseScatter()),
@@ -2714,7 +2714,7 @@ func radarContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Radar chart",
-			Description: "SSR SVG for comparing a small number of profiles across shared bounded dimensions.",
+			Description: "A small number of profiles across shared bounded dimensions.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuide("Compare a small number of profiles across the same bounded dimensions.", "Use when shared dimensions and overall profile shape help readers spot broad strengths and gaps.", "Avoid when precise values or more than a few profiles must be compared; aligned bars or a table are clearer.", "Keep indicator maxima and every series value in adjacent text or a table; shape and color alone are not equivalent data."),
 				Preview:      radar.Radar(sampleBasicRadar()),
@@ -2723,7 +2723,7 @@ func radarContent() templ.Component {
 			Sections: []componentpage.Example{
 				{
 					Title:       "Explicit presentation overrides",
-					Description: "Caller colors, root classes, radius, and vertex labels remain typed options on the same component.",
+					Description: "Color, radius, and vertex labels can emphasize a profile while shared dimensions remain comparable.",
 					Preview:     radar.Radar(sampleBasicRadarOverride()),
 					Code:        radarOverrideCode(),
 				},
@@ -2760,7 +2760,7 @@ func candlestickContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Candlestick",
-			Description: "SSR SVG for ordered open-high-low-close observations, using conventional increase and decrease treatments.",
+			Description: "Ordered open-high-low-close observations with conventional increase and decrease treatments.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuide("Compare open, high, low, and close values across ordered periods.", "Use for financial or similarly structured ranges where intraperiod movement matters.", "Avoid for a single value per period or when a simple trend line communicates the question more directly.", "The adjacent disclosure states increase or decrease in text and preserves exact OHLC and trend values, so meaning never depends on candle color."),
 				Preview:      candlestick.Candlestick(sampleBasicCandlestick()),
@@ -2781,13 +2781,13 @@ func candlestickContent() templ.Component {
 				},
 				{
 					Title:       "Pattern annotations",
-					Description: "One typed pattern option keeps all, core, and bullish selections on Candlestick. Labels may prefer detected patterns and use safe text, color, class, and geometry overrides; the adjacent table names every detection.",
+					Description: "Show all, core, or bullish patterns while the adjacent table names every detection.",
 					Preview:     candlestick.Candlestick(sampleCandlestickPatterns()),
 					Code:        candlestickPatternsCode(),
 				},
 				{
 					Title:       "Core, bullish, and label variants",
-					Description: "Core and bullish selections preserve the same ten observations. Pattern-label preference uses built-in text formatting rather than a renderer callback.",
+					Description: "Core and bullish selections use the same ten observations, making differences in highlighted patterns easy to compare.",
 					Preview:     candlestick.Candlestick(sampleCandlestickCorePatterns()),
 					Code:        candlestickPatternVariantCode(),
 				},
@@ -2836,7 +2836,7 @@ func funnelContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Funnel chart",
-			Description: "SSR SVG for ordered stages whose non-increasing values narrow from the first stage to the last.",
+			Description: "Ordered stages whose non-increasing values narrow from the first stage to the last.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuide("Show progressive reduction through a small ordered sequence of stages.", "Use for a fixed process such as conversion or completion, where each stage follows the previous one.", "Avoid when stages can increase, branch, recur, or lack a single meaningful order.", "The adjacent disclosure preserves every stage value and its share of the first stage; width and color are not the only source of meaning."),
 				Preview:      funnel.Funnel(sampleBasicFunnel()),
@@ -2874,7 +2874,7 @@ func heatMapContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Heat map",
-			Description: "Categorical SSR SVG for comparing values across a two-dimensional matrix with a sequential color scale.",
+			Description: "Values across a two-dimensional categorical matrix with a sequential color scale.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuide("Compare magnitude at the intersections of two ordered categorical axes.", "Use to reveal concentration, gaps, and broad patterns across a complete matrix.", "Avoid when exact cell-by-cell comparison is primary or the matrix is too large to scan.", "A bounded exact-value table preserves both axis labels and numeric values, so the color scale never carries meaning by itself."),
 				Preview:      heatmap.HeatMap(sampleBasicHeatMap()),
@@ -2883,7 +2883,7 @@ func heatMapContent() templ.Component {
 			Sections: []componentpage.Example{
 				{
 					Title:       "Custom semantic scale",
-					Description: "Ordered stops accept renderer-neutral CSS colors and semantic classes; Reverse swaps scale direction on the same component.",
+					Description: "Ordered color stops clarify low-to-high values; reverse the scale only when it matches the expected reading direction.",
 					Preview:     heatmap.HeatMap(sampleBasicHeatMapOverride()),
 					Code:        heatMapOverrideCode(),
 				},
@@ -2920,7 +2920,7 @@ func tableContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Table",
-			Description: "SSR SVG for compact tabular presentation with weighted columns, alignment, semantic theme colors, and typed per-cell presentation.",
+			Description: "Compact row-and-column presentation for aligned text and numeric values.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuide("Present compact aligned text values when row and column comparison is the task.", "Use for a small table that benefits from a graphic layout while retaining a clear row-and-column structure.", "Avoid for long, sortable, filterable, or interactive data sets; use semantic HTML tables for those jobs.", "The adjacent semantic HTML table preserves headers and every cell value for keyboard and assistive-technology navigation."),
 				Preview:      charttable.Table(samplePeopleTable()),
@@ -2929,7 +2929,7 @@ func tableContent() templ.Component {
 			Sections: []componentpage.Example{
 				{
 					Title:       "Explicit presentation overrides",
-					Description: "Caller colors, numeric alignment, and typed per-cell backgrounds remain options on the same Table component.",
+					Description: "Color, numeric alignment, and cell backgrounds can emphasize values while headers and cells remain easy to scan.",
 					Preview:     charttable.Table(sampleMarketTable()),
 					Code:        marketTableCode(),
 				},
@@ -2966,7 +2966,7 @@ func violinContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Violin chart",
-			Description: "SSR SVG for comparing complete distribution shapes, centers, spread, skew, and multimodality from exact named samples.",
+			Description: "Complete distribution shapes, centers, spread, skew, and multiple peaks from named samples.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuide("Compare distribution shape, center, spread, skew, and multiple peaks across named samples.", "Use when the sample distribution itself matters, not just a summary statistic.", "Avoid for very small samples or when a simple five-number summary answers the question.", "The adjacent statistical summary preserves sample count, minimum, quartiles, median, mean, and maximum without relying on shape or color."),
 				Preview:      violin.Violin(sampleDistributionShapes()),
@@ -3004,7 +3004,7 @@ func lineContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Line chart",
-			Description: "Quantitative SSR SVG for latency, queue depth, or any ordered numeric series. Renderer stays Go-native; surrounding panel stays application-owned.",
+			Description: "Ordered numeric series for trends, rates of change, and turning points over time or sequence.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuide("Summarize one or more ordered numeric series and their change over time or sequence.", "Use when order is meaningful and readers need to see trend, rate of change, or turning points.", "Avoid for unordered categories or dual scales that could make unrelated values appear directly comparable.", "An adjacent table maps every exact value to its series and axis; do not require readers to estimate values from line position."),
 				Preview:      line.Line(sampleLatency()),
@@ -3165,7 +3165,7 @@ func liveAvailabilityContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Live availability",
-			Description: "An application example built from the generic interactive Bar component and renderer-neutral server-sent event snapshots.",
+			Description: "An application example showing current availability states as a complete status snapshot.",
 			Primary: componentpage.Example{
 				AbovePreview: demoNote("Live-data contract", "Bar and Line accept an opt-in LiveData source. Each SSE event carries a complete CartesianSnapshot, so reconnects replace stale client state deterministically."),
 				Preview:      interactive.Bar(sampleLiveAvailability()),
