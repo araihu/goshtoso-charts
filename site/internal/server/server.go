@@ -30,6 +30,12 @@ func New() http.Handler {
 	mux.HandleFunc("GET /attributions", func(writer http.ResponseWriter, request *http.Request) {
 		render(writer, request, pages.AttributionsPage(isFragment(request)))
 	})
+	mux.HandleFunc("GET /docs/chart-modes", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.ChartModesPage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /docs/chart-controls", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.ChartControlsPage(isFragment(request)))
+	})
 	mux.HandleFunc("GET /components/heartbeat", func(writer http.ResponseWriter, request *http.Request) {
 		http.Redirect(writer, request, "/examples/live-availability", http.StatusPermanentRedirect)
 	})

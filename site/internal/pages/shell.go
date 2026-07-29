@@ -22,7 +22,7 @@ func shellPage(title string, active string, content templ.Component) componentdo
 		Active:        active,
 		Content:       content,
 		Head:          templ.Join(brand.Head(), dependencies.Dependencies()),
-		EnableTOC:     active == "getting-started" || active == "line" || active == "bar" || active == "pie" || active == "scatter" || active == "radar" || active == "candlestick" || active == "funnel" || active == "heatmap" || active == "table" || active == "violin" || active == "interactive-bar" || active == "interactive-line" || active == "interactive-scatter-3d" || active == "interactive-bar-3d" || active == "interactive-surface-3d" || active == "interactive-line-3d" || active == "interactive-candlestick" || active == "interactive-tree" || active == "interactive-sunburst" || active == "interactive-treemap" || active == "interactive-parallel" || active == "interactive-theme-river" || active == "interactive-word-cloud" || active == "interactive-map" || active == "interactive-geo" || active == "live-availability",
+		EnableTOC:     active == "getting-started" || active == "chart-modes" || active == "chart-controls" || active == "line" || active == "bar" || active == "pie" || active == "scatter" || active == "radar" || active == "candlestick" || active == "funnel" || active == "heatmap" || active == "table" || active == "violin" || active == "interactive-bar" || active == "interactive-line" || active == "interactive-scatter-3d" || active == "interactive-bar-3d" || active == "interactive-surface-3d" || active == "interactive-line-3d" || active == "interactive-candlestick" || active == "interactive-tree" || active == "interactive-sunburst" || active == "interactive-treemap" || active == "interactive-parallel" || active == "interactive-theme-river" || active == "interactive-word-cloud" || active == "interactive-map" || active == "interactive-geo" || active == "live-availability",
 	}
 }
 
@@ -48,6 +48,8 @@ func shellNavigation() componentdocshell.Navigation {
 	return componentdocshell.Navigation{
 		Items: []sidebar.Item{
 			{ID: "getting-started", Label: "Getting started", Href: "/", Icon: sidebarGettingStartedIcon()},
+			{ID: "chart-modes", Label: "Static and interactive", Href: "/docs/chart-modes", Icon: sidebarChartModesIcon()},
+			{ID: "chart-controls", Label: "Chart controls", Href: "/docs/chart-controls", Icon: sidebarChartControlsIcon()},
 			{ID: "attributions", Label: "Attributions", Href: "/attributions", Icon: sidebarAttributionsIcon()},
 		},
 		SectionsTitle: "Documentation",

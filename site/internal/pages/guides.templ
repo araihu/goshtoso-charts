@@ -1,0 +1,179 @@
+package pages
+
+import (
+	"github.com/araihu/goshtoso/components/codeblock"
+	"github.com/araihu/goshtoso/components/link"
+)
+
+templ ChartModesPage(fragment bool) {
+	@layout("Static and interactive", "chart-modes", chartModesContent(), fragment)
+}
+
+templ ChartControlsPage(fragment bool) {
+	@layout("Chart controls", "chart-controls", chartControlsContent(), fragment)
+}
+
+templ chartGuideNavigation(active string) {
+	<nav aria-label="Chart guide index" data-chart-guide-nav class="flex flex-wrap gap-2">
+		if active == "chart-modes" {
+			<a href="/docs/chart-modes" hx-get="/docs/chart-modes" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true" aria-current="page" class="rounded-radius border border-primary bg-primary/10 px-3 py-2 text-sm font-semibold text-primary dark:border-primary-dark dark:bg-primary-dark/10 dark:text-primary-dark">Static and interactive</a>
+		} else {
+			<a href="/docs/chart-modes" hx-get="/docs/chart-modes" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true" class="rounded-radius border border-outline px-3 py-2 text-sm font-semibold text-on-surface hover:bg-surface-alt dark:border-outline-dark dark:text-on-surface-dark dark:hover:bg-surface-dark-alt">Static and interactive</a>
+		}
+		if active == "chart-controls" {
+			<a href="/docs/chart-controls" hx-get="/docs/chart-controls" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true" aria-current="page" class="rounded-radius border border-primary bg-primary/10 px-3 py-2 text-sm font-semibold text-primary dark:border-primary-dark dark:bg-primary-dark/10 dark:text-primary-dark">Chart controls</a>
+		} else {
+			<a href="/docs/chart-controls" hx-get="/docs/chart-controls" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true" class="rounded-radius border border-outline px-3 py-2 text-sm font-semibold text-on-surface hover:bg-surface-alt dark:border-outline-dark dark:text-on-surface-dark dark:hover:bg-surface-dark-alt">Chart controls</a>
+		}
+	</nav>
+}
+
+templ chartModesContent() {
+	<div class="mx-auto max-w-5xl space-y-10" data-chart-modes-guide>
+		<header class="space-y-4">
+			<p class="text-sm font-semibold text-primary dark:text-primary-dark">Chart architecture</p>
+			<h1 class="font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong">Static/vector and interactive charts</h1>
+			<p class="max-w-3xl text-lg text-on-surface-muted dark:text-on-surface-dark-muted">Choose the delivery model from the job the chart must do. Both families share theme tokens, accessible framing, and chart controls, but their runtime, output, and failure behavior differ substantially.</p>
+			@chartGuideNavigation("chart-modes")
+		</header>
+
+		<section class="space-y-4">
+			<h2 id="choose-a-mode" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Choose a mode</h2>
+			<div class="grid gap-4 md:grid-cols-2">
+				<article class="rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt">
+					<h3 class="font-title text-lg font-semibold text-on-surface-strong dark:text-on-surface-dark-strong">Static/vector</h3>
+					<p class="mt-2 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Prefer it for server-rendered pages, reports, print, email image capture, scalable artifacts, and resilient first paint. The chart itself is inline SVG.</p>
+				</article>
+				<article class="rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt">
+					<h3 class="font-title text-lg font-semibold text-on-surface-strong dark:text-on-surface-dark-strong">Interactive</h3>
+					<p class="mt-2 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Prefer it when exploration, hover detail, chart-specific zoom, live categorical snapshots, or a continuously synchronized theme justify a browser runtime and canvas.</p>
+				</article>
+			</div>
+		</section>
+
+		<section class="space-y-4">
+			<h2 id="capability-comparison" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Capability comparison</h2>
+			<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">Interactive is not an upgrade tier, and static is not a reduced preview. They solve different delivery and exploration problems.</p>
+			<div class="overflow-x-auto rounded-radius border border-outline dark:border-outline-dark" data-chart-mode-comparison>
+				<table class="w-full min-w-[48rem] border-collapse text-left text-sm">
+					<thead class="bg-surface-alt text-on-surface-strong dark:bg-surface-dark-alt dark:text-on-surface-dark-strong">
+						<tr><th scope="col" class="px-4 py-3 font-semibold">Capability</th><th scope="col" class="px-4 py-3 font-semibold">Static/vector</th><th scope="col" class="px-4 py-3 font-semibold">Interactive</th></tr>
+					</thead>
+					<tbody class="divide-y divide-outline dark:divide-outline-dark">
+						for _, row := range chartModeComparisons {
+							<tr><th scope="row" class="w-40 px-4 py-3 align-top font-semibold text-on-surface-strong dark:text-on-surface-dark-strong">{ row.Capability }</th><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">{ row.Static }</td><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">{ row.Interactive }</td></tr>
+						}
+					</tbody>
+				</table>
+			</div>
+		</section>
+
+		<section class="space-y-4">
+			<h2 id="rendering-examples" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Render the same data two ways</h2>
+			<div class="grid gap-6 xl:grid-cols-2">
+				<div class="min-w-0 space-y-3"><h3 class="font-title text-lg font-semibold">Static/vector</h3>@codeblock.CodeBlock(codeblock.Config{Language: "templ", Label: "templ", Code: staticModeCode})</div>
+				<div class="min-w-0 space-y-3"><h3 class="font-title text-lg font-semibold">Interactive</h3>@codeblock.CodeBlock(codeblock.Config{Language: "templ", Label: "templ", Code: interactiveModeCode})</div>
+			</div>
+		</section>
+
+		<section class="space-y-4 rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt">
+			<h2 id="assets-and-csp" data-toc-heading class="scroll-mt-8 font-title text-xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Assets and CSP</h2>
+			<p class="text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Interactive charts require the versioned local assets handler and <code class="font-mono">dependencies.Dependencies()</code>; hosted delivery is an explicit opt-in. Dependency tags inherit a templ nonce. The current per-chart initializer, theme, and live-update scripts do not yet accept a nonce, so a strict nonce-only script policy is not fully supported for interactive charts. Static chart images avoid those initializer scripts, although enabled controls still load their same-origin external runtime.</p>
+		</section>
+
+		@guideAPIReferences([]string{"line", "interactive", "dependencies"})
+		@relatedGuide("chart-controls")
+	</div>
+}
+
+templ chartControlsContent() {
+	<div class="mx-auto max-w-5xl space-y-10" data-chart-controls-guide>
+		<header class="space-y-4">
+			<p class="text-sm font-semibold text-primary dark:text-primary-dark">Shared behavior</p>
+			<h1 class="font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong">Chart controls</h1>
+			<p class="max-w-3xl text-lg text-on-surface-muted dark:text-on-surface-dark-muted">Every chart is rendered through the same wrapper. Configure controls and export on the chart config; the wrapper supplies responsive actions, a large modal, fullscreen behavior, downloads, and focus management.</p>
+			@chartGuideNavigation("chart-controls")
+		</header>
+
+		<section class="space-y-4">
+			<h2 id="defaults" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Defaults</h2>
+			<div class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4" data-control-defaults>
+				@controlFact("Expand", "Enabled by default and kept as the primary action.")
+				@controlFact("Fullscreen", "Disabled by default; opt in with Fullscreen: true.")
+				@controlFact("Export", "Enabled from the chart capability unless Export.Disabled is true.")
+				@controlFact("Collapse", "Not part of the public control API.")
+			</div>
+		</section>
+
+		<section class="space-y-4">
+			<h2 id="expand-and-fullscreen" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Expand and fullscreen</h2>
+			<div class="grid gap-4 md:grid-cols-2">
+				@controlFact("Expand", "Moves the same chart DOM into a large, centered Goshtoso modal, requests a resize after layout settles, traps focus, closes with Escape, and restores both the chart and trigger focus.")
+				@controlFact("Fullscreen", "Uses the browser fullscreen API when available and a viewport fallback otherwise. It preserves the same chart instance, reports active state, resizes on entry and exit, and restores focus.")
+			</div>
+		</section>
+
+		<section class="space-y-4">
+			<h2 id="responsive-actions" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Responsive actions</h2>
+			<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">The Goshtoso ActionGroup keeps the primary Expand action visible. When Expand and fullscreen are both enabled, a wide layout presents them as one stacked Expand dropdown. Multiple export formats use an Export dropdown. As space narrows, trailing groups are flattened into one accessible overflow menu—there are no nested submenus on constrained layouts.</p>
+			<div class="rounded-radius border border-outline bg-surface-alt p-5 text-sm text-on-surface-muted dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark-muted" data-control-responsive-note>
+				<p><strong class="text-on-surface-strong dark:text-on-surface-dark-strong">Keyboard:</strong> Space, Enter, or Arrow Down opens a menu; Arrow Up and Arrow Down move through enabled actions; Escape closes it and returns focus to the trigger.</p>
+			</div>
+		</section>
+
+		<section class="space-y-4">
+			<h2 id="export-capabilities" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Export capabilities</h2>
+			<div class="overflow-x-auto rounded-radius border border-outline dark:border-outline-dark" data-export-capabilities>
+				<table class="w-full min-w-[42rem] border-collapse text-left text-sm">
+					<thead class="bg-surface-alt dark:bg-surface-dark-alt"><tr><th scope="col" class="px-4 py-3">Chart output</th><th scope="col" class="px-4 py-3">Default formats</th><th scope="col" class="px-4 py-3">Background</th><th scope="col" class="px-4 py-3">How it is captured</th></tr></thead>
+					<tbody class="divide-y divide-outline dark:divide-outline-dark"><tr><th scope="row" class="px-4 py-3">Static/vector SVG</th><td class="px-4 py-3">SVG and PNG</td><td class="px-4 py-3">Opaque or transparent</td><td class="px-4 py-3">Serialize computed SVG styles; rasterize in-browser for PNG.</td></tr><tr><th scope="row" class="px-4 py-3">Interactive canvas</th><td class="px-4 py-3">PNG</td><td class="px-4 py-3">Opaque</td><td class="px-4 py-3">Snapshot the live chart instance.</td></tr></tbody>
+				</table>
+			</div>
+			<p class="text-sm text-on-surface-muted dark:text-on-surface-dark-muted"><code class="font-mono">PixelRatio</code> defaults to 1. Filenames are normalized to a lowercase, filesystem-safe basename. Unsupported format and background requests fail during rendering instead of showing a control that cannot work.</p>
+		</section>
+
+		<section class="space-y-4">
+			<h2 id="configure-controls" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Configure controls</h2>
+			<div class="grid gap-6 xl:grid-cols-2">
+				<div class="min-w-0 space-y-3"><h3 class="font-title text-lg font-semibold">Static/vector</h3>@codeblock.CodeBlock(codeblock.Config{Language: "templ", Label: "templ", Code: controlsStaticCode})</div>
+				<div class="min-w-0 space-y-3"><h3 class="font-title text-lg font-semibold">Interactive</h3>@codeblock.CodeBlock(codeblock.Config{Language: "templ", Label: "templ", Code: controlsInteractiveCode})</div>
+			</div>
+		</section>
+
+		<section class="space-y-4 rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt">
+			<h2 id="accessibility" data-toc-heading class="scroll-mt-8 font-title text-xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Accessibility and status</h2>
+			<p class="text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Controls form a named group based on the chart label. Modal focus is contained while open. Fullscreen exposes pressed state. Export actions become busy while processing and report completion or failure through a polite live region. These controls improve operation, but they do not make chart geometry equivalent to exact data; retain a caption, summary, disclosure, or adjacent table as the task requires.</p>
+		</section>
+
+		@guideAPIReferences([]string{"chartcontrol", "line", "interactive"})
+		@relatedGuide("chart-modes")
+	</div>
+}
+
+templ controlFact(title string, text string) {
+	<article class="rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt"><h3 class="font-title text-base font-semibold text-on-surface-strong dark:text-on-surface-dark-strong">{ title }</h3><p class="mt-2 text-sm text-on-surface-muted dark:text-on-surface-dark-muted">{ text }</p></article>
+}
+
+templ guideAPIReferences(packageNames []string) {
+	<section data-guide-api-references data-go-api-version="v0.0.1" class="scroll-mt-8 rounded-radius border border-outline bg-surface p-5 dark:border-outline-dark dark:bg-surface-dark">
+		<div class="mb-4 flex flex-wrap items-center gap-2"><h2 id="go-api" data-toc-heading class="scroll-mt-8 font-title text-lg font-semibold">Go API</h2><span class="rounded-radius border border-outline px-2 py-0.5 font-mono text-xs text-on-surface-muted dark:border-outline-dark dark:text-on-surface-dark-muted">v0.0.1</span></div>
+		<p class="max-w-3xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">These guides explain behavior and composition. pkg.go.dev is the canonical reference for exported types, functions, methods, and Go documentation.</p>
+		<div class="mt-4 flex flex-wrap gap-3">
+			for _, packageName := range packageNames {
+				@link.Link("https://pkg.go.dev/github.com/araihu/goshtoso-charts@v0.0.1/components/"+packageName, link.WithAppearance(link.AppearanceButton), link.WithTarget("_blank"), link.WithAttrs(templ.Attributes{"data-guide-api-link": packageName})) {
+					{ packageName } API <span aria-hidden="true">↗</span>
+				}
+			}
+		</div>
+	</section>
+}
+
+templ relatedGuide(target string) {
+	<section class="border-t border-outline pt-8 dark:border-outline-dark">
+		if target == "chart-controls" {
+			<a class="group flex items-center justify-between gap-4 text-on-surface-muted hover:text-primary dark:text-on-surface-dark-muted dark:hover:text-primary-dark" href="/docs/chart-controls" hx-get="/docs/chart-controls" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true"><span><span class="block text-xs font-semibold uppercase tracking-wide">Related guide</span><span class="mt-1 block font-title text-lg font-semibold text-on-surface-strong group-hover:text-primary dark:text-on-surface-dark-strong dark:group-hover:text-primary-dark">Chart controls</span></span><span aria-hidden="true">→</span></a>
+		} else {
+			<a class="group flex items-center justify-between gap-4 text-on-surface-muted hover:text-primary dark:text-on-surface-dark-muted dark:hover:text-primary-dark" href="/docs/chart-modes" hx-get="/docs/chart-modes" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true"><span><span class="block text-xs font-semibold uppercase tracking-wide">Related guide</span><span class="mt-1 block font-title text-lg font-semibold text-on-surface-strong group-hover:text-primary dark:text-on-surface-dark-strong dark:group-hover:text-primary-dark">Static and interactive</span></span><span aria-hidden="true">→</span></a>
+		}
+	</section>
+}
