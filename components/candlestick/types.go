@@ -233,8 +233,8 @@ func (cfg Config) validate() error {
 	if len(cfg.Series) == 0 && len(cfg.Data) == 0 {
 		return fmt.Errorf("candlestick chart needs at least one datum")
 	}
-	if len(series) > 1 && cfg.Aggregation.WindowSize > 0 {
-		return fmt.Errorf("candlestick chart aggregation supports a single series")
+	if len(cfg.Series) > 0 && cfg.Aggregation.WindowSize > 0 {
+		return fmt.Errorf("candlestick chart aggregation requires legacy single-series fields")
 	}
 	if cfg.Width < 0 {
 		return fmt.Errorf("candlestick chart width cannot be negative")

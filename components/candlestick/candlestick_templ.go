@@ -31,6 +31,7 @@ func candlestickTemplate(cfg Config, chart templ.Component) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
+		resolved := cfg.resolvedSeries()
 		templ_7745c5c3_Err = charttheme.Styles().Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -60,7 +61,7 @@ func candlestickTemplate(cfg Config, chart templ.Component) templ.Component {
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 7, Col: 105}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 8, Col: 105}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
@@ -94,7 +95,7 @@ func candlestickTemplate(cfg Config, chart templ.Component) templ.Component {
 			var templ_7745c5c3_Var5 string
 			templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.JoinStringErrs(cfg.Caption)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 10, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 11, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var5))
 			if templ_7745c5c3_Err != nil {
@@ -112,7 +113,7 @@ func candlestickTemplate(cfg Config, chart templ.Component) templ.Component {
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.JoinStringErrs(exactValuesSummary(cfg))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 14, Col: 73}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 15, Col: 73}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var6))
 		if templ_7745c5c3_Err != nil {
@@ -128,8 +129,8 @@ func candlestickTemplate(cfg Config, chart templ.Component) templ.Component {
 				return templ_7745c5c3_Err
 			}
 		}
-		for _, series := range cfg.resolvedSeries() {
-			if len(cfg.resolvedSeries()) > 1 {
+		for _, series := range resolved {
+			if len(resolved) > 1 {
 				templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 11, "<h3 class=\"mt-3 font-semibold\">")
 				if templ_7745c5c3_Err != nil {
 					return templ_7745c5c3_Err
@@ -137,7 +138,7 @@ func candlestickTemplate(cfg Config, chart templ.Component) templ.Component {
 				var templ_7745c5c3_Var7 string
 				templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.JoinStringErrs(series.Name)
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 21, Col: 48}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 22, Col: 48}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var7))
 				if templ_7745c5c3_Err != nil {
@@ -150,7 +151,7 @@ func candlestickTemplate(cfg Config, chart templ.Component) templ.Component {
 				var templ_7745c5c3_Var8 string
 				templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.JoinStringErrs(bodyStyleLabel(series.BodyStyle))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 21, Col: 179}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 22, Col: 179}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var8))
 				if templ_7745c5c3_Err != nil {
@@ -171,11 +172,12 @@ func candlestickTemplate(cfg Config, chart templ.Component) templ.Component {
 			}
 		}
 		if cfg.Aggregation.WindowSize > 0 {
+			aggregated := aggregatedConfig(cfg)
 			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 15, "<h3 class=\"mt-4 font-semibold\">Aggregated observations</h3>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
-			templ_7745c5c3_Err = candlestickValuesTable(aggregatedConfig(cfg), aggregatedConfig(cfg).resolvedSeries()[0]).Render(ctx, templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = candlestickValuesTable(aggregated, aggregated.resolvedSeries()[0]).Render(ctx, templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -216,7 +218,7 @@ func candlestickValuesTable(cfg Config, series Series) templ.Component {
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(series.Name + " exact OHLC values")
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 34, Col: 102}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 36, Col: 102}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 		if templ_7745c5c3_Err != nil {
@@ -240,7 +242,7 @@ func candlestickValuesTable(cfg Config, series Series) templ.Component {
 			var templ_7745c5c3_Var11 string
 			templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.JoinStringErrs(trendLabel(trend.Type))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 43, Col: 64}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 45, Col: 64}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var11))
 			if templ_7745c5c3_Err != nil {
@@ -263,7 +265,7 @@ func candlestickValuesTable(cfg Config, series Series) templ.Component {
 			var templ_7745c5c3_Var12 string
 			templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.JoinStringErrs(datum.Label)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 49, Col: 68}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 51, Col: 68}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var12))
 			if templ_7745c5c3_Err != nil {
@@ -298,7 +300,7 @@ func candlestickValuesTable(cfg Config, series Series) templ.Component {
 			var templ_7745c5c3_Var15 string
 			templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.JoinStringErrs(direction(datum))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 50, Col: 137}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 52, Col: 137}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var15))
 			if templ_7745c5c3_Err != nil {
@@ -311,7 +313,7 @@ func candlestickValuesTable(cfg Config, series Series) templ.Component {
 			var templ_7745c5c3_Var16 string
 			templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.JoinStringErrs(formatValue(datum.Open))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 51, Col: 67}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 53, Col: 67}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var16))
 			if templ_7745c5c3_Err != nil {
@@ -324,7 +326,7 @@ func candlestickValuesTable(cfg Config, series Series) templ.Component {
 			var templ_7745c5c3_Var17 string
 			templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.JoinStringErrs(formatValue(datum.High))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 51, Col: 134}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 53, Col: 134}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var17))
 			if templ_7745c5c3_Err != nil {
@@ -337,7 +339,7 @@ func candlestickValuesTable(cfg Config, series Series) templ.Component {
 			var templ_7745c5c3_Var18 string
 			templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.JoinStringErrs(formatValue(datum.Low))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 52, Col: 66}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 54, Col: 66}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var18))
 			if templ_7745c5c3_Err != nil {
@@ -350,7 +352,7 @@ func candlestickValuesTable(cfg Config, series Series) templ.Component {
 			var templ_7745c5c3_Var19 string
 			templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.JoinStringErrs(formatValue(datum.Close))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 52, Col: 134}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 54, Col: 134}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var19))
 			if templ_7745c5c3_Err != nil {
@@ -368,7 +370,7 @@ func candlestickValuesTable(cfg Config, series Series) templ.Component {
 				var templ_7745c5c3_Var20 string
 				templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.JoinStringErrs(patternNamesAt(cfg, index))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 54, Col: 58}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 56, Col: 58}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var20))
 				if templ_7745c5c3_Err != nil {
@@ -387,7 +389,7 @@ func candlestickValuesTable(cfg Config, series Series) templ.Component {
 				var templ_7745c5c3_Var21 string
 				templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.JoinStringErrs(formatTrendValue(trend.Value))
 				if templ_7745c5c3_Err != nil {
-					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 57, Col: 74}
+					return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/candlestick/candlestick.templ`, Line: 59, Col: 74}
 				}
 				_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var21))
 				if templ_7745c5c3_Err != nil {

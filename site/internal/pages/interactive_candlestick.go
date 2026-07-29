@@ -216,7 +216,7 @@ func interactiveCandlestickCode() string {
   Label: "Candlestick example",
   Categories: tradingDates,
   Series: []interactive.CandlestickSeries{{
-    Name: "Candlestick",
+    Name: "OHLC",
     Data: []interactive.Candle{
       {Open: 2320.26, Close: 2320.26, Low: 2287.3, High: 2362.94},
       // Remaining observations stay aligned with Categories.

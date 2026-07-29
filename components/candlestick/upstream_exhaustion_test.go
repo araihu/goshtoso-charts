@@ -140,7 +140,12 @@ func TestCandlestickNewOptionValidation(t *testing.T) {
 			*cfg = multipleSeriesConfig()
 			cfg.Patterns.Selection = PatternSelectionAll
 		}, "cannot combine"},
-		{"aggregation multi", func(cfg *Config) { *cfg = multipleSeriesConfig(); cfg.Aggregation.WindowSize = 2 }, "single series"},
+		{"aggregation multiple series", func(cfg *Config) { *cfg = multipleSeriesConfig(); cfg.Aggregation.WindowSize = 2 }, "legacy single-series"},
+		{"aggregation explicit series", func(cfg *Config) {
+			*cfg = multipleSeriesConfig()
+			cfg.Series = cfg.Series[:1]
+			cfg.Aggregation.WindowSize = 2
+		}, "legacy single-series"},
 		{"candle width", func(cfg *Config) { cfg.Options.Geometry.CandleWidth = 1.1 }, "candle width"},
 		{"wick width", func(cfg *Config) { cfg.Options.Geometry.WickWidth = math.NaN() }, "wick width"},
 		{"series gap", func(cfg *Config) { value := -.1; cfg.Options.Geometry.SeriesGap = &value }, "series gap"},
