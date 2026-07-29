@@ -45,6 +45,16 @@ type LegendOptions struct {
 	Right  string
 	Top    string
 	Bottom string
+	// Padding adds top, right, bottom, and left space around legend content.
+	Padding *EdgeInsets
+}
+
+// EdgeInsets describes nonnegative top, right, bottom, and left spacing.
+type EdgeInsets struct {
+	Top    int
+	Right  int
+	Bottom int
+	Left   int
 }
 
 // TooltipOptions configures tooltip visibility and formatting.
@@ -91,6 +101,7 @@ type SeriesOptions struct {
 	Step       string
 	BarWidth   string
 	BarGap     string
+	Emphasis   *EmphasisOptions
 }
 
 // LabelOptions configures data-label visibility and presentation.
@@ -103,10 +114,14 @@ type LabelOptions struct {
 
 // ItemStyle configures renderer-neutral fill and border presentation.
 type ItemStyle struct {
-	Color       string
-	BorderColor string
-	BorderWidth float64
-	Opacity     *float64
+	Color         string
+	BorderColor   string
+	BorderWidth   float64
+	Opacity       *float64
+	ShadowBlur    int
+	ShadowColor   string
+	ShadowOffsetX int
+	ShadowOffsetY int
 }
 
 // LineStyle configures renderer-neutral line presentation.
@@ -160,6 +175,12 @@ func Int(value int) *int { return &value }
 func finiteNumber(value float64) bool { return !math.IsNaN(value) && !math.IsInf(value, 0) }
 
 func validateChartOptions(options ChartOptions) error {
+	if legend := options.Legend; legend != nil && legend.Padding != nil {
+		padding := legend.Padding
+		if padding.Top < 0 || padding.Right < 0 || padding.Bottom < 0 || padding.Left < 0 {
+			return fmt.Errorf("legend padding must be nonnegative")
+		}
+	}
 	for name, axis := range map[string]*AxisOptions{"x": options.XAxis, "y": options.YAxis} {
 		if axis == nil {
 			continue
@@ -213,6 +234,9 @@ func chartGlobalOptions(options ChartOptions) []charts.GlobalOpts {
 		if value.Show != nil {
 			legend.Show = opts.Bool(*value.Show)
 		}
+		if value.Padding != nil {
+			legend.Padding = []int{value.Padding.Top, value.Padding.Right, value.Padding.Bottom, value.Padding.Left}
+		}
 		result = append(result, charts.WithLegendOpts(legend))
 	}
 	if value := options.Tooltip; value != nil {
@@ -243,6 +267,11 @@ func chartSeriesOptions(options SeriesOptions) []charts.SeriesOpts {
 	}
 	if options.AreaStyle != nil {
 		result = append(result, charts.WithAreaStyleOpts(rendererAreaStyle(options.AreaStyle)))
+	}
+	if options.Emphasis != nil {
+		result = append(result, func(series *charts.SingleSeries) {
+			series.Emphasis = rendererEmphasis(options.Emphasis)
+		})
 	}
 	if options.Animation != nil {
 		result = append(result, charts.WithAnimationOpts(opts.Animation{Animation: opts.Bool(*options.Animation)}))
@@ -293,7 +322,11 @@ func rendererLabel(value *LabelOptions) opts.Label {
 }
 
 func rendererItemStyle(value *ItemStyle) opts.ItemStyle {
-	result := opts.ItemStyle{Color: value.Color, BorderColor: value.BorderColor, BorderWidth: float32(value.BorderWidth)}
+	result := opts.ItemStyle{
+		Color: value.Color, BorderColor: value.BorderColor, BorderWidth: float32(value.BorderWidth),
+		ShadowBlur: value.ShadowBlur, ShadowColor: value.ShadowColor,
+		ShadowOffsetX: value.ShadowOffsetX, ShadowOffsetY: value.ShadowOffsetY,
+	}
 	if value.Opacity != nil {
 		result.Opacity = opts.Float(float32(*value.Opacity))
 	}

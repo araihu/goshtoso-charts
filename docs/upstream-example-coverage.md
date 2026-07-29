@@ -130,3 +130,37 @@ Supplementary Bar-adjacent evidence at the same revision:
 | `examples/themes.go` | `843c478c63b9cf3ab13b1e13518ea98912332bb34caf0dae5d48343fabd121a0` | Site themes and chart tokens cover theme switching centrally |
 | `examples/renderer.go` | `c4956db261f554c6a161c0d25baa7dbd7c2c179523997d297020cd55916e6a3f` | Private renderer integration, not a public chart option |
 | `examples/bar3d.go` | `110b3b85f2528d76eb8271b64f1facd81a974e30ecc0dd77319d5a409ff64275` | Separate existing Bar 3D component, not a two-dimensional Bar variant |
+
+## Interactive Pie
+
+- Source repository: `github.com/go-echarts/examples`
+- Source file: `examples/pie.go`
+- Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
+- Source SHA-256: `a59bb6f11818d4175d033f025f00a58e6a191eff5acf30f0e0cd5f98cd493ada`
+- Status: all nine upstream Pie behavior functions are covered by the one
+  renderer-neutral `interactive.Pie` component. No Pie function requires a raw
+  renderer option or backing-engine public type.
+- Deterministic adaptation: the upstream ambient random sequence is replaced by
+  its recorded seed-1 value groups in original call order. The upstream
+  `Autumn ` label typo is corrected to `Autumn`.
+- Runtime compatibility: `pieRadiusWithPadAngle` requires Apache ECharts 5.6 or
+  newer. The vendored and pinned CDN core is therefore 5.6.0; the compatible
+  runtime is an implementation dependency, not part of the chart API.
+
+| Upstream function | Coverage | Goshtoso Charts treatment |
+| --- | --- | --- |
+| `pieBase` | Example | Basic four-season distribution |
+| `pieShowLabel` | Example | Visible sector names and exact values |
+| `pieRadius` | Example | 40–75% donut radii with labels |
+| `pieRadiusWithPadAngle` | Example | Five-degree sector padding, 40/50% center, vertical legend with four-side padding, hidden labels, and name/share item tooltip |
+| `pieRoseArea` | Example | Equal-angle area rose with 40–75% radii |
+| `pieRoseRadius` | Example | Proportional-angle radius rose with 30–75% radii |
+| `pieRoseAreaRadius` | Example | Area and radius roses at independent 25/50% and 75/50% centers |
+| `pieInPie` | Example | Thin outer area ring and inner radius rose at one center |
+| `pieWithDispatchAction` | Example | Typed one-second rotating emphasis and item tooltip, implemented in the private runtime and disabled for reduced-motion users |
+
+The three page-layout sources and immutable hashes listed in the shared
+supplementary evidence table above also bound Pie layout: centered, flex, and
+unmanaged pages do not become public chart modes. The Pie page adds one local
+selectable-sector example to document the neutral selected-state API; it is not
+counted as a tenth upstream function.

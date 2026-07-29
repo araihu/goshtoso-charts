@@ -450,7 +450,7 @@ templ interactiveChartPieContent() {
 			Preview:      interactivePieVariants(),
 			Code:         interactiveChartPieCode(),
 		},
-		After: interactiveDocumentation(demoNote("Rose and nested treatments", "Area roses use equal angles; radius roses retain value-driven angles. Nested series share one center and use non-overlapping radii. Exact values and shares remain available beside every chart.")),
+		After: interactiveDocumentation(interactivePieUsage()),
 	})
 }
 
@@ -459,6 +459,15 @@ templ interactivePieVariants() {
 		<div data-pie-variant="base">
 			@interactive.Pie(sampleInteractivePie())
 		</div>
+		<div data-pie-variant="labels">
+			@interactive.Pie(sampleInteractivePieLabels())
+		</div>
+		<div data-pie-variant="radius">
+			@interactive.Pie(sampleInteractivePieRadius())
+		</div>
+		<div data-pie-variant="padded">
+			@interactive.Pie(sampleInteractivePiePadded())
+		</div>
 		<div class="space-y-10" data-pie-rose-variants>
 			<div data-pie-variant="rose-area">
 				@interactive.Pie(sampleInteractivePieRoseArea())
@@ -466,10 +475,28 @@ templ interactivePieVariants() {
 			<div data-pie-variant="rose-radius">
 				@interactive.Pie(sampleInteractivePieRoseRadius())
 			</div>
+			<div data-pie-variant="paired-roses">
+				@interactive.Pie(sampleInteractivePiePairedRoses())
+			</div>
 		</div>
 		<div data-pie-variant="nested">
 			@interactive.Pie(sampleInteractivePieNested())
 		</div>
+		<div data-pie-variant="auto-emphasis">
+			@interactive.Pie(sampleInteractivePieAutoEmphasis())
+		</div>
+		<div data-pie-variant="selected">
+			@interactive.Pie(sampleInteractivePieSelected())
+		</div>
+	</div>
+}
+
+templ interactivePieUsage() {
+	<div class="space-y-4">
+		@demoNote("Accessibility", "The figure name comes from Label and Caption remains visible. Every example includes a keyboard-accessible exact-value disclosure with series, sector, value, and share; do not make hover, motion, or color the only route to meaning.")
+		@demoNote("Choose the encoding", "A standard pie maps value to angle. A donut reserves a non-data center. Area roses use equal angles and encode values by sector area; radius roses retain proportional angles and add radial variation. Side-by-side and nested series need clearly separated centers or non-overlapping radii.")
+		@demoNote("Interactive capabilities", "Hover tooltips, selectable sectors, typed emphasis, and optional rotating emphasis support exploration. Rotating emphasis stops for reduced-motion users. Exact values and shares remain in the adjacent disclosure rather than depending on hover, motion, or color.")
+		@demoNote("Shared controls and modes", "Expand, fullscreen, PNG export, hidden/disabled/unwrapped lifecycle modes, resize events, and HTMX replacement behavior come from the shared chart wrapper. Static/vector pie is the better choice for print, server-only delivery, SVG output, or a page that must work without the browser runtime.")
 	</div>
 }
 

@@ -26,6 +26,7 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			var figures = new Set();
 			var responsiveFigures = new Map();
 			var targetFigures = new WeakMap();
+			var pieAutoEmphasisStates = new WeakMap();
 			var settleFrames = 2;
 			var maxSettleFrames = 10;
 	    var scheduled = false;
@@ -74,7 +75,18 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
       "#313695", "#4575b4", "#74add1", "#abd9e9", "#e0f3f8",
       "#fee090", "#fdae61", "#f46d43", "#d73027", "#a50026"
     ];
+		var stopPieAutoEmphasis = function (figure) {
+			var state = pieAutoEmphasisStates.get(figure);
+			if (!state) return;
+			if (state.timer) clearInterval(state.timer);
+			if (state.chart && state.index >= 0 && (!state.chart.isDisposed || !state.chart.isDisposed())) {
+				state.chart.dispatchAction({ type: "downplay", seriesIndex: state.seriesIndex, dataIndex: state.index });
+				state.chart.dispatchAction({ type: "hideTip" });
+			}
+			pieAutoEmphasisStates.delete(figure);
+		};
 	    var unregister = function (figure) {
+			stopPieAutoEmphasis(figure);
 	      var state = responsiveFigures.get(figure);
 	      if (!state) return;
 	      state.targets.forEach(function (target) {
@@ -160,6 +172,37 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 	      observeTarget(figure, host && host.parentElement);
 	      scheduleResize(figure);
 	    };
+		var syncPieAutoEmphasis = function (figure, chart) {
+			var raw = figure.getAttribute("data-goshtoso-charts-pie-auto-emphasis") || "";
+			var config = null;
+			try { config = raw ? JSON.parse(raw) : null; } catch (_) {}
+			var reduced = Boolean(preferredMotion && preferredMotion.matches);
+			var existing = pieAutoEmphasisStates.get(figure);
+			var signature = raw + ":" + reduced;
+			if (existing && existing.chart === chart && existing.signature === signature) return;
+			stopPieAutoEmphasis(figure);
+			if (!config || reduced) return;
+			var option = chart.getOption();
+			var series = option.series && option.series[config.seriesIndex];
+			var count = series && series.data ? series.data.length : 0;
+			if (!count) return;
+			var state = {
+				chart: chart, signature: signature, seriesIndex: config.seriesIndex,
+				index: -1, timer: 0
+			};
+			var tick = function () {
+				if (!figure.isConnected || (chart.isDisposed && chart.isDisposed())) {
+					unregister(figure);
+					return;
+				}
+				if (state.index >= 0) chart.dispatchAction({ type: "downplay", seriesIndex: state.seriesIndex, dataIndex: state.index });
+				state.index = (state.index + 1) % count;
+				chart.dispatchAction({ type: "highlight", seriesIndex: state.seriesIndex, dataIndex: state.index });
+				if (config.showTooltip) chart.dispatchAction({ type: "showTip", seriesIndex: state.seriesIndex, dataIndex: state.index });
+			};
+			state.timer = setInterval(tick, config.interval);
+			pieAutoEmphasisStates.set(figure, state);
+		};
 	    var scheduleAll = function () {
 	      responsiveFigures.forEach(function (_, figure) { scheduleResize(figure); });
 	    };
@@ -563,6 +606,7 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 				var targetNode = seriesModel && seriesModel.getData().tree.getNodeByDataIndex(state.dataIndex);
 				if (targetNode) chart.dispatchAction({ type: "treemapRootToNode", seriesIndex: state.seriesIndex, targetNode: targetNode });
 			});
+			syncPieAutoEmphasis(figure, chart);
     };
     var refresh = function () {
       if (scheduled) return;

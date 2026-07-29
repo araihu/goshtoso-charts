@@ -10,11 +10,11 @@ const (
 	// Prefix is the default HTTP mount path consumed by components/dependencies.
 	Prefix = "/charts/assets/"
 	// RuntimeURL is the versioned path of the embedded interactive-chart runtime.
-	RuntimeURL = Prefix + "js/runtime/echarts/5.4.3/echarts.min.js"
+	RuntimeURL = Prefix + "js/runtime/echarts/5.6.0/echarts.min.js"
 	// RuntimeCDNURL is the pinned opt-in CDN source for the same runtime version.
-	RuntimeCDNURL = "https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"
+	RuntimeCDNURL = "https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js"
 	// RuntimeCDNIntegrity authenticates bytes served by RuntimeCDNURL.
-	RuntimeCDNIntegrity = "sha384-BQKzmHvQLMCAnL3UtDBA1Al5tFjsCz1wrMlIUA1wkzo14DYkRWjywW+p9pCj0cwd"
+	RuntimeCDNIntegrity = "sha384-pPi0zxBAoDu6+JXW/C68UZLvBUUtU+7zonhif43rqj7pxsGyqyqzcian2Rj37Rss"
 	// WordCloudRuntimeURL is the versioned local word-cloud extension path.
 	WordCloudRuntimeURL = Prefix + "js/runtime/word-cloud/2.1.0/runtime.min.js"
 	// WordCloudRuntimeCDNURL is the pinned opt-in CDN source for the word-cloud extension.
@@ -47,7 +47,7 @@ const (
 	ControlRuntimeURL = Prefix + "js/controls/4/controls.js"
 )
 
-//go:embed js/runtime/echarts/5.4.3/echarts.min.js js/runtime/word-cloud/2.1.0/runtime.min.js js/runtime/liquid/3.1.0/runtime.min.js js/runtime/liquid/3.1.0/LICENSE.md js/runtime/three-d/2.0.9/runtime.min.js js/runtime/three-d/2.0.9/LICENSE js/maps/ibge-mmd-2025/* js/controls/1/controls.js js/controls/2/controls.js js/controls/3/controls.js js/controls/4/controls.js
+//go:embed js/runtime/echarts/5.6.0/echarts.min.js js/runtime/word-cloud/2.1.0/runtime.min.js js/runtime/liquid/3.1.0/runtime.min.js js/runtime/liquid/3.1.0/LICENSE.md js/runtime/three-d/2.0.9/runtime.min.js js/runtime/three-d/2.0.9/LICENSE js/maps/ibge-mmd-2025/* js/controls/1/controls.js js/controls/2/controls.js js/controls/3/controls.js js/controls/4/controls.js
 var files embed.FS
 
 // Handler serves embedded assets at Prefix. Mount it directly at Prefix; the

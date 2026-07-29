@@ -128,7 +128,7 @@ test("both treatments preserve exact plotted order, CSV, local assets, route, an
   const page = await pageAt({ width: 1440, height: 900 });
   try {
     const resources = await page.evaluate(() => [...document.scripts].map((script) => script.src).filter(Boolean));
-    const names = ["echarts/5.4.3", "word-cloud/2.1.0", "liquid/3.1.0", "three-d/2.0.9", "maps/ibge-mmd-2025"];
+    const names = ["echarts/5.6.0", "word-cloud/2.1.0", "liquid/3.1.0", "three-d/2.0.9", "maps/ibge-mmd-2025"];
     const indexes = names.map((name) => resources.findIndex((url) => url.includes(name)));
     assert.ok(indexes.every((index) => index >= 0), JSON.stringify({ resources, indexes }));
     assert.ok(indexes.every((value, index) => index === 0 || indexes[index - 1] < value), JSON.stringify(indexes));
@@ -183,7 +183,7 @@ test("both treatments preserve exact plotted order, CSV, local assets, route, an
     for (const route of ["/components/interactive/scatter-3d", "/components/interactive/bar-3d", "/components/interactive/surface-3d"]) {
       assert.equal((await page.request.get(`${baseURL}${route}`)).status(), 200);
     }
-    for (const asset of ["/charts/assets/js/controls/4/controls.js", "/charts/assets/js/runtime/three-d/2.0.9/runtime.min.js", "/charts/assets/js/runtime/echarts/5.4.3/echarts.min.js"]) {
+    for (const asset of ["/charts/assets/js/controls/4/controls.js", "/charts/assets/js/runtime/three-d/2.0.9/runtime.min.js", "/charts/assets/js/runtime/echarts/5.6.0/echarts.min.js"]) {
       assert.equal((await page.request.get(`${baseURL}${asset}`)).status(), 200);
     }
   } finally {
@@ -328,7 +328,7 @@ test("pinned CDN core and 3D extension use SRI and register Line3D in order", as
   page.on("pageerror", (error) => errors.push(error.message));
   try {
     await page.setContent(`<!doctype html><html><head>
-      <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js" integrity="sha384-BQKzmHvQLMCAnL3UtDBA1Al5tFjsCz1wrMlIUA1wkzo14DYkRWjywW+p9pCj0cwd" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js" integrity="sha384-pPi0zxBAoDu6+JXW/C68UZLvBUUtU+7zonhif43rqj7pxsGyqyqzcian2Rj37Rss" crossorigin="anonymous"></script>
       <script src="https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js" integrity="sha384-f4gAUkb5Y6LE9n50CbiH1hCBCw7021OeJu0ZrgRpgW6G1CZjPR8cu33e8rCFLqCl" crossorigin="anonymous"></script>
     </head><body><div id="chart" style="width:400px;height:300px"></div>
     <script>const chart=echarts.init(document.getElementById("chart"));chart.setOption({xAxis3D:{},yAxis3D:{},zAxis3D:{},grid3D:{},series:[{type:"line3D",data:[[0,0,0],[1,0,1]]}]});</script>
@@ -346,11 +346,11 @@ test("pinned CDN core and 3D extension use SRI and register Line3D in order", as
       type: "line3D",
       canvases: 1,
       order: [
-        "https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js",
+        "https://cdn.jsdelivr.net/npm/echarts@5.6.0/dist/echarts.min.js",
         "https://cdn.jsdelivr.net/npm/echarts-gl@2.0.9/dist/echarts-gl.min.js",
       ],
       integrity: [
-        "sha384-BQKzmHvQLMCAnL3UtDBA1Al5tFjsCz1wrMlIUA1wkzo14DYkRWjywW+p9pCj0cwd",
+        "sha384-pPi0zxBAoDu6+JXW/C68UZLvBUUtU+7zonhif43rqj7pxsGyqyqzcian2Rj37Rss",
         "sha384-f4gAUkb5Y6LE9n50CbiH1hCBCw7021OeJu0ZrgRpgW6G1CZjPR8cu33e8rCFLqCl",
       ],
     });

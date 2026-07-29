@@ -53,7 +53,7 @@ Opt in only when third-party delivery is acceptable:
 @dependencies.Dependencies(dependencies.WithCDN())
 ```
 
-`WithCDN` uses pinned 5.4.3 core, 2.1.0 word-cloud, 3.1.0 liquid-gauge, and
+`WithCDN` uses pinned 5.6.0 core, 2.1.0 word-cloud, 3.1.0 liquid-gauge, and
 2.0.9 three-dimensional runtime URLs with SHA-384 Subresource Integrity and
 `crossorigin="anonymous"`. Brazil geometry remains on its pinned embedded paths:
 IBGE publishes source geography rather than safe executable registration artifacts.

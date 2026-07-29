@@ -29,8 +29,12 @@ func TestHandlerServesVersionedRuntimeAtDefaultMount(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("GET %s status = %d, want %d", assets.RuntimeURL, recorder.Code, http.StatusOK)
 	}
-	if !strings.Contains(recorder.Body.String(), `version="5.4.3"`) {
-		t.Fatal("embedded runtime does not report pinned version 5.4.3")
+	if !strings.Contains(recorder.Body.String(), `version="5.6.0"`) {
+		t.Fatal("embedded runtime does not report pinned version 5.6.0")
+	}
+	const wantSHA256 = "bf4a223524e40b77c304bec67e1222cf551f14880cf42c69dc046558e11c07b1"
+	if got := fmt.Sprintf("%x", sha256.Sum256(recorder.Body.Bytes())); got != wantSHA256 {
+		t.Fatalf("GET %s SHA-256 = %s, want %s", assets.RuntimeURL, got, wantSHA256)
 	}
 }
 
