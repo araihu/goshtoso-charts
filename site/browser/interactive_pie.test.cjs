@@ -74,6 +74,8 @@ async function optionFor(page, name) {
 
 for (const [name, viewport, theme, dark] of [
   ["wide-light", { width: 1440, height: 900 }, "goshtoso", false],
+  ["wide-dark", { width: 1440, height: 900 }, "goshtoso", true],
+  ["narrow-light", { width: 390, height: 844 }, "araihu", false],
   ["narrow-dark", { width: 390, height: 844 }, "araihu", true],
 ]) {
   test(`interactive Pie ${name} preserves variants, exact values, theme, and layout`, async () => {
