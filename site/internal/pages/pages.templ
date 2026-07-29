@@ -648,11 +648,19 @@ templ scatterContent() {
 		Title: "Scatter chart",
 		Description: "Dense categorical SSR SVG for repeated observations, trends, clusters, and outliers across an explicit ordered set of keys.",
 		Primary: componentpage.Example{
-			AbovePreview: componentContract("Purpose", "Compare dense or sparse distributions across ordered categories without browser rendering.", "Primitive", "scatter.Scatter", "Kind", "components.KindScatterChart", "Configuration", "Label, Caption, ordered Categories, named Series with sparse Points or aligned multi-sample Values, typed trend/reference/axis/legend/title/padding/marker/value-format options, dimensions, root attributes, and chart palette.", "Accessibility", "Figure name comes from Label; Caption stays bounded and visible. Applications provide an adjacent exact-data table, download, or drill-down when all samples matter; the chart never expands thousands of points into DOM text."),
+			AbovePreview: componentContract("Purpose", "Compare dense or sparse distributions across ordered categories without browser rendering.", "Primitive", "scatter.Scatter", "Kind", "components.KindScatterChart", "Configuration", "Label, Caption, ordered Categories, named Series with sparse Points or aligned multi-sample Values, typed top-N label/trend/reference/axis/legend/title/padding/marker/value-format options, dimensions, root attributes, and chart palette.", "Accessibility", "Figure name comes from Label; Caption stays bounded and visible. Top-N labels add an exact-value and selection-state summary. Applications provide an adjacent exact-data table, download, or drill-down when all samples matter; dense charts never expand thousands of points into DOM text."),
 			Preview: scatter.Scatter(sampleDenseScatter()),
 			Code: scatterCode(),
 		},
-		After: demoNote("Dense category contract", "This preview adapts upstream examples/1-Painter/scatter_chart-3-dense_data/main.go with a fixed local RNG seed: three 1,000-category bounded random walks, repeated samples, SMA(100), maximum references, compact axes and legend. Categories define aligned slots; Values permits zero, one, or multiple samples without repeated category lookups. Sparse Points remains supported but cannot be mixed within one series."),
+		Sections: []componentpage.Example{
+			{
+				Title: "Top value labels",
+				Description: "Select exactly the highest N observations with deterministic input-order tie handling. Labels use chart-theme tokens by default; the accessible summary keeps every exact value and selection state available without color dependence.",
+				Preview: scatter.Scatter(sampleTopNScatter()),
+				Code: topNScatterCode(),
+			},
+		},
+		After: demoNote("Scatter variants", "Dense category contract: primary preview adapts upstream examples/1-Painter/scatter_chart-3-dense_data/main.go with a fixed local RNG seed: three 1,000-category bounded random walks, repeated samples, SMA(100), maximum references, compact axes and legend. Top labels adapts examples/1-Painter/scatter_chart-4-top_n_labels/main.go: the 30-day visitor series, top five selection, 0–50 domain, hidden legend, 16px label intent, 20px padding, and 800×500 sizing. Categories define aligned slots; Values permits zero, one, or multiple samples without repeated category lookups. Sparse Points remains supported but cannot be mixed within one series."),
 	})
 }
 
@@ -698,6 +706,30 @@ templ candlestickContent() {
 				Description: "Caller colors or classes may style candle directions and individual trend lines; each mark accepts one override mechanism at a time.",
 				Preview: candlestick.Candlestick(sampleCandlestickPresentationOverrides()),
 				Code: candlestickPresentationCode(),
+			},
+			{
+				Title: "Pattern annotations",
+				Description: "One typed pattern option keeps all, core, and bullish selections on Candlestick. Labels may prefer detected patterns and use safe text, color, class, and geometry overrides; the adjacent table names every detection.",
+				Preview: candlestick.Candlestick(sampleCandlestickPatterns()),
+				Code: candlestickPatternsCode(),
+			},
+			{
+				Title: "Core, bullish, and label variants",
+				Description: "Core and bullish selections preserve the same ten observations. Pattern-label preference uses built-in text formatting rather than a renderer callback.",
+				Preview: candlestick.Candlestick(sampleCandlestickCorePatterns()),
+				Code: candlestickPatternVariantCode(),
+			},
+			{
+				Title: "Preferred pattern labels",
+				Description: "A selected pattern label can show its first name and count with explicit text and background colors.",
+				Preview: candlestick.Candlestick(sampleCandlestickPatternLabels()),
+				Code: candlestickPatternVariantCode(),
+			},
+			{
+				Title: "Bullish patterns",
+				Description: "Bullish-only selection keeps only the bullish pattern vocabulary while preserving source order and exact values.",
+				Preview: candlestick.Candlestick(sampleCandlestickBullishPatterns()),
+				Code: candlestickPatternVariantCode(),
 			},
 		},
 		After: demoNote("OHLC contract", "Each finite datum satisfies Low <= Open/Close <= High. Close greater than or equal to open is stated as Increase; a lower close is stated as Decrease, so meaning never depends on color alone."),

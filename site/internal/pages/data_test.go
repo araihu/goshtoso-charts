@@ -219,6 +219,33 @@ func TestStaticCandlestickBollingerDataMechanicallyMatchesPinnedUpstreamExample(
 	}
 }
 
+func TestStaticCandlestickPatternsDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if staticCandlestickPatternsUpstreamPath != "examples/1-Painter/candlestick_chart-4-patterns/main.go" ||
+		staticCandlestickPatternsUpstreamRevision != "1fe31b06b8a82e00df877ff4417a75858547c1c2" ||
+		staticCandlestickPatternsUpstreamSHA256 != "ab5891e744bc8ec40fbead6b16af5642ea94c738369469b392ac7acf1e0055ec" {
+		t.Fatalf("patterns upstream source = %s@%s (%s)", staticCandlestickPatternsUpstreamPath, staticCandlestickPatternsUpstreamRevision, staticCandlestickPatternsUpstreamSHA256)
+	}
+	cfg := sampleCandlestickPatterns()
+	if cfg.Title != "Candlestick Patterns" || cfg.SeriesName != "Stock Price with Patterns" || cfg.Width != 900 || cfg.Height != 650 ||
+		cfg.Patterns.Selection != candlestick.PatternSelectionAll || len(cfg.Patterns.References) != 2 ||
+		cfg.Patterns.References[0] != candlestick.CloseReferenceAverage || cfg.Patterns.References[1] != candlestick.CloseReferenceMinimum {
+		t.Fatalf("patterns configuration drifted: %#v", cfg)
+	}
+	want := [][4]float64{{100, 110, 95, 105}, {105, 108, 102, 105.1}, {108, 109, 98, 107}, {107, 108, 103, 104}, {102, 115, 101, 113}, {113, 125, 112, 114}, {114, 118, 113, 117}, {119, 120, 108, 110}, {110, 113, 107, 109.9}, {109, 118, 108, 116}}
+	if len(cfg.Data) != len(want) {
+		t.Fatalf("patterns datum count = %d, want %d", len(cfg.Data), len(want))
+	}
+	for index, datum := range cfg.Data {
+		if got := [4]float64{datum.Open, datum.High, datum.Low, datum.Close}; got != want[index] {
+			t.Fatalf("patterns datum %d = %v, want %v", index+1, got, want[index])
+		}
+	}
+	if sampleCandlestickCorePatterns().Patterns.Selection != candlestick.PatternSelectionCore || sampleCandlestickBullishPatterns().Patterns.Selection != candlestick.PatternSelectionBullish || !sampleCandlestickPatternLabels().Patterns.PreferLabels {
+		t.Fatal("pattern variants drifted")
+	}
+}
+
 func TestInteractiveCandlestickDataMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
 	t.Parallel()
 	if interactiveCandlestickUpstreamPath != "examples/kline.go" {
@@ -354,6 +381,31 @@ func TestDenseScatterValuesAreDeterministicAndPreserveUpstreamDistribution(t *te
 				}
 			}
 		}
+	}
+}
+
+func TestTopNScatterMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
+	t.Parallel()
+	if topNScatterUpstreamPath != "examples/1-Painter/scatter_chart-4-top_n_labels/main.go" ||
+		topNScatterUpstreamRevision != "1fe31b06b8a82e00df877ff4417a75858547c1c2" ||
+		topNScatterUpstreamSHA256 != "cf92798819fbc010f44eaa406acabd337f16b52eec00793a10679e9c3b7cda81" {
+		t.Fatalf("top N scatter upstream source = %s@%s SHA-256 %s", topNScatterUpstreamPath, topNScatterUpstreamRevision, topNScatterUpstreamSHA256)
+	}
+	cfg := sampleTopNScatter()
+	if cfg.Title.Text != "Website Traffic Over 30 Days - Peak Days Highlighted" || cfg.Title.Subtext != "(Only top 5 traffic days show labels)" || !cfg.Legend.Hidden || cfg.Width != 800 || cfg.Height != 500 || cfg.Padding.Top != 20 || cfg.Padding.Right != 20 || cfg.Padding.Bottom != 20 || cfg.Padding.Left != 20 {
+		t.Fatalf("top N scatter presentation = %#v", cfg)
+	}
+	if len(cfg.Categories) != 30 || cfg.Categories[0] != "Day 1" || cfg.Categories[29] != "Day 30" || len(cfg.Series) != 1 || cfg.Series[0].Name != "Daily Visitors (k)" {
+		t.Fatalf("top N scatter categories/series = %#v", cfg)
+	}
+	want := []float64{15.2, 18.5, 22.1, 19.8, 25.4, 21.3, 17.9, 32.6, 28.1, 24.7, 31.5, 29.3, 26.8, 35.2, 41.7, 38.9, 33.1, 29.6, 27.4, 30.8, 36.3, 42.1, 39.5, 44.8, 48.3, 45.6, 40.2, 37.9, 34.5, 26.1}
+	for index, value := range want {
+		if got := cfg.Series[0].Values[index]; len(got) != 1 || got[0] != value {
+			t.Fatalf("top N scatter value %d = %v, want %g", index, got, value)
+		}
+	}
+	if cfg.Options.TopNLabels.Count != 5 || cfg.Options.TopNLabels.FontSize != 16 || cfg.YAxis.Min == nil || *cfg.YAxis.Min != 0 || cfg.YAxis.Max == nil || *cfg.YAxis.Max != 50 {
+		t.Fatalf("top N scatter options = %#v %#v", cfg.Options, cfg.YAxis)
 	}
 }
 

@@ -9,9 +9,9 @@ import (
 	"testing"
 	"time"
 
-	goshtosoassets "github.com/araihu/goshtoso/assets"
 	chartassets "github.com/araihu/goshtoso-charts/assets"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
+	goshtosoassets "github.com/araihu/goshtoso/assets"
 )
 
 func TestDemoRoutesRender(t *testing.T) {
@@ -370,6 +370,14 @@ func TestCandlestickDocumentationPreservesUpstreamBasicExampleWithoutEngineBrand
 	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
 	if !strings.Contains(attributions.Body.String(), "examples/1-Painter/candlestick_chart-1-basic/main.go") {
 		t.Error("central attributions missing official candlestick source path")
+	}
+	for _, want := range []string{"Candlestick Patterns", "Core Patterns", "Bullish Patterns", "Custom Pattern Formatting", "Detected patterns", "Bullish Engulfing", "Bearish Engulfing", "Shooting Star", "Inverted Hammer"} {
+		if !strings.Contains(body, want) {
+			t.Errorf("candlestick pattern documentation missing %q", want)
+		}
+	}
+	if !strings.Contains(attributions.Body.String(), "examples/1-Painter/candlestick_chart-4-patterns/main.go") {
+		t.Error("central attributions missing candlestick patterns source path")
 	}
 }
 
@@ -892,6 +900,24 @@ func TestScatterDocumentationPreservesUpstreamDenseExample(t *testing.T) {
 		if strings.Contains(body, unwanted) {
 			t.Errorf("scatter documentation retains invented framing %q", unwanted)
 		}
+	}
+}
+
+func TestScatterDocumentationPreservesTopNExampleAndAccessibleSummary(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/components/scatter", nil))
+	body := recorder.Body.String()
+	for _, want := range []string{
+		"Website Traffic Over 30 Days - Peak Days Highlighted", "Daily Visitors (k)", "Day 1", "Day 30", "48.3", "45.6", "44.8",
+		"Exact values and selected labels", "Selected label", "examples/1-Painter/scatter_chart-4-top_n_labels/main.go",
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("scatter top N documentation missing %q", want)
+		}
+	}
+	if strings.Contains(body, "go-analyze") {
+		t.Error("scatter component page exposes backing renderer")
 	}
 }
 

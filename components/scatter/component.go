@@ -6,12 +6,13 @@ import (
 	"html"
 	"io"
 	"math"
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/a-h/templ"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
-	"github.com/araihu/goshtoso-charts/components/charttheme"
 	chart "github.com/go-analyze/charts"
 )
 
@@ -55,7 +56,7 @@ func renderSVG(cfg Config) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("encode scatter chart SVG: %w", err)
 	}
-	return tokenizedSVG(string(data), cfg.Style), nil
+	return tokenizedSVG(decorateSVG(string(data), cfg), cfg), nil
 }
 
 func scatterOptions(cfg Config) chart.ScatterChartOption {
@@ -91,12 +92,14 @@ func scatterOptions(cfg Config) chart.ScatterChartOption {
 		options.Padding = chart.NewBox(cfg.Padding.Left, cfg.Padding.Top, cfg.Padding.Right, cfg.Padding.Bottom)
 	}
 	options.Title.Text = cfg.Title.Text
+	options.Title.Subtext = cfg.Title.Subtext
 	if cfg.Title.Placement == PlacementCenter {
 		options.Title.Offset = chart.OffsetCenter
 	}
 	if cfg.Legend.Orientation == LegendVertical {
 		options.Legend.Vertical = chart.Ptr(true)
 	}
+	options.Legend.Show = chart.Ptr(!cfg.Legend.Hidden)
 	switch cfg.Legend.Placement {
 	case PlacementCenter:
 		options.Legend.Offset = chart.OffsetCenter
@@ -142,6 +145,26 @@ func scatterOptions(cfg Config) chart.ScatterChartOption {
 			options.SeriesList[index].MarkLine.ValueFormatter = formatter
 			options.ValueFormatter = formatter
 		}
+		if resolved.TopNLabels.Count > 0 {
+			values := seriesValues(cfg.Categories, series)
+			selected := topNIndexes(values, resolved.TopNLabels.Count)
+			next := 0
+			options.SeriesList[index].Label.Show = chart.Ptr(true)
+			options.SeriesList[index].Label.LabelFormatter = func(_ int, _ string, value float64) (string, *chart.LabelStyle) {
+				show := selected[next]
+				next++
+				if !show {
+					return "", nil
+				}
+				return strconv.FormatFloat(value, 'f', -1, 64), nil
+			}
+			if resolved.TopNLabels.FontSize > 0 {
+				options.SeriesList[index].Label.FontStyle.FontSize = resolved.TopNLabels.FontSize
+			}
+			if strings.TrimSpace(resolved.TopNLabels.Color) != "" || strings.TrimSpace(resolved.TopNLabels.Class) != "" {
+				options.SeriesList[index].Label.FontStyle.FontColor = chart.Color{R: uint8(21 + index%8), G: uint8(21 + index%8), B: uint8(21 + index%8), A: 255}
+			}
+		}
 	}
 	return options
 }
@@ -183,23 +206,74 @@ func tokenPalette() chart.ColorPalette {
 		})
 }
 
-func tokenizedSVG(svg string, style charttheme.Style) string {
-	replacer := strings.NewReplacer(
+func tokenizedSVG(svg string, cfg Config) string {
+	replacements := []string{
 		"rgb(1,1,1)", "var(--color-chart-surface)",
 		"rgb(2,2,2)", "var(--color-chart-outline)",
 		"rgb(3,3,3)", "var(--color-chart-grid)",
 		"rgb(4,4,4)", "var(--color-chart-text)",
-		"rgb(5,5,5)", html.EscapeString(style.SeriesColor(0)),
-		"rgb(6,6,6)", html.EscapeString(style.SeriesColor(1)),
-		"rgb(7,7,7)", html.EscapeString(style.SeriesColor(2)),
-		"rgb(8,8,8)", html.EscapeString(style.SeriesColor(3)),
-		"rgb(9,9,9)", html.EscapeString(style.SeriesColor(4)),
-		"rgb(10,10,10)", html.EscapeString(style.SeriesColor(5)),
-		"rgb(11,11,11)", html.EscapeString(style.SeriesColor(6)),
-		"rgb(12,12,12)", html.EscapeString(style.SeriesColor(7)),
+		"rgb(5,5,5)", html.EscapeString(seriesColor(cfg, 0)),
+		"rgb(6,6,6)", html.EscapeString(seriesColor(cfg, 1)),
+		"rgb(7,7,7)", html.EscapeString(seriesColor(cfg, 2)),
+		"rgb(8,8,8)", html.EscapeString(seriesColor(cfg, 3)),
+		"rgb(9,9,9)", html.EscapeString(seriesColor(cfg, 4)),
+		"rgb(10,10,10)", html.EscapeString(seriesColor(cfg, 5)),
+		"rgb(11,11,11)", html.EscapeString(seriesColor(cfg, 6)),
+		"rgb(12,12,12)", html.EscapeString(seriesColor(cfg, 7)),
 		"'Roboto Medium',sans-serif", "var(--font-paragraph), sans-serif",
-	)
-	return replacer.Replace(svg)
+	}
+	for index, series := range cfg.Series {
+		labels := series.Options.resolved(cfg.Options).TopNLabels
+		if strings.TrimSpace(labels.Color) != "" || strings.TrimSpace(labels.Class) != "" {
+			color := labels.Color
+			if strings.TrimSpace(color) == "" {
+				color = "var(--color-chart-text)"
+			}
+			replacements = append(replacements, colorSentinel(21+index%8), html.EscapeString(color))
+		}
+	}
+	return strings.NewReplacer(replacements...).Replace(svg)
 }
+
+func seriesColor(cfg Config, index int) string {
+	if index < len(cfg.Series) && strings.TrimSpace(cfg.Series[index].Color) != "" {
+		return cfg.Series[index].Color
+	}
+	return cfg.Style.SeriesColor(index)
+}
+
+func colorSentinel(value int) string { return fmt.Sprintf("rgb(%d,%d,%d)", value, value, value) }
+
+var coloredSVGElement = regexp.MustCompile(`<(?:path|circle|rect|line|polyline|polygon|text)\b[^>]*>`)
+
+func decorateSVG(svg string, cfg Config) string {
+	for index, series := range cfg.Series {
+		svg = addClassToColoredElements(svg, colorSentinel(5+index%8), series.Class)
+		labels := series.Options.resolved(cfg.Options).TopNLabels
+		if strings.TrimSpace(labels.Class) != "" {
+			svg = addClassToColoredElements(svg, colorSentinel(21+index%8), labels.Class)
+		}
+	}
+	return svg
+}
+
+func addClassToColoredElements(svg, color, class string) string {
+	class = strings.TrimSpace(class)
+	if class == "" {
+		return svg
+	}
+	escapedClass := html.EscapeString(class)
+	return coloredSVGElement.ReplaceAllStringFunc(svg, func(element string) string {
+		if !strings.Contains(element, color) {
+			return element
+		}
+		if strings.Contains(element, ` class="`) {
+			return strings.Replace(element, ` class="`, ` class="`+escapedClass+` `, 1)
+		}
+		return strings.Replace(element, " ", ` class="`+escapedClass+`" `, 1)
+	})
+}
+
+func formatValue(value float64) string { return strconv.FormatFloat(value, 'f', -1, 64) }
 
 var _ chartcomponents.Component = Instance{}

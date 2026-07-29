@@ -74,10 +74,65 @@ func candlestickOptions(cfg Config) chart.CandlestickChartOption {
 	options.Legend.Show = chart.Ptr(!cfg.Options.LegendHidden)
 	options.SeriesList[0].Name = cfg.SeriesName
 	options.SeriesList[0].CloseTrendLine = chartTrendLines(cfg.TrendLines)
+	options.SeriesList[0].PatternConfig = chartPatternConfig(cfg.Patterns)
+	options.SeriesList[0].CloseMarkLine = chartCloseReferences(cfg.Patterns.References)
 	if cfg.Options.Padding != (Padding{}) {
 		options.Padding = chart.NewBox(cfg.Options.Padding.Left, cfg.Options.Padding.Top, cfg.Options.Padding.Right, cfg.Options.Padding.Bottom)
 	}
 	return options
+}
+
+func chartPatternConfig(options PatternOptions) *chart.CandlestickPatternConfig {
+	if options.Selection == "" {
+		return nil
+	}
+	config := &chart.CandlestickPatternConfig{
+		PreferPatternLabels: options.PreferLabels,
+		EnabledPatterns:     chartPatternTypes(options.Selection),
+	}
+	config.PatternFormatter = func(patterns []chart.PatternDetectionResult, _ string, _ float64) (string, *chart.LabelStyle) {
+		if len(patterns) == 0 {
+			return "", nil
+		}
+		names := make([]string, len(patterns))
+		for index, pattern := range patterns {
+			names[index] = pattern.PatternName
+		}
+		text := strings.Join(names, "\n")
+		if options.Label.Text == PatternLabelTextNameWithCount && len(names) > 1 {
+			text = names[0] + " +" + strconv.Itoa(len(names)-1)
+		}
+		style := chart.LabelStyle{FontStyle: chart.FontStyle{FontColor: chart.Color{R: 8, G: 8, B: 8, A: 255}, FontSize: 10}, BackgroundColor: chart.Color{R: 9, G: 9, B: 9, A: 255}, BorderColor: chart.Color{R: 10, G: 10, B: 10, A: 255}, CornerRadius: 4}
+		if options.Label.FontSize > 0 {
+			style.FontStyle.FontSize = options.Label.FontSize
+		}
+		if options.Label.CornerRadius > 0 {
+			style.CornerRadius = options.Label.CornerRadius
+		}
+		return text, &style
+	}
+	return config
+}
+
+func chartPatternTypes(selection PatternSelection) []string {
+	types := patternSelections[selection]
+	result := make([]string, len(types))
+	for index, kind := range types {
+		result[index] = strings.ReplaceAll(string(kind), "-", "_")
+	}
+	return result
+}
+
+func chartCloseReferences(references []CloseReferenceType) chart.SeriesMarkLine {
+	result := chart.SeriesMarkLine{}
+	for _, reference := range references {
+		typeValue := chart.SeriesMarkTypeAverage
+		if reference == CloseReferenceMinimum {
+			typeValue = chart.SeriesMarkTypeMin
+		}
+		result.Lines = append(result.Lines, chart.SeriesMark{Type: typeValue})
+	}
+	return result
 }
 
 func chartTrendLines(trends []TrendLine) []chart.SeriesTrendLine {
@@ -138,6 +193,9 @@ func tokenizedSVG(svg string) string {
 		"rgb(2,2,2)", "var(--color-chart-outline)",
 		"rgb(3,3,3)", "var(--color-chart-grid)",
 		"rgb(4,4,4)", "var(--color-chart-text)",
+		"rgb(8,8,8)", "var(--color-chart-pattern-text)",
+		"rgb(9,9,9)", "var(--color-chart-pattern-surface)",
+		"rgb(10,10,10)", "var(--color-chart-pattern-outline)",
 		"rgb(145,204,117)", "var(--color-chart-increasing)",
 		"rgb(238,102,102)", "var(--color-chart-decreasing)",
 		"'Roboto Medium',sans-serif", "var(--font-paragraph), sans-serif",
@@ -157,6 +215,24 @@ func decorateSVG(svg string, cfg Config) string {
 	}
 	svg = applyCandleStyle(svg, "var(--color-chart-increasing)", cfg.Options.Increasing)
 	svg = applyCandleStyle(svg, "var(--color-chart-decreasing)", cfg.Options.Decreasing)
+	svg = applyPatternLabelStyle(svg, cfg.Patterns.Label)
+	return svg
+}
+
+func applyPatternLabelStyle(svg string, style PatternLabelStyle) string {
+	textColor := "var(--color-chart-pattern-text)"
+	if strings.TrimSpace(style.Color) != "" {
+		textColor = style.Color
+	}
+	backgroundColor := "var(--color-chart-pattern-surface)"
+	if strings.TrimSpace(style.BackgroundColor) != "" {
+		backgroundColor = style.BackgroundColor
+	}
+	svg = strings.ReplaceAll(svg, "var(--color-chart-pattern-text)", html.EscapeString(textColor))
+	svg = strings.ReplaceAll(svg, "var(--color-chart-pattern-surface)", html.EscapeString(backgroundColor))
+	if class := strings.TrimSpace(style.Class); class != "" {
+		svg = strings.ReplaceAll(svg, `fill="`+html.EscapeString(textColor)+`"`, `class="`+html.EscapeString(class)+`" fill="`+html.EscapeString(textColor)+`"`)
+	}
 	return svg
 }
 
@@ -296,6 +372,27 @@ func rowDirectionClass(cfg Config, datum Datum) string {
 		class += " " + strings.TrimSpace(cfg.Options.Decreasing.Class)
 	}
 	return strings.TrimSpace(class)
+}
+
+func patternResultsByIndex(cfg Config) [][]PatternResult {
+	rows := make([][]PatternResult, len(cfg.Data))
+	results, err := DetectPatterns(cfg.Data, cfg.Patterns)
+	if err != nil {
+		return rows
+	}
+	for _, result := range results {
+		rows[result.Index] = append(rows[result.Index], result)
+	}
+	return rows
+}
+
+func patternNamesAt(cfg Config, index int) string {
+	patterns := patternResultsByIndex(cfg)[index]
+	names := make([]string, len(patterns))
+	for index, pattern := range patterns {
+		names[index] = pattern.Name
+	}
+	return strings.Join(names, ", ")
 }
 
 var _ chartcomponents.Component = Instance{}

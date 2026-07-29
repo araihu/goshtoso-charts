@@ -133,6 +133,9 @@ templ Styles() {
 			--color-chart-text: var(--color-on-surface);
 			--color-chart-text-strong: var(--color-on-surface-strong, var(--color-on-surface));
 			--color-chart-text-muted: var(--color-on-surface-muted, color-mix(in srgb, var(--color-on-surface) 72%, var(--color-surface) 28%));
+			--color-chart-pattern-text: var(--color-chart-text-strong);
+			--color-chart-pattern-surface: color-mix(in srgb, var(--color-chart-surface) 88%, var(--color-chart-outline) 12%);
+			--color-chart-pattern-outline: var(--color-chart-outline);
 			--color-chart-series-1: var(--color-blue-600, #2563eb);
 			--color-chart-series-2: var(--color-red-600, #dc2626);
 			--color-chart-series-3: var(--color-green-600, #16a34a);
@@ -198,6 +201,9 @@ templ Styles() {
 			--color-chart-text: var(--color-on-surface-dark);
 			--color-chart-text-strong: var(--color-on-surface-dark-strong, var(--color-on-surface-dark));
 			--color-chart-text-muted: var(--color-on-surface-dark-muted, color-mix(in srgb, var(--color-on-surface-dark) 72%, var(--color-surface-dark) 28%));
+			--color-chart-pattern-text: var(--color-chart-text-strong);
+			--color-chart-pattern-surface: color-mix(in srgb, var(--color-chart-surface) 82%, var(--color-chart-outline) 18%);
+			--color-chart-pattern-outline: var(--color-chart-outline);
 			--color-chart-scale-low: var(--color-cyan-700, #0e7490);
 			--color-chart-scale-mid: var(--color-amber-400, #fbbf24);
 			--color-chart-scale-high: var(--color-red-400, #f87171);

@@ -2109,7 +2109,7 @@ func interactiveGeoVariants() templ.Component {
 			var templ_7745c5c3_Var60 string
 			templ_7745c5c3_Var60, templ_7745c5c3_Err = templ.ResolveAttributeValue(variant.name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 485, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 485, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var60)
 			if templ_7745c5c3_Err != nil {
@@ -2207,7 +2207,7 @@ func interactiveMapVariants() templ.Component {
 			var templ_7745c5c3_Var63 string
 			templ_7745c5c3_Var63, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(variant.variant))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 508, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 508, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var63)
 			if templ_7745c5c3_Err != nil {
@@ -2654,11 +2654,19 @@ func scatterContent() templ.Component {
 			Title:       "Scatter chart",
 			Description: "Dense categorical SSR SVG for repeated observations, trends, clusters, and outliers across an explicit ordered set of keys.",
 			Primary: componentpage.Example{
-				AbovePreview: componentContract("Purpose", "Compare dense or sparse distributions across ordered categories without browser rendering.", "Primitive", "scatter.Scatter", "Kind", "components.KindScatterChart", "Configuration", "Label, Caption, ordered Categories, named Series with sparse Points or aligned multi-sample Values, typed trend/reference/axis/legend/title/padding/marker/value-format options, dimensions, root attributes, and chart palette.", "Accessibility", "Figure name comes from Label; Caption stays bounded and visible. Applications provide an adjacent exact-data table, download, or drill-down when all samples matter; the chart never expands thousands of points into DOM text."),
+				AbovePreview: componentContract("Purpose", "Compare dense or sparse distributions across ordered categories without browser rendering.", "Primitive", "scatter.Scatter", "Kind", "components.KindScatterChart", "Configuration", "Label, Caption, ordered Categories, named Series with sparse Points or aligned multi-sample Values, typed top-N label/trend/reference/axis/legend/title/padding/marker/value-format options, dimensions, root attributes, and chart palette.", "Accessibility", "Figure name comes from Label; Caption stays bounded and visible. Top-N labels add an exact-value and selection-state summary. Applications provide an adjacent exact-data table, download, or drill-down when all samples matter; dense charts never expand thousands of points into DOM text."),
 				Preview:      scatter.Scatter(sampleDenseScatter()),
 				Code:         scatterCode(),
 			},
-			After: demoNote("Dense category contract", "This preview adapts upstream examples/1-Painter/scatter_chart-3-dense_data/main.go with a fixed local RNG seed: three 1,000-category bounded random walks, repeated samples, SMA(100), maximum references, compact axes and legend. Categories define aligned slots; Values permits zero, one, or multiple samples without repeated category lookups. Sparse Points remains supported but cannot be mixed within one series."),
+			Sections: []componentpage.Example{
+				{
+					Title:       "Top value labels",
+					Description: "Select exactly the highest N observations with deterministic input-order tie handling. Labels use chart-theme tokens by default; the accessible summary keeps every exact value and selection state available without color dependence.",
+					Preview:     scatter.Scatter(sampleTopNScatter()),
+					Code:        topNScatterCode(),
+				},
+			},
+			After: demoNote("Scatter variants", "Dense category contract: primary preview adapts upstream examples/1-Painter/scatter_chart-3-dense_data/main.go with a fixed local RNG seed: three 1,000-category bounded random walks, repeated samples, SMA(100), maximum references, compact axes and legend. Top labels adapts examples/1-Painter/scatter_chart-4-top_n_labels/main.go: the 30-day visitor series, top five selection, 0–50 domain, hidden legend, 16px label intent, 20px padding, and 800×500 sizing. Categories define aligned slots; Values permits zero, one, or multiple samples without repeated category lookups. Sparse Points remains supported but cannot be mixed within one series."),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -2754,6 +2762,30 @@ func candlestickContent() templ.Component {
 					Description: "Caller colors or classes may style candle directions and individual trend lines; each mark accepts one override mechanism at a time.",
 					Preview:     candlestick.Candlestick(sampleCandlestickPresentationOverrides()),
 					Code:        candlestickPresentationCode(),
+				},
+				{
+					Title:       "Pattern annotations",
+					Description: "One typed pattern option keeps all, core, and bullish selections on Candlestick. Labels may prefer detected patterns and use safe text, color, class, and geometry overrides; the adjacent table names every detection.",
+					Preview:     candlestick.Candlestick(sampleCandlestickPatterns()),
+					Code:        candlestickPatternsCode(),
+				},
+				{
+					Title:       "Core, bullish, and label variants",
+					Description: "Core and bullish selections preserve the same ten observations. Pattern-label preference uses built-in text formatting rather than a renderer callback.",
+					Preview:     candlestick.Candlestick(sampleCandlestickCorePatterns()),
+					Code:        candlestickPatternVariantCode(),
+				},
+				{
+					Title:       "Preferred pattern labels",
+					Description: "A selected pattern label can show its first name and count with explicit text and background colors.",
+					Preview:     candlestick.Candlestick(sampleCandlestickPatternLabels()),
+					Code:        candlestickPatternVariantCode(),
+				},
+				{
+					Title:       "Bullish patterns",
+					Description: "Bullish-only selection keeps only the bullish pattern vocabulary while preserving source order and exact values.",
+					Preview:     candlestick.Candlestick(sampleCandlestickBullishPatterns()),
+					Code:        candlestickPatternVariantCode(),
 				},
 			},
 			After: demoNote("OHLC contract", "Each finite datum satisfies Low <= Open/Close <= High. Close greater than or equal to open is stated as Increase; a lower close is stated as Decrease, so meaning never depends on color alone."),
@@ -3160,7 +3192,7 @@ func demoNote(title string, text string) templ.Component {
 		var templ_7745c5c3_Var87 string
 		templ_7745c5c3_Var87, templ_7745c5c3_Err = templ.ResolveAttributeValue(tocID(title))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 838, Col: 145}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 870, Col: 145}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var87)
 		if templ_7745c5c3_Err != nil {
@@ -3173,7 +3205,7 @@ func demoNote(title string, text string) templ.Component {
 		var templ_7745c5c3_Var88 string
 		templ_7745c5c3_Var88, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 838, Col: 256}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 870, Col: 256}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var88))
 		if templ_7745c5c3_Err != nil {
@@ -3186,7 +3218,7 @@ func demoNote(title string, text string) templ.Component {
 		var templ_7745c5c3_Var89 string
 		templ_7745c5c3_Var89, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 838, Col: 347}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 870, Col: 347}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var89))
 		if templ_7745c5c3_Err != nil {
@@ -3228,7 +3260,7 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		var templ_7745c5c3_Var91 string
 		templ_7745c5c3_Var91, templ_7745c5c3_Err = templ.JoinStringErrs(purposeLabel)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 844, Col: 130}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 876, Col: 130}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var91))
 		if templ_7745c5c3_Err != nil {
@@ -3241,7 +3273,7 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		var templ_7745c5c3_Var92 string
 		templ_7745c5c3_Var92, templ_7745c5c3_Err = templ.JoinStringErrs(purpose)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 844, Col: 213}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 876, Col: 213}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var92))
 		if templ_7745c5c3_Err != nil {
@@ -3254,7 +3286,7 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		var templ_7745c5c3_Var93 string
 		templ_7745c5c3_Var93, templ_7745c5c3_Err = templ.JoinStringErrs(primitiveLabel)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 845, Col: 132}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 877, Col: 132}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var93))
 		if templ_7745c5c3_Err != nil {
@@ -3267,7 +3299,7 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		var templ_7745c5c3_Var94 string
 		templ_7745c5c3_Var94, templ_7745c5c3_Err = templ.JoinStringErrs(primitive)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 845, Col: 239}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 877, Col: 239}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var94))
 		if templ_7745c5c3_Err != nil {
@@ -3280,7 +3312,7 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		var templ_7745c5c3_Var95 string
 		templ_7745c5c3_Var95, templ_7745c5c3_Err = templ.JoinStringErrs(kindLabel)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 846, Col: 127}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 878, Col: 127}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var95))
 		if templ_7745c5c3_Err != nil {
@@ -3293,7 +3325,7 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		var templ_7745c5c3_Var96 string
 		templ_7745c5c3_Var96, templ_7745c5c3_Err = templ.JoinStringErrs(kind)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 846, Col: 229}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 878, Col: 229}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var96))
 		if templ_7745c5c3_Err != nil {
@@ -3306,7 +3338,7 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		var templ_7745c5c3_Var97 string
 		templ_7745c5c3_Var97, templ_7745c5c3_Err = templ.JoinStringErrs(configLabel)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 847, Col: 129}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 879, Col: 129}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var97))
 		if templ_7745c5c3_Err != nil {
@@ -3319,7 +3351,7 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		var templ_7745c5c3_Var98 string
 		templ_7745c5c3_Var98, templ_7745c5c3_Err = templ.JoinStringErrs(config)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 847, Col: 211}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 879, Col: 211}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var98))
 		if templ_7745c5c3_Err != nil {
@@ -3332,7 +3364,7 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		var templ_7745c5c3_Var99 string
 		templ_7745c5c3_Var99, templ_7745c5c3_Err = templ.JoinStringErrs(accessibilityLabel)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 848, Col: 158}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 880, Col: 158}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var99))
 		if templ_7745c5c3_Err != nil {
@@ -3345,7 +3377,7 @@ func componentContract(purposeLabel string, purpose string, primitiveLabel strin
 		var templ_7745c5c3_Var100 string
 		templ_7745c5c3_Var100, templ_7745c5c3_Err = templ.JoinStringErrs(accessibility)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `site/internal/pages/pages.templ`, Line: 848, Col: 247}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 880, Col: 247}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var100))
 		if templ_7745c5c3_Err != nil {

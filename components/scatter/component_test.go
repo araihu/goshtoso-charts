@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"math"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -117,8 +118,8 @@ func TestScatterMapsDenseAlignedDataAndRendererNeutralOptions(t *testing.T) {
 			{Name: "Two", Values: [][]float64{{20}, {21}, {22}}},
 		},
 		Options: Options{Size: .5, Trend: TrendLine{Kind: TrendSimpleMovingAverage, Period: 2}, ValueFormat: ValueFormatHumanized},
-		Title:   TitleOptions{Text: "Dense Scatter Chart Demo", Placement: PlacementCenter},
-		Legend:  LegendOptions{Orientation: LegendVertical, Placement: PlacementRight, Alignment: AlignmentRight, FontSize: 6},
+		Title:   TitleOptions{Text: "Dense Scatter Chart Demo", Subtext: "samples", Placement: PlacementCenter},
+		Legend:  LegendOptions{Hidden: true, Orientation: LegendVertical, Placement: PlacementRight, Alignment: AlignmentRight, FontSize: 6},
 		XAxis:   CategoryAxisOptions{BoundaryGap: &gap, LabelCount: 10, LabelFontSize: 6, LabelRotation: 45},
 		YAxis:   ValueAxisOptions{Min: &minimum, Max: &maximum, Unit: 10, LabelSkip: 1, LabelFontSize: 6},
 		Padding: Padding{Top: 16, Right: 32, Bottom: 16, Left: 16},
@@ -139,11 +140,49 @@ func TestScatterMapsDenseAlignedDataAndRendererNeutralOptions(t *testing.T) {
 	if options.YAxis[0].Min == nil || *options.YAxis[0].Min != 0 || options.YAxis[0].Max == nil || *options.YAxis[0].Max != 280 || options.YAxis[0].Unit != 10 || options.YAxis[0].LabelSkipCount != 1 {
 		t.Fatalf("y axis = %#v", options.YAxis[0])
 	}
-	if options.Title.Text != "Dense Scatter Chart Demo" || options.Title.Offset.Left != chart.PositionCenter || options.Legend.Offset.Left != chart.PositionRight || options.Legend.Vertical == nil || !*options.Legend.Vertical {
+	if options.Title.Text != "Dense Scatter Chart Demo" || options.Title.Subtext != "samples" || options.Title.Offset.Left != chart.PositionCenter || options.Legend.Show == nil || *options.Legend.Show || options.Legend.Offset.Left != chart.PositionRight || options.Legend.Vertical == nil || !*options.Legend.Vertical {
 		t.Fatalf("title/legend options missing: %#v %#v", options.Title, options.Legend)
 	}
 	if options.Padding.Left != 16 || options.Padding.Right != 32 {
 		t.Fatalf("padding = %#v", options.Padding)
+	}
+}
+
+func TestScatterTopNLabelsSelectExactlyNWithStableTiesForDenseAndSparseData(t *testing.T) {
+	t.Parallel()
+	for _, series := range []Series{
+		{Name: "Dense", Values: [][]float64{{4, 9}, {9}, {3}}},
+		{Name: "Sparse", Points: []Point{{Category: "B", Value: 9}, {Category: "A", Value: 4}, {Category: "A", Value: 9}, {Category: "C", Value: 3}}},
+	} {
+		cfg := Config{Label: "Top values", Categories: []string{"A", "B", "C"}, Series: []Series{series}, Options: Options{TopNLabels: TopNLabels{Count: 2}}}
+		options := scatterOptions(cfg)
+		formatter := options.SeriesList[0].Label.LabelFormatter
+		if formatter == nil || options.SeriesList[0].Label.Show == nil || !*options.SeriesList[0].Label.Show {
+			t.Fatalf("top N labels were not enabled: %#v", options.SeriesList[0].Label)
+		}
+		got := make([]string, 0)
+		for _, value := range seriesValues(cfg.Categories, series) {
+			text, _ := formatter(0, "", value.value)
+			if text != "" {
+				got = append(got, value.category+":"+text)
+			}
+		}
+		if want := []string{"A:9", "B:9"}; !reflect.DeepEqual(got, want) {
+			t.Errorf("%s selected = %v, want %v", series.Name, got, want)
+		}
+	}
+}
+
+func TestScatterTopNLabelsDisabledAndBoundedByAvailableSamples(t *testing.T) {
+	t.Parallel()
+	base := Config{Label: "Top values", Categories: []string{"A", "B"}, Series: []Series{{Name: "Values", Values: [][]float64{{2}, {1}}}}}
+	if options := scatterOptions(base); options.SeriesList[0].Label.Show != nil {
+		t.Fatalf("zero top N enabled labels: %#v", options.SeriesList[0].Label)
+	}
+	base.Options.TopNLabels.Count = 9
+	rows := base.topNLabelRows()
+	if len(rows) != 2 || !rows[0].Selected || !rows[1].Selected {
+		t.Fatalf("top N above samples = %#v", rows)
 	}
 }
 
@@ -213,6 +252,9 @@ func TestScatterValidation(t *testing.T) {
 		{name: "category", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "B", Value: 2}}}}}, want: `references unknown category "B"`},
 		{name: "value", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: math.NaN()}}}}}, want: "must contain a finite value"},
 		{name: "symbol", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: 2}}}}, Options: Options{Symbol: "star"}}, want: `unsupported symbol "star"`},
+		{name: "top N", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: 2}}}}, Options: Options{TopNLabels: TopNLabels{Count: -1}}}, want: "top N label count cannot be negative"},
+		{name: "top N color class", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: 2}}}}, Options: Options{TopNLabels: TopNLabels{Color: "red", Class: "label"}}}, want: "top N labels cannot set both color and class"},
+		{name: "series color class", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: 2}}, Color: "red", Class: "series"}}}, want: "cannot set both color and class"},
 		{name: "size", cfg: Config{Label: "Points", Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: 2}}}}, Options: Options{Size: -1}}, want: "size must be a finite non-negative number"},
 		{name: "width", cfg: Config{Label: "Points", Width: -1, Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: 2}}}}}, want: "width cannot be negative"},
 		{name: "root attr", cfg: Config{Label: "Points", RootAttrs: templ.Attributes{"role": "presentation"}, Categories: []string{"A"}, Series: []Series{{Name: "A", Points: []Point{{Category: "A", Value: 2}}}}}, want: `root attribute "role" is reserved`},
