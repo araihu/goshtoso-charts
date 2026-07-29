@@ -69,6 +69,16 @@ templ chartModesContent() {
 			<p class="max-w-3xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Wrapper lifecycle is independent of renderer choice. Every chart accepts the same enabled, disabled, hidden, or omitted wrapper state; review <a class="font-semibold text-primary underline dark:text-primary-dark" href="/docs/chart-controls" hx-get="/docs/chart-controls" hx-target="#main-content" hx-swap="innerHTML" hx-push-url="true">chart controls and wrapper lifecycle</a> before choosing client-side transitions.</p>
 		</section>
 
+		<section class="space-y-4" data-chart-mode-limits>
+			<h2 id="shared-wrapper-boundary" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Shared wrapper boundary</h2>
+			<div class="grid gap-4 md:grid-cols-2">
+				@controlFact("Renderer stays the same", "Expand and fullscreen change layout, not chart delivery. A static chart remains SVG; an interactive chart remains its live browser-rendered canvas.")
+				@controlFact("Omitted removes only the wrapper", "Omitted removes shared actions and lifecycle runtime. It does not turn an interactive chart into server-rendered output or remove that chart's browser dependency.")
+				@controlFact("Features remain chart-specific", "Interactive does not promise zoom, live data, selection, or animation for every chart type. Use only options documented by that component. Static output does not gain those chart interactions from the wrapper.")
+				@controlFact("Equivalent data remains separate", "Neither SVG geometry nor canvas pixels replace exact values, reading order, or relationships. Keep the component's disclosure or a caller-owned table, summary, or download.")
+			</div>
+		</section>
+
 		<section class="space-y-4">
 			<h2 id="rendering-examples" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Render the same data two ways</h2>
 			<div class="grid gap-6 xl:grid-cols-2">
@@ -108,7 +118,7 @@ templ chartControlsContent() {
 
 		<section class="space-y-4">
 			<h2 id="wrapper-lifecycle" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Wrapper lifecycle</h2>
-			<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted"><code class="font-mono">chartcontrol.Options.Mode</code> is shared by static/vector and interactive charts. Enabled is the zero value. Choose an initial server-rendered state deliberately; only enabled, disabled, and hidden can change in the browser. Lifecycle hooks remain available when every action is disabled because the rendered wrapper still loads its control runtime. Omitted mode alone suppresses the wrapper runtime.</p>
+			<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted"><code class="font-mono">chartcontrol.Options.Mode</code> is one closed state shared by static/vector and interactive charts. Its zero value and <code class="font-mono">WrapperModeEnabled</code> both mean enabled, so overlapping wrapper booleans and precedence rules do not exist. Mode applies before individual action settings: omitted returns the chart without a wrapper, while every non-omitted mode preserves the configured action set and wrapper runtime. Even an actionless non-omitted wrapper loads the versioned same-origin external runtime, so lifecycle events work without inline script. Omitted mode alone suppresses that runtime.</p>
 			<div class="overflow-x-auto rounded-radius border border-outline dark:border-outline-dark" data-wrapper-mode-comparison>
 				<table class="w-full min-w-[52rem] border-collapse text-left text-sm">
 					<thead class="bg-surface-alt text-on-surface-strong dark:bg-surface-dark-alt dark:text-on-surface-dark-strong">
@@ -121,6 +131,11 @@ templ chartControlsContent() {
 						<tr><th scope="row" class="px-4 py-3 align-top font-semibold"><code class="font-mono">WrapperModeOmitted</code></th><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">Only the chart renders: no wrapper, actions, status region, modal, or wrapper-control runtime.</td><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">Server-only. Change it by rerendering or swapping the chart.</td><td class="px-4 py-3 align-top text-on-surface-muted dark:text-on-surface-dark-muted">Consumer supplies its own shell or wants the smallest static/vector no-JavaScript surface.</td></tr>
 					</tbody>
 				</table>
+			</div>
+			<div class="rounded-radius border border-outline bg-surface-alt p-5 text-sm text-on-surface-muted dark:border-outline-dark dark:bg-surface-dark-alt dark:text-on-surface-dark-muted" data-wrapper-dom-contract>
+				<h3 class="font-title text-base font-semibold text-on-surface-strong dark:text-on-surface-dark-strong">Rendered DOM contract</h3>
+				<p class="mt-2">Every non-omitted root exposes <code class="font-mono">data-goshtoso-chart-wrapper</code> and <code class="font-mono">data-goshtoso-chart-wrapper-mode="enabled|disabled|hidden"</code>. When actions render, disabled applies native <code class="font-mono">disabled</code> and <code class="font-mono">aria-disabled="true"</code> to their fieldset; it does not disable chart exploration, pause live data, or hide the chart. Re-enabling removes only wrapper-added disabled state and preserves any action that was already unavailable. Hidden applies native <code class="font-mono">hidden</code>, <code class="font-mono">inert</code>, and <code class="font-mono">aria-hidden="true"</code> to the wrapper. Omitted is exact chart passthrough: no wrapper root or wrapper-control runtime exists.</p>
+				<p class="mt-2">Treat these attributes as observable state, not a mutation API. Use the public helper or request event so transient UI, focus, status, and resize behavior stay synchronized.</p>
 			</div>
 			<div class="min-w-0 space-y-3">
 				<h3 class="font-title text-lg font-semibold text-on-surface-strong dark:text-on-surface-dark-strong">Choose the initial state in Go</h3>
@@ -135,12 +150,12 @@ templ chartControlsContent() {
 				<div class="min-w-0 space-y-3"><h3 class="font-title text-lg font-semibold">Plain JavaScript</h3>@codeblock.CodeBlock(codeblock.Config{Language: "javascript", Label: "JavaScript", Code: wrapperModeJavaScriptCode})</div>
 				<div class="min-w-0 space-y-3"><h3 class="font-title text-lg font-semibold">Alpine</h3>@codeblock.CodeBlock(codeblock.Config{Language: "html", Label: "templ", Code: wrapperModeAlpineCode})</div>
 			</div>
-			<p class="max-w-3xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">The equivalent public helper is <code class="font-mono">window.__goshtosoChartsControls.setWrapperMode(wrapper, mode, focusReturn)</code>. The helper returns false when the wrapper is missing or the mode is unknown; otherwise it returns true. After applying a changed state, the wrapper emits <code class="font-mono">goshtoso-charts:wrapper-mode-change</code> with exact detail <code class="font-mono">&#123; previousMode, mode &#125;</code>. Listen on the wrapper or an ancestor; the event bubbles.</p>
+			<p class="max-w-3xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">The equivalent public helper is <code class="font-mono">window.__goshtosoChartsControls.setWrapperMode(wrapper, mode, focusReturn)</code>. For compatibility it accepts both the empty Go zero value and <code class="font-mono">"enabled"</code>, but DOM state and change-event details always use the canonical value <code class="font-mono">"enabled"</code>. The helper returns false when the wrapper is missing or the requested mode is omitted or unknown; otherwise it returns true. After applying a changed state, the wrapper emits <code class="font-mono">goshtoso-charts:wrapper-mode-change</code> with exact detail <code class="font-mono">&#123; previousMode, mode &#125;</code>. Listen on the wrapper or an ancestor; the event bubbles. Directly editing mode, <code class="font-mono">hidden</code>, <code class="font-mono">inert</code>, or fieldset attributes bypasses lifecycle guarantees.</p>
 		</section>
 
 		<section class="space-y-4">
 			<h2 id="htmx-swaps" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">HTMX swaps</h2>
-			<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">Let the server return the desired initial mode when HTMX replaces a chart. The runtime observes <code class="font-mono">htmx:load</code> and <code class="font-mono">htmx:afterSwap</code>, and a <code class="font-mono">MutationObserver</code> covers other DOM insertion and removal. Preparation is idempotent: newly swapped wrappers rehydrate from their rendered mode without application re-init code. An omitted wrapper can return only through a rerender or swap because no client wrapper exists to receive a mode event.</p>
+			<p class="max-w-3xl text-on-surface-muted dark:text-on-surface-dark-muted">Let the server return the desired initial mode when HTMX replaces a chart. The runtime observes <code class="font-mono">htmx:load</code> and <code class="font-mono">htmx:afterSwap</code>, and a <code class="font-mono">MutationObserver</code> covers other DOM insertion and removal. Preparation is idempotent: newly swapped wrappers rehydrate from their rendered mode without application re-init code. This also handles full wrapper replacement, including enabled-to-omitted and omitted-to-non-omitted transitions. An omitted chart itself has no wrapper to receive a client event.</p>
 			@codeblock.CodeBlock(codeblock.Config{Language: "templ", Label: "templ", Code: wrapperModeHTMXCode})
 			<p class="max-w-3xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Map request values to the four known <code class="font-mono">WrapperMode</code> constants before rendering; reject unknown values instead of casting arbitrary input.</p>
 		</section>
@@ -150,7 +165,7 @@ templ chartControlsContent() {
 			<div class="grid gap-4 md:grid-cols-2">
 				@controlFact("Reveal and re-enable", "The same DOM and renderer instance remain in place. The wrapper requests a settled resize after becoming visible or active, so interactive canvases and responsive static charts fit current layout.")
 				@controlFact("Live data and theme", "Disabled and hidden charts keep the latest live snapshot and current theme. Reveal does not restore stale server data or recreate the renderer.")
-				@controlFact("Transient UI and focus", "Disabling or hiding closes open menus, modal expansion, and fullscreen state first. Hidden content is removed from focus and accessibility traversal; use focusReturn or move focus from an external controller.")
+				@controlFact("Transient UI and focus", "Disabling or hiding closes open menus, modal expansion, and fullscreen state first, then checks where focus actually settled. If focus remains inside, a connected external focusReturn is honored; otherwise the active element is blurred. Hidden content leaves focus and accessibility traversal.")
 				@controlFact("Export and validation", "Wrapper mode never adds an unsupported format. Enabled, disabled, and hidden validate export configuration during server rendering. Omitted skips wrapper-only export validation because no wrapper action or export runtime renders.")
 			</div>
 		</section>
@@ -203,7 +218,8 @@ templ chartControlsContent() {
 		<section class="space-y-4">
 			<h2 id="caller-responsibilities" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Caller responsibilities</h2>
 			<div class="grid gap-4 md:grid-cols-2">
-				@controlFact("Hidden state", "Place the reveal trigger outside the wrapper and supply focusReturn when hiding from inside it. The wrapper cannot invent application navigation or decide where focus belongs.")
+				@controlFact("Hidden state", "Place the reveal trigger outside the wrapper and supply focusReturn when hiding from inside it. The wrapper cannot invent application navigation or decide where focus belongs. Without JavaScript, hidden content cannot reveal itself.")
+				@controlFact("Disabled state", "Disabled affects shared wrapper actions only. Configure chart-specific tooltip, zoom, selection, animation, or live-data behavior separately when those interactions must also stop.")
 				@controlFact("Exact data", "Keep a caption, summary, disclosure, table, or download when exact values matter. Wrapper controls do not make chart pixels or SVG geometry an accessible data model.")
 				@controlFact("Unknown modes", "Validate request values against the four Go constants. Client requests for omitted or unknown modes are ignored; the public helper returns false and no change event fires.")
 				@controlFact("Unsupported export", "Request only formats and backgrounds proven by the capability table. Invalid server configuration fails rendering; browser capture failures are announced in the wrapper status region.")

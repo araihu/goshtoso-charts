@@ -96,7 +96,7 @@ func TestDisabledWrapperKeepsChartVisibleAndActionsNativelyInert(t *testing.T) {
 		`data-goshtoso-chart-wrapper-mode="disabled"`,
 		`data-goshtoso-chart-actions-fieldset disabled aria-disabled="true"`,
 		`<figure><svg width="320" height="160"></svg></figure>`,
-		`src="/charts/assets/js/controls/4/controls.js"`,
+		`src="/charts/assets/js/controls/5/controls.js"`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("disabled wrapper missing %q", want)
@@ -117,7 +117,7 @@ func TestHiddenWrapperRetainsDOMRuntimeAndInertAccessibilityState(t *testing.T) 
 	for _, want := range []string{
 		`data-goshtoso-chart-wrapper-mode="hidden"`, ` hidden inert aria-hidden="true"`,
 		`<figure><svg width="320" height="160"></svg></figure>`,
-		`src="/charts/assets/js/controls/4/controls.js"`,
+		`src="/charts/assets/js/controls/5/controls.js"`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("hidden wrapper missing %q", want)
@@ -293,7 +293,7 @@ func TestActionlessWrapperKeepsLifecycleRuntimeWithoutRenderingActions(t *testin
 			t.Errorf("opted-out wrapper contains %q", unwanted)
 		}
 	}
-	const runtime = `src="/charts/assets/js/controls/4/controls.js"`
+	const runtime = `src="/charts/assets/js/controls/5/controls.js"`
 	if got := strings.Count(markup, runtime); got != 1 {
 		t.Fatalf("actionless wrapper lifecycle runtime count = %d, want exactly one", got)
 	}

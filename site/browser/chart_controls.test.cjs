@@ -813,6 +813,8 @@ test("initial hidden wrapper supports plain JS, Alpine, HTMX, focus, and inert l
       element.__modeChanges = [];
       element.__actionTabindexes = [...element.querySelectorAll("[data-goshtoso-chart-actions-fieldset] button, [data-goshtoso-chart-actions-fieldset] [role=menuitem], [data-goshtoso-chart-actions-fieldset] a")]
         .map((action) => action.getAttribute("tabindex"));
+      element.__ariaDisabledProbe = element.querySelector("[data-goshtoso-chart-actions-fieldset] button");
+      element.__ariaDisabledProbe.setAttribute("aria-disabled", "false");
       element.addEventListener("goshtoso-charts:resize", () => { element.__resizeEvents += 1; });
       element.addEventListener("goshtoso-charts:wrapper-mode-change", (event) => {
         element.__modeChanges.push(event.detail);
@@ -882,7 +884,8 @@ test("initial hidden wrapper supports plain JS, Alpine, HTMX, focus, and inert l
     assert.equal(await wrapper.evaluate((element) => {
       const restored = [...element.querySelectorAll("[data-goshtoso-chart-actions-fieldset] button, [data-goshtoso-chart-actions-fieldset] [role=menuitem], [data-goshtoso-chart-actions-fieldset] a")]
         .map((action) => action.getAttribute("tabindex"));
-      return JSON.stringify(restored) === JSON.stringify(element.__actionTabindexes);
+      return JSON.stringify(restored) === JSON.stringify(element.__actionTabindexes)
+        && element.__ariaDisabledProbe.getAttribute("aria-disabled") === "false";
     }), true);
 
     await openExpand(wrapper);

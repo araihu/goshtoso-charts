@@ -116,7 +116,7 @@ for (const [name, viewport, theme, dark] of [
       assert.deepEqual(effectStyles.series[1].data.map(({ value }) => value), [59, 53, 57, 21, 89, 99]);
 
       assert.ok((await page.locator('script[src="/charts/assets/js/runtime/echarts/5.6.0/echarts.min.js"]').count()) >= 1);
-      assert.ok((await page.locator('script[src="/charts/assets/js/controls/4/controls.js"]').count()) >= 1);
+      assert.ok((await page.locator('script[src="/charts/assets/js/controls/5/controls.js"]').count()) >= 1);
       for (const [variantName, rows] of [["base", 12], ["labels", 12], ["split-lines", 12], ["effect-base", 6], ["effect-styles", 12]]) {
         const current = variant(page, variantName);
         const details = current.locator("details[data-scatter-exact-values]");

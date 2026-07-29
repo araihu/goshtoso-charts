@@ -50,10 +50,10 @@ const (
 	// BrazilMapLicenseURL is the bundled CC-BY-4.0 source-data reuse notice.
 	BrazilMapLicenseURL = Prefix + "js/maps/ibge-mmd-2025/LICENSE.md"
 	// ControlRuntimeURL is the versioned shared chart-controls runtime.
-	ControlRuntimeURL = Prefix + "js/controls/4/controls.js"
+	ControlRuntimeURL = Prefix + "js/controls/5/controls.js"
 )
 
-//go:embed js/runtime/echarts/5.6.0/* js/runtime/word-cloud/2.1.0/runtime.min.js js/runtime/liquid/3.1.0/runtime.min.js js/runtime/liquid/3.1.0/LICENSE.md js/runtime/three-d/2.0.9/runtime.min.js js/runtime/three-d/2.0.9/LICENSE js/maps/ibge-mmd-2025/* js/controls/1/controls.js js/controls/2/controls.js js/controls/3/controls.js js/controls/4/controls.js
+//go:embed js/runtime/echarts/5.6.0/* js/runtime/word-cloud/2.1.0/runtime.min.js js/runtime/liquid/3.1.0/runtime.min.js js/runtime/liquid/3.1.0/LICENSE.md js/runtime/three-d/2.0.9/runtime.min.js js/runtime/three-d/2.0.9/LICENSE js/maps/ibge-mmd-2025/* js/controls/1/controls.js js/controls/2/controls.js js/controls/3/controls.js js/controls/4/controls.js js/controls/5/controls.js
 var files embed.FS
 
 // Handler serves embedded assets at Prefix. Mount it directly at Prefix; the

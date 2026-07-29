@@ -17,7 +17,7 @@ type searchEntry struct {
 var supplementalSearchTerms = map[string]string{
 	"getting-started": "choose chart mode wrapper controls static vector interactive",
 	"chart-modes":     "static vector interactive capabilities use cases delivery runtime print",
-	"chart-controls":  "wrapper lifecycle enabled disabled hidden omitted client events javascript alpine htmx export svg png fullscreen",
+	"chart-controls":  "wrapper lifecycle mode enabled disabled hidden omitted no wrapper dom state attributes client events javascript alpine htmx no javascript export svg png fullscreen",
 }
 
 func searchEntries(navigation componentdocshell.Navigation) []searchEntry {

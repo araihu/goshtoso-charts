@@ -21,6 +21,7 @@ func TestChartGuidesDocumentActualRendererNeutralCapabilities(t *testing.T) {
 				"Static/vector and interactive charts", "Capability comparison", "Inline SVG", "browser runtime initializes a canvas",
 				"SVG and browser-rasterized PNG", "PNG snapshots", "Categorical Bar and Line", "strict nonce-only script policy",
 				"data-chart-mode-comparison", "data-guide-api-link=\"line\"", "data-guide-api-link=\"interactive\"", "data-guide-api-link=\"dependencies\"",
+				"data-chart-mode-limits", "Shared wrapper boundary", "Omitted removes only the wrapper", "Features remain chart-specific",
 			},
 		},
 		{
@@ -35,7 +36,9 @@ func TestChartGuidesDocumentActualRendererNeutralCapabilities(t *testing.T) {
 				"HTMX swaps", "No-JavaScript behavior", "Omitted skips wrapper-only export validation",
 				"window.__goshtosoChartsControls.setWrapperMode", "returns false", "htmx:load", "htmx:afterSwap", "MutationObserver",
 				"Unknown modes", "Unsupported export", "Caller responsibilities",
-				"Lifecycle hooks remain available when every action is disabled", "Omitted mode alone suppresses the wrapper runtime",
+				"actionless non-omitted wrapper", "versioned same-origin external runtime", "Omitted mode alone suppresses that runtime",
+				"one closed state", "data-wrapper-dom-contract", "data-goshtoso-chart-wrapper-mode", "observable state, not a mutation API",
+				"Disabled affects shared wrapper actions only", "enabled-to-omitted and omitted-to-non-omitted", "preserves any action that was already unavailable",
 			},
 		},
 	}

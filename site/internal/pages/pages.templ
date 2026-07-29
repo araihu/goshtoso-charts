@@ -1303,7 +1303,7 @@ templ demoNote(title string, text string) {
 }
 
 templ visualizationGuidance(purpose string, useWhen string, avoidWhen string, equivalentData string) {
-	<section class="rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt">
+	<section data-visualization-guidance class="rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt">
 		<dl class="grid gap-4 lg:grid-cols-2">
 			<div><dt class="text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted">Purpose</dt><dd class="mt-1 text-sm text-on-surface dark:text-on-surface-dark">{ purpose }</dd></div>
 			<div><dt class="text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted">Use when</dt><dd class="mt-1 text-sm text-on-surface dark:text-on-surface-dark">{ useWhen }</dd></div>
@@ -1321,7 +1321,7 @@ templ interactiveDocumentation(content templ.Component) {
 }
 
 templ visualizationGuide(purpose string, useWhen string, avoidWhen string, equivalentData string) {
-	<section class="rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt">
+	<section data-visualization-guidance class="rounded-radius border border-outline bg-surface-alt p-5 dark:border-outline-dark dark:bg-surface-dark-alt">
 		<dl class="grid gap-4 lg:grid-cols-2">
 			<div><dt class="text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted">Purpose</dt><dd class="mt-1 text-sm text-on-surface dark:text-on-surface-dark">{ purpose }</dd></div>
 			<div><dt class="text-xs font-bold uppercase tracking-wide text-on-surface-muted dark:text-on-surface-dark-muted">Use when</dt><dd class="mt-1 text-sm text-on-surface dark:text-on-surface-dark">{ useWhen }</dd></div>
@@ -1346,7 +1346,7 @@ templ goAPIReference(packageName string) {
 				<div class="mb-2 flex flex-wrap items-center gap-2"><h2 id="api-reference" data-toc-heading class="scroll-mt-8 font-title text-lg font-semibold">Go API</h2><span class="rounded-radius border border-outline px-2 py-0.5 font-mono text-xs text-on-surface-muted dark:border-outline-dark dark:text-on-surface-dark-muted">v0.0.1</span></div>
 				<p class="max-w-2xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">The examples above cover behavior and composition. pkg.go.dev is the canonical reference for exported types, functions, methods, and Go documentation.</p>
 				<code class="mt-3 block break-all font-mono text-xs text-on-surface-strong dark:text-on-surface-dark-strong">{ packagePath }</code>
-				<p data-shared-chart-guidance class="mt-4 max-w-2xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Wrapper lifecycle, controls, export, and client events are shared by every chart. Review <a class="font-semibold text-primary underline dark:text-primary-dark" href="/docs/chart-controls">chart controls</a>, then compare <a class="font-semibold text-primary underline dark:text-primary-dark" href="/docs/chart-modes">static/vector and interactive capabilities</a>.</p>
+				<p data-shared-chart-guidance class="mt-4 max-w-2xl text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Enabled, disabled, hidden, and omitted wrapper behavior, controls, export, and client transitions are shared by every chart. Review <a class="font-semibold text-primary underline dark:text-primary-dark" href="/docs/chart-controls">chart controls</a>, then compare <a class="font-semibold text-primary underline dark:text-primary-dark" href="/docs/chart-modes">static/vector and interactive capabilities</a>.</p>
 			</div>
 			@link.Link("https://pkg.go.dev/github.com/araihu/goshtoso-charts@v0.0.1/components/"+packageName, link.WithAppearance(link.AppearanceButton), link.WithTarget("_blank"), link.WithRootClass("shrink-0"), link.WithAttrs(templ.Attributes{"data-go-api-link": ""})) {
 				Open v0.0.1 API <span aria-hidden="true">↗</span>

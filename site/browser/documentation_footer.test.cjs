@@ -83,6 +83,7 @@ for (const width of [390, 1440]) {
           await page.evaluate((dark) => document.documentElement.classList.toggle("dark", dark), mode === "dark");
           const footer = page.locator("[data-go-api-reference]");
           await footer.waitFor();
+          assert.equal(await page.locator("[data-visualization-guidance]").count(), 1);
           await expectVisibleText(page, "Purpose");
           await expectVisibleText(page, "Use when");
           await expectVisibleText(page, "Avoid when");
