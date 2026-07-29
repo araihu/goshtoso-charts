@@ -937,13 +937,12 @@ func TestScatterDocumentationPreservesUpstreamDenseExample(t *testing.T) {
 	for _, want := range []string{
 		"Dense scatter data", "Dense Scatter Chart Demo", "One", "Two", "Three",
 		"1,000 categories", "maximum references", "foo 0", "foo 999",
-		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("scatter documentation missing upstream example content %q", want)
 		}
 	}
-	for _, unwanted := range []string{"Scatter series by day", "Email", "Union Ads", "Video Ads"} {
+	for _, unwanted := range []string{"Scatter series by day", "examples/1-Painter/scatter_chart-3-dense_data/main.go", "go-analyze"} {
 		if strings.Contains(body, unwanted) {
 			t.Errorf("scatter documentation retains invented framing %q", unwanted)
 		}
@@ -957,7 +956,7 @@ func TestScatterDocumentationPreservesTopNExampleAndAccessibleSummary(t *testing
 	body := recorder.Body.String()
 	for _, want := range []string{
 		"Website Traffic Over 30 Days - Peak Days Highlighted", "Daily Visitors (k)", "Day 1", "Day 30", "48.3", "45.6", "44.8",
-		"Exact values and selected labels", "Selected label", "examples/1-Painter/scatter_chart-4-top_n_labels/main.go",
+		"Exact values and selected labels", "Selected label", "Per-series symbols", "Whole-number formatting",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("scatter top N documentation missing %q", want)

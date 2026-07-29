@@ -27,20 +27,6 @@ func sampleInteractiveLine() interactive.LineConfig {
 	}
 }
 
-func sampleInteractiveScatter() interactive.ScatterConfig {
-	return interactive.ScatterConfig{
-		Label: "Release impact", Caption: "Ripple highlights the highest-impact releases.",
-		Variant: interactive.ScatterVariantEffect,
-		XAxis:   []string{"v1.8", "v1.9", "v2.0", "v2.1"},
-		Series: []interactive.ScatterSeries{{
-			Name: "Impact",
-			Data: []interactive.ScatterData{{Value: 35}, {Value: 52}, {Value: 91}, {Value: 64}},
-		}},
-		Ripple:  &interactive.RippleOptions{Scale: 6, BrushType: "stroke"},
-		Options: controlledOptions("Release impact", "release-impact"),
-	}
-}
-
 func sampleInteractiveRadar() interactive.RadarConfig {
 	return interactive.RadarConfig{
 		Label: "Service health profile", Caption: "Current measurements compared with the target.",
@@ -581,19 +567,6 @@ func interactiveChartLineCode() string {
     Name: "Category A",
     Data: []interactive.LineData{{Value: 120}, {Value: 132}, {Value: 101}, {Value: 134}, {Value: 90}, {Value: 230}},
   }},
-})`
-}
-
-func interactiveChartScatterCode() string {
-	return `@interactive.Scatter(interactive.ScatterConfig{
-  Label: "Release impact",
-	  Variant: interactive.ScatterVariantEffect,
-  XAxis: []string{"v1.8", "v1.9", "v2.0"},
-	  Series: []interactive.ScatterSeries{{
-    Name: "Impact",
-	    Data: []interactive.ScatterData{{Value: 35}, {Value: 52}, {Value: 91}},
-  }},
-	  Ripple: &interactive.RippleOptions{Scale: 6, BrushType: "stroke"},
 })`
 }
 

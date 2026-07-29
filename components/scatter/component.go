@@ -93,6 +93,9 @@ func scatterOptions(cfg Config) chart.ScatterChartOption {
 	}
 	options.Title.Text = cfg.Title.Text
 	options.Title.Subtext = cfg.Title.Subtext
+	if cfg.Title.FontSize > 0 {
+		options.Title.FontStyle = chart.NewFontStyleWithSize(cfg.Title.FontSize)
+	}
 	if cfg.Title.Placement == PlacementCenter {
 		options.Title.Offset = chart.OffsetCenter
 	}
@@ -114,6 +117,9 @@ func scatterOptions(cfg Config) chart.ScatterChartOption {
 	}
 	if cfg.Legend.FontSize > 0 {
 		options.Legend.FontStyle = chart.NewFontStyleWithSize(cfg.Legend.FontSize)
+	}
+	if cfg.Legend.Padding != (Padding{}) {
+		options.Legend.Padding = chart.NewBox(cfg.Legend.Padding.Left, cfg.Legend.Padding.Top, cfg.Legend.Padding.Right, cfg.Legend.Padding.Bottom)
 	}
 	options.XAxis.BoundaryGap = cfg.XAxis.BoundaryGap
 	options.XAxis.LabelCount = cfg.XAxis.LabelCount
@@ -139,8 +145,8 @@ func scatterOptions(cfg Config) chart.ScatterChartOption {
 		if resolved.ReferenceLine == ReferenceLineMaximum {
 			options.SeriesList[index].MarkLine.AddLines(chart.SeriesMarkTypeMax)
 		}
-		if resolved.ValueFormat == ValueFormatHumanized {
-			formatter := func(value float64) string { return chart.FormatValueHumanizeShort(value, 0, false) }
+		if resolved.ValueFormat != ValueFormatDefault {
+			formatter := scatterValueFormatter(resolved.ValueFormat)
 			options.SeriesList[index].Label.ValueFormatter = formatter
 			options.SeriesList[index].MarkLine.ValueFormatter = formatter
 			options.ValueFormatter = formatter
@@ -167,6 +173,17 @@ func scatterOptions(cfg Config) chart.ScatterChartOption {
 		}
 	}
 	return options
+}
+
+func scatterValueFormatter(format ValueFormat) chart.ValueFormatter {
+	switch format {
+	case ValueFormatInteger:
+		return func(value float64) string { return strconv.FormatFloat(value, 'f', 0, 64) }
+	case ValueFormatHumanized:
+		return func(value float64) string { return chart.FormatValueHumanizeShort(value, 0, false) }
+	default:
+		return nil
+	}
 }
 
 func chartSymbol(options Options) chart.Symbol {

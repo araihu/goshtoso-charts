@@ -3,6 +3,7 @@ package interactive
 import (
 	"fmt"
 
+	"github.com/a-h/templ"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	"github.com/go-echarts/go-echarts/v2/charts"
@@ -45,6 +46,8 @@ type ScatterSeries struct {
 	Name    string
 	Data    []ScatterData
 	Options SeriesOptions
+	// Ripple overrides the shared effect treatment for this series.
+	Ripple *RippleOptions
 }
 
 // ScatterData describes either a category value or a numeric x/y coordinate.
@@ -92,7 +95,7 @@ func Scatter(cfg ScatterConfig) Instance {
 			}
 			chart.AddSeries(series.Name, data, scatterSeriesOptions(cfg, series)...)
 		}
-		return newInstance(chartcomponents.KindInteractiveScatter, renderConfig{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, ResponsiveWidth: responsiveWidth(cfg.Width), AxisLabelIntervals: axisLabelIntervals(cfg.Options)})
+		return newInstance(chartcomponents.KindInteractiveScatter, renderConfig{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Details: scatterExactValues(cfg), Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, ResponsiveWidth: responsiveWidth(cfg.Width), AxisLabelIntervals: axisLabelIntervals(cfg.Options)})
 	}
 
 	chart := charts.NewScatter()
@@ -110,17 +113,24 @@ func Scatter(cfg ScatterConfig) Instance {
 		}
 		chart.AddSeries(series.Name, data, scatterSeriesOptions(cfg, series)...)
 	}
-	return newInstance(chartcomponents.KindInteractiveScatter, renderConfig{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, ResponsiveWidth: responsiveWidth(cfg.Width), AxisLabelIntervals: axisLabelIntervals(cfg.Options)})
+	return newInstance(chartcomponents.KindInteractiveScatter, renderConfig{Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Details: scatterExactValues(cfg), Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, ResponsiveWidth: responsiveWidth(cfg.Width), AxisLabelIntervals: axisLabelIntervals(cfg.Options)})
 }
 
 func scatterSeriesOptions(cfg ScatterConfig, series ScatterSeries) []charts.SeriesOpts {
 	options := mergeSeriesOptions(cfg.SeriesOptions, SeriesOptions{})
 	if cfg.Ripple != nil {
-		options = append(options, charts.WithRippleEffectOpts(opts.RippleEffect{
-			Period: float32(cfg.Ripple.Period), Scale: float32(cfg.Ripple.Scale), BrushType: cfg.Ripple.BrushType,
-		}))
+		options = append(options, rendererScatterRipple(*cfg.Ripple))
+	}
+	if series.Ripple != nil {
+		options = append(options, rendererScatterRipple(*series.Ripple))
 	}
 	return append(options, chartSeriesOptions(series.Options)...)
+}
+
+func rendererScatterRipple(ripple RippleOptions) charts.SeriesOpts {
+	return charts.WithRippleEffectOpts(opts.RippleEffect{
+		Period: float32(ripple.Period), Scale: float32(ripple.Scale), BrushType: ripple.BrushType,
+	})
 }
 
 func scatterValue(axisType CartesianAxisType, point ScatterData) any {
@@ -139,6 +149,17 @@ func validateScatterConfig(cfg ScatterConfig) error {
 	}
 	if cfg.Ripple != nil && cfg.Variant != ScatterVariantEffect {
 		return fmt.Errorf("scatter chart ripple requires the effect variant")
+	}
+	if cfg.Ripple != nil {
+		if err := validateScatterRipple(*cfg.Ripple); err != nil {
+			return fmt.Errorf("scatter chart shared ripple: %w", err)
+		}
+	}
+	if err := validateScatterSymbol(cfg.SeriesOptions.Symbol); err != nil {
+		return fmt.Errorf("scatter chart shared series options %w", err)
+	}
+	if cfg.SeriesOptions.SymbolSize < 0 {
+		return fmt.Errorf("scatter chart shared series options symbol size must be nonnegative")
 	}
 	axisType := resolvedCartesianAxisType(cfg.XAxisType)
 	if axisType != CartesianAxisCategory && axisType != CartesianAxisValue {
@@ -160,6 +181,20 @@ func validateScatterConfig(cfg ScatterConfig) error {
 		if len(series.Data) == 0 {
 			return fmt.Errorf("scatter chart series %q data is required", series.Name)
 		}
+		if series.Ripple != nil {
+			if cfg.Variant != ScatterVariantEffect {
+				return fmt.Errorf("scatter chart series %q ripple requires the effect variant", series.Name)
+			}
+			if err := validateScatterRipple(*series.Ripple); err != nil {
+				return fmt.Errorf("scatter chart series %q ripple: %w", series.Name, err)
+			}
+		}
+		if err := validateScatterSymbol(series.Options.Symbol); err != nil {
+			return fmt.Errorf("scatter chart series %q %w", series.Name, err)
+		}
+		if series.Options.SymbolSize < 0 {
+			return fmt.Errorf("scatter chart series %q symbol size must be nonnegative", series.Name)
+		}
 		if axisType == CartesianAxisCategory && len(series.Data) != len(cfg.XAxis) {
 			return fmt.Errorf("scatter chart series %q has %d data points for %d x-axis categories", series.Name, len(series.Data), len(cfg.XAxis))
 		}
@@ -168,14 +203,77 @@ func validateScatterConfig(cfg ScatterConfig) error {
 				if !finiteNumber(point.X) || !finiteNumber(point.Y) {
 					return fmt.Errorf("scatter chart series %q data point %d must contain a numeric [x, y] coordinate", series.Name, dataIndex)
 				}
+				if err := validateScatterPointPresentation(point); err != nil {
+					return fmt.Errorf("scatter chart series %q data point %d %w", series.Name, dataIndex, err)
+				}
+				if cfg.Variant == ScatterVariantEffect && (point.Symbol != "" || point.SymbolSize != 0 || point.SymbolRotate != 0) {
+					return fmt.Errorf("scatter chart series %q data point %d per-point symbol presentation is unsupported for the effect variant; use series options", series.Name, dataIndex)
+				}
 			}
 		} else {
 			for dataIndex, point := range series.Data {
 				if !finiteNumber(point.Value) {
 					return fmt.Errorf("scatter chart series %q data point %d value must be finite", series.Name, dataIndex)
 				}
+				if err := validateScatterPointPresentation(point); err != nil {
+					return fmt.Errorf("scatter chart series %q data point %d %w", series.Name, dataIndex, err)
+				}
+				if cfg.Variant == ScatterVariantEffect && (point.Symbol != "" || point.SymbolSize != 0 || point.SymbolRotate != 0) {
+					return fmt.Errorf("scatter chart series %q data point %d per-point symbol presentation is unsupported for the effect variant; use series options", series.Name, dataIndex)
+				}
 			}
 		}
 	}
 	return nil
+}
+
+func validateScatterPointPresentation(point ScatterData) error {
+	if err := validateScatterSymbol(point.Symbol); err != nil {
+		return err
+	}
+	if point.SymbolSize < 0 {
+		return fmt.Errorf("symbol size must be nonnegative")
+	}
+	return nil
+}
+
+func validateScatterSymbol(symbol string) error {
+	switch symbol {
+	case "", "circle", "rect", "roundRect", "triangle", "diamond", "pin", "arrow", "none":
+		return nil
+	default:
+		return fmt.Errorf("symbol %q is not supported", symbol)
+	}
+}
+
+func validateScatterRipple(ripple RippleOptions) error {
+	if !finiteNumber(ripple.Period) || ripple.Period < 0 {
+		return fmt.Errorf("period must be finite and nonnegative")
+	}
+	if !finiteNumber(ripple.Scale) || ripple.Scale < 0 {
+		return fmt.Errorf("scale must be finite and nonnegative")
+	}
+	if ripple.BrushType != "" && ripple.BrushType != "stroke" && ripple.BrushType != "fill" {
+		return fmt.Errorf("brush type %q is not supported", ripple.BrushType)
+	}
+	return nil
+}
+
+func scatterExactValues(cfg ScatterConfig) templ.Component {
+	return scatterExactValuesTemplate(cfg, resolvedCartesianAxisType(cfg.XAxisType) == CartesianAxisValue)
+}
+
+func scatterPointName(point ScatterData, fallback string) string {
+	if point.Name != "" {
+		return point.Name
+	}
+	return fallback
+}
+
+func scatterPointCount(cfg ScatterConfig) int {
+	total := 0
+	for _, series := range cfg.Series {
+		total += len(series.Data)
+	}
+	return total
 }

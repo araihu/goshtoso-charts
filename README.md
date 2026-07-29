@@ -160,10 +160,14 @@ Keep exact values in nearby text or a table when readers need them.
 ## Scatter chart
 
 Use scatter charts for sparse observations or dense aligned samples across
-explicit ordered categories. This example adapts upstream
-`examples/1-Painter/scatter_chart-3-dense_data/main.go` with a fixed local RNG
-seed: three 1,000-category bounded random walks, repeated samples, SMA(100), and
-maximum references. Categories remain equally spaced keys.
+explicit ordered categories. The component covers all five dedicated upstream
+Scatter-family files at revision `1fe31b06b8a82e00df877ff4417a75858547c1c2`:
+basic aligned data and a missing observation, per-series symbols, dense repeated
+samples and statistical guides, top-N labels, and the option-function source's
+distinct circle and integer-format treatment. This example preserves the dense
+source with a fixed local RNG seed: three 1,000-category bounded random walks,
+repeated samples, SMA(100), and maximum references. Categories remain equally
+spaced keys.
 
 ```templ
 @scatter.Scatter(scatter.Config{
@@ -183,6 +187,10 @@ maximum references. Categories remain equally spaced keys.
 
 `Values` aligns zero, one, or many samples to each category without repeating
 category strings. Sparse `Points` remains supported; one series cannot mix both.
+`TitleOptions`, `LegendOptions`, `CategoryAxisOptions`, and `ValueAxisOptions`
+retain renderer-neutral typography, placement, padding, label sampling,
+rotation, bounds, units, and theme-aware presentation. `ValueFormatInteger`
+provides whole-number labels without exposing a formatting callback.
 For large datasets, keep exact data in a caller-owned table, download, or drill-down
 instead of expanding thousands of values into the chart DOM.
 

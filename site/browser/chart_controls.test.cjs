@@ -572,7 +572,8 @@ test("Tree node hit targets settle cleanly and plot bounds remain centered", asy
 test("Expand uses Goshtoso Modal, scales static Scatter, and restores focus", async () => {
   const page = await pageAt("/components/scatter");
   try {
-    const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    const wrapper = page.locator('[data-static-scatter-exhaustion="1fe31b06"]')
+      .locator("xpath=ancestor::*[@data-goshtoso-chart-wrapper][1]");
     await wrapper.evaluate((element) => {
       element.__expandedContent = element.querySelector("[data-goshtoso-chart-content]");
     });
@@ -1632,7 +1633,8 @@ test("static Scatter top-N labels retain accessible values across narrow/wide li
       const page = await pageAt("/components/scatter", { width, height: 900 });
       try {
         await page.evaluate((dark) => document.documentElement.classList.toggle("dark", dark), mode === "dark");
-        const topN = page.locator("[data-goshtoso-chart-wrapper]").nth(1);
+        const details = page.locator('table[aria-label="Website traffic over 30 days with peak-day labels exact values and selected top labels"]');
+        const topN = details.locator("xpath=ancestor::*[@data-goshtoso-chart-wrapper][1]");
         await topN.getByRole("group", { name: /chart controls/ }).waitFor();
         const state = await topN.evaluate((wrapper) => ({
           width: wrapper.getBoundingClientRect().width,
@@ -1642,7 +1644,6 @@ test("static Scatter top-N labels retain accessible values across narrow/wide li
         assert.ok(state.width > 0);
         assert.equal(state.pageOverflow, 0);
         assert.deepEqual(state.labels.sort(), ["41.7", "42.1", "44.8", "45.6", "48.3"]);
-        const details = page.locator('table[aria-label="Website traffic over 30 days with peak-day labels exact values and selected top labels"]');
         assert.equal(await details.locator("tbody tr").count(), 30);
         assert.equal(await details.getByText("Yes", { exact: true }).count(), 5);
         assert.equal(await details.getByText("No", { exact: true }).count(), 25);
