@@ -40,7 +40,7 @@ before(async () => {
   assert.notEqual(port, 8091);
   assert.notEqual(port, 8096);
   baseURL = `http://127.0.0.1:${port}`;
-  server = spawn("/opt/homebrew/bin/go", ["run", "./cmd/server", "-port", String(port)], {
+  server = spawn(process.env.GO_BINARY || "go", ["run", "./cmd/server", "-port", String(port)], {
     cwd: path.resolve(__dirname, ".."), detached: true, stdio: "pipe",
   });
   await ready();
@@ -164,9 +164,9 @@ for (const width of [390, 1440]) {
           assert.ok(await wrapper.getByRole("button", { name: /Expand/ }).count() >= 1);
           assert.equal(await wrapper.locator("[data-goshtoso-chart-export-status]").count(), 1);
         }
-        if (process.env.GOSHTOSO_SCREENSHOT_DIR) {
-          await fs.mkdir(process.env.GOSHTOSO_SCREENSHOT_DIR, { recursive: true });
-          await page.screenshot({ path: path.join(process.env.GOSHTOSO_SCREENSHOT_DIR, `interactive-bar-${width}-${theme}-${dark ? "dark" : "light"}.png`), fullPage: true });
+        if (process.env.SCREENSHOT_DIR) {
+          await fs.mkdir(process.env.SCREENSHOT_DIR, { recursive: true });
+          await page.screenshot({ path: path.join(process.env.SCREENSHOT_DIR, `interactive-bar-${width}-${theme}-${dark ? "dark" : "light"}.png`), fullPage: true });
         }
         assert.deepEqual(failures, []);
       } finally {

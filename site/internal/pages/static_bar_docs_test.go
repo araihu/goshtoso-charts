@@ -14,8 +14,11 @@ func TestStaticBarPageDocumentsDecisionsAccessibilityAndCanonicalAPI(t *testing.
 	}
 	page := string(source)
 	start := strings.Index(page, "templ barContent")
+	if start < 0 {
+		t.Fatal("cannot isolate static Bar page")
+	}
 	end := strings.Index(page[start:], "templ PiePage")
-	if start < 0 || end < 0 {
+	if end < 0 {
 		t.Fatal("cannot isolate static Bar page")
 	}
 	barPage := page[start : start+end]

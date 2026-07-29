@@ -14,7 +14,8 @@
 
   function chartLabel(wrapper) {
     var group = wrapper && wrapper.querySelector("[role=group]");
-    return group ? group.getAttribute("aria-label").replace(/ chart controls$/, "") : "chart";
+    var label = group && group.getAttribute("aria-label");
+    return label ? label.replace(/ chart controls$/, "") : "chart";
   }
 
   function wrapperMode(wrapper) {
@@ -35,9 +36,19 @@
     fieldset.querySelectorAll("button, [role=menuitem], a").forEach(function (action) {
       if (disabled) {
         action.setAttribute("aria-disabled", "true");
+        if (action.dataset.goshtosoChartWrapperDisabled !== "true") {
+          action.dataset.goshtosoChartWrapperTabindex = action.hasAttribute("tabindex")
+            ? action.getAttribute("tabindex") : "__absent__";
+        }
+        action.setAttribute("tabindex", "-1");
         action.dataset.goshtosoChartWrapperDisabled = "true";
       } else if (action.dataset.goshtosoChartWrapperDisabled === "true") {
         action.removeAttribute("aria-disabled");
+        if (action.dataset.goshtosoChartWrapperTabindex === "__absent__") action.removeAttribute("tabindex");
+        else if (action.dataset.goshtosoChartWrapperTabindex !== undefined) {
+          action.setAttribute("tabindex", action.dataset.goshtosoChartWrapperTabindex);
+        }
+        delete action.dataset.goshtosoChartWrapperTabindex;
         delete action.dataset.goshtosoChartWrapperDisabled;
       }
     });

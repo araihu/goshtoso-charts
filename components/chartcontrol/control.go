@@ -30,6 +30,8 @@ const (
 	WrapperModeOmitted WrapperMode = "omitted"
 )
 
+const wrapperModeEnabledLiteral WrapperMode = "enabled"
+
 // Options configures chart controls and the shared wrapper lifecycle. Expand
 // defaults on; fullscreen defaults off; Mode defaults to WrapperModeEnabled.
 type Options struct {
@@ -121,7 +123,7 @@ func (instance instance) Render(ctx context.Context, writer io.Writer) error {
 
 func validateWrapperMode(mode WrapperMode) error {
 	switch mode {
-	case WrapperModeEnabled, WrapperModeDisabled, WrapperModeHidden, WrapperModeOmitted:
+	case WrapperModeEnabled, wrapperModeEnabledLiteral, WrapperModeDisabled, WrapperModeHidden, WrapperModeOmitted:
 		return nil
 	default:
 		return fmt.Errorf("chart wrapper mode %q is unsupported", mode)
@@ -225,7 +227,7 @@ func hasRuntime(cfg WrapperConfig, formats []ExportFormat) bool {
 }
 
 func wrapperMode(options Options) string {
-	if options.Mode == WrapperModeEnabled {
+	if options.Mode == WrapperModeEnabled || options.Mode == wrapperModeEnabledLiteral {
 		return "enabled"
 	}
 	return string(options.Mode)

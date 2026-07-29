@@ -54,8 +54,9 @@ after(async () => {
   }
 });
 
-async function barPage(viewport = { width: 1440, height: 900 }) {
+async function barPage(viewport = { width: 1440, height: 900 }, setup) {
   const page = await browser.newPage({ viewport, acceptDownloads: true });
+  if (setup) setup(page);
   await page.addInitScript(() => {
     const createObjectURL = URL.createObjectURL.bind(URL);
     globalThis.__barBlobTypes = [];
@@ -78,10 +79,11 @@ function horizontalWrapper(page) {
 for (const width of [390, 1440]) {
   for (const mode of ["light", "dark"]) {
     test(`${width}px ${mode} renders every upstream Bar treatment without overflow`, async () => {
-      const page = await barPage({ width, height: 900 });
       const errors = [];
-      page.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
-      page.on("pageerror", (error) => errors.push(error.message));
+      const page = await barPage({ width, height: 900 }, (created) => {
+        created.on("console", (message) => { if (message.type() === "error") errors.push(message.text()); });
+        created.on("pageerror", (error) => errors.push(error.message));
+      });
       try {
         await page.evaluate((dark) => document.documentElement.classList.toggle("dark", dark), mode === "dark");
         const figures = page.locator("figure.goshtoso-charts-bar");

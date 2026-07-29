@@ -126,7 +126,13 @@ const wrapperModeAlpineCode = `<div
   <button type="button" @click="setMode('hidden', $el)">Hide chart</button>
   <button type="button" @click="setMode('enabled', $el)">Show chart</button>
   <div x-ref="chart">
-    @line.Line(revenueConfig)
+    @line.Line(line.Config{
+      Label:  "Weekly revenue",
+      Labels: []string{"Mon", "Tue", "Wed"},
+      Series: []line.Series{{
+        Name: "Revenue", Values: []float64{12, 18, 14},
+      }},
+    })
   </div>
 </div>`
 

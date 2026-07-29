@@ -73,6 +73,18 @@ func TestWrapperModesHaveClosedStableValues(t *testing.T) {
 	}
 }
 
+func TestExplicitEnabledWrapperModeRoundTripsClientState(t *testing.T) {
+	t.Parallel()
+	markup := render(t, chartcontrol.WrapperConfig{
+		Label:      "Latency",
+		Controls:   chartcontrol.Options{Mode: chartcontrol.WrapperMode("enabled")},
+		Capability: chartcontrol.ExportCapabilityInteractiveRaster,
+	})
+	if !strings.Contains(markup, `data-goshtoso-chart-wrapper-mode="enabled"`) {
+		t.Fatalf("explicit enabled mode did not round-trip: %s", markup)
+	}
+}
+
 func TestDisabledWrapperKeepsChartVisibleAndActionsNativelyInert(t *testing.T) {
 	t.Parallel()
 	markup := render(t, chartcontrol.WrapperConfig{

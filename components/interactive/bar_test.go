@@ -68,6 +68,7 @@ func TestBarRendersConfiguredChart(t *testing.T) {
 		`"formatter":"${value} total"`,
 		`"markPoint":{"data":[{"name":"Maximum","type":"max"},{"name":"Q1 target","coord":["Q1",12]`,
 		`"markLine":{"data":[{"name":"Average","type":"average"}]`,
+		`"markLine":{"data":[{"name":"Average","type":"average"}],"label":{"show":true}}`,
 		`"show":true`,
 		`data-goshtoso-charts-explicit-animation="false"`,
 		`"yAxis":[{"show":false,`,

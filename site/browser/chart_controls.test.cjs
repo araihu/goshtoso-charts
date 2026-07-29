@@ -810,6 +810,8 @@ test("initial hidden wrapper supports plain JS, Alpine, HTMX, focus, and inert l
       element.__lifecycleHost = host;
       element.__resizeEvents = 0;
       element.__modeChanges = [];
+      element.__actionTabindexes = [...element.querySelectorAll("[data-goshtoso-chart-actions-fieldset] button, [data-goshtoso-chart-actions-fieldset] [role=menuitem], [data-goshtoso-chart-actions-fieldset] a")]
+        .map((action) => action.getAttribute("tabindex"));
       element.addEventListener("goshtoso-charts:resize", () => { element.__resizeEvents += 1; });
       element.addEventListener("goshtoso-charts:wrapper-mode-change", (event) => {
         element.__modeChanges.push(event.detail);
@@ -819,7 +821,7 @@ test("initial hidden wrapper supports plain JS, Alpine, HTMX, focus, and inert l
         detail: { mode: "enabled" },
       }));
     });
-    await page.waitForTimeout(350);
+    await page.waitForFunction(() => document.querySelector("[data-goshtoso-chart-wrapper]").__resizeEvents >= 3);
     const revealedInitial = await wrapper.evaluate((element) => ({
       mode: element.dataset.goshtosoChartWrapperMode,
       hidden: element.hidden,
@@ -845,7 +847,8 @@ test("initial hidden wrapper supports plain JS, Alpine, HTMX, focus, and inert l
     })));
     const disabled = await wrapper.evaluate((element) => {
       const fieldset = element.querySelector("[data-goshtoso-chart-actions-fieldset]");
-      const actions = [...fieldset.querySelectorAll("button")];
+      const actions = [...fieldset.querySelectorAll("button, [role=menuitem], a")];
+      const buttons = actions.filter((action) => action.matches("button"));
       const exporter = actions.find((button) => button.id.includes("export-png-action"));
       globalThis.__chartBlobTypes = [];
       window.__goshtosoChartsControls.exportFromMenu(exporter, "png");
@@ -854,13 +857,14 @@ test("initial hidden wrapper supports plain JS, Alpine, HTMX, focus, and inert l
         visible: element.getBoundingClientRect().height > 0,
         fieldsetDisabled: fieldset.disabled,
         fieldsetAria: fieldset.getAttribute("aria-disabled"),
-        everyActionDisabled: actions.every((action) => action.matches(":disabled") && action.getAttribute("aria-disabled") === "true"),
+        everyActionDisabled: buttons.every((action) => action.matches(":disabled") && action.getAttribute("aria-disabled") === "true"),
+        everyActionTabDisabled: actions.every((action) => action.getAttribute("tabindex") === "-1"),
         blobTypes: [...globalThis.__chartBlobTypes],
       };
     });
     assert.deepEqual(disabled, {
       mode: "disabled", visible: true, fieldsetDisabled: true, fieldsetAria: "true",
-      everyActionDisabled: true, blobTypes: [],
+      everyActionDisabled: true, everyActionTabDisabled: true, blobTypes: [],
     });
 
     await wrapper.evaluate((element) => {
@@ -874,6 +878,11 @@ test("initial hidden wrapper supports plain JS, Alpine, HTMX, focus, and inert l
     });
     await wrapper.getByRole("button", { name: "Enable with Alpine" }).click();
     await page.waitForFunction(() => document.querySelector("[data-goshtoso-chart-wrapper]").dataset.goshtosoChartWrapperMode === "enabled");
+    assert.equal(await wrapper.evaluate((element) => {
+      const restored = [...element.querySelectorAll("[data-goshtoso-chart-actions-fieldset] button, [data-goshtoso-chart-actions-fieldset] [role=menuitem], [data-goshtoso-chart-actions-fieldset] a")]
+        .map((action) => action.getAttribute("tabindex"));
+      return JSON.stringify(restored) === JSON.stringify(element.__actionTabindexes);
+    }), true);
 
     await openExpand(wrapper);
     const dialog = wrapper.getByRole("dialog", { name: "Basic bar example" });
@@ -1018,7 +1027,7 @@ test("hidden live wrapper retains latest snapshot, theme, identity, and settled 
       bubbles: true,
       detail: { mode: "enabled" },
     })));
-    await page.waitForTimeout(350);
+    await page.waitForFunction(() => document.querySelector("[data-goshtoso-chart-wrapper]").__hiddenLiveResizeEvents >= 3);
     const revealed = await wrapper.evaluate((element) => {
       const host = element.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);

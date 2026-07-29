@@ -319,6 +319,9 @@ func rendererBarReferences(references BarReferences) []charts.SeriesOpts {
 	}
 	if len(lines) > 0 {
 		result = append(result, charts.WithMarkLineNameTypeItemOpts(lines...))
+		if references.ShowLabels != nil {
+			result = append(result, charts.WithMarkLineStyleOpts(opts.MarkLineStyle{Label: &opts.Label{Show: opts.Bool(*references.ShowLabels)}}))
+		}
 	}
 	return result
 }
