@@ -20,7 +20,16 @@ templ radarTemplate(cfg Config, chart templ.Component) {
 					<tr>
 						<th class="px-3 py-2" scope="col">Series</th>
 						for _, indicator := range cfg.Indicators {
-							<th class="px-3 py-2" scope="col">{ indicator.Name } <span class="font-normal text-on-surface-muted dark:text-on-surface-dark-muted">(max { formatValue(indicator.Max) })</span></th>
+							<th class="px-3 py-2" scope="col">
+								{ indicator.Name }
+								<span class="font-normal text-on-surface-muted dark:text-on-surface-dark-muted">
+									if indicator.Min != 0 {
+										(min { formatValue(indicator.Min) }, max { formatValue(indicator.Max) })
+									} else {
+										(max { formatValue(indicator.Max) })
+									}
+								</span>
+							</th>
 						}
 					</tr>
 				</thead>

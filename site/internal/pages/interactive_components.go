@@ -27,26 +27,6 @@ func sampleInteractiveLine() interactive.LineConfig {
 	}
 }
 
-func sampleInteractiveRadar() interactive.RadarConfig {
-	return interactive.RadarConfig{
-		Label: "Service health profile", Caption: "Current measurements compared with the target.",
-		Indicators: []interactive.RadarIndicator{
-			{Name: "Availability", Max: 100},
-			{Name: "Latency", Max: 500},
-			{Name: "Capacity", Max: 200},
-			{Name: "Recovery", Max: 60},
-		},
-		Series: []interactive.RadarSeries{{
-			Name: "Profile",
-			Data: []interactive.RadarData{
-				{Name: "Current", Values: []float64{99.8, 180, 124, 34}},
-				{Name: "Target", Values: []float64{100, 100, 165, 20}},
-			},
-		}},
-		Options: controlledOptions("Service health", "service-health"),
-	}
-}
-
 func sampleInteractiveHeatMap() interactive.HeatMapConfig {
 	return interactive.HeatMapConfig{
 		Label: "Deployment activity", Caption: "Deployments by environment and time window.",
@@ -578,21 +558,6 @@ func interactiveChartPieCode() string {
     RoseMode: interactive.PieRoseArea,
     LabelContent: interactive.PieLabelNameAndValue,
     Data: seasonalData,
-  }},
-})`
-}
-
-func interactiveChartRadarCode() string {
-	return `@interactive.Radar(interactive.RadarConfig{
-  Label: "Service health profile",
-  Indicators: []interactive.RadarIndicator{
-    {Name: "Availability", Max: 100},
-    {Name: "Latency", Max: 500},
-    {Name: "Capacity", Max: 200},
-  },
-  Series: []interactive.RadarSeries{{
-    Name: "Profile",
-    Data: []interactive.RadarData{{Name: "Current", Values: []float64{99.8, 180, 124}}},
   }},
 })`
 }

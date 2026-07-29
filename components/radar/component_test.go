@@ -10,6 +10,7 @@ import (
 	"github.com/a-h/templ"
 	chartassets "github.com/araihu/goshtoso-charts/assets"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	chart "github.com/go-analyze/charts"
 )
@@ -79,6 +80,62 @@ func TestRadarRendersSSRAccessibleSVGAndExactValues(t *testing.T) {
 	}
 }
 
+func TestRadarPreservesSharedWrapperLifecycleModes(t *testing.T) {
+	t.Parallel()
+	for _, test := range []struct {
+		name      string
+		mode      chartcontrol.WrapperMode
+		want      []string
+		forbidden []string
+	}{
+		{
+			name: "disabled", mode: chartcontrol.WrapperModeDisabled,
+			want: []string{`data-goshtoso-chart-wrapper-mode="disabled"`, `fieldset disabled aria-disabled="true"`, `aria-label="Budget comparison"`, `<svg`},
+		},
+		{
+			name: "hidden", mode: chartcontrol.WrapperModeHidden,
+			want: []string{`data-goshtoso-chart-wrapper-mode="hidden"`, `hidden inert aria-hidden="true"`, `aria-label="Budget comparison"`, `<svg`},
+		},
+		{
+			name: "omitted", mode: chartcontrol.WrapperModeOmitted,
+			want:      []string{`aria-label="Budget comparison"`, `<svg`, `Exact values`},
+			forbidden: []string{`data-goshtoso-chart-wrapper`, `data-goshtoso-chart-actions`, `<script`},
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			cfg := validConfig()
+			cfg.Controls.Mode = test.mode
+			var output bytes.Buffer
+			if err := Radar(cfg).Render(context.Background(), &output); err != nil {
+				t.Fatalf("Render() error = %v", err)
+			}
+			markup := output.String()
+			for _, want := range test.want {
+				if !strings.Contains(markup, want) {
+					t.Errorf("mode %q markup missing %q", test.mode, want)
+				}
+			}
+			for _, forbidden := range test.forbidden {
+				if strings.Contains(markup, forbidden) {
+					t.Errorf("mode %q markup contains %q", test.mode, forbidden)
+				}
+			}
+		})
+	}
+}
+
+func TestRadarRejectsUnsupportedSharedWrapperMode(t *testing.T) {
+	t.Parallel()
+	cfg := validConfig()
+	cfg.Controls.Mode = chartcontrol.WrapperMode("collapsed")
+	var output bytes.Buffer
+	err := Radar(cfg).Render(context.Background(), &output)
+	if err == nil || !strings.Contains(err.Error(), `chart wrapper mode "collapsed" is unsupported`) {
+		t.Fatalf("Render() error = %v, want unsupported shared wrapper mode", err)
+	}
+}
+
 func TestRadarMapsIndicatorsSeriesAndTypedOptions(t *testing.T) {
 	t.Parallel()
 	cfg := validConfig()
@@ -103,6 +160,89 @@ func TestRadarMapsIndicatorsSeriesAndTypedOptions(t *testing.T) {
 	}
 	if options.SeriesList[1].Label.Show == nil || *options.SeriesList[1].Label.Show {
 		t.Fatalf("second series labels = %#v, want hidden override", options.SeriesList[1].Label.Show)
+	}
+}
+
+func TestRadarMapsCompleteRendererNeutralPresentationSurface(t *testing.T) {
+	t.Parallel()
+	cfg := validConfig()
+	cfg.Indicators[0].Min = 1000
+	cfg.Indicators[0].Label = IndicatorLabelOptions{FontSize: 11}
+	cfg.Options = Options{RadiusPercent: 52, ValueLabels: ValueLabelsShown, ValueFormat: ValueFormatHumanized}
+	cfg.Series[1].Options = SeriesOptions{ValueLabels: ValueLabelsShown, ValueFormat: ValueFormatInteger, LabelFontSize: 9}
+	cfg.Title = TitleOptions{
+		Text: "Basic Radar Chart", Subtext: "Budget comparison",
+		Horizontal: PlacementCenter, Vertical: PlacementEnd,
+		FontSize: 16, SubtextFontSize: 12, BorderWidth: 2,
+	}
+	cfg.Legend = LegendOptions{
+		Orientation: LegendVertical, Horizontal: PlacementEnd, Vertical: PlacementEnd,
+		Alignment: AlignmentEnd, FontSize: 10, Overlay: true, BorderWidth: 1,
+		Padding: Padding{Top: 1, Right: 2, Bottom: 3, Left: 4},
+	}
+	cfg.Padding = Padding{Top: 5, Right: 6, Bottom: 7, Left: 8}
+
+	options := radarOptions(cfg)
+	if got := options.RadarIndicators[0]; got.Min != 1000 || got.FontStyle.FontSize != 11 {
+		t.Fatalf("first indicator = %#v", got)
+	}
+	if options.Title.Text != "Basic Radar Chart" || options.Title.Subtext != "Budget comparison" || options.Title.Offset.Left != chart.PositionCenter || options.Title.Offset.Top != chart.PositionBottom || options.Title.FontStyle.FontSize != 16 || options.Title.SubtextFontStyle.FontSize != 12 || options.Title.BorderWidth != 2 {
+		t.Fatalf("title = %#v", options.Title)
+	}
+	if options.Legend.Vertical == nil || !*options.Legend.Vertical || options.Legend.Offset.Left != chart.PositionRight || options.Legend.Offset.Top != chart.PositionBottom || options.Legend.Align != chart.AlignRight || options.Legend.FontStyle.FontSize != 10 || options.Legend.OverlayChart == nil || !*options.Legend.OverlayChart || options.Legend.BorderWidth != 1 {
+		t.Fatalf("legend = %#v", options.Legend)
+	}
+	if options.Legend.Padding != chart.NewBox(4, 1, 2, 3) {
+		t.Fatalf("legend padding = %#v", options.Legend.Padding)
+	}
+	if options.Padding != chart.NewBox(8, 5, 6, 7) {
+		t.Fatalf("chart padding = %#v", options.Padding)
+	}
+	if options.ValueFormatter == nil || options.ValueFormatter(1234.56) != "1.23k" {
+		t.Fatalf("chart value formatter = %#v", options.ValueFormatter)
+	}
+	if options.SeriesList[1].Label.ValueFormatter == nil || options.SeriesList[1].Label.ValueFormatter(12.6) != "13" {
+		t.Fatalf("series formatter = %#v", options.SeriesList[1].Label.ValueFormatter)
+	}
+	if options.SeriesList[1].Label.FontStyle.FontSize != 9 {
+		t.Fatalf("series label font = %#v", options.SeriesList[1].Label.FontStyle)
+	}
+}
+
+func TestRadarSupportsNonZeroAndNegativeIndicatorRanges(t *testing.T) {
+	t.Parallel()
+	cfg := validConfig()
+	cfg.Indicators[0].Min = -1000
+	cfg.Indicators[0].Max = 6500
+	cfg.Series[0].Values[0] = -500
+	if _, err := renderSVG(cfg); err != nil {
+		t.Fatalf("renderSVG() error = %v", err)
+	}
+}
+
+func TestRadarMapsLogicalCenterOnBothAxes(t *testing.T) {
+	t.Parallel()
+	offset := rendererOffset(PlacementCenter, PlacementCenter)
+	if offset.Left != chart.PositionCenter || offset.Top != "50%" {
+		t.Fatalf("center offset = %#v", offset)
+	}
+}
+
+func TestRadarSVGIsDeterministic(t *testing.T) {
+	t.Parallel()
+	cfg := validConfig()
+	cfg.Title = TitleOptions{Text: "Basic Radar Chart", FontSize: 16}
+	cfg.Legend = LegendOptions{Horizontal: PlacementEnd}
+	first, err := renderSVG(cfg)
+	if err != nil {
+		t.Fatalf("first renderSVG() error = %v", err)
+	}
+	second, err := renderSVG(cfg)
+	if err != nil {
+		t.Fatalf("second renderSVG() error = %v", err)
+	}
+	if first != second {
+		t.Fatal("radar SVG output is not deterministic")
 	}
 }
 
@@ -145,14 +285,26 @@ func TestRadarValidation(t *testing.T) {
 		{name: "duplicate indicator", edit: func(cfg *Config) { cfg.Indicators[1].Name = "Sales" }, want: `indicator "Sales" is duplicated`},
 		{name: "indicator max zero", edit: func(cfg *Config) { cfg.Indicators[0].Max = 0 }, want: `indicator "Sales" max must be a finite positive number`},
 		{name: "indicator max infinite", edit: func(cfg *Config) { cfg.Indicators[0].Max = math.Inf(1) }, want: `indicator "Sales" max must be a finite positive number`},
+		{name: "indicator min infinite", edit: func(cfg *Config) { cfg.Indicators[0].Min = math.Inf(-1) }, want: `indicator "Sales" min must be finite`},
+		{name: "indicator invalid range", edit: func(cfg *Config) { cfg.Indicators[0].Min = 6500 }, want: `indicator "Sales" max must be greater than min`},
+		{name: "indicator font size", edit: func(cfg *Config) { cfg.Indicators[0].Label.FontSize = -1 }, want: `indicator "Sales" label font size must be a finite non-negative number`},
 		{name: "series", edit: func(cfg *Config) { cfg.Series = nil }, want: "at least one series"},
 		{name: "series name", edit: func(cfg *Config) { cfg.Series[0].Name = "" }, want: "series 1 needs a name"},
 		{name: "series length", edit: func(cfg *Config) { cfg.Series[0].Values = cfg.Series[0].Values[:2] }, want: `series "Allocated Budget" has 2 values; need 3`},
 		{name: "finite value", edit: func(cfg *Config) { cfg.Series[0].Values[0] = math.NaN() }, want: "value 1 must be finite"},
 		{name: "negative value", edit: func(cfg *Config) { cfg.Series[0].Values[0] = -1 }, want: "value 1 cannot be negative"},
+		{name: "below indicator min", edit: func(cfg *Config) { cfg.Indicators[0].Min = 1000; cfg.Series[0].Values[0] = 999 }, want: `value 1 is below indicator "Sales" min 1000`},
 		{name: "over max", edit: func(cfg *Config) { cfg.Series[0].Values[0] = 6501 }, want: `value 1 exceeds indicator "Sales" max 6500`},
 		{name: "radius", edit: func(cfg *Config) { cfg.Options.RadiusPercent = 101 }, want: "radius percent must be zero or between 1 and 100"},
 		{name: "value labels", edit: func(cfg *Config) { cfg.Options.ValueLabels = "sometimes" }, want: `unsupported value labels "sometimes"`},
+		{name: "value format", edit: func(cfg *Config) { cfg.Options.ValueFormat = "binary" }, want: `unsupported value format "binary"`},
+		{name: "series value format", edit: func(cfg *Config) { cfg.Series[0].Options.ValueFormat = "binary" }, want: `unsupported value format "binary"`},
+		{name: "series label font size", edit: func(cfg *Config) { cfg.Series[0].Options.LabelFontSize = -1 }, want: `series "Allocated Budget" options label font size must be a finite non-negative number`},
+		{name: "title font size", edit: func(cfg *Config) { cfg.Title.FontSize = -1 }, want: "title font size must be a finite non-negative number"},
+		{name: "title placement", edit: func(cfg *Config) { cfg.Title.Horizontal = "middle-ish" }, want: `title horizontal placement "middle-ish" is unsupported`},
+		{name: "legend orientation", edit: func(cfg *Config) { cfg.Legend.Orientation = "diagonal" }, want: `legend orientation "diagonal" is unsupported`},
+		{name: "legend padding", edit: func(cfg *Config) { cfg.Legend.Padding.Left = -1 }, want: "legend padding cannot be negative"},
+		{name: "chart padding", edit: func(cfg *Config) { cfg.Padding.Top = -1 }, want: "padding cannot be negative"},
 		{name: "width", edit: func(cfg *Config) { cfg.Width = -1 }, want: "width cannot be negative"},
 		{name: "height", edit: func(cfg *Config) { cfg.Height = -1 }, want: "height cannot be negative"},
 		{name: "root attr", edit: func(cfg *Config) { cfg.RootAttrs = templ.Attributes{"role": "presentation"} }, want: `root attribute "role" is reserved`},

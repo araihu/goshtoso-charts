@@ -526,14 +526,35 @@ templ InteractiveRadarPage(fragment bool) {
 templ interactiveChartRadarContent() {
 	@componentpage.Page(componentpage.Config{
 		Title:       "Interactive radar",
-		Description: "Aligned multidimensional profiles for comparing broad strengths, gaps, and overall shape.",
+		Description: "Aligned multidimensional profiles for comparing broad shapes over the same bounded indicators.",
 		Primary: componentpage.Example{
-			AbovePreview: visualizationGuidance("Compare a small number of profiles over the same bounded dimensions.", "Overall profile shape and common scales help a quick comparison.", "Exact values, many profiles, or unequal scales are important; use a table or bars.", "Keep indicator names and exact values in adjacent content."),
-			Preview:      interactive.Radar(sampleInteractiveRadar()),
-			Code:         interactiveChartRadarCode(),
+			Title:        "Daily Beijing air quality",
+			AbovePreview: visualizationGuidance("Compare repeated observations over the same bounded dimensions.", "A few dimensions share stable maxima and the profile shape matters more than precise pairwise ranking.", "Exact ranking, many dimensions, incompatible scales, or small differences are the goal; use bars, parallel coordinates, or a table.", "Every chart is followed by a keyboard-accessible exact-value table with the city, day, and six pollutant values."),
+			Preview:      interactiveRadarVariant("base", interactive.Radar(sampleInteractiveRadarBase())),
+			Code:         interactiveRadarBaseCode(),
 		},
-		After: goAPIReference("interactive"),
+		Sections: []componentpage.Example{
+			{Title: "Circular style", Description: "Shape, split count, split-line treatment, line opacity, and area opacity remain typed options on the same Radar component.", Preview: interactiveRadarVariant("style", interactive.Radar(sampleInteractiveRadarStyle())), Code: interactiveRadarStyleCode()},
+			{Title: "Multiple-series legend", Description: "All three city profiles may remain visible or be toggled independently.", Preview: interactiveRadarVariant("legend-multiple", interactive.Radar(sampleInteractiveRadarLegendMulti())), Code: interactiveRadarLegendCode(interactive.LegendSelectionMultiple)},
+			{Title: "Single-series legend", Description: "Exclusive legend selection reduces overlap while retaining all source observations in the exact-value table.", Preview: interactiveRadarVariant("legend-single", interactive.Radar(sampleInteractiveRadarLegendSingle())), Code: interactiveRadarLegendCode(interactive.LegendSelectionSingle)},
+		},
+		After: interactiveDocumentation(interactiveRadarUsage()),
 	})
+}
+
+templ interactiveRadarVariant(name string, chart templ.Component) {
+	<div data-radar-variant={ name }>
+		@chart
+	</div>
+}
+
+templ interactiveRadarUsage() {
+	<div class="space-y-4">
+		@demoNote("When radar works", "Use a small, stable set of bounded indicators when the broad profile shape is meaningful. Polygon and circular coordinates change presentation, not values.")
+		@demoNote("When radar fails", "Overplotting, many dimensions, unequal scales, and close values make radar charts hard to compare. Prefer bars, parallel coordinates, or the exact-value table in those cases.")
+		@demoNote("Accessibility", "Hover and color are exploratory aids. Each example includes an exact radar values disclosure with every city, day, indicator, and value.")
+		@demoNote("Shared controls and modes", "Expand, fullscreen, PNG export, hidden/disabled/unwrapped lifecycle modes, resize events, and HTMX replacement behavior come from the shared chart wrapper. See chart controls and static/vector and interactive capabilities below.")
+	</div>
 }
 
 templ InteractiveHeatMapPage(fragment bool) {
@@ -976,13 +997,13 @@ templ radarContent() {
 		},
 		Sections: []componentpage.Example{
 			{
-				Title:       "Explicit presentation overrides",
-				Description: "Color, radius, and vertex labels can emphasize a profile while shared dimensions remain comparable.",
-				Preview:     radar.Radar(sampleBasicRadarOverride()),
-				Code:        radarOverrideCode(),
+				Title:       "Readable values and compact layout",
+				Description: "The same profiles demonstrate typed dimension minimums, indicator labels, compact vertex formatting on one profile, logical title and legend placement, padding, and caller colors without changing the values.",
+				Preview:     radar.Radar(sampleReadableRadar()),
+				Code:        radarReadableCode(),
 			},
 		},
-		After: chartDocumentation("Reading profiles", "All profiles use the same ordered dimensions and bounds. Compare broad patterns first, then consult the adjacent values for exact differences.", "radar"),
+		After: chartDocumentation("Static/vector behavior", "Radar renders inline SVG on the server, follows Goshtoso and AraiHu tokens in light and dark mode, stays readable in print and in no-JavaScript delivery, and provides resolved SVG plus opaque or transparent PNG download through the shared wrapper. Read shared chart controls and chart modes guides for lifecycle, export, client events, and the capability differences between static/vector and interactive charts.", "radar"),
 	})
 }
 
