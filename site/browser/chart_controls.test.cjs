@@ -349,7 +349,7 @@ test("shared ResizeObserver converges a responsive interactive canvas after its 
 test("Bar, Line, Pie, and Tree settle across narrow/dark and wide/light modal geometry without animation reset", async () => {
   const cases = [
     ["/components/interactive/bar", "Weekly deployments by environment"],
-    ["/components/interactive/line", "Weekly latency trend"],
+    ["/components/interactive/line", "Basic line example"],
     ["/components/interactive/pie", "Basic seasonal pie"],
     ["/components/interactive/tree", "Basic tree example"],
   ];

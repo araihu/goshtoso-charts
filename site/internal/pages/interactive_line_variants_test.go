@@ -23,7 +23,7 @@ func TestInteractiveLineUpstreamCoverageIsExhaustiveAndPinned(t *testing.T) {
 		{Name: "lineSmooth", Status: lineCoverageExample},
 		{Name: "lineArea", Status: lineCoverageExample},
 		{Name: "lineSmoothArea", Status: lineCoverageExample},
-		{Name: "lineOverlap", Status: lineCoverageGap, Reason: "mixed-series composition requires a renderer-neutral composite chart API"},
+		{Name: "lineOverlap", Status: lineCoverageUnsupported, Reason: "mixed-series composition requires a renderer-neutral composite chart API"},
 		{Name: "lineMulti", Status: lineCoverageExample},
 		{Name: "lineDemo", Status: lineCoverageExample},
 		{Name: "lineSymbols", Status: lineCoverageExample},

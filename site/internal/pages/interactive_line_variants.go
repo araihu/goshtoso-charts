@@ -9,8 +9,8 @@ const (
 	interactiveLineUpstreamRevision = "bda428480a82d6d77ebb9fa939cf8d52528453dd"
 	interactiveLineUpstreamSHA256   = "1f36444bd373eafde876af19746d6b0115a776fd7c019e5996bdf2d00ecd7b1c"
 
-	lineCoverageExample = "example"
-	lineCoverageGap     = "gap"
+	lineCoverageExample     = "example"
+	lineCoverageUnsupported = "unsupported"
 )
 
 type interactiveLineCoverageEntry struct {
@@ -31,7 +31,7 @@ func interactiveLineUpstreamCoverage() []interactiveLineCoverageEntry {
 		{Name: "lineSmooth", Status: lineCoverageExample},
 		{Name: "lineArea", Status: lineCoverageExample},
 		{Name: "lineSmoothArea", Status: lineCoverageExample},
-		{Name: "lineOverlap", Status: lineCoverageGap, Reason: "mixed-series composition requires a renderer-neutral composite chart API"},
+		{Name: "lineOverlap", Status: lineCoverageUnsupported, Reason: "mixed-series composition requires a renderer-neutral composite chart API"},
 		{Name: "lineMulti", Status: lineCoverageExample},
 		{Name: "lineDemo", Status: lineCoverageExample},
 		{Name: "lineSymbols", Status: lineCoverageExample},
