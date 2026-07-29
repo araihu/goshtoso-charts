@@ -33,14 +33,22 @@ async function ready() {
   throw new Error(`interactive Radar verification server did not start at ${baseURL}`);
 }
 
+async function spawnServer(port, executable = goExecutable) {
+  return new Promise((resolve, reject) => {
+    const child = spawn(executable, ["run", "./cmd/server", "-port", String(port)], {
+      cwd: path.resolve(__dirname, ".."), detached: true, stdio: "pipe",
+    });
+    child.once("error", reject);
+    child.once("spawn", () => resolve(child));
+  });
+}
+
 before(async () => {
   const port = await randomPort();
   assert.notEqual(port, 8091);
   assert.notEqual(port, 8096);
   baseURL = `http://127.0.0.1:${port}`;
-  server = spawn(goExecutable, ["run", "./cmd/server", "-port", String(port)], {
-    cwd: path.resolve(__dirname, ".."), detached: true, stdio: "pipe",
-  });
+  server = await spawnServer(port);
   await ready();
   browser = await chromium.launch({ headless: true });
 });
@@ -48,6 +56,10 @@ before(async () => {
 test("interactive Radar browser harness resolves Go from PATH", () => {
   assert.equal(path.isAbsolute(goExecutable), false);
   assert.equal(goExecutable, "go");
+});
+
+test("interactive Radar browser harness reports an unavailable Go executable", async () => {
+  await assert.rejects(spawnServer(0, "goshtoso-charts-missing-go-executable"), { code: "ENOENT" });
 });
 
 after(async () => {
