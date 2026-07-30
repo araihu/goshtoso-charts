@@ -40,5 +40,43 @@ constructor, so old and new configurations retain the same type identity,
 validation, component kind, and markup semantics. No bulk rewrite is required.
 
 Phase 1 does not complete package ownership. Bar implementation and common
-interactive types still live in the parent package; remaining chart families
+interactive types still live in the parent package.
+
+## Line
+
+Use `components/interactive/line` for new interactive Line code:
+
+```go
+import (
+	interactive "github.com/araihu/goshtoso-charts/components/interactive"
+	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
+)
+
+chart := interactiveline.Line(interactiveline.Config{
+	Label: "Weekly latency",
+	XAxis: []string{"Mon", "Tue"},
+	Series: []interactiveline.Series{{
+		Name: "p95 (ms)",
+		Data: []interactiveline.Data{{Value: 42}, {Value: 47}},
+	}},
+	Options: interactive.ChartOptions{
+		Animation: interactive.Bool(false),
+	},
+})
+```
+
+Line-specific names are concise: `Config`, `Series`, `Data`, `TimeAxis`,
+`ValueAxis`, `VisualScale`, `VisualPiece`, `Statistic`, `Coordinate`, and
+reference types. Shared options stay parent-owned during phase 1. Existing
+`interactive.Line(interactive.LineConfig{...})` code remains supported and
+assignment-compatible with the canonical package. Constructor behavior,
+validation, component kind, live data, time and value axes, visual scales,
+references, and rendered markup remain identical.
+
+## Phase 1 boundary
+
+Bar and Line are the first canonical child packages. Remaining chart families
 continue using their existing paths until their own bounded migrations land.
+Physical chart implementation ownership, relocation of shared interactive
+types, and the final fate of the parent compatibility facade are deliberately
+deferred architecture decisions that must be settled before v1.
