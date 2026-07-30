@@ -2,9 +2,9 @@ package interactive
 
 import "github.com/a-h/templ"
 
-func liveRuntime() templ.Component { return templ.Raw(liveRuntimeMarkup) }
+func liveRuntime() templ.Component { return templ.Raw(LiveRuntimeMarkup) }
 
-const liveRuntimeMarkup = `<script data-goshtoso-charts-live-runtime>
+const LiveRuntimeMarkup = `<script data-goshtoso-charts-live-runtime>
 (function () {
   "use strict";
   var key = "__goshtosoChartsLiveRuntime";

@@ -8,6 +8,9 @@ package bar
 
 import interactive "github.com/araihu/goshtoso-charts/components/interactive"
 
+// Instance is the renderer-neutral chart instance returned by Bar.
+type Instance = interactive.Instance
+
 // Config describes an accessible, browser-rendered bar chart.
 type Config = interactive.BarConfig
 
@@ -65,4 +68,4 @@ type GuideReference = interactive.BarGuideReference
 type References = interactive.BarReferences
 
 // Bar builds a reusable interactive bar component.
-func Bar(cfg Config) interactive.Instance { return interactive.Bar(cfg) }
+func Bar(cfg Config) Instance { return interactive.Bar(cfg) }

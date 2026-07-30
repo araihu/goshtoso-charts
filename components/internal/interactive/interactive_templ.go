@@ -10,7 +10,7 @@ import templruntime "github.com/a-h/templ/runtime"
 
 import "github.com/araihu/goshtoso-charts/components/charttheme"
 
-func interactiveTemplate(cfg renderConfig, element templ.Component, script templ.Component) templ.Component {
+func interactiveTemplate(cfg RenderConfig, element templ.Component, script templ.Component) templ.Component {
 	return templruntime.GeneratedTemplate(func(templ_7745c5c3_Input templruntime.GeneratedComponentInput) (templ_7745c5c3_Err error) {
 		templ_7745c5c3_W, ctx := templ_7745c5c3_Input.Writer, templ_7745c5c3_Input.Context
 		if templ_7745c5c3_CtxErr := ctx.Err(); templ_7745c5c3_CtxErr != nil {
@@ -47,7 +47,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var3 string
 		templ_7745c5c3_Var3, templ_7745c5c3_Err = templ.ResolveAttributeValue(templ.CSSClasses(templ_7745c5c3_Var2).String())
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 1, Col: 0}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 1, Col: 0}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var3)
 		if templ_7745c5c3_Err != nil {
@@ -60,7 +60,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var4 string
 		templ_7745c5c3_Var4, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Label)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 105}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 105}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var4)
 		if templ_7745c5c3_Err != nil {
@@ -73,7 +73,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var5 string
 		templ_7745c5c3_Var5, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.ResponsiveWidth)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 167}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 167}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var5)
 		if templ_7745c5c3_Err != nil {
@@ -86,7 +86,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var6 string
 		templ_7745c5c3_Var6, templ_7745c5c3_Err = templ.ResolveAttributeValue(explicitColors(cfg.Style))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 234}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 234}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var6)
 		if templ_7745c5c3_Err != nil {
@@ -99,7 +99,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var7 string
 		templ_7745c5c3_Var7, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.ExplicitVisualMapColors)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 314}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 314}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var7)
 		if templ_7745c5c3_Err != nil {
@@ -112,7 +112,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(animationPreference(cfg.Animation))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 393}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 393}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 		if templ_7745c5c3_Err != nil {
@@ -125,7 +125,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.ResolveAttributeValue(themeSeriesItems(cfg.ThemeSeriesItems))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 476}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 476}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var9)
 		if templ_7745c5c3_Err != nil {
@@ -138,7 +138,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.GaugeScale)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 528}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 528}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var10)
 		if templ_7745c5c3_Err != nil {
@@ -151,7 +151,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var11 string
 		templ_7745c5c3_Var11, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.CandlestickStyles)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 594}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 594}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var11)
 		if templ_7745c5c3_Err != nil {
@@ -164,7 +164,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var12 string
 		templ_7745c5c3_Var12, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Liquid)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 637}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 637}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var12)
 		if templ_7745c5c3_Err != nil {
@@ -177,7 +177,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var13 string
 		templ_7745c5c3_Var13, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.GeoGeometryPaint)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 702}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 702}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var13)
 		if templ_7745c5c3_Err != nil {
@@ -190,7 +190,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var14 string
 		templ_7745c5c3_Var14, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.GeoSeriesPaints)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 765}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 765}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var14)
 		if templ_7745c5c3_Err != nil {
@@ -203,7 +203,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var15 string
 		templ_7745c5c3_Var15, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Scatter3DPaints)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 827}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 827}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var15)
 		if templ_7745c5c3_Err != nil {
@@ -216,7 +216,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var16 string
 		templ_7745c5c3_Var16, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Scatter3DColdToWarm)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 899}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 899}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var16)
 		if templ_7745c5c3_Err != nil {
@@ -229,7 +229,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var17 string
 		templ_7745c5c3_Var17, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Bar3DPaints)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 953}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 953}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var17)
 		if templ_7745c5c3_Err != nil {
@@ -242,7 +242,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var18 string
 		templ_7745c5c3_Var18, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Bar3DColdToWarm)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 1017}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 1017}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var18)
 		if templ_7745c5c3_Err != nil {
@@ -255,7 +255,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var19 string
 		templ_7745c5c3_Var19, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Surface3DPaints)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 1079}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 1079}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var19)
 		if templ_7745c5c3_Err != nil {
@@ -268,7 +268,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var20 string
 		templ_7745c5c3_Var20, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Surface3DColdToWarm)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 1151}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 1151}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var20)
 		if templ_7745c5c3_Err != nil {
@@ -281,7 +281,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var21 string
 		templ_7745c5c3_Var21, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Line3DPaints)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 1207}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 1207}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var21)
 		if templ_7745c5c3_Err != nil {
@@ -294,7 +294,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var22 string
 		templ_7745c5c3_Var22, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Line3DColdToWarm)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 1273}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 1273}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var22)
 		if templ_7745c5c3_Err != nil {
@@ -307,7 +307,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var23 string
 		templ_7745c5c3_Var23, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.Line3DAutoRotate)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 1338}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 1338}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var23)
 		if templ_7745c5c3_Err != nil {
@@ -320,7 +320,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 		var templ_7745c5c3_Var24 string
 		templ_7745c5c3_Var24, templ_7745c5c3_Err = templ.ResolveAttributeValue(cfg.PieAutoEmphasis)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 7, Col: 1401}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 7, Col: 1401}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var24)
 		if templ_7745c5c3_Err != nil {
@@ -368,7 +368,7 @@ func interactiveTemplate(cfg renderConfig, element templ.Component, script templ
 			var templ_7745c5c3_Var25 string
 			templ_7745c5c3_Var25, templ_7745c5c3_Err = templ.JoinStringErrs(cfg.Caption)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/interactive/interactive.templ`, Line: 15, Col: 91}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `components/internal/interactive/interactive.templ`, Line: 15, Col: 91}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var25))
 			if templ_7745c5c3_Err != nil {

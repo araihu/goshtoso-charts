@@ -15,9 +15,9 @@ func explicitColors(style charttheme.Style) string {
 // themeRuntime bridges Goshtoso's computed semantic CSS tokens into the canvas
 // renderer. The script is constant library-owned markup; no chart or
 // application values are interpolated into it.
-func themeRuntime() templ.Component { return templ.Raw(themeRuntimeMarkup) }
+func themeRuntime() templ.Component { return templ.Raw(ThemeRuntimeMarkup) }
 
-const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
+const ThemeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 (function () {
   "use strict";
   var key = "__goshtosoChartsThemeRuntime";
