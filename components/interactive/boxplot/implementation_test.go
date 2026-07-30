@@ -1,4 +1,4 @@
-package interactive
+package boxplot
 
 import (
 	"bytes"
@@ -8,27 +8,28 @@ import (
 	"testing"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chart"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
 
 func TestBoxPlotRendersMultipleTypedSeries(t *testing.T) {
 	t.Parallel()
-	instance := BoxPlot(BoxPlotConfig{
+	instance := BoxPlot(Config{
 		Label: "Latency distribution", Caption: "Five-number summaries by environment.",
 		Categories: []string{"Development", "Production"},
-		Series: []BoxPlotSeries{
-			{Name: "Current", Data: []BoxPlotData{
+		Series: []Series{
+			{Name: "Current", Data: []Data{
 				{Name: "dev-current", Min: 10, Q1: 20, Median: 30, Q3: 45, Max: 70},
-				{Name: "prod-current", Min: 15, Q1: 25, Median: 35, Q3: 50, Max: 80, ItemStyle: &ItemStyle{Color: "#abcdef"}},
+				{Name: "prod-current", Min: 15, Q1: 25, Median: 35, Q3: 50, Max: 80, ItemStyle: &chart.ItemStyle{Color: "#abcdef"}},
 			}},
-			{Name: "Previous", Data: []BoxPlotData{
+			{Name: "Previous", Data: []Data{
 				{Min: 12, Q1: 22, Median: 32, Q3: 48, Max: 75},
 				{Min: 18, Q1: 28, Median: 40, Q3: 55, Max: 90},
-			}, Options: SeriesOptions{Label: &LabelOptions{Show: Bool(true)}}},
+			}, Options: chart.SeriesOptions{Label: &chart.LabelOptions{Show: chart.Bool(true)}}},
 		},
 		Width: "720px", Height: "360px",
-		Options:       ChartOptions{Title: &TitleOptions{Text: "Latency"}},
-		SeriesOptions: SeriesOptions{ItemStyle: &ItemStyle{BorderWidth: 2}},
+		Options:       chart.ChartOptions{Title: &chart.TitleOptions{Text: "Latency"}},
+		SeriesOptions: chart.SeriesOptions{ItemStyle: &chart.ItemStyle{BorderWidth: 2}},
 		Style:         charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
 	})
 
@@ -55,9 +56,9 @@ func TestBoxPlotRendersMultipleTypedSeries(t *testing.T) {
 
 func TestBoxPlotUsesFallbackPalette(t *testing.T) {
 	t.Parallel()
-	instance := BoxPlot(BoxPlotConfig{
+	instance := BoxPlot(Config{
 		Label: "Distribution", Categories: []string{"A"},
-		Series: []BoxPlotSeries{{Name: "Samples", Data: []BoxPlotData{{Min: 1, Q1: 2, Median: 3, Q3: 4, Max: 5}}}},
+		Series: []Series{{Name: "Samples", Data: []Data{{Min: 1, Q1: 2, Median: 3, Q3: 4, Max: 5}}}},
 	})
 	var output bytes.Buffer
 	if err := instance.Render(context.Background(), &output); err != nil {
@@ -77,20 +78,20 @@ func TestBoxPlotUsesFallbackPalette(t *testing.T) {
 
 func TestBoxPlotRejectsInvalidDataContract(t *testing.T) {
 	t.Parallel()
-	validData := []BoxPlotData{{Min: 1, Q1: 2, Median: 3, Q3: 4, Max: 5}}
+	validData := []Data{{Min: 1, Q1: 2, Median: 3, Q3: 4, Max: 5}}
 	tests := map[string]struct {
-		cfg       BoxPlotConfig
+		cfg       Config
 		wantError string
 	}{
-		"missing label":       {cfg: BoxPlotConfig{}, wantError: "box plot label is required"},
-		"missing categories":  {cfg: BoxPlotConfig{Label: "Distribution"}, wantError: "box plot categories are required"},
-		"empty category":      {cfg: BoxPlotConfig{Label: "Distribution", Categories: []string{""}}, wantError: "box plot category 0 name is required"},
-		"missing series":      {cfg: BoxPlotConfig{Label: "Distribution", Categories: []string{"A"}}, wantError: "box plot series is required"},
-		"missing series name": {cfg: BoxPlotConfig{Label: "Distribution", Categories: []string{"A"}, Series: []BoxPlotSeries{{Data: validData}}}, wantError: "box plot series 0 name is required"},
-		"missing data":        {cfg: BoxPlotConfig{Label: "Distribution", Categories: []string{"A"}, Series: []BoxPlotSeries{{Name: "Samples"}}}, wantError: `box plot series "Samples" data is required`},
-		"category mismatch":   {cfg: BoxPlotConfig{Label: "Distribution", Categories: []string{"A", "B"}, Series: []BoxPlotSeries{{Name: "Samples", Data: validData}}}, wantError: `box plot series "Samples" has 1 summaries for 2 categories`},
-		"nonfinite summary":   {cfg: BoxPlotConfig{Label: "Distribution", Categories: []string{"A"}, Series: []BoxPlotSeries{{Name: "Samples", Data: []BoxPlotData{{Min: 1, Q1: 2, Median: math.NaN(), Q3: 4, Max: 5}}}}}, wantError: `box plot series "Samples" summary 0 values must be finite`},
-		"unordered summary":   {cfg: BoxPlotConfig{Label: "Distribution", Categories: []string{"A"}, Series: []BoxPlotSeries{{Name: "Samples", Data: []BoxPlotData{{Min: 1, Q1: 4, Median: 3, Q3: 5, Max: 6}}}}}, wantError: `box plot series "Samples" summary 0 values must be ordered min, q1, median, q3, max`},
+		"missing label":       {cfg: Config{}, wantError: "box plot label is required"},
+		"missing categories":  {cfg: Config{Label: "Distribution"}, wantError: "box plot categories are required"},
+		"empty category":      {cfg: Config{Label: "Distribution", Categories: []string{""}}, wantError: "box plot category 0 name is required"},
+		"missing series":      {cfg: Config{Label: "Distribution", Categories: []string{"A"}}, wantError: "box plot series is required"},
+		"missing series name": {cfg: Config{Label: "Distribution", Categories: []string{"A"}, Series: []Series{{Data: validData}}}, wantError: "box plot series 0 name is required"},
+		"missing data":        {cfg: Config{Label: "Distribution", Categories: []string{"A"}, Series: []Series{{Name: "Samples"}}}, wantError: `box plot series "Samples" data is required`},
+		"category mismatch":   {cfg: Config{Label: "Distribution", Categories: []string{"A", "B"}, Series: []Series{{Name: "Samples", Data: validData}}}, wantError: `box plot series "Samples" has 1 summaries for 2 categories`},
+		"nonfinite summary":   {cfg: Config{Label: "Distribution", Categories: []string{"A"}, Series: []Series{{Name: "Samples", Data: []Data{{Min: 1, Q1: 2, Median: math.NaN(), Q3: 4, Max: 5}}}}}, wantError: `box plot series "Samples" summary 0 values must be finite`},
+		"unordered summary":   {cfg: Config{Label: "Distribution", Categories: []string{"A"}, Series: []Series{{Name: "Samples", Data: []Data{{Min: 1, Q1: 4, Median: 3, Q3: 5, Max: 6}}}}}, wantError: `box plot series "Samples" summary 0 values must be ordered min, q1, median, q3, max`},
 	}
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {

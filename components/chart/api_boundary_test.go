@@ -18,6 +18,7 @@ var publicBoundaryPackages = []string{
 	modulePath + "/components/charttheme",
 	modulePath + "/components/interactive",
 	modulePath + "/components/interactive/bar",
+	modulePath + "/components/interactive/boxplot",
 	modulePath + "/components/interactive/candlestick",
 	modulePath + "/components/interactive/heatmap",
 	modulePath + "/components/interactive/line",
