@@ -28,6 +28,7 @@ var publicBoundaryPackages = []string{
 	modulePath + "/components/interactive/parallel",
 	modulePath + "/components/interactive/pie",
 	modulePath + "/components/interactive/radar",
+	modulePath + "/components/interactive/sankey",
 	modulePath + "/components/interactive/scatter",
 	modulePath + "/components/interactive/themeriver",
 }

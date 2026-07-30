@@ -18,6 +18,7 @@ import (
 	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
+	interactivesankey "github.com/araihu/goshtoso-charts/components/interactive/sankey"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 )
@@ -123,6 +124,17 @@ func oldFacadeGaugeConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeSankeyConsumer() chart.Instance {
+	return interactive.Sankey(interactive.SankeyConfig{
+		Label: "Deployment flow",
+		Series: []interactive.SankeySeries{{
+			Name:  "Deployments",
+			Nodes: []interactive.SankeyNode{{Name: "Queued"}, {Name: "Released"}},
+			Links: []interactive.SankeyLink{{Source: "Queued", Target: "Released", Value: 8}},
+		}},
+	})
+}
+
 func canonicalChildConsumers() []chart.Instance {
 	return []chart.Instance{
 		interactivebar.Bar(interactivebar.Config{
@@ -181,6 +193,14 @@ func canonicalChildConsumers() []chart.Instance {
 			Indicators: []interactiveradar.Indicator{{Name: "Availability", Max: 100}},
 			Series:     []interactiveradar.Series{{Name: "Current", Data: []interactiveradar.Data{{Name: "Today", Values: []float64{99.9}}}}},
 		}),
+		interactivesankey.Sankey(interactivesankey.Config{
+			Label: "Deployment flow",
+			Series: []interactivesankey.Series{{
+				Name:  "Deployments",
+				Nodes: []interactivesankey.Node{{Name: "Queued"}, {Name: "Released"}},
+				Links: []interactivesankey.Link{{Source: "Queued", Target: "Released", Value: 8}},
+			}},
+		}),
 		interactivethemeriver.ThemeRiver(interactivethemeriver.Config{
 			Label:   "Deployment activity",
 			Streams: []interactivethemeriver.Stream{{Name: "Production", Points: []interactivethemeriver.Point{{Time: time.Date(2026, time.July, 30, 0, 0, 0, 0, time.UTC), Value: 8}}}},
@@ -211,6 +231,7 @@ var (
 	_ = oldFacadeThemeRiverConsumer
 	_ = oldFacadeParallelConsumer
 	_ = oldFacadeGaugeConsumer
+	_ = oldFacadeSankeyConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer
 )

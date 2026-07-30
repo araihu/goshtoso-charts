@@ -23,6 +23,7 @@ import (
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
+	interactivesankey "github.com/araihu/goshtoso-charts/components/interactive/sankey"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
@@ -64,7 +65,7 @@ var wrapperConfigContracts = []wrapperConfigContract{
 	{components.KindInteractiveGauge, reflect.TypeOf(interactivegauge.Config{}), true},
 	{components.KindInteractiveFunnel, reflect.TypeOf(interactivefunnel.Config{}), true},
 	{components.KindInteractiveGraph, reflect.TypeOf(interactivegraph.Config{}), true},
-	{components.KindInteractiveSankey, reflect.TypeOf(interactive.SankeyConfig{}), true},
+	{components.KindInteractiveSankey, reflect.TypeOf(interactivesankey.Config{}), true},
 	{components.KindInteractiveTree, reflect.TypeOf(interactive.TreeConfig{}), true},
 	{components.KindInteractiveSunburst, reflect.TypeOf(interactive.SunburstConfig{}), true},
 	{components.KindInteractiveTreemap, reflect.TypeOf(interactive.TreemapConfig{}), true},
@@ -79,7 +80,7 @@ var wrapperConfigContracts = []wrapperConfigContract{
 var migratedChildConstructors = map[string]bool{
 	"Bar": true, "BoxPlot": true, "Candlestick": true, "Funnel": true,
 	"Gauge": true, "Graph": true, "HeatMap": true, "Line": true, "Parallel": true,
-	"Pie": true, "Radar": true, "Scatter": true, "ThemeRiver": true,
+	"Pie": true, "Radar": true, "Sankey": true, "Scatter": true, "ThemeRiver": true,
 }
 
 func TestEveryPublicChartConfigSharesOneWrapperContract(t *testing.T) {
@@ -155,6 +156,7 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/parallel/parallel.go", "Parallel")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/pie/pie.go", "Pie")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/radar/radar.go", "Radar")
+	assertConstructorPropagatesSharedWrapperFields(t, "interactive/sankey/sankey.go", "Sankey")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/scatter/scatter.go", "Scatter")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/themeriver/themeriver.go", "ThemeRiver")
 
