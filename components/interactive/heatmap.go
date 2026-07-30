@@ -255,6 +255,9 @@ func validateHeatMapConfig(cfg HeatMapConfig) error {
 			if !finiteHeatMapNumber(style.BorderWidth) || style.BorderWidth < 0 {
 				return fmt.Errorf("heatmap chart calendar cell border width must be finite and nonnegative")
 			}
+			if style.BorderWidth > math.MaxFloat32 {
+				return fmt.Errorf("heatmap chart calendar cell border width exceeds renderer limits")
+			}
 			if style.Opacity != nil && (!finiteHeatMapNumber(*style.Opacity) || *style.Opacity < 0 || *style.Opacity > 1) {
 				return fmt.Errorf("heatmap chart calendar cell opacity must be between 0 and 1")
 			}

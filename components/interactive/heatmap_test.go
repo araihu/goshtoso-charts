@@ -160,6 +160,11 @@ func TestHeatMapRejectsInvalidDataContract(t *testing.T) {
 			cfg.Calendar.Options.CellStyle = &ItemStyle{BorderWidth: math.NaN()}
 			return cfg
 		}, "heatmap chart calendar cell border width must be finite and nonnegative"},
+		"calendar cell border renderer overflow": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.Calendar.Options.CellStyle = &ItemStyle{BorderWidth: math.MaxFloat64}
+			return cfg
+		}, "heatmap chart calendar cell border width exceeds renderer limits"},
 		"calendar cell opacity out of range": {func() HeatMapConfig {
 			cfg := validCalendar()
 			cfg.Calendar.Options.CellStyle = &ItemStyle{Opacity: Float(1.5)}
