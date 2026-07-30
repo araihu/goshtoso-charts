@@ -44,7 +44,7 @@ required.
 ## Shared chart instance foundation
 
 `components/chart.Instance` is the canonical public identity for a renderable
-chart instance. `components/interactive.Instance` and the Bar and Line child
+chart instance. `components/interactive.Instance` and all four migrated child
 packages' `Instance` names are exact aliases, so old and new values remain
 assignment-compatible and constructor function signatures remain
 interchangeable. Consumers can mix the facade and chart-specific package paths
@@ -102,11 +102,66 @@ Line implementation and template; the parent is an alias-and-forwarder facade.
 Constructor behavior, validation, component kind, live data, time and value
 axes, visual scales, references, and rendered markup remain identical.
 
+## Scatter
+
+Use `components/interactive/scatter` for new interactive Scatter code:
+
+```go
+import (
+	"github.com/araihu/goshtoso-charts/components/chart"
+	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
+)
+
+chart := interactivescatter.Scatter(interactivescatter.Config{
+	Label:   "Throughput",
+	Variant: interactivescatter.VariantEffect,
+	XAxis:   []string{"Mon", "Tue"},
+	Series: []interactivescatter.Series{{
+		Name: "Requests",
+		Data: []interactivescatter.Data{{Value: 42}, {Value: 47}},
+		Ripple: &chart.RippleOptions{Period: 4, Scale: 6},
+	}},
+})
+```
+
+Standard and effect rendering remain variants of one `Scatter` component and
+one component kind. Scatter-specific names are concise: `Config`, `Series`,
+`Data`, `Variant`, and `AxisType`; shared options remain in `components/chart`.
+Existing `interactive.Scatter(interactive.ScatterConfig{...})` code is an exact
+alias-and-forwarder compatibility path with identical validation, kind, options,
+and rendered runtime bytes.
+
+## Candlestick
+
+Use `components/interactive/candlestick` for new interactive Candlestick code:
+
+```go
+import interactivecandlestick "github.com/araihu/goshtoso-charts/components/interactive/candlestick"
+
+chart := interactivecandlestick.Candlestick(interactivecandlestick.Config{
+	Label:      "Daily prices",
+	Categories: []string{"Mon"},
+	Series: []interactivecandlestick.Series{{
+		Name: "OHLC",
+		Data: []interactivecandlestick.Candle{{
+			Open: 10, Close: 11, Low: 9, High: 12,
+		}},
+	}},
+})
+```
+
+`Candle` preserves the typed open, close, low, and high ordering. Other
+chart-specific names are concise: `Config`, `Series`, `SeriesOptions`,
+`DirectionStyle`, `MarkOptions`, and `DataZoom`. Shared options remain in
+`components/chart`. The legacy parent names are exact aliases and its
+`Candlestick` constructor is a single forwarder, preserving validation, kind,
+options, OHLC semantics, and rendered runtime bytes.
+
 ## Current boundary
 
-Bar and Line physical ownership is complete. The supported parent facade
-delegates those migrated charts. Remaining chart families continue using their
-existing paths until their own bounded migrations land, and the final v1 policy
-for the parent compatibility facade remains open. Shared public and private
-foundation ownership is fixed by
+Bar, Line, Scatter, and Candlestick physical ownership is complete. The
+supported parent facade delegates those four migrated charts. Remaining chart
+families continue using their existing paths until their own bounded migrations
+land, and the final v1 policy for the parent compatibility facade remains open.
+Shared public and private foundation ownership is fixed by
 [ADR 0001](decisions/0001-interactive-chart-package-ownership.md).
