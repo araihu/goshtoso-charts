@@ -22,6 +22,7 @@ var publicBoundaryPackages = []string{
 	modulePath + "/components/interactive/heatmap",
 	modulePath + "/components/interactive/line",
 	modulePath + "/components/interactive/pie",
+	modulePath + "/components/interactive/radar",
 	modulePath + "/components/interactive/scatter",
 }
 
