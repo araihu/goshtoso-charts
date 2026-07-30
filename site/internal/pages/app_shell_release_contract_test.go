@@ -12,6 +12,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/araihu/goshtoso-app-shells/componentdocshell"
+	goshtosoassets "github.com/araihu/goshtoso/assets"
 )
 
 func TestReleasedAppShellDependenciesArePinnedWithoutOverrides(t *testing.T) {
@@ -101,14 +102,24 @@ func TestReleasedHeaderActionsRenderDevelopmentAndStableReleaseBadges(t *testing
 		`data-site-version`,
 		`>v0.1.1<`,
 		`href="https://github.com/araihu/goshtoso-charts/releases/tag/v0.1.1"`,
+		`target="_blank"`,
+		`rel="noopener noreferrer"`,
+		`aria-label="Goshtoso Charts release v0.1.1"`,
 	} {
 		if !strings.Contains(release, want) {
 			t.Errorf("release badge missing %q in %q", want, release)
 		}
 	}
 
-	if got := strings.TrimSpace(renderHeaderActions(t, shellConfigForVersion("release-candidate"))); got != "" {
-		t.Fatalf("malformed release badge rendered %q", got)
+	for _, version := range []string{
+		"release-candidate",
+		"v0.1.1-beta.1",
+		"v0.1.1/../../unexpected",
+		`v0.1.1" onclick="alert(1)`,
+	} {
+		if got := strings.TrimSpace(renderHeaderActions(t, shellConfigForVersion(version))); got != "" {
+			t.Errorf("unsafe or malformed version %q rendered badge %q", version, got)
+		}
 	}
 }
 
@@ -130,6 +141,7 @@ func TestReleasedShellUsesCanonicalStylesAndKeepsThemePlaygroundIsolated(t *test
 		`aria-current="page"`,
 		`Getting started`,
 		`/componentdocshell/assets/shell.css?v=`,
+		goshtosoassets.FirstPartyBundleURL,
 		`data-site-version`,
 	} {
 		if !strings.Contains(body, want) {
@@ -141,6 +153,7 @@ func TestReleasedShellUsesCanonicalStylesAndKeepsThemePlaygroundIsolated(t *test
 		`id="componentdocshell-theme-trigger"`,
 		`data-campaign-toggle`,
 		`href="/assets"`,
+		goshtosoassets.ActionGroupURL,
 	} {
 		if strings.Contains(body, forbidden) {
 			t.Errorf("released shell contains forbidden parent concern %q", forbidden)

@@ -1342,12 +1342,12 @@ func TestChartControlRuntimeIsLocal(t *testing.T) {
 	}
 }
 
-func TestActionGroupRuntimeIsServedByBaseGoshtosoAssets(t *testing.T) {
+func TestFirstPartyRuntimeBundleIsServedByBaseGoshtosoAssets(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()
-	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, goshtosoassets.ActionGroupURL, nil))
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, goshtosoassets.FirstPartyBundleURL, nil))
 	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), "data-goshtoso-action-group") {
-		t.Fatalf("GET ActionGroup runtime status/body = %d/%q", recorder.Code, recorder.Body.String())
+		t.Fatalf("GET first-party runtime status/body = %d/%q", recorder.Code, recorder.Body.String())
 	}
 }
 

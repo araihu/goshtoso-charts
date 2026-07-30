@@ -72,8 +72,11 @@ for (const width of [390, 1440]) {
       assert.equal(await page.locator('#componentdocshell-theme-trigger, [aria-label="Theme"]').count(), 0);
       assert.equal(await page.locator("[data-campaign-toggle]").count(), 0);
       assert.equal(await page.locator('link[rel="stylesheet"][href*="/componentdocshell/assets/shell.css?v="]').count(), 1);
+      assert.equal(await page.locator('script[src*="/assets/js/action-group.js"]').count(), 0);
       assert.equal(await page.getByRole("link", { name: "Assets", exact: true }).count(), 0);
-      assert.equal(await page.locator('[aria-current="page"]').textContent(), "Getting started");
+      const current = page.locator('[aria-current="page"]');
+      assert.equal(await current.getAttribute("href"), "/");
+      assert.match((await current.textContent()).trim(), /^Getting started(?:\s+active)?$/);
       assert.equal(await page.getByRole("heading", { name: "Getting Started", exact: true }).count(), 1);
 
       const state = await page.evaluate(() => {
@@ -114,6 +117,7 @@ test("Theme Playground keeps its picker inside the isolated frame", async () => 
     await frame.getByRole("combobox", { name: "Theme" }).waitFor();
     assert.equal(await frame.getByRole("combobox", { name: "Theme" }).count(), 1);
     assert.equal(await frame.locator(".component-doc-shell__header, [data-site-version]").count(), 0);
+    assert.equal(await frame.locator('script[src*="/assets/js/action-group.js"]').count(), 0);
     assert.deepEqual(browserIssues, []);
   } finally {
     await page.close();
