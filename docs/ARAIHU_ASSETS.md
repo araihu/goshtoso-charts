@@ -77,7 +77,7 @@ labels and never auto-merges.
 ## Known hardening debt
 
 Archive SHA-256 verification makes the published archive immutable, and the
-workflow rejects traversal and link members before extraction. GSC-TD-012
+workflow rejects traversal and link members before extraction. GSC-TD-016
 tracks rejecting duplicate member names, case-folded member collisions, and
 every non-regular member type before extraction. The offline updater already
 rejects release-inventory, catalog, destination, path, symlink, checksum, and
