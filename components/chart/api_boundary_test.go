@@ -33,6 +33,7 @@ var publicBoundaryPackages = []string{
 	modulePath + "/components/interactive/sunburst",
 	modulePath + "/components/interactive/themeriver",
 	modulePath + "/components/interactive/tree",
+	modulePath + "/components/interactive/treemap",
 }
 
 func TestChartFoundationPublicAPIDoesNotExposeImplementationTypes(t *testing.T) {
