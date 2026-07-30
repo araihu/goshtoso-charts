@@ -14,8 +14,10 @@ import (
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
+	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
+	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/components/radar"
@@ -872,10 +874,10 @@ templ interactiveThemeRiverContent() {
 		Description: "How named categories rise, fall, and overlap across aligned dates.",
 		Primary: componentpage.Example{
 			AbovePreview: visualizationGuidance("Compare how named temporal streams rise, fall, and overlap.", "Shared movement and temporal pattern matter more than a single exact value.", "Precise values, many streams, or a stable baseline is required.", "An adjacent table preserves dates, stream names, exact values, and classes."),
-			Preview:      sampleInteractiveThemeRiver(),
+			Preview:      interactivethemeriver.ThemeRiver(sampleInteractiveThemeRiver()),
 			Code:         interactiveThemeRiverCode(),
 		},
-		After: interactiveDocumentation(demoNote("Shared dates", "Compare streams only over shared, strictly ordered dates. Use the table for exact readings.")),
+		After: templ.Join(demoNote("Shared dates", "Compare streams only over shared, strictly ordered dates. Use the table for exact readings."), goAPIReference("interactive/themeriver")),
 	})
 }
 
@@ -889,10 +891,10 @@ templ interactiveParallelContent() {
 		Description: "Multivariate profiles across the same ordered numeric and categorical dimensions.",
 		Primary: componentpage.Example{
 			AbovePreview: visualizationGuidance("Compare multivariate profiles across the same ordered dimensions.", "You need to spot broad profile differences across a modest number of observations.", "Exact values, many crossing lines, or unfamiliar dimensions dominate.", "An adjacent table preserves series, observation names, and every dimension value."),
-			Preview:      sampleInteractiveParallel(),
+			Preview:      interactiveparallel.Parallel(sampleInteractiveParallel()),
 			Code:         interactiveParallelCode(),
 		},
-		After: interactiveDocumentation(demoNote("Comparable dimensions", "Each observation has one value for every declared dimension. Keep dimension names and scales clear before comparing paths.")),
+		After: templ.Join(demoNote("Comparable dimensions", "Each observation has one value for every declared dimension. Keep dimension names and scales clear before comparing paths."), goAPIReference("interactive/parallel")),
 	})
 }
 

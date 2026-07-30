@@ -3,6 +3,7 @@ package chart_test
 import (
 	"context"
 	"io"
+	"time"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
 	"github.com/araihu/goshtoso-charts/components/chart"
@@ -14,9 +15,11 @@ import (
 	interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
+	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
+	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 )
 
 // These snippets are compile contracts for old facade consumers, canonical
@@ -96,6 +99,22 @@ func oldFacadeFunnelConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeThemeRiverConsumer() chart.Instance {
+	date := time.Date(2026, time.July, 30, 0, 0, 0, 0, time.UTC)
+	return interactive.ThemeRiver(interactive.ThemeRiverConfig{
+		Label:   "Deployment activity",
+		Streams: []interactive.ThemeRiverStream{{Name: "Production", Points: []interactive.ThemeRiverPoint{{Time: date, Value: 8}}}},
+	})
+}
+
+func oldFacadeParallelConsumer() chart.Instance {
+	return interactive.Parallel(interactive.ParallelConfig{
+		Label:      "Service profile",
+		Dimensions: []interactive.ParallelDimension{{Name: "Latency"}, {Name: "Throughput"}},
+		Series:     []interactive.ParallelSeries{{Name: "Production", Observations: []interactive.ParallelObservation{{Name: "Today", Values: []interactive.ParallelValue{interactive.ParallelNumber(42), interactive.ParallelNumber(100)}}}}},
+	})
+}
+
 func oldFacadeGaugeConsumer() chart.Instance {
 	return interactive.Gauge(interactive.GaugeConfig{
 		Label:   "Deployment completion",
@@ -152,10 +171,19 @@ func canonicalChildConsumers() []chart.Instance {
 			Label:  "Deployment outcomes",
 			Series: []interactivepie.Series{{Name: "Outcome", Data: []interactivepie.Data{{Name: "Passed", Value: 8}, {Name: "Failed", Value: 2}}}},
 		}),
+		interactiveparallel.Parallel(interactiveparallel.Config{
+			Label:      "Service profile",
+			Dimensions: []interactiveparallel.Dimension{{Name: "Latency"}, {Name: "Throughput"}},
+			Series:     []interactiveparallel.Series{{Name: "Production", Observations: []interactiveparallel.Observation{{Name: "Today", Values: []interactiveparallel.Value{interactiveparallel.Number(42), interactiveparallel.Number(100)}}}}},
+		}),
 		interactiveradar.Radar(interactiveradar.Config{
 			Label:      "Service profile",
 			Indicators: []interactiveradar.Indicator{{Name: "Availability", Max: 100}},
 			Series:     []interactiveradar.Series{{Name: "Current", Data: []interactiveradar.Data{{Name: "Today", Values: []float64{99.9}}}}},
+		}),
+		interactivethemeriver.ThemeRiver(interactivethemeriver.Config{
+			Label:   "Deployment activity",
+			Streams: []interactivethemeriver.Stream{{Name: "Production", Points: []interactivethemeriver.Point{{Time: time.Date(2026, time.July, 30, 0, 0, 0, 0, time.UTC), Value: 8}}}},
 		}),
 	}
 }
@@ -180,6 +208,8 @@ var (
 	_ = oldFacadeBoxPlotConsumer
 	_ = oldFacadeRadarConsumer
 	_ = oldFacadeFunnelConsumer
+	_ = oldFacadeThemeRiverConsumer
+	_ = oldFacadeParallelConsumer
 	_ = oldFacadeGaugeConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer

@@ -4,6 +4,20 @@ This is the central source ledger for examples adapted into Goshtoso Charts.
 Component pages stay renderer-neutral; backing-library attribution and immutable
 source evidence live here and on the Attributions page.
 
+## Interactive Parallel and ThemeRiver ownership
+
+- Source repository: `github.com/go-echarts/examples`
+- Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
+- Upstream sources: `examples/parallel.go` and `examples/themeriver.go`
+- Canonical APIs: `components/interactive/parallel.Parallel` and
+  `components/interactive/themeriver.ThemeRiver`
+- Status: the package-ownership migration preserves the existing Parallel
+  three-city multivariate dataset and ThemeRiver six-stream aligned-date
+  dataset, data shape, chart semantics, and renderer-neutral visual intent.
+  It changes only canonical Go ownership and the site imports, snippets, and API
+  links; the parent package remains an exact alias-and-forwarder compatibility
+  facade.
+
 ## Static/vector Bar
 
 - Source repository: `github.com/go-analyze/charts`
