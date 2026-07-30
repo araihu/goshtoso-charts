@@ -374,3 +374,12 @@ Go helper for that expression is private and the public `Head` helper also emits
 the full shell bootstrap. A future exported appearance-controller component or
 standalone data helper would remove this literal while preserving the frame's
 non-persistent storage behavior and same-origin asset access.
+
+## 2026-07-30: released chart theme catalog spans two modules
+
+Goshtoso v0.1.1's `all-themes.css` contains 15 theme IDs, while the Arai Hû
+organization theme is deliberately released outside that base catalog by
+goshtoso-app-shells v0.1.0. Goshtoso Charts therefore owns one explicit 16-ID
+catalog boundary instead of inferring names from either dependency at runtime.
+Both upstream stylesheets already rely on `color-mix`, so derived chart scales
+share that modern-browser baseline rather than adding a second color system.

@@ -84,10 +84,11 @@ func (style Style) RootClasses(base string) string {
 	return strings.Join(parts, " ")
 }
 
-// SeriesColor returns an explicit color when supplied, otherwise a CSS token.
+// SeriesColor returns an explicit color when supplied, otherwise one of the
+// twelve categorical CSS tokens. Dense series wrap only after slot twelve.
 func (style Style) SeriesColor(index int) string {
 	if index >= 0 && index < len(style.Colors) && strings.TrimSpace(style.Colors[index]) != "" {
 		return style.Colors[index]
 	}
-	return "var(--color-chart-series-" + strconv.Itoa(index%8+1) + ")"
+	return "var(--color-chart-series-" + strconv.Itoa(index%chartSeriesSlots+1) + ")"
 }

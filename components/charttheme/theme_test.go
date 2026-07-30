@@ -3,6 +3,7 @@ package charttheme
 import (
 	"bytes"
 	"context"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -15,6 +16,12 @@ func TestStylePrecedenceAndClasses(t *testing.T) {
 	}
 	if got := style.SeriesColor(1); got != "var(--color-chart-series-2)" {
 		t.Fatalf("fallback token = %q", got)
+	}
+	if got := style.SeriesColor(11); got != "var(--color-chart-series-12)" {
+		t.Fatalf("dense fallback token = %q", got)
+	}
+	if got := style.SeriesColor(12); got != "var(--color-chart-series-1)" {
+		t.Fatalf("wrapped fallback token = %q", got)
 	}
 	if got := style.RootClasses("chart"); got != "chart goshtoso-charts-palette goshtoso-charts-palette-pastel ring-2 custom-chart" {
 		t.Fatalf("classes = %q", got)
@@ -69,9 +76,13 @@ func TestStylesExposeLightAndDarkSemanticChartTokens(t *testing.T) {
 		`--color-chart-surface-alt: var(--color-surface-alt, var(--color-surface))`,
 		`--color-chart-outline: var(--color-outline)`,
 		`--color-chart-grid: color-mix`,
-		`--color-chart-text: var(--color-on-surface)`,
-		`--color-chart-text-strong: var(--color-on-surface-strong`,
-		`--color-chart-text-muted: var(--color-on-surface-muted`,
+		`--color-chart-axis: color-mix`,
+		`--color-chart-foreground: var(--color-on-surface)`,
+		`--color-chart-foreground-strong: var(--color-on-surface-strong`,
+		`--color-chart-foreground-muted: var(--color-on-surface-muted`,
+		`--color-chart-text: var(--color-chart-foreground)`,
+		`--color-chart-text-strong: var(--color-chart-foreground-strong)`,
+		`--color-chart-text-muted: var(--color-chart-foreground-muted)`,
 		`--color-chart-scale-low:`,
 		`--color-chart-scale-mid:`,
 		`--color-chart-scale-high:`,
@@ -80,16 +91,26 @@ func TestStylesExposeLightAndDarkSemanticChartTokens(t *testing.T) {
 		`--color-chart-scale-high: var(--color-red-600, #dc2626)`,
 		`--color-chart-scale-low: var(--color-cyan-700, #0e7490)`,
 		`--color-chart-scale-high: var(--color-red-400, #f87171)`,
+		`--color-chart-series-12: color-mix`,
+		`--color-chart-success: color-mix(in srgb, var(--color-success`,
+		`--color-chart-warning: color-mix(in srgb, var(--color-warning`,
+		`--color-chart-danger: color-mix(in srgb, var(--color-danger`,
+		`--color-chart-info: color-mix(in srgb, var(--color-info`,
+		`--color-chart-sequential-1: color-mix`,
+		`--color-chart-sequential-5: var(--color-chart-series-1)`,
+		`--color-chart-diverging-1: var(--color-chart-scale-low)`,
+		`--color-chart-diverging-5: var(--color-chart-scale-high)`,
+		`--goshtoso-charts-series-12: var(--color-chart-series-12)`,
+		`--goshtoso-charts-success: var(--color-chart-success)`,
 		`.goshtoso-charts-palette-status`,
-		`--color-chart-series-1: color-mix(in srgb, var(--color-success, var(--color-green-600, #16a34a)) 80%`,
-		`--color-chart-series-2: color-mix(in srgb, var(--color-warning, var(--color-amber-600, #d97706)) 80%`,
-		`--color-chart-series-3: color-mix(in srgb, var(--color-danger, var(--color-red-600, #dc2626)) 80%`,
+		`--color-chart-series-1: var(--color-chart-success)`,
+		`--color-chart-series-2: var(--color-chart-warning)`,
+		`--color-chart-series-3: var(--color-chart-danger)`,
 		`:where(.dark) :where(.goshtoso-charts-palette-status)`,
-		`--color-chart-series-1: color-mix(in srgb, var(--color-success, var(--color-green-400, #4ade80)) 80%`,
 		`:where(.dark) :where(.goshtoso-charts-palette)`,
 		`--color-chart-surface: var(--color-surface-dark)`,
-		`--color-chart-text-strong: var(--color-on-surface-dark-strong`,
-		`--color-chart-text-muted: var(--color-on-surface-dark-muted`,
+		`--color-chart-foreground-strong: var(--color-on-surface-dark-strong`,
+		`--color-chart-foreground-muted: var(--color-on-surface-dark-muted`,
 		`:where([data-theme="araihu"]) :where(.goshtoso-charts-palette-auto)`,
 		`--color-chart-series-1: #4d7c0f`,
 		`--color-chart-series-1: #c7ff4a`,
@@ -136,9 +157,9 @@ func TestAraiHuAutoPaletteSplitsLightAndDarkSeriesOneWithoutChangingSemanticPale
 		`--color-chart-scale-low: #38bdf8`,
 		`--color-chart-scale-mid: #f59e0b`,
 		`--color-chart-scale-high: #e11d48`,
-		`--color-chart-series-1: color-mix(in srgb, var(--color-success`,
-		`--color-chart-series-2: color-mix(in srgb, var(--color-warning`,
-		`--color-chart-series-3: color-mix(in srgb, var(--color-danger`,
+		`--color-chart-success: color-mix(in srgb, var(--color-success)`,
+		`--color-chart-warning: color-mix(in srgb, var(--color-warning)`,
+		`--color-chart-danger: color-mix(in srgb, var(--color-danger)`,
 	} {
 		if !strings.Contains(markup, unchanged) {
 			t.Errorf("unrelated semantic palette token changed or missing: %q", unchanged)
@@ -192,26 +213,67 @@ func TestThemePaletteCatalogIsExactCompleteAndUnique(t *testing.T) {
 
 func TestGeneratedThemeCSSCoversFullContractAndTemplateIsCurrent(t *testing.T) {
 	t.Parallel()
-	contract := resolvedThemeTokens("", false, themePaletteMode{})
-	if len(contract) != 26 {
-		t.Fatalf("chart token contract size = %d, want 26", len(contract))
+	contract := resolvedThemeTokens(themePalettes[0].ID, false, themePalettes[0].Light)
+	wantNames := []string{
+		"surface", "surface-alt", "outline", "grid", "axis",
+		"foreground", "foreground-strong", "foreground-muted",
+		"text", "text-strong", "text-muted",
+		"pattern-text", "pattern-surface", "pattern-outline",
+		"series-1", "series-2", "series-3", "series-4", "series-5", "series-6",
+		"series-7", "series-8", "series-9", "series-10", "series-11", "series-12",
+		"scale-low", "scale-mid", "scale-high",
+		"success", "warning", "danger", "info",
+		"sequential-1", "sequential-2", "sequential-3", "sequential-4", "sequential-5",
+		"diverging-1", "diverging-2", "diverging-3", "diverging-4", "diverging-5",
+		"increasing", "decreasing", "bollinger-upper", "bollinger-middle", "bollinger-lower",
+	}
+	if len(contract) != len(wantNames) {
+		t.Fatalf("chart token contract size = %d, want %d", len(contract), len(wantNames))
+	}
+	gotNames := make([]string, len(contract))
+	seenNames := map[string]bool{}
+	for index, token := range contract {
+		gotNames[index] = token.Name
+		if seenNames[token.Name] {
+			t.Fatalf("duplicate chart token %q", token.Name)
+		}
+		seenNames[token.Name] = true
+	}
+	if !reflect.DeepEqual(gotNames, wantNames) {
+		t.Fatalf("chart token names = %v, want %v", gotNames, wantNames)
 	}
 	for _, theme := range themePalettes {
-		for _, mode := range []string{"light", "dark"} {
-			marker := "/* goshtoso-charts-theme:" + theme.ID + ":" + mode + " */"
+		for _, mode := range []struct {
+			name   string
+			dark   bool
+			values themePaletteMode
+		}{{"light", false, theme.Light}, {"dark", true, theme.Dark}} {
+			marker := "/* goshtoso-charts-theme:" + theme.ID + ":" + mode.name + " */"
 			start := strings.Index(generatedThemeCSS, marker)
 			if start == -1 {
-				t.Fatalf("missing generated rule %s:%s", theme.ID, mode)
+				t.Fatalf("missing generated rule %s:%s", theme.ID, mode.name)
 			}
 			end := strings.Index(generatedThemeCSS[start:], "}\n")
 			if end == -1 {
-				t.Fatalf("incomplete generated rule %s:%s", theme.ID, mode)
+				t.Fatalf("incomplete generated rule %s:%s", theme.ID, mode.name)
 			}
 			rule := generatedThemeCSS[start : start+end]
-			for _, token := range contract {
-				if !strings.Contains(rule, "--color-chart-"+token.Name+":") {
-					t.Errorf("%s:%s missing %s", theme.ID, mode, token.Name)
+			resolved := resolvedThemeTokens(theme.ID, mode.dark, mode.values)
+			seen := map[string]bool{}
+			for _, token := range resolved {
+				if seen[token.Name] {
+					t.Fatalf("%s:%s duplicates %s", theme.ID, mode.name, token.Name)
 				}
+				seen[token.Name] = true
+				if strings.TrimSpace(token.Value) == "" {
+					t.Fatalf("%s:%s has blank %s", theme.ID, mode.name, token.Name)
+				}
+				if !strings.Contains(rule, "--color-chart-"+token.Name+":") {
+					t.Errorf("%s:%s missing %s", theme.ID, mode.name, token.Name)
+				}
+			}
+			if len(seen) != len(wantNames) {
+				t.Fatalf("%s:%s token count = %d, want %d", theme.ID, mode.name, len(seen), len(wantNames))
 			}
 		}
 	}
@@ -222,6 +284,66 @@ func TestGeneratedThemeCSSCoversFullContractAndTemplateIsCurrent(t *testing.T) {
 	if !strings.Contains(output.String(), generatedThemeCSS) {
 		t.Fatal("styles_templ.go drifted from generated theme CSS injection")
 	}
+}
+
+func TestKnownThemesMapNamedSemanticsAndDistinctLightDarkModes(t *testing.T) {
+	t.Parallel()
+	for _, theme := range themePalettes {
+		light := tokenValues(resolvedThemeTokens(theme.ID, false, theme.Light))
+		dark := tokenValues(resolvedThemeTokens(theme.ID, true, theme.Dark))
+		for _, semantic := range []string{"success", "warning", "danger", "info"} {
+			want := "var(--color-" + semantic + ")"
+			if !strings.Contains(light[semantic], want) || !strings.Contains(dark[semantic], want) {
+				t.Errorf("%s semantic %s is not mapped by name: light=%q dark=%q", theme.ID, semantic, light[semantic], dark[semantic])
+			}
+		}
+		for _, token := range []string{"surface", "axis", "foreground", "series-1", "scale-low"} {
+			if light[token] == dark[token] {
+				t.Errorf("%s %s does not distinguish light and dark modes: %q", theme.ID, token, light[token])
+			}
+		}
+	}
+}
+
+func TestFallbackAndTailwindVariableDiscoveryAreDocumented(t *testing.T) {
+	t.Parallel()
+	var output strings.Builder
+	if err := Styles().Render(context.Background(), &output); err != nil {
+		t.Fatalf("Styles().Render() error = %v", err)
+	}
+	markup := output.String()
+	for _, want := range []string{
+		`--color-chart-success: color-mix(in srgb, var(--color-success, #16a34a)`,
+		`--color-chart-info: color-mix(in srgb, var(--color-info, #0891b2)`,
+		`--color-chart-series-12:`,
+		`--color-chart-diverging-5:`,
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("fallback CSS missing %q", want)
+		}
+	}
+	readme, err := os.ReadFile("../../README.md")
+	if err != nil {
+		t.Fatalf("read README: %v", err)
+	}
+	for _, want := range []string{
+		`text-(--color-chart-series-1)`,
+		`bg-(--color-chart-surface)`,
+		`text-(--color-chart-success)`,
+		`bg-(--color-chart-diverging-5)`,
+	} {
+		if !strings.Contains(string(readme), want) {
+			t.Errorf("Tailwind source-discovery documentation missing %q", want)
+		}
+	}
+}
+
+func tokenValues(tokens []themeToken) map[string]string {
+	values := make(map[string]string, len(tokens))
+	for _, token := range tokens {
+		values[token.Name] = token.Value
+	}
+	return values
 }
 
 func TestMinimalLightChartOutlineUsesOpaqueControlBoundary(t *testing.T) {
