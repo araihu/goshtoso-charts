@@ -1333,6 +1333,29 @@ func TestEveryCurrentChartPageUsesSharedControlsAndCapabilityGating(t *testing.T
 	}
 }
 
+func TestRadarAndBoxPlotPagesLinkCanonicalChildAPIs(t *testing.T) {
+	t.Parallel()
+
+	handler := New()
+	for _, test := range []struct {
+		path       string
+		packageURL string
+	}{
+		{path: "/components/interactive/radar", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/radar"},
+		{path: "/components/interactive/boxplot", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/boxplot"},
+	} {
+		recorder := httptest.NewRecorder()
+		handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, test.path, nil))
+		if recorder.Code != http.StatusOK {
+			t.Fatalf("GET %s status = %d", test.path, recorder.Code)
+		}
+		body := recorder.Body.String()
+		if !strings.Contains(body, test.packageURL) || !strings.Contains(body, "pkg.go.dev/github.com/araihu/goshtoso-charts@v0.0.1/components/"+strings.TrimPrefix(test.packageURL, "github.com/araihu/goshtoso-charts/components/")) {
+			t.Errorf("GET %s missing canonical API footer %q", test.path, test.packageURL)
+		}
+	}
+}
+
 func TestChartControlRuntimeIsLocal(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()

@@ -8,10 +8,12 @@ import (
 	"github.com/araihu/goshtoso-charts/components/chart"
 	"github.com/araihu/goshtoso-charts/components/interactive"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
+	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
 	interactivecandlestick "github.com/araihu/goshtoso-charts/components/interactive/candlestick"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
+	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 )
 
@@ -68,12 +70,33 @@ func oldFacadePieConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeBoxPlotConsumer() chart.Instance {
+	return interactive.BoxPlot(interactive.BoxPlotConfig{
+		Label:      "Deployment duration",
+		Categories: []string{"Production"},
+		Series:     []interactive.BoxPlotSeries{{Name: "Minutes", Data: []interactive.BoxPlotData{{Min: 1, Q1: 2, Median: 3, Q3: 4, Max: 5}}}},
+	})
+}
+
+func oldFacadeRadarConsumer() chart.Instance {
+	return interactive.Radar(interactive.RadarConfig{
+		Label:      "Service profile",
+		Indicators: []interactive.RadarIndicator{{Name: "Availability", Max: 100}},
+		Series:     []interactive.RadarSeries{{Name: "Current", Data: []interactive.RadarData{{Name: "Today", Values: []float64{99.9}}}}},
+	})
+}
+
 func canonicalChildConsumers() []chart.Instance {
 	return []chart.Instance{
 		interactivebar.Bar(interactivebar.Config{
 			Label:  "Weekly deployments",
 			XAxis:  []string{"Mon", "Tue"},
 			Series: []interactivebar.Series{{Name: "Production", Data: []interactivebar.Data{{Value: 3}, {Value: 5}}}},
+		}),
+		interactiveboxplot.BoxPlot(interactiveboxplot.Config{
+			Label:      "Deployment duration",
+			Categories: []string{"Production"},
+			Series:     []interactiveboxplot.Series{{Name: "Minutes", Data: []interactiveboxplot.Data{{Min: 1, Q1: 2, Median: 3, Q3: 4, Max: 5}}}},
 		}),
 		interactiveline.Line(interactiveline.Config{
 			Label:  "Weekly latency",
@@ -101,6 +124,11 @@ func canonicalChildConsumers() []chart.Instance {
 			Label:  "Deployment outcomes",
 			Series: []interactivepie.Series{{Name: "Outcome", Data: []interactivepie.Data{{Name: "Passed", Value: 8}, {Name: "Failed", Value: 2}}}},
 		}),
+		interactiveradar.Radar(interactiveradar.Config{
+			Label:      "Service profile",
+			Indicators: []interactiveradar.Indicator{{Name: "Availability", Max: 100}},
+			Series:     []interactiveradar.Series{{Name: "Current", Data: []interactiveradar.Data{{Name: "Today", Values: []float64{99.9}}}}},
+		}),
 	}
 }
 
@@ -121,6 +149,8 @@ var (
 	_ = oldFacadeCandlestickConsumer
 	_ = oldFacadeHeatMapConsumer
 	_ = oldFacadePieConsumer
+	_ = oldFacadeBoxPlotConsumer
+	_ = oldFacadeRadarConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer
 )

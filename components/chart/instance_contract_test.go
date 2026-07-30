@@ -12,10 +12,12 @@ import (
 	"github.com/araihu/goshtoso-charts/components/chart"
 	"github.com/araihu/goshtoso-charts/components/interactive"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
+	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
 	interactivecandlestick "github.com/araihu/goshtoso-charts/components/interactive/candlestick"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
+	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 )
 
@@ -153,10 +155,12 @@ func TestInstanceAliasesRetainCanonicalTypeIdentity(t *testing.T) {
 		"chart":                   reflect.TypeOf(chart.Instance{}),
 		"interactive":             reflect.TypeOf(interactive.Instance{}),
 		"interactive/bar":         reflect.TypeOf(interactivebar.Instance{}),
+		"interactive/boxplot":     reflect.TypeOf(interactiveboxplot.Instance{}),
 		"interactive/candlestick": reflect.TypeOf(interactivecandlestick.Instance{}),
 		"interactive/heatmap":     reflect.TypeOf(interactiveheatmap.Instance{}),
 		"interactive/line":        reflect.TypeOf(interactiveline.Instance{}),
 		"interactive/pie":         reflect.TypeOf(interactivepie.Instance{}),
+		"interactive/radar":       reflect.TypeOf(interactiveradar.Instance{}),
 		"interactive/scatter":     reflect.TypeOf(interactivescatter.Instance{}),
 	}
 	for name, instanceType := range types {
@@ -174,6 +178,8 @@ var (
 	_ interactive.Instance            = chart.Instance{}
 	_ chart.Instance                  = interactivebar.Instance{}
 	_ interactivebar.Instance         = chart.Instance{}
+	_ chart.Instance                  = interactiveboxplot.Instance{}
+	_ interactiveboxplot.Instance     = chart.Instance{}
 	_ chart.Instance                  = interactivecandlestick.Instance{}
 	_ interactivecandlestick.Instance = chart.Instance{}
 	_ chart.Instance                  = interactiveheatmap.Instance{}
@@ -182,20 +188,26 @@ var (
 	_ interactiveline.Instance        = chart.Instance{}
 	_ chart.Instance                  = interactivepie.Instance{}
 	_ interactivepie.Instance         = chart.Instance{}
+	_ chart.Instance                  = interactiveradar.Instance{}
+	_ interactiveradar.Instance       = chart.Instance{}
 	_ chart.Instance                  = interactivescatter.Instance{}
 	_ interactivescatter.Instance     = chart.Instance{}
 
 	_ func(chartcomponents.Component) chart.Instance     = chart.NewInstance
 	_ func(interactive.BarConfig) chart.Instance         = interactive.Bar
+	_ func(interactive.BoxPlotConfig) chart.Instance     = interactive.BoxPlot
 	_ func(interactive.LineConfig) chart.Instance        = interactive.Line
 	_ func(interactive.ScatterConfig) chart.Instance     = interactive.Scatter
 	_ func(interactive.CandlestickConfig) chart.Instance = interactive.Candlestick
 	_ func(interactive.HeatMapConfig) chart.Instance     = interactive.HeatMap
 	_ func(interactive.PieConfig) chart.Instance         = interactive.Pie
+	_ func(interactive.RadarConfig) chart.Instance       = interactive.Radar
 	_ func(interactivebar.Config) chart.Instance         = interactivebar.Bar
+	_ func(interactiveboxplot.Config) chart.Instance     = interactiveboxplot.BoxPlot
 	_ func(interactivecandlestick.Config) chart.Instance = interactivecandlestick.Candlestick
 	_ func(interactiveheatmap.Config) chart.Instance     = interactiveheatmap.HeatMap
 	_ func(interactiveline.Config) chart.Instance        = interactiveline.Line
 	_ func(interactivepie.Config) chart.Instance         = interactivepie.Pie
+	_ func(interactiveradar.Config) chart.Instance       = interactiveradar.Radar
 	_ func(interactivescatter.Config) chart.Instance     = interactivescatter.Scatter
 )

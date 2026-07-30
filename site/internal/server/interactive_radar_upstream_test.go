@@ -23,7 +23,7 @@ func TestInteractiveRadarDocumentationCoversPinnedSourceFamily(t *testing.T) {
 		"Single-series legend", `"selectedMode":"single"`,
 		"Exact radar values", `data-radar-variant="base"`, `data-radar-variant="style"`, `data-radar-variant="legend-multiple"`, `data-radar-variant="legend-single"`,
 		"When radar works", "When radar fails", "Shared controls and modes", "chart controls", "static/vector and interactive capabilities",
-		`data-go-api-version="v0.0.1"`, "Open v0.0.1 API", "github.com/araihu/goshtoso-charts/components/interactive",
+		`data-go-api-version="v0.0.1"`, "Open v0.0.1 API", "github.com/araihu/goshtoso-charts/components/interactive/radar",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("interactive Radar documentation missing %q", want)

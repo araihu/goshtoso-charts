@@ -10,6 +10,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
+	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 )
@@ -115,13 +116,13 @@ func sampleInteractiveCalendarHeatMap() interactiveheatmap.Config {
 	}
 }
 
-func sampleInteractiveBoxPlot() interactive.BoxPlotConfig {
-	return interactive.BoxPlotConfig{
+func sampleInteractiveBoxPlot() interactiveboxplot.Config {
+	return interactiveboxplot.Config{
 		Label: "Request latency distribution", Caption: "Five-number latency summaries by environment.",
 		Categories: []string{"Development", "Staging", "Production"},
-		Series: []interactive.BoxPlotSeries{{
+		Series: []interactiveboxplot.Series{{
 			Name: "Latency (ms)",
-			Data: []interactive.BoxPlotData{
+			Data: []interactiveboxplot.Data{
 				{Min: 18, Q1: 31, Median: 42, Q3: 58, Max: 94},
 				{Min: 22, Q1: 38, Median: 51, Q3: 73, Max: 116},
 				{Min: 25, Q1: 44, Median: 62, Q3: 86, Max: 138},
@@ -667,16 +668,18 @@ func interactiveCalendarHeatMapCode() string {
 }
 
 func interactiveChartBoxPlotCode() string {
-	return `@interactive.BoxPlot(interactive.BoxPlotConfig{
+	return `@interactiveboxplot.BoxPlot(interactiveboxplot.Config{
   Label: "Request latency distribution",
-  Categories: []string{"Development", "Production"},
-  Series: []interactive.BoxPlotSeries{{
+  Categories: []string{"Development", "Staging", "Production"},
+  Series: []interactiveboxplot.Series{{
     Name: "Latency (ms)",
-    Data: []interactive.BoxPlotData{
+    Data: []interactiveboxplot.Data{
       {Min: 18, Q1: 31, Median: 42, Q3: 58, Max: 94},
+      {Min: 22, Q1: 38, Median: 51, Q3: 73, Max: 116},
       {Min: 25, Q1: 44, Median: 62, Q3: 86, Max: 138},
     },
   }},
+	Options: chart.ChartOptions{Animation: chart.Bool(false)},
 })`
 }
 
