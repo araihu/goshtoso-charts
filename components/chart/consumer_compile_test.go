@@ -110,8 +110,8 @@ func oldFacadeThemeRiverConsumer() chart.Instance {
 func oldFacadeParallelConsumer() chart.Instance {
 	return interactive.Parallel(interactive.ParallelConfig{
 		Label:      "Service profile",
-		Dimensions: []interactive.ParallelDimension{{Name: "Latency"}},
-		Series:     []interactive.ParallelSeries{{Name: "Production", Observations: []interactive.ParallelObservation{{Name: "Today", Values: []interactive.ParallelValue{interactive.ParallelNumber(42)}}}}},
+		Dimensions: []interactive.ParallelDimension{{Name: "Latency"}, {Name: "Throughput"}},
+		Series:     []interactive.ParallelSeries{{Name: "Production", Observations: []interactive.ParallelObservation{{Name: "Today", Values: []interactive.ParallelValue{interactive.ParallelNumber(42), interactive.ParallelNumber(100)}}}}},
 	})
 }
 
@@ -173,8 +173,8 @@ func canonicalChildConsumers() []chart.Instance {
 		}),
 		interactiveparallel.Parallel(interactiveparallel.Config{
 			Label:      "Service profile",
-			Dimensions: []interactiveparallel.Dimension{{Name: "Latency"}},
-			Series:     []interactiveparallel.Series{{Name: "Production", Observations: []interactiveparallel.Observation{{Name: "Today", Values: []interactiveparallel.Value{interactiveparallel.Number(42)}}}}},
+			Dimensions: []interactiveparallel.Dimension{{Name: "Latency"}, {Name: "Throughput"}},
+			Series:     []interactiveparallel.Series{{Name: "Production", Observations: []interactiveparallel.Observation{{Name: "Today", Values: []interactiveparallel.Value{interactiveparallel.Number(42), interactiveparallel.Number(100)}}}}},
 		}),
 		interactiveradar.Radar(interactiveradar.Config{
 			Label:      "Service profile",

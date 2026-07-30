@@ -72,6 +72,8 @@ func TestThemeRiverFacadePreservesCanonicalRenderAndValidation(t *testing.T) {
 		t.Fatal("canonical ThemeRiver render differs from compatibility facade")
 	}
 	invalid := cfg
+	invalid.Streams = append([]interactivethemeriver.Stream(nil), cfg.Streams...)
+	invalid.Streams[0].Points = append([]interactivethemeriver.Point(nil), cfg.Streams[0].Points...)
 	invalid.Streams[0].Points[1].Time = invalid.Streams[0].Points[0].Time
 	canonicalError := renderError(interactivethemeriver.ThemeRiver(invalid))
 	legacyError := renderError(interactive.ThemeRiver(invalid))

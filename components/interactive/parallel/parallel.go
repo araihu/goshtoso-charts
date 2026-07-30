@@ -167,7 +167,7 @@ func Parallel(cfg Config) Instance {
 		return internalinteractive.Invalid(chartcomponents.KindInteractiveParallel, err)
 	}
 
-	chart := charts.NewParallel()
+	parallelChart := charts.NewParallel()
 	privateAxes := make([]opts.ParallelAxis, len(cfg.Dimensions))
 	renderedAxes := make([]rendererParallelAxis, len(cfg.Dimensions))
 	for index, dimension := range cfg.Dimensions {
@@ -203,7 +203,7 @@ func Parallel(cfg Config) Instance {
 			charts.WithInitializationOpts(opts.Initialization{Width: cfg.Width, Height: cfg.Height}),
 		}, globalOptions...)
 	}
-	chart.SetGlobalOptions(globalOptions...)
+	parallelChart.SetGlobalOptions(globalOptions...)
 
 	replacements := make([]internalinteractive.ScriptReplacement, 0, len(cfg.Series)+1)
 	privateAxisJSON, _ := json.Marshal(privateAxes)
@@ -215,12 +215,12 @@ func Parallel(cfg Config) Instance {
 	for seriesIndex, series := range cfg.Series {
 		data := make([]opts.ParallelData, len(series.Observations))
 		seriesOptions := parallelSeriesOptions(series)
-		chart.AddSeries(series.Name, data, seriesOptions...)
+		parallelChart.AddSeries(series.Name, data, seriesOptions...)
 		rendered := make([]rendererParallelObservation, len(series.Observations))
 		for observationIndex, observation := range series.Observations {
 			rendered[observationIndex] = renderParallelObservation(observation)
 		}
-		chart.MultiSeries[seriesIndex].Data = rendered
+		parallelChart.MultiSeries[seriesIndex].Data = rendered
 		if series.Class != "" || series.Options.InactiveOpacity != nil {
 			quotedName, _ := json.Marshal(series.Name)
 			old := `"name":` + string(quotedName) + `,"type":"parallel"`
@@ -237,7 +237,7 @@ func Parallel(cfg Config) Instance {
 	}
 
 	return internalinteractive.New(chartcomponents.KindInteractiveParallel, internalinteractive.RenderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, ResponsiveWidth: internalinteractive.ResponsiveWidth(cfg.Width),
+		Label: cfg.Label, Caption: cfg.Caption, Chart: parallelChart, Style: cfg.Style, ResponsiveWidth: internalinteractive.ResponsiveWidth(cfg.Width),
 		Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		RootAttrs: cfg.RootAttrs, Details: parallelExactValues(cfg.Dimensions, flattenParallelRows(cfg.Series, maxParallelDetailRows)),
 		ScriptReplacements: replacements,

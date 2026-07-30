@@ -75,6 +75,12 @@ var wrapperConfigContracts = []wrapperConfigContract{
 	{components.KindInteractiveGeo, reflect.TypeOf(interactive.GeoConfig{}), true},
 }
 
+var migratedChildConstructors = map[string]bool{
+	"Bar": true, "BoxPlot": true, "Candlestick": true, "Funnel": true,
+	"Gauge": true, "HeatMap": true, "Line": true, "Parallel": true,
+	"Pie": true, "Radar": true, "Scatter": true, "ThemeRiver": true,
+}
+
 func TestEveryPublicChartConfigSharesOneWrapperContract(t *testing.T) {
 	t.Parallel()
 
@@ -178,7 +184,7 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 			if !ok || !strings.HasSuffix(parameter.Name, "Config") {
 				continue
 			}
-			if function.Name.Name == "Bar" || function.Name.Name == "BoxPlot" || function.Name.Name == "Candlestick" || function.Name.Name == "Funnel" || function.Name.Name == "Gauge" || function.Name.Name == "HeatMap" || function.Name.Name == "Line" || function.Name.Name == "Parallel" || function.Name.Name == "Pie" || function.Name.Name == "Radar" || function.Name.Name == "Scatter" || function.Name.Name == "ThemeRiver" {
+			if migratedChildConstructors[function.Name.Name] {
 				continue // Physical ownership is covered in the child implementations above.
 			}
 			if !containsSelectorPath(function.Body, "cfg", "Options", "Controls") || !containsSelectorPath(function.Body, "cfg", "Options", "Export") {

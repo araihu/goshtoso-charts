@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"math"
 	"regexp"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -230,7 +231,7 @@ func TestParallelExactValuesAreBounded(t *testing.T) {
 	cfg.Series[0].Observations = make([]Observation, maxParallelDetailRows+2)
 	for index := range cfg.Series[0].Observations {
 		cfg.Series[0].Observations[index] = Observation{
-			Name:   "row-" + string(rune('A'+index)),
+			Name:   "row-" + strconv.Itoa(index),
 			Values: []Value{Number(float64(index % 10)), Category("A")},
 		}
 	}
