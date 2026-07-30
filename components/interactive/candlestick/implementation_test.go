@@ -1,4 +1,4 @@
-package interactive
+package candlestick
 
 import (
 	"bytes"
@@ -9,25 +9,36 @@ import (
 
 	"github.com/a-h/templ"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chart"
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
 
+type ChartOptions = chart.ChartOptions
+type TitleOptions = chart.TitleOptions
+type LegendOptions = chart.LegendOptions
+type TooltipOptions = chart.TooltipOptions
+type AxisOptions = chart.AxisOptions
+
+var Bool = chart.Bool
+var Float = chart.Float
+var Int = chart.Int
+
 func TestCandlestickRendersTypedOHLCOptionsAndAccessibleTable(t *testing.T) {
 	t.Parallel()
-	cfg := validCandlestickConfig()
+	cfg := validConfig()
 	cfg.Caption = "Two trading sessions."
 	cfg.Width, cfg.Height = "900px", "500px"
-	cfg.DataZoom = []CandlestickDataZoom{
-		{Type: CandlestickDataZoomInside, StartPercent: 50, EndPercent: 100},
+	cfg.DataZoom = []DataZoom{
+		{Type: DataZoomInside, StartPercent: 50, EndPercent: 100},
 		{StartPercent: 50, EndPercent: 100},
-		{Axis: CandlestickDataZoomYAxis, StartPercent: 50, EndPercent: 100},
+		{Axis: DataZoomYAxis, StartPercent: 50, EndPercent: 100},
 	}
-	cfg.Series[0].Options = CandlestickSeriesOptions{
-		Rise:        CandlestickDirectionStyle{Color: "#ec0000", Class: "price-rise", BorderColor: "#8a0000"},
-		Fall:        CandlestickDirectionStyle{Color: "#00da3c", Class: "price-fall", BorderColor: "#008f28"},
+	cfg.Series[0].Options = SeriesOptions{
+		Rise:        DirectionStyle{Color: "#ec0000", Class: "price-rise", BorderColor: "#8a0000"},
+		Fall:        DirectionStyle{Color: "#00da3c", Class: "price-fall", BorderColor: "#008f28"},
 		BorderWidth: 2, BarWidth: "60%", BarMinWidth: "4px", BarMaxWidth: "20",
-		Marks: CandlestickMarkOptions{Highest: true, Lowest: true, ShowLabel: Bool(true)},
+		Marks: MarkOptions{Highest: true, Lowest: true, ShowLabel: Bool(true)},
 	}
 	cfg.Options = ChartOptions{
 		Title:    &TitleOptions{Text: "Candlestick example"},
@@ -76,7 +87,7 @@ func TestCandlestickRendersTypedOHLCOptionsAndAccessibleTable(t *testing.T) {
 
 func TestCandlestickDefaultsToSemanticThemeAndSharedWrapper(t *testing.T) {
 	t.Parallel()
-	markup := renderCandlestick(t, Candlestick(validCandlestickConfig()))
+	markup := renderCandlestick(t, Candlestick(validConfig()))
 	for _, want := range []string{
 		`width:100%;height:500px`, `goshtoso-charts-interactive-candlestick`,
 		`aspect-ratio: 9 / 5`, `"top":"24%"`, `"right":"4%"`, `"bottom":"15%"`, `"left":"4%"`, `"containLabel":true`,
@@ -105,32 +116,32 @@ func TestCandlestickCoversPinnedZoomAndStyleBehaviors(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
 		name       string
-		configure  func(*CandlestickConfig)
+		configure  func(*Config)
 		want       []string
 		wantCount  map[string]int
 		wantAbsent []string
 	}{
 		{
 			name: "x axis slider",
-			configure: func(cfg *CandlestickConfig) {
-				cfg.DataZoom = []CandlestickDataZoom{{StartPercent: 50, EndPercent: 100}}
+			configure: func(cfg *Config) {
+				cfg.DataZoom = []DataZoom{{StartPercent: 50, EndPercent: 100}}
 			},
 			want:       []string{`"start":50,"end":100,"xAxisIndex":[0]`},
 			wantAbsent: []string{`"type":"inside"`, `"yAxisIndex":[0]`},
 		},
 		{
 			name: "x axis inside",
-			configure: func(cfg *CandlestickConfig) {
-				cfg.DataZoom = []CandlestickDataZoom{{Type: CandlestickDataZoomInside, StartPercent: 50, EndPercent: 100}}
+			configure: func(cfg *Config) {
+				cfg.DataZoom = []DataZoom{{Type: DataZoomInside, StartPercent: 50, EndPercent: 100}}
 			},
 			want:       []string{`"type":"inside","start":50,"end":100,"xAxisIndex":[0]`},
 			wantAbsent: []string{`"yAxisIndex":[0]`},
 		},
 		{
 			name: "x axis inside and slider",
-			configure: func(cfg *CandlestickConfig) {
-				cfg.DataZoom = []CandlestickDataZoom{
-					{Type: CandlestickDataZoomInside, StartPercent: 50, EndPercent: 100},
+			configure: func(cfg *Config) {
+				cfg.DataZoom = []DataZoom{
+					{Type: DataZoomInside, StartPercent: 50, EndPercent: 100},
 					{StartPercent: 50, EndPercent: 100},
 				}
 			},
@@ -142,19 +153,19 @@ func TestCandlestickCoversPinnedZoomAndStyleBehaviors(t *testing.T) {
 		},
 		{
 			name: "y axis slider",
-			configure: func(cfg *CandlestickConfig) {
-				cfg.DataZoom = []CandlestickDataZoom{{Axis: CandlestickDataZoomYAxis, StartPercent: 50, EndPercent: 100}}
+			configure: func(cfg *Config) {
+				cfg.DataZoom = []DataZoom{{Axis: DataZoomYAxis, StartPercent: 50, EndPercent: 100}}
 			},
 			want:       []string{`"start":50,"end":100,"orient":"vertical","yAxisIndex":[0]`},
 			wantAbsent: []string{`"xAxisIndex":[0]`, `"type":"inside"`},
 		},
 		{
 			name: "direction classes and extrema",
-			configure: func(cfg *CandlestickConfig) {
-				cfg.Series[0].Options = CandlestickSeriesOptions{
-					Rise:  CandlestickDirectionStyle{Class: "goshtoso-charts-candlestick__direction--decreasing"},
-					Fall:  CandlestickDirectionStyle{Class: "goshtoso-charts-candlestick__direction--increasing"},
-					Marks: CandlestickMarkOptions{Highest: true, Lowest: true, ShowLabel: Bool(true)},
+			configure: func(cfg *Config) {
+				cfg.Series[0].Options = SeriesOptions{
+					Rise:  DirectionStyle{Class: "goshtoso-charts-candlestick__direction--decreasing"},
+					Fall:  DirectionStyle{Class: "goshtoso-charts-candlestick__direction--increasing"},
+					Marks: MarkOptions{Highest: true, Lowest: true, ShowLabel: Bool(true)},
 				}
 			},
 			want: []string{
@@ -170,7 +181,7 @@ func TestCandlestickCoversPinnedZoomAndStyleBehaviors(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			t.Parallel()
-			cfg := validCandlestickConfig()
+			cfg := validConfig()
 			cfg.Options.XAxis = &AxisOptions{Type: "category", SplitNumber: 20}
 			cfg.Options.YAxis = &AxisOptions{Type: "value", Scale: Bool(true)}
 			test.configure(&cfg)
@@ -196,7 +207,7 @@ func TestCandlestickCoversPinnedZoomAndStyleBehaviors(t *testing.T) {
 
 func TestCandlestickBoundsExactValueTable(t *testing.T) {
 	t.Parallel()
-	cfg := validCandlestickConfig()
+	cfg := validConfig()
 	cfg.Categories = make([]string, maxCandlestickDetailRows+5)
 	cfg.Series[0].Data = make([]Candle, len(cfg.Categories))
 	for index := range cfg.Categories {
@@ -211,37 +222,37 @@ func TestCandlestickBoundsExactValueTable(t *testing.T) {
 
 func TestCandlestickRejectsInvalidDataAndOptions(t *testing.T) {
 	t.Parallel()
-	tests := map[string]func(*CandlestickConfig){
-		"label":          func(cfg *CandlestickConfig) { cfg.Label = "" },
-		"categories":     func(cfg *CandlestickConfig) { cfg.Categories = nil },
-		"blank category": func(cfg *CandlestickConfig) { cfg.Categories[0] = "" },
-		"series":         func(cfg *CandlestickConfig) { cfg.Series = nil },
-		"series name":    func(cfg *CandlestickConfig) { cfg.Series[0].Name = "" },
-		"duplicate name": func(cfg *CandlestickConfig) { cfg.Series = append(cfg.Series, cfg.Series[0]) },
-		"series data":    func(cfg *CandlestickConfig) { cfg.Series[0].Data = nil },
-		"alignment":      func(cfg *CandlestickConfig) { cfg.Series[0].Data = cfg.Series[0].Data[:1] },
-		"finite":         func(cfg *CandlestickConfig) { cfg.Series[0].Data[0].Open = math.NaN() },
-		"low open":       func(cfg *CandlestickConfig) { cfg.Series[0].Data[0].Low = 2400 },
-		"high close":     func(cfg *CandlestickConfig) { cfg.Series[0].Data[0].High = 2200 },
-		"border width":   func(cfg *CandlestickConfig) { cfg.Series[0].Options.BorderWidth = -1 },
-		"bar width":      func(cfg *CandlestickConfig) { cfg.Series[0].Options.BarWidth = "wide" },
-		"tooltip":        func(cfg *CandlestickConfig) { cfg.Options.Tooltip = &TooltipOptions{Trigger: "pixel"} },
-		"legend":         func(cfg *CandlestickConfig) { cfg.Options.Legend = &LegendOptions{Orient: "diagonal"} },
-		"x axis":         func(cfg *CandlestickConfig) { cfg.Options.XAxis = &AxisOptions{Type: "time"} },
-		"y axis":         func(cfg *CandlestickConfig) { cfg.Options.YAxis = &AxisOptions{Type: "category"} },
-		"axis bounds":    func(cfg *CandlestickConfig) { cfg.Options.YAxis = &AxisOptions{Min: Float(2), Max: Float(1)} },
-		"zoom type":      func(cfg *CandlestickConfig) { cfg.DataZoom = []CandlestickDataZoom{{Type: "wheel", EndPercent: 100}} },
-		"zoom axis":      func(cfg *CandlestickConfig) { cfg.DataZoom = []CandlestickDataZoom{{Axis: "z", EndPercent: 100}} },
-		"zoom bounds": func(cfg *CandlestickConfig) {
-			cfg.DataZoom = []CandlestickDataZoom{{StartPercent: -1, EndPercent: 100}}
+	tests := map[string]func(*Config){
+		"label":          func(cfg *Config) { cfg.Label = "" },
+		"categories":     func(cfg *Config) { cfg.Categories = nil },
+		"blank category": func(cfg *Config) { cfg.Categories[0] = "" },
+		"series":         func(cfg *Config) { cfg.Series = nil },
+		"series name":    func(cfg *Config) { cfg.Series[0].Name = "" },
+		"duplicate name": func(cfg *Config) { cfg.Series = append(cfg.Series, cfg.Series[0]) },
+		"series data":    func(cfg *Config) { cfg.Series[0].Data = nil },
+		"alignment":      func(cfg *Config) { cfg.Series[0].Data = cfg.Series[0].Data[:1] },
+		"finite":         func(cfg *Config) { cfg.Series[0].Data[0].Open = math.NaN() },
+		"low open":       func(cfg *Config) { cfg.Series[0].Data[0].Low = 2400 },
+		"high close":     func(cfg *Config) { cfg.Series[0].Data[0].High = 2200 },
+		"border width":   func(cfg *Config) { cfg.Series[0].Options.BorderWidth = -1 },
+		"bar width":      func(cfg *Config) { cfg.Series[0].Options.BarWidth = "wide" },
+		"tooltip":        func(cfg *Config) { cfg.Options.Tooltip = &TooltipOptions{Trigger: "pixel"} },
+		"legend":         func(cfg *Config) { cfg.Options.Legend = &LegendOptions{Orient: "diagonal"} },
+		"x axis":         func(cfg *Config) { cfg.Options.XAxis = &AxisOptions{Type: "time"} },
+		"y axis":         func(cfg *Config) { cfg.Options.YAxis = &AxisOptions{Type: "category"} },
+		"axis bounds":    func(cfg *Config) { cfg.Options.YAxis = &AxisOptions{Min: Float(2), Max: Float(1)} },
+		"zoom type":      func(cfg *Config) { cfg.DataZoom = []DataZoom{{Type: "wheel", EndPercent: 100}} },
+		"zoom axis":      func(cfg *Config) { cfg.DataZoom = []DataZoom{{Axis: "z", EndPercent: 100}} },
+		"zoom bounds": func(cfg *Config) {
+			cfg.DataZoom = []DataZoom{{StartPercent: -1, EndPercent: 100}}
 		},
-		"zoom order":          func(cfg *CandlestickConfig) { cfg.DataZoom = []CandlestickDataZoom{{StartPercent: 80, EndPercent: 20}} },
-		"axis split number":   func(cfg *CandlestickConfig) { cfg.Options.XAxis = &AxisOptions{SplitNumber: -1} },
-		"axis label interval": func(cfg *CandlestickConfig) { cfg.Options.XAxis = &AxisOptions{LabelInterval: Int(-1)} },
+		"zoom order":          func(cfg *Config) { cfg.DataZoom = []DataZoom{{StartPercent: 80, EndPercent: 20}} },
+		"axis split number":   func(cfg *Config) { cfg.Options.XAxis = &AxisOptions{SplitNumber: -1} },
+		"axis label interval": func(cfg *Config) { cfg.Options.XAxis = &AxisOptions{LabelInterval: Int(-1)} },
 	}
 	for name, mutate := range tests {
 		t.Run(name, func(t *testing.T) {
-			cfg := validCandlestickConfig()
+			cfg := validConfig()
 			mutate(&cfg)
 			var output bytes.Buffer
 			if err := Candlestick(cfg).Render(context.Background(), &output); err == nil {
@@ -251,11 +262,11 @@ func TestCandlestickRejectsInvalidDataAndOptions(t *testing.T) {
 	}
 }
 
-func validCandlestickConfig() CandlestickConfig {
-	return CandlestickConfig{
+func validConfig() Config {
+	return Config{
 		Label:      "Market prices",
 		Categories: []string{"2018/1/24", "2018/1/25"},
-		Series: []CandlestickSeries{{
+		Series: []Series{{
 			Name: "Prices",
 			Data: []Candle{
 				{Open: 2320.26, Close: 2320.26, Low: 2287.3, High: 2362.94},

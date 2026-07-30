@@ -15,6 +15,8 @@ const (
 	childPackagePrefix = parentFacade + "/"
 	barPackage         = childPackagePrefix + "bar"
 	linePackage        = childPackagePrefix + "line"
+	scatterPackage     = childPackagePrefix + "scatter"
+	candlestickPackage = childPackagePrefix + "candlestick"
 )
 
 func TestChartFoundationPackageDAG(t *testing.T) {
@@ -22,12 +24,12 @@ func TestChartFoundationPackageDAG(t *testing.T) {
 
 	loaded, err := packages.Load(&packages.Config{
 		Mode: packages.NeedName | packages.NeedImports,
-	}, chartPackage, internalPackage, parentFacade, barPackage, linePackage)
+	}, chartPackage, internalPackage, parentFacade, barPackage, linePackage, scatterPackage, candlestickPackage)
 	if err != nil {
 		t.Fatalf("load chart foundation packages: %v", err)
 	}
-	if len(loaded) != 5 {
-		t.Fatalf("loaded packages = %d, want 5", len(loaded))
+	if len(loaded) != 7 {
+		t.Fatalf("loaded packages = %d, want 7", len(loaded))
 	}
 
 	byPath := make(map[string]*packages.Package, len(loaded))
@@ -37,7 +39,7 @@ func TestChartFoundationPackageDAG(t *testing.T) {
 		}
 		byPath[pkg.PkgPath] = pkg
 	}
-	for _, path := range []string{chartPackage, internalPackage, parentFacade, barPackage, linePackage} {
+	for _, path := range []string{chartPackage, internalPackage, parentFacade, barPackage, linePackage, scatterPackage, candlestickPackage} {
 		if byPath[path] == nil {
 			t.Fatalf("foundation package %s was not loaded", path)
 		}
@@ -50,9 +52,9 @@ func TestChartFoundationPackageDAG(t *testing.T) {
 		return path == internalPackage || path == parentFacade || strings.HasPrefix(path, childPackagePrefix) || isRenderingEnginePackage(path)
 	}, "internal implementation, interactive facade, or rendering engine")
 	assertNoImports(t, byPath[parentFacade], func(path string) bool {
-		return strings.HasPrefix(path, childPackagePrefix) && path != barPackage && path != linePackage
+		return strings.HasPrefix(path, childPackagePrefix) && path != barPackage && path != linePackage && path != scatterPackage && path != candlestickPackage
 	}, "child interactive package")
-	for _, childPackage := range []string{barPackage, linePackage} {
+	for _, childPackage := range []string{barPackage, linePackage, scatterPackage, candlestickPackage} {
 		if byPath[parentFacade].Imports[childPackage] == nil {
 			t.Errorf("%s does not import migrated canonical package %s", parentFacade, childPackage)
 		}

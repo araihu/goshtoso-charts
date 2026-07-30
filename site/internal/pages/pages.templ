@@ -9,6 +9,7 @@ import (
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
+	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/components/radar"
@@ -319,25 +320,25 @@ templ interactiveChartScatterContent() {
 			Code:         interactiveChartScatterCode(),
 		},
 		Sections: []componentpage.Example{
-			{Title: "Visible point labels", Description: "Right-positioned labels repeat every exact score while retaining the same round-rectangle symbol geometry.", Preview: interactiveScatterVariant("labels", sampleInteractiveScatterLabels()), Code: `SeriesOptions: interactive.SeriesOptions{Label: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "right"}}`},
-			{Title: "Named axes and split lines", Description: "Sports and Score axis names plus split lines support aligned reading across the original six categories.", Preview: interactiveScatterVariant("split-lines", sampleInteractiveScatterSplitLines()), Code: `Options: interactive.ChartOptions{XAxis: &interactive.AxisOptions{Name: "Sports", ShowSplitLine: interactive.Bool(true)}, YAxis: &interactive.AxisOptions{Name: "Score", ShowSplitLine: interactive.Bool(true)}}`},
-			{Title: "Effect variant", Description: "The same Scatter component can add a default ripple to the six player dunk values; reduced-motion preference disables chart animation.", Preview: interactiveScatterVariant("effect-base", sampleInteractiveEffectScatter()), Code: `Variant: interactive.ScatterVariantEffect`},
-			{Title: "Per-series ripple styles", Description: "Dunk uses period 4, scale 10, and stroke; Shoot uses period 3, scale 6, and fill. Both remain series in one Scatter component.", Preview: interactiveScatterVariant("effect-styles", sampleInteractiveEffectScatterStyles()), Code: `Ripple: &interactive.RippleOptions{Period: 4, Scale: 10, BrushType: "stroke"}`},
+			{Title: "Visible point labels", Description: "Right-positioned labels repeat every exact score while retaining the same round-rectangle symbol geometry.", Preview: interactiveScatterVariant("labels", sampleInteractiveScatterLabels()), Code: `SeriesOptions: chart.SeriesOptions{Label: &chart.LabelOptions{Show: chart.Bool(true), Position: "right"}}`},
+			{Title: "Named axes and split lines", Description: "Sports and Score axis names plus split lines support aligned reading across the original six categories.", Preview: interactiveScatterVariant("split-lines", sampleInteractiveScatterSplitLines()), Code: `Options: chart.ChartOptions{XAxis: &chart.AxisOptions{Name: "Sports", ShowSplitLine: chart.Bool(true)}, YAxis: &chart.AxisOptions{Name: "Score", ShowSplitLine: chart.Bool(true)}}`},
+			{Title: "Effect variant", Description: "The same Scatter component can add a default ripple to the six player dunk values; reduced-motion preference disables chart animation.", Preview: interactiveScatterVariant("effect-base", sampleInteractiveEffectScatter()), Code: `Variant: interactivescatter.VariantEffect`},
+			{Title: "Per-series ripple styles", Description: "Dunk uses period 4, scale 10, and stroke; Shoot uses period 3, scale 6, and fill. Both remain series in one Scatter component.", Preview: interactiveScatterVariant("effect-styles", sampleInteractiveEffectScatterStyles()), Code: `Ripple: &chart.RippleOptions{Period: 4, Scale: 10, BrushType: "stroke"}`},
 		},
 		After: interactiveScatterDocumentation(),
 	})
 }
 
-templ interactiveScatterVariant(name string, config interactive.ScatterConfig) {
+templ interactiveScatterVariant(name string, config interactivescatter.Config) {
 	<div data-scatter-variant={ name }>
-		@interactive.Scatter(config)
+		@interactivescatter.Scatter(config)
 	</div>
 }
 
 templ interactiveScatterDocumentation() {
 	<div class="space-y-4">
 		@demoNote("Motion and emphasis", "Ripple can call attention to points, but it does not add data. Keep it restrained; reduced-motion users receive the same exact values without animation.")
-		@goAPIReference("interactive")
+		@goAPIReference("interactive/scatter")
 	</div>
 }
 
@@ -638,8 +639,15 @@ templ interactiveCandlestickContent() {
 				Code:        interactiveCandlestickStyleCode(),
 			},
 		},
-		After: interactiveDocumentation(demoNote("Ranges and zoom", "Each candle has a low, open, close, and high value. Zoom supports exploration; the table remains source for exact values.")),
+		After: interactiveCandlestickDocumentation(),
 	})
+}
+
+templ interactiveCandlestickDocumentation() {
+	<div class="space-y-4">
+		@demoNote("Ranges and zoom", "Each candle has a low, open, close, and high value. Zoom supports exploration; the table remains source for exact values.")
+		@goAPIReference("interactive/candlestick")
+	</div>
 }
 
 templ interactiveChartBoxPlotContent() {
