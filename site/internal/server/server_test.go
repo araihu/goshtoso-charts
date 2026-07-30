@@ -21,7 +21,7 @@ func TestDemoRoutesRender(t *testing.T) {
 		path string
 		want string
 	}{
-		{"/", "Getting Started"},
+		{"/", "Add your first chart"},
 		{"/docs/chart-modes", "Static/vector and interactive charts"},
 		{"/docs/chart-controls", "Chart controls"},
 		{"/docs/theme-playground", "Theme playground"},
@@ -509,7 +509,7 @@ func TestGettingStartedReplacesChartCardOverview(t *testing.T) {
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/", nil))
 	body := recorder.Body.String()
 	for _, want := range []string{
-		"Install the module", "Mount chart assets", "Include chart dependencies",
+		"Install the module", "Mount chart assets", "Add interactive dependencies",
 		"Render a static chart", "Render an interactive chart", "Choose delivery and wrapper behavior",
 		"chartassets", "Handler", "dependencies", "Dependencies", "dependencies.WithCDN()",
 		`href="/examples/live-availability"`, `class="max-w-3xl space-y-12"`,
@@ -1217,7 +1217,7 @@ func TestV11GoshtosoBrandAssetsAndMetadataRender(t *testing.T) {
 		{"/brand/goshtoso-logo-transparent.svg", "class=\"araihu-brand-v11\""},
 		{"/brand/goshtoso-icon-transparent.svg", "class=\"araihu-brand-v11\""},
 		{"/", `<link rel="icon" data-asset-brand="icon" href="/brand/goshtoso-icon-transparent.svg">`},
-		{"/", `<title>Getting Started · Goshtoso Charts</title>`},
+		{"/", `<title>Getting started · Goshtoso Charts</title>`},
 	} {
 		recorder := httptest.NewRecorder()
 		handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, test.path, nil))
