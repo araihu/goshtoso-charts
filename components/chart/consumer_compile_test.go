@@ -11,6 +11,7 @@ import (
 	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
 	interactivecandlestick "github.com/araihu/goshtoso-charts/components/interactive/candlestick"
 	interactivefunnel "github.com/araihu/goshtoso-charts/components/interactive/funnel"
+	interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
@@ -95,6 +96,14 @@ func oldFacadeFunnelConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeGaugeConsumer() chart.Instance {
+	return interactive.Gauge(interactive.GaugeConfig{
+		Label:   "Deployment completion",
+		Variant: interactive.GaugeVariantProgress,
+		Series:  []interactive.GaugeSeries{{Name: "Rollout", Data: []interactive.GaugeData{{Name: "Complete", Value: 73}}}},
+	})
+}
+
 func canonicalChildConsumers() []chart.Instance {
 	return []chart.Instance{
 		interactivebar.Bar(interactivebar.Config{
@@ -126,6 +135,11 @@ func canonicalChildConsumers() []chart.Instance {
 			Label:  "Deployment pipeline",
 			Order:  interactivefunnel.OrderData,
 			Series: []interactivefunnel.Series{{Name: "Deployments", Data: []interactivefunnel.Data{{Name: "Started", Value: 10}, {Name: "Completed", Value: 8}}}},
+		}),
+		interactivegauge.Gauge(interactivegauge.Config{
+			Label:   "Deployment completion",
+			Variant: interactivegauge.VariantProgress,
+			Series:  []interactivegauge.Series{{Name: "Rollout", Data: []interactivegauge.Data{{Name: "Complete", Value: 73}}}},
 		}),
 		interactiveheatmap.HeatMap(interactiveheatmap.Config{
 			Label:      "Deployment activity",
@@ -166,6 +180,7 @@ var (
 	_ = oldFacadeBoxPlotConsumer
 	_ = oldFacadeRadarConsumer
 	_ = oldFacadeFunnelConsumer
+	_ = oldFacadeGaugeConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer
 )

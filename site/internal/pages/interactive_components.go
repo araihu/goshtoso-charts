@@ -11,6 +11,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
+	interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 )
@@ -132,35 +133,35 @@ func sampleInteractiveBoxPlot() interactiveboxplot.Config {
 	}
 }
 
-func sampleInteractiveGauge() interactive.GaugeConfig {
-	return interactive.GaugeConfig{
+func sampleInteractiveGauge() interactivegauge.Config {
+	return interactivegauge.Config{
 		Label: "Deployment completion", Caption: "Current rollout completion percentage.",
-		Variant: interactive.GaugeVariantProgress,
-		Series: []interactive.GaugeSeries{{
-			Name: "Rollout", Data: []interactive.GaugeData{{Name: "Complete", Value: 73}},
+		Variant: interactivegauge.VariantProgress,
+		Series: []interactivegauge.Series{{
+			Name: "Rollout", Data: []interactivegauge.Data{{Name: "Complete", Value: 73}},
 		}},
 		Options: controlledOptions("Deployment completion", "deployment-completion"),
 	}
 }
 
-func sampleInteractiveLiquidGauge(title string, shape interactive.GaugeLiquidShape, showLabel, showOutline bool, animate *bool) interactive.GaugeConfig {
-	liquid := interactive.GaugeLiquidTreatment{Shape: shape, Animate: animate}
+func sampleInteractiveLiquidGauge(title string, shape interactivegauge.LiquidShape, showLabel, showOutline bool, animate *bool) interactivegauge.Config {
+	liquid := interactivegauge.LiquidTreatment{Shape: shape, Animate: animate}
 	if showLabel {
-		liquid.Label = &interactive.GaugeLiquidLabel{Show: interactive.Bool(true)}
+		liquid.Label = &interactivegauge.LiquidLabel{Show: chart.Bool(true)}
 	}
 	if showOutline {
-		liquid.Outline = &interactive.GaugeLiquidOutline{Show: interactive.Bool(true)}
+		liquid.Outline = &interactivegauge.LiquidOutline{Show: chart.Bool(true)}
 	}
-	return interactive.GaugeConfig{
+	return interactivegauge.Config{
 		Label: title, Caption: "Readings: 0.3, 0.4, and 0.5 in range 0 to 1.",
-		Variant: interactive.GaugeVariantLiquid, Max: 1, Height: "320px", Liquid: liquid,
-		Series:  []interactive.GaugeSeries{{Name: "liquid", Data: sampleLiquidGaugeData()}},
+		Variant: interactivegauge.VariantLiquid, Max: 1, Height: "320px", Liquid: liquid,
+		Series:  []interactivegauge.Series{{Name: "liquid", Data: sampleLiquidGaugeData()}},
 		Options: controlledOptions(title, title),
 	}
 }
 
-func sampleLiquidGaugeData() []interactive.GaugeData {
-	return []interactive.GaugeData{
+func sampleLiquidGaugeData() []interactivegauge.Data {
+	return []interactivegauge.Data{
 		{Name: "Wave 1", Value: .3},
 		{Name: "Wave 2", Value: .4},
 		{Name: "Wave 3", Value: .5},
@@ -684,35 +685,35 @@ func interactiveChartBoxPlotCode() string {
 }
 
 func interactiveChartGaugeCode() string {
-	return `@interactive.Gauge(interactive.GaugeConfig{
-	  Label: "Deployment completion",
-	  Variant: interactive.GaugeVariantProgress,
-	  Scale: interactive.GaugeScale{}, // Theme-aware cold-to-warm default.
-	  Series: []interactive.GaugeSeries{{
+	return `@interactivegauge.Gauge(interactivegauge.Config{
+  Label: "Deployment completion",
+  Variant: interactivegauge.VariantProgress,
+  Scale: interactivegauge.Scale{}, // Theme-aware cold-to-warm default.
+  Series: []interactivegauge.Series{{
     Name: "Rollout",
-    Data: []interactive.GaugeData{{Name: "Complete", Value: 73}},
+    Data: []interactivegauge.Data{{Name: "Complete", Value: 73}},
   }},
 })`
 }
 
 func interactiveGaugeLiquidCode() string {
-	return `@interactive.Gauge(interactive.GaugeConfig{
+	return `@interactivegauge.Gauge(interactivegauge.Config{
   Label: "Bounded fill",
-  Variant: interactive.GaugeVariantLiquid,
+  Variant: interactivegauge.VariantLiquid,
   Min: 0,
   Max: 1,
-  Series: []interactive.GaugeSeries{{
+  Series: []interactivegauge.Series{{
     Name: "liquid",
-    Data: []interactive.GaugeData{
+    Data: []interactivegauge.Data{
       {Name: "Wave 1", Value: .3},
       {Name: "Wave 2", Value: .4},
       {Name: "Wave 3", Value: .5},
     },
   }},
-  Liquid: interactive.GaugeLiquidTreatment{
-    Shape: interactive.GaugeLiquidShapeDiamond,
-    Animate: interactive.Bool(true),
-    Label: &interactive.GaugeLiquidLabel{Show: interactive.Bool(true)},
+  Liquid: interactivegauge.LiquidTreatment{
+    Shape:   interactivegauge.LiquidShapeDiamond,
+    Animate: chart.Bool(true),
+    Label:   &interactivegauge.LiquidLabel{Show: chart.Bool(true)},
   },
 })`
 }

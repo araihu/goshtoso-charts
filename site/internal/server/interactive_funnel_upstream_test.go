@@ -22,8 +22,8 @@ func TestInteractiveFunnelDocumentationCoversPinnedSourceFamily(t *testing.T) {
 		"Visible labels on the left", "show label", `"value":18`, `"value":25`, `"value":40`, `"value":6`, `"value":0`, `"show":true`, `"position":"left"`,
 		"Exact funnel values", `data-funnel-variant="base"`, `data-funnel-variant="labels-left"`,
 		"upstream source sequence in the exact table", "upstream default descending-by-value order",
-		"Stage meaning", "FunnelOrderData", "chart controls", "static/vector and interactive capabilities",
-		`data-go-api-version="v0.0.1"`, "Open v0.0.1 API", "github.com/araihu/goshtoso-charts/components/interactive",
+		"Stage meaning", "OrderData", "chart controls", "static/vector and interactive capabilities",
+		`data-go-api-version="v0.0.1"`, "Open v0.0.1 API", "github.com/araihu/goshtoso-charts/components/interactive/funnel",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("interactive Funnel documentation missing %q", want)

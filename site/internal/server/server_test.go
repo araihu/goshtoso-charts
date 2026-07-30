@@ -637,7 +637,7 @@ func TestGaugeDocumentationConsolidatesOfficialLiquidVariantsWithoutEngineBrandi
 	}
 	body := recorder.Body.String()
 	for _, want := range []string{
-		"Interactive gauge", "GaugeVariantLiquid", "Show one or more current readings against an explicit bounded range.",
+		"Interactive gauge", "VariantLiquid", "Show one or more current readings against an explicit bounded range.",
 		"basic liquid example", "show label", "show outline", "disable wave animation",
 		"shape(Diamond)", "shape(Pin)", "shape(Arrow)", "shape(Triangle)",
 		"Wave 1", "0.3", "Wave 2", "0.4", "Wave 3", "0.5", "Range: 0 to 1",
@@ -1333,7 +1333,7 @@ func TestEveryCurrentChartPageUsesSharedControlsAndCapabilityGating(t *testing.T
 	}
 }
 
-func TestRadarAndBoxPlotPagesLinkCanonicalChildAPIs(t *testing.T) {
+func TestMigratedPagesLinkCanonicalChildAPIs(t *testing.T) {
 	t.Parallel()
 
 	handler := New()
@@ -1343,6 +1343,8 @@ func TestRadarAndBoxPlotPagesLinkCanonicalChildAPIs(t *testing.T) {
 	}{
 		{path: "/components/interactive/radar", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/radar"},
 		{path: "/components/interactive/boxplot", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/boxplot"},
+		{path: "/components/interactive/gauge", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/gauge"},
+		{path: "/components/interactive/funnel", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/funnel"},
 	} {
 		recorder := httptest.NewRecorder()
 		handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, test.path, nil))
