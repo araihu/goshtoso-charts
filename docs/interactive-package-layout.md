@@ -31,16 +31,46 @@ The chart-named `Bar` constructor matches other Goshtoso component packages.
 Chart-specific names are concise: `Config`, `Series`, `Data`, `Orientation`,
 `Zoom`, `Statistic`, `Coordinate`, and reference types. Shared options such as
 `interactive.ChartOptions`, `interactive.SeriesOptions`, and
-`interactive.LiveData` remain parent-owned during phase 1 and appear unchanged
-through the aliased `Config` and `Series` fields.
+`interactive.LiveData` remain available through exact parent-package aliases
+during phase 1. Their canonical ownership now lives in `components/chart`, and
+they appear unchanged through the aliased `Config` and `Series` fields.
 
 Existing `interactive.Bar(interactive.BarConfig{...})` code still compiles and
 renders identically. The child declarations are type aliases and a forwarding
 constructor, so old and new configurations retain the same type identity,
 validation, component kind, and markup semantics. No bulk rewrite is required.
 
-Phase 1 does not complete package ownership. Bar implementation and common
-interactive types still live in the parent package.
+Phase 1 does not complete chart-specific ownership. Bar implementation still
+lives in the parent package; shared public types now live in `components/chart`
+and private renderer/runtime behavior in `components/internal/interactive`.
+
+## Shared chart instance foundation
+
+`components/chart.Instance` is the canonical public identity for a renderable
+chart instance. `components/interactive.Instance` and the Bar and Line child
+packages' `Instance` names are exact aliases, so old and new values remain
+assignment-compatible and constructor function signatures remain
+interchangeable. Consumers can mix the facade and chart-specific package paths
+without importing a rendering engine. `chart.NewInstance(components.Component)`
+is the renderer-neutral extension point for custom components.
+
+Foundation imports point inward:
+
+1. `components/chart` depends only on public component contracts.
+2. `components/internal/interactive` may depend on that foundation, but never
+   on the parent facade or a chart-specific child package.
+3. `components/interactive` may depend on the internal implementation and the
+   chart foundation, but never on a child package.
+4. Child packages may temporarily forward to the parent facade. Future child
+   implementation moves must preserve the same inward direction rather than
+   making the internal package depend on a facade.
+
+The ownership move has one intentional pre-v1 compatibility limit. Reflection
+reports the canonical package path as `components/chart`, including for values
+spelled as `interactive.Instance` or a child-package `Instance`; generated API
+documentation also owns the declaration there. Source assignment, methods,
+rendering, validation errors, and zero-value behavior remain compatible, but
+consumers that assert the old reflected package path must update that assertion.
 
 ## Line
 
@@ -67,7 +97,8 @@ chart := interactiveline.Line(interactiveline.Config{
 
 Line-specific names are concise: `Config`, `Series`, `Data`, `TimeAxis`,
 `ValueAxis`, `VisualScale`, `VisualPiece`, `Statistic`, `Coordinate`, and
-reference types. Shared options stay parent-owned during phase 1. Existing
+reference types. Shared options stay available through exact parent aliases
+during phase 1 while canonical ownership lives in `components/chart`. Existing
 `interactive.Line(interactive.LineConfig{...})` code remains supported and
 assignment-compatible with the canonical package. Constructor behavior,
 validation, component kind, live data, time and value axes, visual scales,
@@ -77,6 +108,7 @@ references, and rendered markup remain identical.
 
 Bar and Line are the first canonical child packages. Remaining chart families
 continue using their existing paths until their own bounded migrations land.
-Physical chart implementation ownership, relocation of shared interactive
-types, and the final fate of the parent compatibility facade are deliberately
-deferred architecture decisions that must be settled before v1.
+Physical chart implementation ownership and the final fate of the parent
+compatibility facade remain deliberately deferred decisions that must be
+settled before v1. Shared public and private foundation ownership is fixed by
+[ADR 0001](decisions/0001-interactive-chart-package-ownership.md).

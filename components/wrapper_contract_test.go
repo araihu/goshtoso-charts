@@ -129,7 +129,7 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 	for _, filename := range staticFiles {
 		assertWrapperLiteral(t, filename, "static-svg")
 	}
-	assertWrapperLiteral(t, "interactive/component.go", "interactive-raster")
+	assertWrapperLiteral(t, "internal/interactive/component.go", "interactive-raster")
 
 	loaded, err := packages.Load(&packages.Config{
 		Mode: packages.NeedName | packages.NeedFiles | packages.NeedCompiledGoFiles | packages.NeedSyntax,

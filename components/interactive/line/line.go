@@ -2,6 +2,9 @@ package line
 
 import interactive "github.com/araihu/goshtoso-charts/components/interactive"
 
+// Instance is the renderer-neutral chart instance returned by Line.
+type Instance = interactive.Instance
+
 // Config describes an accessible, browser-rendered line chart.
 type Config = interactive.LineConfig
 
@@ -61,4 +64,4 @@ type Series = interactive.LineSeries
 type Data = interactive.LineData
 
 // Line builds a reusable interactive line component.
-func Line(cfg Config) interactive.Instance { return interactive.Line(cfg) }
+func Line(cfg Config) Instance { return interactive.Line(cfg) }
