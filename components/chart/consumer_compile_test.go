@@ -9,7 +9,9 @@ import (
 	"github.com/araihu/goshtoso-charts/components/interactive"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 	interactivecandlestick "github.com/araihu/goshtoso-charts/components/interactive/candlestick"
+	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
+	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 )
 
@@ -49,6 +51,23 @@ func oldFacadeCandlestickConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeHeatMapConsumer() chart.Instance {
+	return interactive.HeatMap(interactive.HeatMapConfig{
+		Label:      "Deployment activity",
+		XAxis:      []string{"Mon"},
+		YAxis:      []string{"Morning"},
+		ValueRange: interactive.HeatMapValueRange{Min: 0, Max: 10},
+		Series:     []interactive.HeatMapSeries{{Name: "Deployments", Data: []interactive.HeatMapData{{Value: 3}}}},
+	})
+}
+
+func oldFacadePieConsumer() chart.Instance {
+	return interactive.Pie(interactive.PieConfig{
+		Label:  "Deployment outcomes",
+		Series: []interactive.PieSeries{{Name: "Outcome", Data: []interactive.PieData{{Name: "Passed", Value: 8}, {Name: "Failed", Value: 2}}}},
+	})
+}
+
 func canonicalChildConsumers() []chart.Instance {
 	return []chart.Instance{
 		interactivebar.Bar(interactivebar.Config{
@@ -71,6 +90,17 @@ func canonicalChildConsumers() []chart.Instance {
 			Categories: []string{"Mon"},
 			Series:     []interactivecandlestick.Series{{Name: "Price", Data: []interactivecandlestick.Candle{{Open: 10, Close: 11, Low: 9, High: 12}}}},
 		}),
+		interactiveheatmap.HeatMap(interactiveheatmap.Config{
+			Label:      "Deployment activity",
+			XAxis:      []string{"Mon"},
+			YAxis:      []string{"Morning"},
+			ValueRange: interactiveheatmap.ValueRange{Min: 0, Max: 10},
+			Series:     []interactiveheatmap.Series{{Name: "Deployments", Data: []interactiveheatmap.Data{{Value: 3}}}},
+		}),
+		interactivepie.Pie(interactivepie.Config{
+			Label:  "Deployment outcomes",
+			Series: []interactivepie.Series{{Name: "Outcome", Data: []interactivepie.Data{{Name: "Passed", Value: 8}, {Name: "Failed", Value: 2}}}},
+		}),
 	}
 }
 
@@ -89,6 +119,8 @@ var (
 	_ = oldFacadeLineConsumer
 	_ = oldFacadeScatterConsumer
 	_ = oldFacadeCandlestickConsumer
+	_ = oldFacadeHeatMapConsumer
+	_ = oldFacadePieConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer
 )

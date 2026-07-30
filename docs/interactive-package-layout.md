@@ -44,7 +44,7 @@ required.
 ## Shared chart instance foundation
 
 `components/chart.Instance` is the canonical public identity for a renderable
-chart instance. `components/interactive.Instance` and all four migrated child
+chart instance. `components/interactive.Instance` and all six migrated child
 packages' `Instance` names are exact aliases, so old and new values remain
 assignment-compatible and constructor function signatures remain
 interchangeable. Consumers can mix the facade and chart-specific package paths
@@ -157,10 +157,69 @@ chart-specific names are concise: `Config`, `Series`, `SeriesOptions`,
 `Candlestick` constructor is a single forwarder, preserving validation, kind,
 options, OHLC semantics, and rendered runtime bytes.
 
+## HeatMap
+
+Use `components/interactive/heatmap` for new interactive HeatMap code:
+
+```go
+import (
+	"github.com/araihu/goshtoso-charts/components/chart"
+	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
+)
+
+chart := interactiveheatmap.HeatMap(interactiveheatmap.Config{
+	Label:      "Deployment activity",
+	XAxis:      []string{"Mon"},
+	YAxis:      []string{"Morning"},
+	ValueRange: interactiveheatmap.ValueRange{Min: 0, Max: 10},
+	Series: []interactiveheatmap.Series{{
+		Name: "Deployments",
+		Data: []interactiveheatmap.Data{{Value: 3}},
+	}},
+	Options: chart.ChartOptions{Animation: chart.Bool(false)},
+})
+```
+
+Cartesian and calendar coordinates remain variants of one `HeatMap` component
+and one component kind. HeatMap-specific names are concise: `Config`,
+`Coordinate`, `Calendar`, `ValueRange`, `Series`, and `Data`. Shared chart,
+series, calendar, palette, and accessibility options retain their existing
+behavior through `components/chart`. The parent keeps exact aliases and one
+forwarding constructor.
+
+## Pie
+
+Use `components/interactive/pie` for new interactive Pie code:
+
+```go
+import interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
+
+chart := interactivepie.Pie(interactivepie.Config{
+	Label: "Deployment outcomes",
+	Series: []interactivepie.Series{{
+		Name:        "Outcome",
+		InnerRadius: 40,
+		OuterRadius: 75,
+		Data: []interactivepie.Data{
+			{Name: "Passed", Value: 8},
+			{Name: "Failed", Value: 2},
+		},
+	}},
+})
+```
+
+Standard, donut, and rose treatments remain variants of one `Pie` component
+and one component kind. Pie-specific names are concise: `Config`, `Series`,
+`Data`, `RoseMode`, `LabelContent`, `TooltipContent`, and `Center`. Percentage
+formatting and validation live only in the private interactive adapter; thin
+parent wrappers preserve Gauge, Sunburst, ThemeRiver, and WordCloud behavior.
+The public parent Pie surface remains exact aliases, constants, and one
+constructor forwarder.
+
 ## Current boundary
 
-Bar, Line, Scatter, and Candlestick physical ownership is complete. The
-supported parent facade delegates those four migrated charts. Remaining chart
+Bar, Line, Scatter, Candlestick, HeatMap, and Pie physical ownership is
+complete. The supported parent facade delegates those six migrated charts. Remaining chart
 families continue using their existing paths until their own bounded migrations
 land, and the final v1 policy for the parent compatibility facade remains open.
 Shared public and private foundation ownership is fixed by

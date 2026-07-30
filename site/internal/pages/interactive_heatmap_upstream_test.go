@@ -6,7 +6,7 @@ import (
 	"strings"
 	"testing"
 
-	interactive "github.com/araihu/goshtoso-charts/components/interactive"
+	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 )
 
 func TestInteractiveHeatMapCategorySamplePreservesPinnedSourceData(t *testing.T) {
@@ -55,7 +55,7 @@ func TestInteractiveHeatMapCalendarSampleIsDeterministicAndPreservesSourceShape(
 	t.Parallel()
 	first := sampleInteractiveCalendarHeatMap()
 	second := sampleInteractiveCalendarHeatMap()
-	if first.Coordinate != interactive.HeatMapCoordinateCalendar || first.Calendar == nil {
+	if first.Coordinate != interactiveheatmap.CoordinateCalendar || first.Calendar == nil {
 		t.Fatalf("calendar coordinate = %q, calendar = %#v", first.Coordinate, first.Calendar)
 	}
 	if len(first.Series) != 1 || len(first.Series[0].Data) != 366 {
@@ -106,7 +106,7 @@ func TestInteractiveHeatMapSnippetsAreSelfContained(t *testing.T) {
 			t.Fatalf("calendar snippet keeps unresolved identifier %q: %s", unresolved, calendar)
 		}
 	}
-	for _, want := range []string{`Add "time"`, "time.Date(2024", "[]interactive.HeatMapData", "Missing: true"} {
+	for _, want := range []string{`Add "time"`, "time.Date(2024", "[]interactiveheatmap.Data", "Missing: true"} {
 		if !strings.Contains(calendar, want) {
 			t.Fatalf("calendar snippet missing %q: %s", want, calendar)
 		}

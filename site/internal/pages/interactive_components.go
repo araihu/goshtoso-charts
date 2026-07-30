@@ -6,15 +6,17 @@ import (
 	"strings"
 	"time"
 
+	"github.com/araihu/goshtoso-charts/components/chart"
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
+	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 )
 
-func controlledOptions(title, filename string) interactive.ChartOptions {
-	return interactive.ChartOptions{
-		Title:    &interactive.TitleOptions{Text: title},
+func controlledOptions(title, filename string) chart.ChartOptions {
+	return chart.ChartOptions{
+		Title:    &chart.TitleOptions{Text: title},
 		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: filename},
 	}
@@ -67,47 +69,47 @@ var interactiveHeatMapDayHours = []string{
 	"12p", "1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p", "10p", "11p",
 }
 
-func sampleInteractiveHeatMap() interactive.HeatMapConfig {
-	data := make([]interactive.HeatMapData, len(interactiveHeatMapSourceData))
+func sampleInteractiveHeatMap() interactiveheatmap.Config {
+	data := make([]interactiveheatmap.Data, len(interactiveHeatMapSourceData))
 	for index, source := range interactiveHeatMapSourceData {
-		data[index] = interactive.HeatMapData{X: source[1], Y: source[0], Value: float64(source[2]), Missing: source[2] == 0}
+		data[index] = interactiveheatmap.Data{X: source[1], Y: source[0], Value: float64(source[2]), Missing: source[2] == 0}
 	}
 	options := controlledOptions("Basic heatmap example", "weekly-activity-heatmap")
-	options.Legend = &interactive.LegendOptions{Top: "32", Left: "center"}
-	return interactive.HeatMapConfig{
+	options.Legend = &chart.LegendOptions{Top: "32", Left: "center"}
+	return interactiveheatmap.Config{
 		Label: "Weekly activity by hour", Caption: "Seven days across twenty-four hourly buckets; empty source cells remain no-data cells.",
 		XAxis: interactiveHeatMapDayHours, YAxis: interactiveHeatMapWeekDays,
-		ValueRange: interactive.HeatMapValueRange{Min: 0, Max: 10, Calculable: interactive.Bool(true)},
-		SplitArea:  interactive.Bool(true),
-		Series:     []interactive.HeatMapSeries{{Name: "Activity", Data: data}},
+		ValueRange: interactiveheatmap.ValueRange{Min: 0, Max: 10, Calculable: chart.Bool(true)},
+		SplitArea:  chart.Bool(true),
+		Series:     []interactiveheatmap.Series{{Name: "Activity", Data: data}},
 		Height:     "34rem",
 		Options:    options,
 	}
 }
 
-func sampleInteractiveCalendarHeatMap() interactive.HeatMapConfig {
+func sampleInteractiveCalendarHeatMap() interactiveheatmap.Config {
 	start := time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC)
 	end := time.Date(2024, time.December, 31, 0, 0, 0, 0, time.UTC)
 	random := rand.New(rand.NewSource(1))
-	data := make([]interactive.HeatMapData, 0, 366)
+	data := make([]interactiveheatmap.Data, 0, 366)
 	for date := start; !date.After(end); date = date.AddDate(0, 0, 1) {
 		value := random.Intn(21)
-		data = append(data, interactive.HeatMapData{Date: date, Value: float64(value), Missing: value == 0})
+		data = append(data, interactiveheatmap.Data{Date: date, Value: float64(value), Missing: value == 0})
 	}
 	options := controlledOptions("Calendar heatmap example", "calendar-activity-heatmap")
-	options.Legend = &interactive.LegendOptions{Top: "32", Left: "center"}
-	return interactive.HeatMapConfig{
+	options.Legend = &chart.LegendOptions{Top: "32", Left: "center"}
+	return interactiveheatmap.Config{
 		Label: "Calendar activity", Caption: "A deterministic 366-day sequence preserves the source range and explicit no-data days.",
-		Coordinate: interactive.HeatMapCoordinateCalendar,
-		Calendar: &interactive.HeatMapCalendar{
+		Coordinate: interactiveheatmap.CoordinateCalendar,
+		Calendar: &interactiveheatmap.Calendar{
 			Start: start, End: end,
-			Options: interactive.CalendarOptions{
+			Options: chart.CalendarOptions{
 				Top: "100", Left: "30", Right: "30", CellSize: "auto", Orient: "horizontal",
-				CellStyle: &interactive.ItemStyle{BorderWidth: 0.5}, MonthLabel: &interactive.CalendarLabelOptions{FontSize: 7},
+				CellStyle: &chart.ItemStyle{BorderWidth: 0.5}, MonthLabel: &chart.CalendarLabelOptions{FontSize: 7},
 			},
 		},
-		ValueRange: interactive.HeatMapValueRange{Min: 0, Max: 20},
-		Series:     []interactive.HeatMapSeries{{Name: "Calendar activity", Data: data}},
+		ValueRange: interactiveheatmap.ValueRange{Min: 0, Max: 20},
+		Series:     []interactiveheatmap.Series{{Name: "Calendar activity", Data: data}},
 		Height:     "34rem",
 		Options:    options,
 	}
@@ -603,32 +605,32 @@ func interactiveChartLineCode() string {
 }
 
 func interactiveChartPieCode() string {
-	return `@interactive.Pie(interactive.PieConfig{
+	return `@interactivepie.Pie(interactivepie.Config{
   Label: "Rose area",
-  Series: []interactive.PieSeries{{
+  Series: []interactivepie.Series{{
     Name: "Seasons", InnerRadius: 40, OuterRadius: 75,
-    RoseMode: interactive.PieRoseArea,
-    LabelContent: interactive.PieLabelNameAndValue,
+    RoseMode: interactivepie.RoseArea,
+    LabelContent: interactivepie.LabelNameAndValue,
     Data: seasonalData,
   }},
 })`
 }
 
 func interactiveChartHeatMapCode() string {
-	return `@interactive.HeatMap(interactive.HeatMapConfig{
+	return `@interactiveheatmap.HeatMap(interactiveheatmap.Config{
   Label: "Weekly activity by hour",
   XAxis: []string{
     "12a", "1a", "2a", "3a", "4a", "5a", "6a", "7a", "8a", "9a", "10a", "11a",
     "12p", "1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p", "10p", "11p",
   },
   YAxis: []string{"Saturday", "Friday", "Thursday", "Wednesday", "Tuesday", "Monday", "Sunday"},
-  ValueRange: interactive.HeatMapValueRange{
-    Min: 0, Max: 10, Calculable: interactive.Bool(true),
+  ValueRange: interactiveheatmap.ValueRange{
+    Min: 0, Max: 10, Calculable: chart.Bool(true),
   },
-  SplitArea: interactive.Bool(true),
-  Series: []interactive.HeatMapSeries{{
+  SplitArea: chart.Bool(true),
+  Series: []interactiveheatmap.Series{{
     Name: "Activity",
-    Data: []interactive.HeatMapData{
+    Data: []interactiveheatmap.Data{
       {X: 0, Y: 0, Value: 5},
       {X: 1, Y: 0, Value: 1},
       {X: 2, Y: 0, Missing: true},
@@ -639,23 +641,23 @@ func interactiveChartHeatMapCode() string {
 
 func interactiveCalendarHeatMapCode() string {
 	return `// Add "time" to the templ file's Go import block.
-@interactive.HeatMap(interactive.HeatMapConfig{
+@interactiveheatmap.HeatMap(interactiveheatmap.Config{
   Label: "Calendar activity",
-  Coordinate: interactive.HeatMapCoordinateCalendar,
-  Calendar: &interactive.HeatMapCalendar{
+  Coordinate: interactiveheatmap.CoordinateCalendar,
+  Calendar: &interactiveheatmap.Calendar{
     Start: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
     End: time.Date(2024, time.December, 31, 0, 0, 0, 0, time.UTC),
-    Options: interactive.CalendarOptions{
+    Options: chart.CalendarOptions{
       Top: "100", Left: "30", Right: "30",
       CellSize: "auto", Orient: "horizontal",
-      CellStyle: &interactive.ItemStyle{BorderWidth: 0.5},
-      MonthLabel: &interactive.CalendarLabelOptions{FontSize: 7},
+      CellStyle: &chart.ItemStyle{BorderWidth: 0.5},
+      MonthLabel: &chart.CalendarLabelOptions{FontSize: 7},
     },
   },
-  ValueRange: interactive.HeatMapValueRange{Min: 0, Max: 20},
-  Series: []interactive.HeatMapSeries{{
+  ValueRange: interactiveheatmap.ValueRange{Min: 0, Max: 20},
+  Series: []interactiveheatmap.Series{{
     Name: "Calendar activity",
-    Data: []interactive.HeatMapData{
+    Data: []interactiveheatmap.Data{
       {Date: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC), Value: 12},
       {Date: time.Date(2024, time.January, 2, 0, 0, 0, 0, time.UTC), Missing: true},
       {Date: time.Date(2024, time.January, 3, 0, 0, 0, 0, time.UTC), Value: 7},

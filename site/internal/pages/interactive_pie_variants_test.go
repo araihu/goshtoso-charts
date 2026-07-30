@@ -4,7 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/araihu/goshtoso-charts/components/interactive"
+	"github.com/araihu/goshtoso-charts/components/chart"
+	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
 )
 
 func TestInteractivePieUpstreamCoverageIsExhaustiveAndPinned(t *testing.T) {
@@ -35,7 +36,7 @@ func TestInteractivePieUpstreamCoverageIsExhaustiveAndPinned(t *testing.T) {
 func TestInteractivePieSamplesPreserveUpstreamSemantics(t *testing.T) {
 	t.Parallel()
 	values := []struct {
-		cfg  interactive.PieConfig
+		cfg  interactivepie.Config
 		want [][]float64
 	}{
 		{sampleInteractivePie(), [][]float64{{81, 87, 47, 59}}},
@@ -64,15 +65,15 @@ func TestInteractivePieSamplesPreserveUpstreamSemantics(t *testing.T) {
 	}
 
 	padded := sampleInteractivePiePadded()
-	if padded.Series[0].PadAngle != 5 || !reflect.DeepEqual(padded.Series[0].Center, &interactive.PieCenter{X: 40, Y: 50}) ||
-		padded.Options.Legend == nil || !reflect.DeepEqual(padded.Options.Legend.Padding, &interactive.EdgeInsets{Top: 1, Right: 1, Bottom: 1, Left: 1}) ||
-		padded.TooltipContent != interactive.PieTooltipNameAndShare {
+	if padded.Series[0].PadAngle != 5 || !reflect.DeepEqual(padded.Series[0].Center, &interactivepie.Center{X: 40, Y: 50}) ||
+		padded.Options.Legend == nil || !reflect.DeepEqual(padded.Options.Legend.Padding, &chart.EdgeInsets{Top: 1, Right: 1, Bottom: 1, Left: 1}) ||
+		padded.TooltipContent != interactivepie.TooltipNameAndShare {
 		t.Errorf("padded Pie semantics = %#v", padded)
 	}
 	paired := sampleInteractivePiePairedRoses()
-	if !reflect.DeepEqual(paired.Series[0].Center, &interactive.PieCenter{X: 25, Y: 50}) ||
-		!reflect.DeepEqual(paired.Series[1].Center, &interactive.PieCenter{X: 75, Y: 50}) ||
-		paired.Series[0].RoseMode != interactive.PieRoseArea || paired.Series[1].RoseMode != interactive.PieRoseRadius {
+	if !reflect.DeepEqual(paired.Series[0].Center, &interactivepie.Center{X: 25, Y: 50}) ||
+		!reflect.DeepEqual(paired.Series[1].Center, &interactivepie.Center{X: 75, Y: 50}) ||
+		paired.Series[0].RoseMode != interactivepie.RoseArea || paired.Series[1].RoseMode != interactivepie.RoseRadius {
 		t.Errorf("paired rose semantics = %#v", paired.Series)
 	}
 	auto := sampleInteractivePieAutoEmphasis()

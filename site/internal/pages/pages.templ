@@ -8,7 +8,9 @@ import (
 	"github.com/araihu/goshtoso-charts/components/heatmap"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
+	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
+	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
@@ -473,43 +475,43 @@ templ interactiveChartPieContent() {
 			Preview:      interactivePieVariants(),
 			Code:         interactiveChartPieCode(),
 		},
-		After: interactiveDocumentation(interactivePieUsage()),
+		After: templ.Join(interactivePieUsage(), goAPIReference("interactive/pie")),
 	})
 }
 
 templ interactivePieVariants() {
 	<div class="space-y-10" data-pie-variants>
 		<div data-pie-variant="base">
-			@interactive.Pie(sampleInteractivePie())
+			@interactivepie.Pie(sampleInteractivePie())
 		</div>
 		<div data-pie-variant="labels">
-			@interactive.Pie(sampleInteractivePieLabels())
+			@interactivepie.Pie(sampleInteractivePieLabels())
 		</div>
 		<div data-pie-variant="radius">
-			@interactive.Pie(sampleInteractivePieRadius())
+			@interactivepie.Pie(sampleInteractivePieRadius())
 		</div>
 		<div data-pie-variant="padded">
-			@interactive.Pie(sampleInteractivePiePadded())
+			@interactivepie.Pie(sampleInteractivePiePadded())
 		</div>
 		<div class="space-y-10" data-pie-rose-variants>
 			<div data-pie-variant="rose-area">
-				@interactive.Pie(sampleInteractivePieRoseArea())
+				@interactivepie.Pie(sampleInteractivePieRoseArea())
 			</div>
 			<div data-pie-variant="rose-radius">
-				@interactive.Pie(sampleInteractivePieRoseRadius())
+				@interactivepie.Pie(sampleInteractivePieRoseRadius())
 			</div>
 			<div data-pie-variant="paired-roses">
-				@interactive.Pie(sampleInteractivePiePairedRoses())
+				@interactivepie.Pie(sampleInteractivePiePairedRoses())
 			</div>
 		</div>
 		<div data-pie-variant="nested">
-			@interactive.Pie(sampleInteractivePieNested())
+			@interactivepie.Pie(sampleInteractivePieNested())
 		</div>
 		<div data-pie-variant="auto-emphasis">
-			@interactive.Pie(sampleInteractivePieAutoEmphasis())
+			@interactivepie.Pie(sampleInteractivePieAutoEmphasis())
 		</div>
 		<div data-pie-variant="selected">
-			@interactive.Pie(sampleInteractivePieSelected())
+			@interactivepie.Pie(sampleInteractivePieSelected())
 		</div>
 	</div>
 }
@@ -571,18 +573,18 @@ templ interactiveChartHeatMapContent() {
 		Description: "Intensity patterns across category grids or ordered calendar dates.",
 		Primary: componentpage.Example{
 			AbovePreview: visualizationGuidance("Reveal concentration, gaps, and repeated time patterns across two categorical dimensions.", "Relative intensity across a manageable grid is the question.", "Exact cell comparison, sequence, or color-independent interpretation is primary; use a table instead.", "The disclosure below preserves every category pair, value, and explicit no-data cell."),
-			Preview:      interactive.HeatMap(sampleInteractiveHeatMap()),
+			Preview:      interactiveheatmap.HeatMap(sampleInteractiveHeatMap()),
 			Code:         interactiveChartHeatMapCode(),
 		},
 		Sections: []componentpage.Example{
 			{
 				Title:       "Calendar coordinates",
 				Description: "A full deterministic year preserves the source date range, value domain, cell borders, and explicit no-data days while using responsive cell sizing.",
-				Preview:     interactive.HeatMap(sampleInteractiveCalendarHeatMap()),
+				Preview:     interactiveheatmap.HeatMap(sampleInteractiveCalendarHeatMap()),
 				Code:        interactiveCalendarHeatMapCode(),
 			},
 		},
-		After: interactiveDocumentation(interactiveHeatMapUsage()),
+		After: templ.Join(interactiveHeatMapUsage(), goAPIReference("interactive/heatmap")),
 	})
 }
 
