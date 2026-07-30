@@ -64,13 +64,24 @@ for (const width of [390, 1440]) {
     page.on("pageerror", (error) => browserIssues.push(`pageerror: ${error.message}`));
     try {
       await page.goto(`${baseURL}/`);
-      await page.locator(".component-doc-shell__brand-logo--goshtoso").waitFor();
+      await page.locator('[data-asset-brand="logo"]').waitFor();
       assert.equal(await page.locator(".component-doc-shell__brand-name").count(), 0);
       assert.equal(await page.locator('[data-site-version]').count(), 1);
       assert.equal((await page.locator('[data-site-version]').textContent()).trim(), "dev");
       assert.equal(await page.locator('[data-site-version] a').count(), 0);
       assert.equal(await page.locator('#componentdocshell-theme-trigger, [aria-label="Theme"]').count(), 0);
-      assert.equal(await page.locator("[data-campaign-toggle]").count(), 0);
+      const managedLogo = page.locator('[data-asset-brand="logo"]');
+      assert.equal(await managedLogo.getAttribute("src"), "/brand/goshtoso-logo-transparent.svg");
+      assert.equal(await managedLogo.getAttribute("alt"), "Goshtoso");
+      assert.equal(await page.locator('[data-asset-brand="icon"]').getAttribute("href"), "/brand/goshtoso-icon-transparent.svg");
+      const campaignToggle = page.locator("[data-campaign-toggle]");
+      assert.equal(await campaignToggle.count(), 1);
+      assert.equal(await campaignToggle.isHidden(), true);
+      const campaignRuntime = page.locator('script[src="https://araihu.com/assets/campaign/v1.js"]');
+      assert.equal(await campaignRuntime.count(), 1);
+      assert.equal(await campaignRuntime.getAttribute("data-channel"), "https://araihu.com/assets/releases/current");
+      assert.equal(await campaignRuntime.getAttribute("integrity"), "sha384-oPH7l1vK9vKP1Dn+18sO3yEXlz4ts6KzPEQl0SW4Y/+im05gOaamNNaQAf6bGH/n");
+      assert.equal(await campaignRuntime.getAttribute("crossorigin"), "anonymous");
       assert.equal(await page.locator('link[rel="stylesheet"][href*="/componentdocshell/assets/shell.css?v="]').count(), 1);
       assert.equal(await page.locator('script[src*="/assets/js/action-group.js"]').count(), 0);
       assert.equal(await page.getByRole("link", { name: "Assets", exact: true }).count(), 0);
@@ -80,7 +91,7 @@ for (const width of [390, 1440]) {
       assert.equal(await page.getByRole("heading", { name: "Getting Started", exact: true }).count(), 1);
 
       const state = await page.evaluate(() => {
-        const logo = document.querySelector(".component-doc-shell__brand-logo--goshtoso").getBoundingClientRect();
+        const logo = document.querySelector('[data-asset-brand="logo"]').getBoundingClientRect();
         return {
           theme: document.documentElement.dataset.theme,
           logoWidth: logo.width,
@@ -110,7 +121,8 @@ test("Theme Playground keeps its picker inside the isolated frame", async () => 
     await page.goto(`${baseURL}/docs/theme-playground`);
     assert.equal(await page.locator('#componentdocshell-theme-trigger, [aria-label="Theme"]').count(), 0);
     assert.equal(await page.locator('[data-site-version]').count(), 1);
-    assert.equal(await page.locator("[data-campaign-toggle]").count(), 0);
+    assert.equal(await page.locator("[data-campaign-toggle]").count(), 1);
+    assert.equal(await page.locator("[data-campaign-toggle]").isHidden(), true);
     const frame = page.frames().find((candidate) => candidate.url().endsWith("/docs/theme-playground/frame"));
     assert.ok(frame, "same-origin Theme Playground frame missing");
     assert.equal(new URL(frame.url()).origin, new URL(page.url()).origin);
