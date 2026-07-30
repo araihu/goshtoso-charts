@@ -74,6 +74,10 @@ for (const width of [390, 1440]) {
           await page.locator(`[data-chart-guide-nav] [aria-current="page"]`).waitFor();
           await page.getByText("pkg.go.dev is the canonical reference", { exact: false }).waitFor();
           if (name === "chart-controls") {
+            await page.locator("[data-chart-control-examples]").waitFor();
+            await page.locator("#static-chart-control-form").waitFor();
+            await page.locator("#interactive-chart-control-form").waitFor();
+            await page.getByRole("button", { name: "Copy Static form and chart · templ code", exact: true }).waitFor();
             await page.locator("[data-wrapper-mode-comparison]").waitFor();
             await page.locator("[data-wrapper-dom-contract]").waitFor();
             await page.getByText("observable state, not a mutation API", { exact: false }).waitFor();

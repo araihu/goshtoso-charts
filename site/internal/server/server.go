@@ -34,7 +34,14 @@ func New() http.Handler {
 		render(writer, request, pages.ChartModesPage(isFragment(request)))
 	})
 	mux.HandleFunc("GET /docs/chart-controls", func(writer http.ResponseWriter, request *http.Request) {
-		render(writer, request, pages.ChartControlsPage(isFragment(request)))
+		examples := pages.ParseChartControlExamples(request.URL.Query())
+		if isFragment(request) {
+			if example, ok := pages.ChartControlExampleForTarget(examples, request.Header.Get("HX-Target")); ok {
+				render(writer, request, example)
+				return
+			}
+		}
+		render(writer, request, pages.ChartControlsPage(isFragment(request), examples))
 	})
 	mux.HandleFunc("GET /components/heartbeat", func(writer http.ResponseWriter, request *http.Request) {
 		http.Redirect(writer, request, "/examples/live-availability", http.StatusPermanentRedirect)

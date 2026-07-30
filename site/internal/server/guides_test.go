@@ -39,6 +39,9 @@ func TestChartGuidesDocumentActualRendererNeutralCapabilities(t *testing.T) {
 				"actionless non-omitted wrapper", "versioned same-origin external runtime", "Omitted mode alone suppresses that runtime",
 				"one closed state", "data-wrapper-dom-contract", "data-goshtoso-chart-wrapper-mode", "observable state, not a mutation API",
 				"Disabled affects shared wrapper actions only", "enabled-to-omitted and omitted-to-non-omitted", "preserves any action that was already unavailable",
+				"Change charts with form values", "data-chart-control-examples", "data-chart-control-example=\"static\"", "data-chart-control-example=\"interactive\"",
+				"Static form and chart · templ", "Interactive form and chart · templ", "Apply static controls", "Apply interactive controls",
+				"Native select controls keep lifecycle and orientation editable", "form, range, checkbox, button, and source presentation use Goshtoso components",
 			},
 		},
 	}
@@ -96,7 +99,7 @@ func TestChartGuideHTMXResponseKeepsTitleSidebarAndTOCHeadings(t *testing.T) {
 	for _, want := range []string{
 		`<title>Chart controls · Goshtoso Charts</title>`, `id="main-content"`, `id="componentdocshell-sidebar-content"`,
 		`hx-swap-oob`, `data-sidebar-icon="chart-controls"`, `aria-current="page"`, `id="responsive-actions"`, `data-toc-heading`,
-		`id="wrapper-lifecycle"`, `id="client-transitions"`, `id="htmx-swaps"`, `id="state-guarantees"`, `id="no-javascript"`,
+		`id="live-form-examples"`, `id="wrapper-lifecycle"`, `id="client-transitions"`, `id="htmx-swaps"`, `id="state-guarantees"`, `id="no-javascript"`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("HTMX guide response missing %q", want)

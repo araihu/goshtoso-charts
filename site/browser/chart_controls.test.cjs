@@ -113,9 +113,15 @@ async function openExpand(wrapper) {
 }
 
 async function enterFullscreen(wrapper) {
-  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
+  const direct = wrapper.locator('[id$="-fullscreen-action"]:visible').first();
+  if (await direct.count()) {
+    await direct.click();
+    return { action: direct, trigger: direct };
+  }
+  let trigger = wrapper.locator('[id$="-stacked"] > button:visible').first();
+  if (!(await trigger.count())) trigger = wrapper.getByRole("button", { name: /More .* chart actions/ }).filter({ visible: true }).first();
   await trigger.click();
-  const action = wrapper.locator('[id$="-fullscreen-action"]').first();
+  const action = wrapper.locator('[id*="-fullscreen-action"]:visible').first();
   await action.click();
   return { action, trigger };
 }
@@ -126,8 +132,8 @@ test("responsive controls keep one primary Expand and flatten overflow at 320, 3
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
     for (const width of [320, 390, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 });
-      const expectedSecondary = width === 320 ? 0 : width === 390 ? 1 : 2;
-      const expectedOverflow = width <= 390;
+      const expectedSecondary = width <= 390 ? 0 : width === 768 ? 1 : 2;
+      const expectedOverflow = width <= 768;
       await page.waitForFunction(({ secondaryCount, overflowVisible }) => {
         const root = document.querySelector("[data-goshtoso-chart-wrapper] [data-goshtoso-action-group]");
         if (!root) return false;
@@ -162,7 +168,7 @@ test("responsive controls keep one primary Expand and flatten overflow at 320, 3
       const primary = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
       await primary.focus();
       assert.equal(await primary.evaluate((button) => button === document.activeElement), true);
-      if (width > 320) {
+      if (expectedSecondary > 0) {
         await primary.press("Enter");
         const primaryMenu = wrapper.locator('[id$="-stacked"] [role=menu]');
         await primaryMenu.waitFor({ state: "visible" });
@@ -179,7 +185,7 @@ test("responsive controls keep one primary Expand and flatten overflow at 320, 3
         await overflow.click();
         const menu = wrapper.locator("[data-action-group-overflow] [role=menu]");
         await menu.waitFor({ state: "visible" });
-        const expected = width === 320
+        const expected = expectedSecondary === 0
           ? ["Expand", "Expand", "Fullscreen", "Export", "SVG", "PNG"]
           : ["Export", "SVG", "PNG"];
         assert.deepEqual(
@@ -193,6 +199,109 @@ test("responsive controls keep one primary Expand and flatten overflow at 320, 3
   } finally {
     await page.close();
   }
+});
+
+test("static, interactive, 3D, and funnel controls share neutral dimensions across viewport and color modes", async () => {
+  const routes = [
+    ["/components/line", "static-line"],
+    ["/components/interactive/bar", "interactive-bar"],
+    ["/components/interactive/scatter-3d", "scatter-3d"],
+    ["/components/funnel", "funnel"],
+  ];
+  const exportTriggerSizes = new Map();
+  for (const width of [390, 768, 1440]) {
+    for (const mode of ["light", "dark"]) {
+      for (const [route, slug] of routes) {
+        const page = await pageAt(route, { width, height: 900 });
+        try {
+          await page.evaluate((dark) => document.documentElement.classList.toggle("dark", dark), mode === "dark");
+          const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+          await page.waitForFunction(() => document.querySelector("[data-goshtoso-action-group]")?.dataset.actionGroupInitialized === "true");
+          const controls = await wrapper.evaluate((element) => {
+            const root = element.querySelector("[data-goshtoso-action-group]");
+            const visible = (candidate) => candidate && candidate.getBoundingClientRect().width > 0 && getComputedStyle(candidate).visibility !== "hidden";
+            const primary = root.querySelector(":scope > [data-action-group-primary] > button");
+            const namedButtons = [primary, ...[...root.querySelectorAll(":scope > [data-action-group-secondary]")]
+              .map((slot) => slot.querySelector(":scope > button, :scope > div > button"))].filter(visible);
+            const overflow = root.querySelector(":scope > [data-action-group-overflow] > div > button");
+            const probe = document.createElement("span");
+            probe.className = "fixed invisible bg-primary dark:bg-primary-dark";
+            document.body.append(probe);
+            const accent = getComputedStyle(probe).backgroundColor;
+            probe.remove();
+            const primaryStyle = getComputedStyle(primary);
+            return {
+              tone: root.dataset.goshtosoChartControlTone,
+              accent,
+              primaryColor: primaryStyle.backgroundColor,
+              primaryClasses: primary.className,
+              named: namedButtons.map((button) => ({
+                text: button.textContent.trim(),
+                width: Math.round(button.getBoundingClientRect().width),
+                height: Math.round(button.getBoundingClientRect().height),
+                expanded: button.getAttribute("aria-expanded"),
+              })),
+              overflow: visible(overflow) ? { width: Math.round(overflow.getBoundingClientRect().width), height: Math.round(overflow.getBoundingClientRect().height) } : null,
+              pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
+            };
+          });
+          assert.equal(controls.tone, "neutral", `${slug} tone`);
+          assert.notEqual(controls.primaryColor, controls.accent, `${slug} retained primary accent`);
+          assert.ok(controls.named.length >= 1, `${slug} missing named chart action`);
+          assert.deepEqual(new Set(controls.named.map(({ height }) => height)), new Set([44]), `${slug} control heights`);
+          assert.ok(Math.max(...controls.named.map(({ width: value }) => value)) - Math.min(...controls.named.map(({ width: value }) => value)) <= 1, `${slug} control widths ${JSON.stringify(controls.named)}`);
+          assert.ok(controls.named.every(({ width: value }) => value === 120), `${slug} expected 120px named controls`);
+          if (controls.overflow) assert.deepEqual(controls.overflow, { width: 44, height: 44 });
+          assert.equal(controls.pageOverflow, 0, `${width}px ${mode} ${slug} overflow`);
+
+          if (width === 1440) {
+            const exportButton = wrapper.locator("[data-goshtoso-chart-actions] > [data-action-group-secondary] button:visible").filter({ hasText: "Export" }).first();
+            await exportButton.waitFor({ state: "visible" });
+            const key = (await exportButton.getAttribute("aria-haspopup")) === "true" ? "dropdown" : "direct";
+            exportTriggerSizes.set(key, await exportButton.evaluate((button) => ({ width: Math.round(button.getBoundingClientRect().width), height: Math.round(button.getBoundingClientRect().height) })));
+          }
+
+          const stacked = wrapper.locator('[id$="-stacked"] > button:visible').first();
+          if (await stacked.count()) {
+            await stacked.focus();
+            await stacked.press("Enter");
+            const menu = stacked.locator("..").getByRole("menu");
+            await menu.waitFor({ state: "visible" });
+            await page.waitForFunction((openMenu) => {
+              const items = [...openMenu.querySelectorAll("[role='menuitem']")];
+              return items.length >= 2 && items.every((item) => Math.round(item.getBoundingClientRect().height) === 44);
+            }, await menu.elementHandle());
+            const itemHeights = await menu.getByRole("menuitem").evaluateAll((items) => items.map((item) => Math.round(item.getBoundingClientRect().height)));
+            assert.ok(itemHeights.length >= 2);
+            assert.ok(itemHeights.every((height) => height === 44), `${slug} stacked item heights ${itemHeights}`);
+            await page.keyboard.press("Escape");
+            await menu.waitFor({ state: "hidden" });
+            assert.equal(await stacked.evaluate((button) => button === document.activeElement), true);
+          }
+
+          const overflow = wrapper.getByRole("button", { name: /More .* chart actions/ }).filter({ visible: true }).first();
+          if (await overflow.count()) {
+            await overflow.focus();
+            await overflow.press("Enter");
+            const menu = overflow.locator("..").getByRole("menu");
+            await menu.waitFor({ state: "visible" });
+            await page.keyboard.press("Escape");
+            await menu.waitFor({ state: "hidden" });
+            assert.equal(await overflow.isVisible(), true);
+          }
+
+          if (screenshotDirectory) {
+            await wrapper.scrollIntoViewIfNeeded();
+            await page.screenshot({ path: path.join(screenshotDirectory, `chart-controls-neutral-${slug}-${width}-${mode}.png`) });
+          }
+        } finally {
+          await page.close();
+        }
+      }
+    }
+  }
+  assert.deepEqual(exportTriggerSizes.get("direct"), { width: 120, height: 44 });
+  assert.deepEqual(exportTriggerSizes.get("dropdown"), { width: 120, height: 44 });
 });
 
 test("Word Cloud, Line, Gauge, Pie, Map, and Tree controls stay usable across the full width and theme matrix", async () => {
