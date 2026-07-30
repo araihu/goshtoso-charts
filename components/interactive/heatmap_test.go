@@ -159,6 +159,13 @@ func TestHeatMapRejectsInvalidDataContract(t *testing.T) {
 			cfg.Calendar.Options.YearLabel = &CalendarLabelOptions{Position: "center"}
 			return cfg
 		}, `heatmap chart calendar year label position "center" is not supported`},
+		"deterministic calendar label order": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.Calendar.Options.DayLabel = &CalendarLabelOptions{Margin: -1}
+			cfg.Calendar.Options.MonthLabel = &CalendarLabelOptions{Margin: -1}
+			cfg.Calendar.Options.YearLabel = &CalendarLabelOptions{Margin: -1}
+			return cfg
+		}, "heatmap chart calendar day label margin and font size must be nonnegative"},
 	}
 
 	for name, test := range tests {

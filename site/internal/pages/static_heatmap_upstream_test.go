@@ -76,7 +76,7 @@ func TestStaticHeatMapSnippetsMatchBothPreviews(t *testing.T) {
 		}
 	}
 	for _, want := range []string{
-		`TitleOptions`, `Padding`, `ValueLabelOptions`, `ValueFormatExact`, `Decimals: 1`, `#0e7490`, `#e11d48`,
+		`TitleOptions`, `XAxis.TitleFontSize`, `YAxis.TitleFontSize`, `Padding`, `ValueLabelOptions`, `ValueFormatExact`, `Decimals: 1`, `#0e7490`, `#e11d48`,
 	} {
 		if !strings.Contains(heatMapOverrideCode(), want) {
 			t.Errorf("caller-style HeatMap snippet missing %q", want)

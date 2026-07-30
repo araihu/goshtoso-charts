@@ -152,6 +152,7 @@ async function measure(figure) {
     const host = element.querySelector("[_echarts_instance_]");
     const chart = window.echarts.getInstanceByDom(host);
     const option = chart.getOption();
+    // Intentional test-only use of renderer view/group internals: public options do not expose the transformed component bounds needed for overlap checks.
     const visualModel = chart.getModel().getComponent("visualMap");
     const visualView = chart.getViewOfComponentModel(visualModel);
     const visual = visualView.group.getBoundingRect().clone();

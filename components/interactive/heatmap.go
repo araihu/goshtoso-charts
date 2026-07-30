@@ -101,17 +101,13 @@ func HeatMap(cfg HeatMapConfig) Instance {
 	for _, series := range cfg.Series {
 		data := make([]opts.HeatMapData, len(series.Data))
 		for index, point := range series.Data {
+			value := any(point.Value)
+			if point.Missing {
+				value = "-"
+			}
 			if cfg.Coordinate == HeatMapCoordinateCalendar {
-				value := any(point.Value)
-				if point.Missing {
-					value = "-"
-				}
 				data[index] = opts.HeatMapData{Value: [2]interface{}{dateString(point.Date), value}}
 			} else {
-				value := any(point.Value)
-				if point.Missing {
-					value = "-"
-				}
 				data[index] = opts.HeatMapData{Value: [3]interface{}{point.X, point.Y, value}}
 			}
 		}
@@ -136,7 +132,7 @@ func heatMapGlobalOptions(cfg HeatMapConfig) []charts.GlobalOpts {
 	}
 	if cfg.Coordinate == HeatMapCoordinateCartesian {
 		xAxis := opts.XAxis{Type: "category"}
-		yAxis := opts.YAxis{Type: "category", Data: cfg.YAxis}
+		yAxis := opts.YAxis{Type: "category"}
 		if cfg.SplitArea != nil {
 			xAxis.SplitArea = &opts.SplitArea{Show: opts.Bool(*cfg.SplitArea)}
 			yAxis.SplitArea = &opts.SplitArea{Show: opts.Bool(*cfg.SplitArea)}
@@ -260,9 +256,15 @@ func validateHeatMapConfig(cfg HeatMapConfig) error {
 				return fmt.Errorf("heatmap chart calendar cell opacity must be between 0 and 1")
 			}
 		}
-		for name, label := range map[string]*CalendarLabelOptions{
-			"day": cfg.Calendar.Options.DayLabel, "month": cfg.Calendar.Options.MonthLabel, "year": cfg.Calendar.Options.YearLabel,
+		for _, candidate := range []struct {
+			name  string
+			label *CalendarLabelOptions
+		}{
+			{name: "day", label: cfg.Calendar.Options.DayLabel},
+			{name: "month", label: cfg.Calendar.Options.MonthLabel},
+			{name: "year", label: cfg.Calendar.Options.YearLabel},
 		} {
+			name, label := candidate.name, candidate.label
 			if label == nil {
 				continue
 			}

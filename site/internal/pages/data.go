@@ -1182,6 +1182,8 @@ cfg.TitleOptions = heatmap.TitleOptions{
   FontSize: 16,
   SubtextFontSize: 10,
 }
+cfg.XAxis.TitleFontSize, cfg.XAxis.LabelFontSize, cfg.XAxis.LabelCount = 11, 9, 5
+cfg.YAxis.TitleFontSize, cfg.YAxis.LabelFontSize, cfg.YAxis.LabelCount = 11, 9, 5
 cfg.Padding = heatmap.Padding{Top: 20, Right: 24, Bottom: 24, Left: 28}
 cfg.ValueLabels = heatmap.ValueLabelOptions{
   Show: true,

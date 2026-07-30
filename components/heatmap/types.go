@@ -242,9 +242,15 @@ func (options TitleOptions) validate() error {
 	default:
 		return fmt.Errorf("heat map title placement %q is unsupported", options.Placement)
 	}
-	for name, value := range map[string]float64{
-		"font size": options.FontSize, "subtext font size": options.SubtextFontSize, "border width": options.BorderWidth,
+	for _, candidate := range []struct {
+		name  string
+		value float64
+	}{
+		{name: "font size", value: options.FontSize},
+		{name: "subtext font size", value: options.SubtextFontSize},
+		{name: "border width", value: options.BorderWidth},
 	} {
+		name, value := candidate.name, candidate.value
 		if !finite(value) || value < 0 {
 			return fmt.Errorf("heat map title %s must be finite and non-negative", name)
 		}

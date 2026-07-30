@@ -166,6 +166,14 @@ func TestHeatMapMapsEveryTitlePlacement(t *testing.T) {
 	}
 }
 
+func TestHeatMapTitleValidationOrderIsDeterministic(t *testing.T) {
+	t.Parallel()
+	err := (TitleOptions{FontSize: -1, SubtextFontSize: -1, BorderWidth: -1}).validate()
+	if err == nil || err.Error() != "heat map title font size must be finite and non-negative" {
+		t.Fatalf("TitleOptions.validate() error = %v", err)
+	}
+}
+
 func TestHeatMapTitleCanBeHiddenWithoutLosingAccessibleName(t *testing.T) {
 	t.Parallel()
 	cfg := basicConfig()
