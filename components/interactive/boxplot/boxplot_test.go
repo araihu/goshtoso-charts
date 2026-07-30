@@ -73,10 +73,8 @@ func TestBoxPlotVariantsPreserveLegacyRenderContracts(t *testing.T) {
 	for name, test := range tests {
 		t.Run(name, func(t *testing.T) {
 			t.Parallel()
-			var legacyConfig interactive.BoxPlotConfig = test.cfg
-			var canonicalConfig interactiveboxplot.Config = legacyConfig
-			canonical := interactiveboxplot.BoxPlot(canonicalConfig)
-			legacy := interactive.BoxPlot(legacyConfig)
+			canonical := interactiveboxplot.BoxPlot(test.cfg)
+			legacy := interactive.BoxPlot(test.cfg)
 			if canonical.Kind() != legacy.Kind() {
 				t.Fatalf("canonical Kind() = %q, legacy Kind() = %q", canonical.Kind(), legacy.Kind())
 			}

@@ -93,7 +93,7 @@ func Radar(cfg Config) Instance {
 		indicators[index] = &opts.Indicator{Name: indicator.Name, Max: indicator.Max}
 	}
 
-	chart := charts.NewRadar()
+	radarChart := charts.NewRadar()
 	radarCoordinate := opts.RadarComponent{Indicator: indicators, Shape: string(cfg.Coordinate.Shape), SplitNumber: cfg.Coordinate.SplitNumber}
 	if cfg.Coordinate.SplitArea != nil {
 		radarCoordinate.SplitArea = &opts.SplitArea{Show: opts.Bool(*cfg.Coordinate.SplitArea)}
@@ -123,17 +123,17 @@ func Radar(cfg Config) Instance {
 			charts.WithInitializationOpts(opts.Initialization{Width: cfg.Width, Height: cfg.Height}),
 		}, globalOptions...)
 	}
-	chart.SetGlobalOptions(globalOptions...)
+	radarChart.SetGlobalOptions(globalOptions...)
 	for _, series := range cfg.Series {
 		data := make([]opts.RadarData, len(series.Data))
 		for index, point := range series.Data {
 			data[index] = opts.RadarData{Name: point.Name, Value: point.Values}
 		}
-		chart.AddSeries(series.Name, data, internalinteractive.MergeSeriesOptions(cfg.SeriesOptions, series.Options)...)
+		radarChart.AddSeries(series.Name, data, internalinteractive.MergeSeriesOptions(cfg.SeriesOptions, series.Options)...)
 	}
 
 	return internalinteractive.New(chartcomponents.KindInteractiveRadar, internalinteractive.RenderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, ResponsiveWidth: internalinteractive.ResponsiveWidth(cfg.Width),
+		Label: cfg.Label, Caption: cfg.Caption, Chart: radarChart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, ResponsiveWidth: internalinteractive.ResponsiveWidth(cfg.Width),
 		Details: exactValues(cfg.Label, cfg.Indicators, detailRows(cfg.Series)),
 	})
 }

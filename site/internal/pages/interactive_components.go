@@ -670,11 +670,12 @@ func interactiveCalendarHeatMapCode() string {
 func interactiveChartBoxPlotCode() string {
 	return `@interactiveboxplot.BoxPlot(interactiveboxplot.Config{
   Label: "Request latency distribution",
-  Categories: []string{"Development", "Production"},
+  Categories: []string{"Development", "Staging", "Production"},
   Series: []interactiveboxplot.Series{{
     Name: "Latency (ms)",
     Data: []interactiveboxplot.Data{
       {Min: 18, Q1: 31, Median: 42, Q3: 58, Max: 94},
+      {Min: 22, Q1: 38, Median: 51, Q3: 73, Max: 116},
       {Min: 25, Q1: 44, Median: 62, Q3: 86, Max: 138},
     },
   }},

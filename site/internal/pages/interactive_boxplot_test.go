@@ -19,6 +19,8 @@ func TestInteractiveBoxPlotSiteUsesCanonicalChildPackage(t *testing.T) {
 		"[]interactiveboxplot.Series",
 		"[]interactiveboxplot.Data",
 		"chart.ChartOptions",
+		`[]string{"Development", "Staging", "Production"}`,
+		`{Min: 22, Q1: 38, Median: 51, Q3: 73, Max: 116}`,
 	} {
 		if !strings.Contains(code, want) {
 			t.Errorf("BoxPlot snippet missing canonical API %q", want)
