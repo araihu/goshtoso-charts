@@ -72,12 +72,14 @@ templ Layout() {
   Labels: []string{"Mon", "Tue", "Wed"},
   Series: []line.Series{{Name: "p95 (ms)", Values: []float64{42, 47, 44}}},
 })`
-	gettingStartedInteractiveCode = `@interactive.Bar(interactive.BarConfig{
+	gettingStartedInteractiveCode = `import interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
+
+@interactivebar.Bar(interactivebar.Config{
   Label: "Deployments",
   XAxis: []string{"Mon", "Tue", "Wed"},
-  Series: []interactive.BarSeries{{
+  Series: []interactivebar.Series{{
     Name: "Production",
-    Data: []interactive.BarData{{Value: 3}, {Value: 5}, {Value: 4}},
+    Data: []interactivebar.Data{{Value: 3}, {Value: 5}, {Value: 4}},
   }},
 })`
 )

@@ -287,15 +287,21 @@ Applications choosing third-party delivery must opt in explicitly with
 for custom paths, SRI, CSP, and load-order details.
 
 ```templ
-@interactive.Bar(interactive.BarConfig{
+import interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
+
+@interactivebar.Bar(interactivebar.Config{
 	Label: "Weekly deployments",
 	XAxis: []string{"Mon", "Tue"},
-	Series: []interactive.BarSeries{{
+	Series: []interactivebar.Series{{
 		Name: "Production",
-		Data: []interactive.BarData{{Value: 3}, {Value: 5}},
+		Data: []interactivebar.Data{{Value: 3}, {Value: 5}},
 	}},
 })
 ```
+
+Interactive Bar now uses its canonical chart-specific package. Existing
+`interactive.Bar` code remains compatible during the additive migration; see
+[interactive package migration](docs/interactive-package-layout.md).
 
 Word clouds keep weighted words, silhouettes, sizing, rotation, layout, and
 semantic classes in a typed renderer-neutral config. Exact values remain in a
