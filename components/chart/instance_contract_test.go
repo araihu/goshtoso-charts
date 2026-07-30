@@ -24,6 +24,7 @@ import (
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivesankey "github.com/araihu/goshtoso-charts/components/interactive/sankey"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
+	interactivesunburst "github.com/araihu/goshtoso-charts/components/interactive/sunburst"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 )
 
@@ -173,6 +174,7 @@ func TestInstanceAliasesRetainCanonicalTypeIdentity(t *testing.T) {
 		"interactive/radar":       reflect.TypeOf(interactiveradar.Instance{}),
 		"interactive/sankey":      reflect.TypeOf(interactivesankey.Instance{}),
 		"interactive/scatter":     reflect.TypeOf(interactivescatter.Instance{}),
+		"interactive/sunburst":    reflect.TypeOf(interactivesunburst.Instance{}),
 		"interactive/themeriver":  reflect.TypeOf(interactivethemeriver.Instance{}),
 	}
 	for name, instanceType := range types {
@@ -214,6 +216,8 @@ var (
 	_ interactivesankey.Instance      = chart.Instance{}
 	_ chart.Instance                  = interactivescatter.Instance{}
 	_ interactivescatter.Instance     = chart.Instance{}
+	_ chart.Instance                  = interactivesunburst.Instance{}
+	_ interactivesunburst.Instance    = chart.Instance{}
 	_ chart.Instance                  = interactivethemeriver.Instance{}
 	_ interactivethemeriver.Instance  = chart.Instance{}
 
@@ -231,6 +235,7 @@ var (
 	_ func(interactive.ParallelConfig) chart.Instance    = interactive.Parallel
 	_ func(interactive.RadarConfig) chart.Instance       = interactive.Radar
 	_ func(interactive.SankeyConfig) chart.Instance      = interactive.Sankey
+	_ func(interactive.SunburstConfig) chart.Instance    = interactive.Sunburst
 	_ func(interactive.ThemeRiverConfig) chart.Instance  = interactive.ThemeRiver
 	_ func(interactivebar.Config) chart.Instance         = interactivebar.Bar
 	_ func(interactiveboxplot.Config) chart.Instance     = interactiveboxplot.BoxPlot
@@ -245,5 +250,6 @@ var (
 	_ func(interactiveradar.Config) chart.Instance       = interactiveradar.Radar
 	_ func(interactivesankey.Config) chart.Instance      = interactivesankey.Sankey
 	_ func(interactivescatter.Config) chart.Instance     = interactivescatter.Scatter
+	_ func(interactivesunburst.Config) chart.Instance    = interactivesunburst.Sunburst
 	_ func(interactivethemeriver.Config) chart.Instance  = interactivethemeriver.ThemeRiver
 )
