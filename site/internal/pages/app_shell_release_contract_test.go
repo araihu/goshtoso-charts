@@ -12,6 +12,7 @@ import (
 
 	"github.com/a-h/templ"
 	"github.com/araihu/goshtoso-app-shells/componentdocshell"
+	"github.com/araihu/goshtoso-charts/site/internal/brand"
 	goshtosoassets "github.com/araihu/goshtoso/assets"
 )
 
@@ -91,14 +92,21 @@ func TestModuleReplacesPathRecognizesDirectiveForms(t *testing.T) {
 func TestReleasedShellKeepsChartsIdentityAndCurrentNavigation(t *testing.T) {
 	t.Parallel()
 	cfg := shellConfigForVersion("development")
-	if cfg.Brand.Name != "Charts" || cfg.Brand.HomeURL != "/" || cfg.Brand.Logo == nil || !cfg.Brand.HideName {
+	if cfg.Brand.Name != "Charts" || cfg.Brand.HomeURL != "/" || cfg.Brand.Logo != nil || !cfg.Brand.HideName {
 		t.Fatalf("brand contract = %#v", cfg.Brand)
+	}
+	if cfg.Brand.ManagedLogo == nil || cfg.Brand.ManagedLogo.URL != brand.LogoURL() || cfg.Brand.ManagedLogo.Alt != "Goshtoso" || cfg.Brand.ManagedLogo.Width != 120 || cfg.Brand.ManagedLogo.Height != 32 || !cfg.Brand.ManageFavicon || cfg.Brand.FaviconURL != brand.IconURL() {
+		t.Fatalf("managed brand contract = %#v", cfg.Brand)
 	}
 	if !cfg.Appearance.DisableThemeSelector || cfg.Appearance.PersistPreferences {
 		t.Fatalf("parent appearance contract = %#v", cfg.Appearance)
 	}
-	if cfg.Interactions.PresentationChannel != nil {
-		t.Fatal("Charts enrolled in a demo-only presentation channel")
+	channel := cfg.Interactions.PresentationChannel
+	if channel == nil {
+		t.Fatal("Charts is not enrolled in the released presentation channel")
+	}
+	if channel.RuntimeURL != seasonalAssetsRuntimeURL || channel.ChannelURL != seasonalAssetsChannelURL || channel.Integrity != seasonalAssetsRuntimeSRI || channel.UseCampaignLabel != "Use seasonal appearance" || channel.UseBaselineLabel != "Use standard appearance" {
+		t.Fatalf("presentation channel contract = %#v", channel)
 	}
 
 	wantItems := []string{
@@ -186,13 +194,27 @@ func TestReleasedShellUsesCanonicalStylesAndKeepsThemePlaygroundIsolated(t *test
 	}
 	body := output.String()
 	for _, want := range []string{
-		`component-doc-shell__brand-logo--goshtoso`,
+		`class="component-doc-shell__managed-logo"`,
+		`data-asset-brand="logo"`,
+		`src="/brand/goshtoso-logo-transparent.svg"`,
+		`alt="Goshtoso"`,
+		`width="120"`,
+		`height="32"`,
+		`data-asset-brand="icon"`,
 		`href="/"`,
 		`aria-current="page"`,
 		`Getting started`,
 		`/componentdocshell/assets/shell.css?v=`,
 		goshtosoassets.FirstPartyBundleURL,
 		`data-site-version`,
+		`data-campaign-toggle`,
+		`data-use-campaign-label="Use seasonal appearance"`,
+		`data-use-baseline-label="Use standard appearance"`,
+		`src="` + seasonalAssetsRuntimeURL + `"`,
+		`data-channel="` + seasonalAssetsChannelURL + `"`,
+		`integrity="` + seasonalAssetsRuntimeSRI + `"`,
+		`crossorigin="anonymous"`,
+		`defer`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("released shell missing %q", want)
@@ -201,7 +223,6 @@ func TestReleasedShellUsesCanonicalStylesAndKeepsThemePlaygroundIsolated(t *test
 	for _, forbidden := range []string{
 		`component-doc-shell__brand-name`,
 		`id="componentdocshell-theme-trigger"`,
-		`data-campaign-toggle`,
 		`href="/assets"`,
 		goshtosoassets.ActionGroupURL,
 	} {

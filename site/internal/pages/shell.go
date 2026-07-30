@@ -14,6 +14,12 @@ import (
 
 var releasedSiteVersionPattern = regexp.MustCompile(`^v[0-9]+\.[0-9]+\.[0-9]+$`)
 
+const (
+	seasonalAssetsRuntimeURL = "https://araihu.com/assets/campaign/v1.js"
+	seasonalAssetsChannelURL = "https://araihu.com/assets/releases/current"
+	seasonalAssetsRuntimeSRI = "sha384-oPH7l1vK9vKP1Dn+18sO3yEXlz4ts6KzPEQl0SW4Y/+im05gOaamNNaQAf6bGH/n"
+)
+
 func tocID(title string) string {
 	return strings.ToLower(strings.ReplaceAll(title, " ", "-"))
 }
@@ -39,18 +45,33 @@ func shellConfigForVersion(version string) componentdocshell.Config {
 	navigation.SearchSlot = docsSearch(searchEntries(navigation))
 	return componentdocshell.Config{
 		Brand: componentdocshell.Brand{
-			Name:       "Charts",
-			HomeURL:    "/",
-			Logo:       brand.Logo(),
-			HideName:   true,
-			FaviconURL: brand.IconURL(),
+			Name:    "Charts",
+			HomeURL: "/",
+			ManagedLogo: &componentdocshell.ManagedBrandAsset{
+				URL:    brand.LogoURL(),
+				Alt:    "Goshtoso",
+				Width:  120,
+				Height: 32,
+			},
+			HideName:      true,
+			ManageFavicon: true,
+			FaviconURL:    brand.IconURL(),
 		},
 		Navigation: navigation,
 		Appearance: componentdocshell.AppearanceConfig{
 			DefaultTheme:         "araihu",
 			DisableThemeSelector: true,
 		},
-		Interactions: componentdocshell.InteractionConfig{EnableHTMX: true},
+		Interactions: componentdocshell.InteractionConfig{
+			EnableHTMX: true,
+			PresentationChannel: &componentdocshell.PresentationChannelConfig{
+				RuntimeURL:       seasonalAssetsRuntimeURL,
+				ChannelURL:       seasonalAssetsChannelURL,
+				Integrity:        seasonalAssetsRuntimeSRI,
+				UseCampaignLabel: "Use seasonal appearance",
+				UseBaselineLabel: "Use standard appearance",
+			},
+		},
 		HeaderActions: shellVersionBadge(
 			version,
 		),

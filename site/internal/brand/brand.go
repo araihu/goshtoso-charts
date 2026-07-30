@@ -38,6 +38,9 @@ func Logo() templ.Component {
 // IconURL is the approved v11 icon used as the product favicon.
 func IconURL() string { return iconURL }
 
+// LogoURL is the approved v11 wordmark used as the managed shell baseline.
+func LogoURL() string { return logoURL }
+
 // Head applies the v11 surface, ink, and signal contract to Goshtoso's .dark state.
 func Head() templ.Component {
 	return templ.Raw(`<style>
