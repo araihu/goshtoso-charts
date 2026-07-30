@@ -135,7 +135,7 @@ func Tree(cfg Config) Instance {
 		return internalinteractive.Invalid(chartcomponents.KindInteractiveTree, err)
 	}
 
-	chart := charts.NewTree()
+	treeChart := charts.NewTree()
 	globalOptions := []charts.GlobalOpts{charts.WithColorsOpts(opts.Colors(cfg.Style.ResolvedColors()))}
 	globalOptions = append(globalOptions, internalinteractive.ChartGlobalOptions(cfg.Options)...)
 	if len(cfg.Style.Colors) > 0 {
@@ -147,7 +147,7 @@ func Tree(cfg Config) Instance {
 			charts.WithInitializationOpts(opts.Initialization{Width: cfg.Width, Height: cfg.Height}),
 		}, globalOptions...)
 	}
-	chart.SetGlobalOptions(globalOptions...)
+	treeChart.SetGlobalOptions(globalOptions...)
 
 	roots := make([]opts.TreeData, len(cfg.Roots))
 	for index, root := range cfg.Roots {
@@ -168,10 +168,10 @@ func Tree(cfg Config) Instance {
 			}
 		})
 	}
-	chart.AddSeries(cfg.Label, roots, seriesOptions...)
+	treeChart.AddSeries(cfg.Label, roots, seriesOptions...)
 
 	render := internalinteractive.RenderConfig{
-		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, ResponsiveWidth: internalinteractive.ResponsiveWidth(cfg.Width),
+		Label: cfg.Label, Caption: cfg.Caption, Chart: treeChart, Style: cfg.Style, Animation: cfg.Options.Animation, ResponsiveWidth: internalinteractive.ResponsiveWidth(cfg.Width),
 		Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 	}
 	if cfg.InitialDepth != nil && *cfg.InitialDepth == 0 {

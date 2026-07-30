@@ -794,7 +794,11 @@ func interactiveSunburstCode() string {
     {Name: "parent-0", Value: 0.81, Children: []*interactivesunburst.Node{
       {Name: "child-0", Value: 0.34},
     }},
-    // parent-1 through parent-5 retain the same one-child shape.
+	{Name: "parent-1", Value: 0.62, Children: []*interactivesunburst.Node{{Name: "child-1", Value: 0.57}}},
+	{Name: "parent-2", Value: 0.45, Children: []*interactivesunburst.Node{{Name: "child-2", Value: 0.73}}},
+	{Name: "parent-3", Value: 0.93, Children: []*interactivesunburst.Node{{Name: "child-3", Value: 0.28}}},
+	{Name: "parent-4", Value: 0.38, Children: []*interactivesunburst.Node{{Name: "child-4", Value: 0.66}}},
+	{Name: "parent-5", Value: 0.71, Children: []*interactivesunburst.Node{{Name: "child-5", Value: 0.49}}},
     {Name: "parent-6", Value: 0.54, Children: []*interactivesunburst.Node{
       {Name: "child-6", Value: 0.87},
     }},

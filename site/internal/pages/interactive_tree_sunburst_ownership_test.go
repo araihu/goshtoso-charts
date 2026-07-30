@@ -46,4 +46,22 @@ func TestTreeAndSunburstSiteUseCanonicalChildPackages(t *testing.T) {
 			t.Errorf("%s snippet still teaches compatibility facade", name)
 		}
 	}
+
+	sunburstCode := interactiveSunburstCode()
+	for _, want := range []string{
+		`{Name: "parent-0", Value: 0.81`, `{Name: "child-0", Value: 0.34}`,
+		`{Name: "parent-1", Value: 0.62`, `{Name: "child-1", Value: 0.57}`,
+		`{Name: "parent-2", Value: 0.45`, `{Name: "child-2", Value: 0.73}`,
+		`{Name: "parent-3", Value: 0.93`, `{Name: "child-3", Value: 0.28}`,
+		`{Name: "parent-4", Value: 0.38`, `{Name: "child-4", Value: 0.66}`,
+		`{Name: "parent-5", Value: 0.71`, `{Name: "child-5", Value: 0.49}`,
+		`{Name: "parent-6", Value: 0.54`, `{Name: "child-6", Value: 0.87}`,
+	} {
+		if !strings.Contains(sunburstCode, want) {
+			t.Errorf("Sunburst snippet elides pinned hierarchy entry %q", want)
+		}
+	}
+	if strings.Contains(sunburstCode, "parent-1 through") {
+		t.Error("Sunburst snippet retains an elision comment instead of the pinned seven-pair dataset")
+	}
 }

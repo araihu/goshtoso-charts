@@ -20,6 +20,7 @@ import (
 
 const (
 	maxDepth                = 256
+	defaultOuterRadius      = 75
 	disabledNavigationValue = "__goshtoso_charts_sunburst_navigation_disabled__"
 	inputSortValue          = "__goshtoso_charts_sunburst_input_sort__"
 	zeroValueSentinel       = -1
@@ -121,10 +122,7 @@ func Sunburst(cfg Config) Instance {
 	if cfg.ItemStyle != nil {
 		seriesOptions = append(seriesOptions, charts.WithItemStyleOpts(internalinteractive.RendererItemStyle(cfg.ItemStyle)))
 	}
-	outerRadius := cfg.OuterRadius
-	if outerRadius == 0 {
-		outerRadius = 75
-	}
+	outerRadius := resolvedOuterRadius(cfg.OuterRadius)
 	seriesOptions = append(seriesOptions, func(series *charts.SingleSeries) {
 		series.Radius = []string{internalinteractive.Percentage(cfg.InnerRadius), internalinteractive.Percentage(outerRadius)}
 	})
@@ -207,10 +205,7 @@ func validateConfig(cfg Config) error {
 	if !internalinteractive.ValidPercentage(cfg.OuterRadius) {
 		return fmt.Errorf("sunburst chart outer radius must be between 0 and 100")
 	}
-	outerRadius := cfg.OuterRadius
-	if outerRadius == 0 {
-		outerRadius = 75
-	}
+	outerRadius := resolvedOuterRadius(cfg.OuterRadius)
 	if cfg.InnerRadius >= outerRadius {
 		return fmt.Errorf("sunburst chart inner radius must be less than outer radius")
 	}
@@ -229,6 +224,13 @@ func validateConfig(cfg Config) error {
 		}
 	}
 	return internalinteractive.ValidateChartOptions(cfg.Options)
+}
+
+func resolvedOuterRadius(value float64) float64 {
+	if value == 0 {
+		return defaultOuterRadius
+	}
+	return value
 }
 
 func validateNode(node *Node, path string, depth int, active, seen map[*Node]bool) error {

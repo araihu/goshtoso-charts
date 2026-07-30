@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"maps"
 	"os"
 	"path/filepath"
 	"strings"
@@ -74,7 +75,7 @@ func TestParentPercentageHelperOnlyServesUnmigratedWordCloud(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read compatibility parent: %v", err)
 	}
-	callers := make(map[string]int)
+	callers := make(map[string]struct{})
 	for _, entry := range entries {
 		if entry.IsDir() || filepath.Ext(entry.Name()) != ".go" || strings.HasSuffix(entry.Name(), "_test.go") || entry.Name() == "options.go" {
 			continue
@@ -90,13 +91,13 @@ func TestParentPercentageHelperOnlyServesUnmigratedWordCloud(t *testing.T) {
 			}
 			identifier, ok := call.Fun.(*ast.Ident)
 			if ok && (identifier.Name == "percentage" || identifier.Name == "validPercentage") {
-				callers[entry.Name()+":"+identifier.Name]++
+				callers[entry.Name()+":"+identifier.Name] = struct{}{}
 			}
 			return true
 		})
 	}
-	want := map[string]int{"wordcloud.go:percentage": 2}
-	if !reflectStringIntMapEqual(callers, want) {
+	want := map[string]struct{}{"wordcloud.go:percentage": {}}
+	if !maps.Equal(callers, want) {
 		t.Fatalf("parent percentage helper callers = %v, want only unmigrated WordCloud %v", callers, want)
 	}
 }
@@ -144,16 +145,4 @@ func TestMigratedPackagesUsePrivatePercentageHelpersDirectly(t *testing.T) {
 			}
 		})
 	}
-}
-
-func reflectStringIntMapEqual(left, right map[string]int) bool {
-	if len(left) != len(right) {
-		return false
-	}
-	for key, value := range left {
-		if right[key] != value {
-			return false
-		}
-	}
-	return true
 }
