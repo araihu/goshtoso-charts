@@ -5,6 +5,10 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"strings"
@@ -110,14 +114,63 @@ func TestBarSpecificTypesHaveCanonicalChildIdentity(t *testing.T) {
 		}
 	}
 
-	if reflect.TypeOf(interactive.BarConfig{}) != reflect.TypeOf(interactivebar.Config{}) {
-		t.Fatal("interactive.BarConfig is not an exact alias of bar.Config")
+	compatibilityTypes := []reflect.Type{
+		reflect.TypeOf(interactive.BarConfig{}),
+		reflect.TypeOf(interactive.BarSeries{}),
+		reflect.TypeOf(interactive.BarData{}),
+		reflect.TypeOf(interactive.BarOrientation("")),
+		reflect.TypeOf(interactive.BarZoomMode("")),
+		reflect.TypeOf(interactive.BarZoom{}),
+		reflect.TypeOf(interactive.BarStatistic("")),
+		reflect.TypeOf(interactive.BarCoordinate{}),
+		reflect.TypeOf(interactive.BarPointReference{}),
+		reflect.TypeOf(interactive.BarGuideReference{}),
+		reflect.TypeOf(interactive.BarReferences{}),
 	}
-	if reflect.TypeOf(interactive.BarSeries{}) != reflect.TypeOf(interactivebar.Series{}) {
-		t.Fatal("interactive.BarSeries is not an exact alias of bar.Series")
+	for index, compatibilityType := range compatibilityTypes {
+		if compatibilityType != barTypes[index] {
+			t.Errorf("compatibility type %s is not identical to canonical %s", compatibilityType, barTypes[index])
+		}
 	}
-	if reflect.TypeOf(interactive.BarData{}) != reflect.TypeOf(interactivebar.Data{}) {
-		t.Fatal("interactive.BarData is not an exact alias of bar.Data")
+}
+
+func TestCompatibilityParentContainsOnlyAliasesConstantsAndForwarder(t *testing.T) {
+	t.Parallel()
+	file, err := parser.ParseFile(token.NewFileSet(), filepath.Join("..", "bar.go"), nil, 0)
+	if err != nil {
+		t.Fatalf("parse parent facade: %v", err)
+	}
+	if len(file.Imports) != 1 || strings.Trim(file.Imports[0].Path.Value, `"`) != "github.com/araihu/goshtoso-charts/components/interactive/bar" {
+		t.Fatalf("parent imports = %v, want only canonical Bar package", file.Imports)
+	}
+
+	functions := 0
+	for _, declaration := range file.Decls {
+		switch declaration := declaration.(type) {
+		case *ast.FuncDecl:
+			functions++
+			if declaration.Name.Name != "Bar" || declaration.Body == nil || len(declaration.Body.List) != 1 {
+				t.Errorf("parent function %s is not the single Bar forwarder", declaration.Name.Name)
+			}
+		case *ast.GenDecl:
+			switch declaration.Tok {
+			case token.IMPORT, token.CONST:
+			case token.TYPE:
+				for _, spec := range declaration.Specs {
+					typeSpec := spec.(*ast.TypeSpec)
+					if !typeSpec.Assign.IsValid() {
+						t.Errorf("parent type %s is not an alias", typeSpec.Name.Name)
+					}
+				}
+			default:
+				t.Errorf("parent contains forbidden %s declaration", declaration.Tok)
+			}
+		default:
+			t.Errorf("parent contains unexpected declaration %T", declaration)
+		}
+	}
+	if functions != 1 {
+		t.Errorf("parent functions = %d, want only Bar", functions)
 	}
 }
 
