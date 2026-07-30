@@ -192,7 +192,7 @@ func TestThemePaletteCatalogIsExactCompleteAndUnique(t *testing.T) {
 
 func TestGeneratedThemeCSSCoversFullContractAndTemplateIsCurrent(t *testing.T) {
 	t.Parallel()
-	contract := resolvedThemeTokens(false, themePaletteMode{})
+	contract := resolvedThemeTokens("", false, themePaletteMode{})
 	if len(contract) != 26 {
 		t.Fatalf("chart token contract size = %d, want 26", len(contract))
 	}
@@ -221,6 +221,17 @@ func TestGeneratedThemeCSSCoversFullContractAndTemplateIsCurrent(t *testing.T) {
 	}
 	if !strings.Contains(output.String(), generatedThemeCSS) {
 		t.Fatal("styles_templ.go drifted from generated theme CSS injection")
+	}
+}
+
+func TestMinimalLightChartOutlineUsesOpaqueControlBoundary(t *testing.T) {
+	t.Parallel()
+	values := map[string]string{}
+	for _, token := range resolvedThemeTokens("minimal", false, themePaletteMode{}) {
+		values[token.Name] = token.Value
+	}
+	if got := values["outline"]; got != "var(--color-control-outline, var(--color-outline-strong, #737373))" {
+		t.Fatalf("minimal light chart outline = %q", got)
 	}
 }
 

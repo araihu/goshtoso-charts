@@ -125,7 +125,7 @@ func writeThemeRule(css *strings.Builder, id string, dark bool, mode themePalett
 	selectors := themeSelectors(id, dark)
 	css.WriteString(strings.Join(selectors, ",\n"))
 	css.WriteString(" {\n")
-	for _, token := range resolvedThemeTokens(dark, mode) {
+	for _, token := range resolvedThemeTokens(id, dark, mode) {
 		fmt.Fprintf(css, "  --color-chart-%s: %s;\n", token.Name, token.Value)
 	}
 	css.WriteString("}\n")
@@ -157,7 +157,7 @@ func themeSelectors(id string, dark bool) []string {
 
 type themeToken struct{ Name, Value string }
 
-func resolvedThemeTokens(dark bool, mode themePaletteMode) []themeToken {
+func resolvedThemeTokens(themeID string, dark bool, mode themePaletteMode) []themeToken {
 	surface, surfaceAlt := "var(--color-surface, #ffffff)", "var(--color-surface-alt, var(--color-surface, #ffffff))"
 	outline, text := "var(--color-outline, #cbd5e1)", "var(--color-on-surface, #334155)"
 	strong := "var(--color-on-surface-strong, var(--color-on-surface, #0f172a))"
@@ -173,6 +173,10 @@ func resolvedThemeTokens(dark bool, mode themePaletteMode) []themeToken {
 		stateStrong = "var(--color-on-surface-dark-strong, #f9fafb)"
 		patternMix = "82%"
 		patternOutlineMix = "18%"
+	} else if themeID == "minimal" {
+		// Minimal intentionally removes generic surface outlines. Charts still need
+		// an opaque grid and pattern boundary, so reuse its control outline.
+		outline = "var(--color-control-outline, var(--color-outline-strong, #737373))"
 	}
 	tokens := []themeToken{
 		{"surface", surface}, {"surface-alt", surfaceAlt}, {"outline", outline},

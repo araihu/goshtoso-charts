@@ -83,9 +83,17 @@ function digest(buffer) {
 }
 
 async function selectTheme(frame, theme) {
-  await frame.getByRole("combobox", { name: "Theme" }).click();
-  await frame.getByRole("option", { name: theme.label, exact: true }).click();
-  await frame.waitForFunction((value) => document.documentElement.dataset.theme === value, theme.value);
+  if (await frame.evaluate((value) => document.documentElement.dataset.theme === value, theme.value)) return;
+  const trigger = frame.getByRole("combobox", { name: "Theme" });
+  await frame.waitForFunction(() => document.getElementById("theme-playground-theme-trigger")?.getAttribute("aria-expanded") === "false");
+  await trigger.click();
+  const option = frame.getByRole("option", { name: theme.label, exact: true });
+  await option.waitFor({ state: "visible" });
+  await option.click({ force: true });
+  await frame.waitForFunction((value) => (
+    document.documentElement.dataset.theme === value
+    && document.getElementById("theme-playground-theme-trigger")?.getAttribute("aria-expanded") === "false"
+  ), theme.value);
 }
 
 async function setColorScheme(frame, scheme) {
@@ -340,13 +348,17 @@ test("all built-in themes resolve coherent opaque chart tokens without replacing
           const chart = window.echarts.getInstanceByDom(host);
           const option = chart && chart.getOption();
           if (!option) return false;
-          const probe = document.createElement("span");
-          probe.hidden = true;
-          probe.style.color = "var(--color-chart-surface)";
-          figure.appendChild(probe);
-          const expectedSurface = getComputedStyle(probe).color;
-          probe.remove();
+          const computedToken = (token) => {
+            const probe = document.createElement("span");
+            probe.hidden = true;
+            probe.style.color = `var(${token})`;
+            figure.appendChild(probe);
+            const color = getComputedStyle(probe).color;
+            probe.remove();
+            return color;
+          };
           const actualSurface = Array.isArray(option.backgroundColor) ? option.backgroundColor[0] : option.backgroundColor;
+          const actualSeries = Array.isArray(option.color) ? option.color[0] : option.color;
           const colorCanvas = document.createElement("canvas");
           colorCanvas.width = 1;
           colorCanvas.height = 1;
@@ -357,7 +369,8 @@ test("all built-in themes resolve coherent opaque chart tokens without replacing
             colorContext.fillRect(0, 0, 1, 1);
             return [...colorContext.getImageData(0, 0, 1, 1).data].join(",");
           };
-          return pixel(expectedSurface) === pixel(actualSurface);
+          return pixel(computedToken("--color-chart-surface")) === pixel(actualSurface)
+            && pixel(computedToken("--color-chart-series-1")) === pixel(actualSeries);
         }, { expectedTheme: theme.value, dark: scheme === "dark" });
 
         const state = await themeState(child, theme.value, scheme);
