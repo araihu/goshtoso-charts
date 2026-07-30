@@ -12,6 +12,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/chart"
 	"github.com/araihu/goshtoso-charts/components/interactive"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
+	interactivecandlestick "github.com/araihu/goshtoso-charts/components/interactive/candlestick"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 )
 
@@ -146,10 +147,11 @@ func TestInstanceAliasesRetainCanonicalTypeIdentity(t *testing.T) {
 
 	wantPackage := "github.com/araihu/goshtoso-charts/components/chart"
 	types := map[string]reflect.Type{
-		"chart":            reflect.TypeOf(chart.Instance{}),
-		"interactive":      reflect.TypeOf(interactive.Instance{}),
-		"interactive/bar":  reflect.TypeOf(interactivebar.Instance{}),
-		"interactive/line": reflect.TypeOf(interactiveline.Instance{}),
+		"chart":                   reflect.TypeOf(chart.Instance{}),
+		"interactive":             reflect.TypeOf(interactive.Instance{}),
+		"interactive/bar":         reflect.TypeOf(interactivebar.Instance{}),
+		"interactive/candlestick": reflect.TypeOf(interactivecandlestick.Instance{}),
+		"interactive/line":        reflect.TypeOf(interactiveline.Instance{}),
 	}
 	for name, instanceType := range types {
 		if got := instanceType.PkgPath(); got != wantPackage {
@@ -162,16 +164,20 @@ func TestInstanceAliasesRetainCanonicalTypeIdentity(t *testing.T) {
 }
 
 var (
-	_ chart.Instance           = interactive.Instance{}
-	_ interactive.Instance     = chart.Instance{}
-	_ chart.Instance           = interactivebar.Instance{}
-	_ interactivebar.Instance  = chart.Instance{}
-	_ chart.Instance           = interactiveline.Instance{}
-	_ interactiveline.Instance = chart.Instance{}
+	_ chart.Instance                  = interactive.Instance{}
+	_ interactive.Instance            = chart.Instance{}
+	_ chart.Instance                  = interactivebar.Instance{}
+	_ interactivebar.Instance         = chart.Instance{}
+	_ chart.Instance                  = interactivecandlestick.Instance{}
+	_ interactivecandlestick.Instance = chart.Instance{}
+	_ chart.Instance                  = interactiveline.Instance{}
+	_ interactiveline.Instance        = chart.Instance{}
 
-	_ func(chartcomponents.Component) chart.Instance = chart.NewInstance
-	_ func(interactive.BarConfig) chart.Instance     = interactive.Bar
-	_ func(interactive.LineConfig) chart.Instance    = interactive.Line
-	_ func(interactivebar.Config) chart.Instance     = interactivebar.Bar
-	_ func(interactiveline.Config) chart.Instance    = interactiveline.Line
+	_ func(chartcomponents.Component) chart.Instance     = chart.NewInstance
+	_ func(interactive.BarConfig) chart.Instance         = interactive.Bar
+	_ func(interactive.LineConfig) chart.Instance        = interactive.Line
+	_ func(interactive.CandlestickConfig) chart.Instance = interactive.Candlestick
+	_ func(interactivebar.Config) chart.Instance         = interactivebar.Bar
+	_ func(interactivecandlestick.Config) chart.Instance = interactivecandlestick.Candlestick
+	_ func(interactiveline.Config) chart.Instance        = interactiveline.Line
 )

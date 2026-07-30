@@ -8,6 +8,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/chart"
 	"github.com/araihu/goshtoso-charts/components/interactive"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
+	interactivecandlestick "github.com/araihu/goshtoso-charts/components/interactive/candlestick"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 )
 
@@ -31,6 +32,14 @@ func oldFacadeLineConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeCandlestickConsumer() chart.Instance {
+	return interactive.Candlestick(interactive.CandlestickConfig{
+		Label:      "Daily prices",
+		Categories: []string{"Mon"},
+		Series:     []interactive.CandlestickSeries{{Name: "Price", Data: []interactive.Candle{{Open: 10, Close: 11, Low: 9, High: 12}}}},
+	})
+}
+
 func canonicalChildConsumers() []chart.Instance {
 	return []chart.Instance{
 		interactivebar.Bar(interactivebar.Config{
@@ -42,6 +51,11 @@ func canonicalChildConsumers() []chart.Instance {
 			Label:  "Weekly latency",
 			XAxis:  []string{"Mon", "Tue"},
 			Series: []interactiveline.Series{{Name: "p95 (ms)", Data: []interactiveline.Data{{Value: 42}, {Value: 47}}}},
+		}),
+		interactivecandlestick.Candlestick(interactivecandlestick.Config{
+			Label:      "Daily prices",
+			Categories: []string{"Mon"},
+			Series:     []interactivecandlestick.Series{{Name: "Price", Data: []interactivecandlestick.Candle{{Open: 10, Close: 11, Low: 9, High: 12}}}},
 		}),
 	}
 }
@@ -59,6 +73,7 @@ func customExtensionConsumer() chart.Instance {
 var (
 	_ = oldFacadeConsumer
 	_ = oldFacadeLineConsumer
+	_ = oldFacadeCandlestickConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer
 )
