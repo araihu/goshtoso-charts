@@ -130,6 +130,15 @@ func TestPieSpecificTypesHaveCanonicalChildIdentity(t *testing.T) {
 	if options.Type != reflect.TypeOf(chart.ChartOptions{}) || seriesOptions.Type != reflect.TypeOf(chart.SeriesOptions{}) {
 		t.Fatalf("shared Config fields are not owned by chart: Options=%v SeriesOptions=%v", options.Type, seriesOptions.Type)
 	}
+	if interactive.PieRoseNone != interactivepie.RoseNone ||
+		interactive.PieRoseRadius != interactivepie.RoseRadius ||
+		interactive.PieRoseArea != interactivepie.RoseArea ||
+		interactive.PieLabelDefault != interactivepie.LabelDefault ||
+		interactive.PieLabelNameAndValue != interactivepie.LabelNameAndValue ||
+		interactive.PieTooltipDefault != interactivepie.TooltipDefault ||
+		interactive.PieTooltipNameAndShare != interactivepie.TooltipNameAndShare {
+		t.Fatal("legacy Pie constants do not preserve canonical child values")
+	}
 }
 
 func TestCanonicalPackageDoesNotImportCompatibilityParentOrExportRendererNames(t *testing.T) {

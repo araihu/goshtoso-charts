@@ -14,6 +14,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/bar"
 	"github.com/araihu/goshtoso-charts/components/candlestick"
 	"github.com/araihu/goshtoso-charts/components/interactive"
+	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
 )
 
 func TestDualAxisLineSampleMechanicallyMatchesPinnedUpstreamExample(t *testing.T) {
@@ -172,8 +173,8 @@ func TestInteractivePieVariantsMechanicallyMatchPinnedUpstreamExample(t *testing
 		t.Fatalf("area rose responsive legend = %#v", areaChart.Options.Legend)
 	}
 	area := areaChart.Series[0]
-	if area.Name != "Area" || area.RoseMode != interactive.PieRoseArea || area.InnerRadius != 40 || area.OuterRadius != 75 ||
-		area.Center != nil || area.LabelContent != interactive.PieLabelNameAndValue {
+	if area.Name != "Area" || area.RoseMode != interactivepie.RoseArea || area.InnerRadius != 40 || area.OuterRadius != 75 ||
+		area.Center != nil || area.LabelContent != interactivepie.LabelNameAndValue {
 		t.Fatalf("area rose series = %#v", area)
 	}
 	assertInteractivePieValues(t, area.Data, []float64{11, 45, 37, 6})
@@ -183,8 +184,8 @@ func TestInteractivePieVariantsMechanicallyMatchPinnedUpstreamExample(t *testing
 		t.Fatalf("radius rose chart identity/geometry = %#v", radiusChart)
 	}
 	radius := radiusChart.Series[0]
-	if radius.Name != "Radius" || radius.RoseMode != interactive.PieRoseRadius || radius.InnerRadius != 30 || radius.OuterRadius != 75 ||
-		radius.Center != nil || radius.LabelContent != interactive.PieLabelNameAndValue {
+	if radius.Name != "Radius" || radius.RoseMode != interactivepie.RoseRadius || radius.InnerRadius != 30 || radius.OuterRadius != 75 ||
+		radius.Center != nil || radius.LabelContent != interactivepie.LabelNameAndValue {
 		t.Fatalf("radius rose series = %#v", radius)
 	}
 	assertInteractivePieValues(t, radius.Data, []float64{95, 66, 28, 58})
@@ -194,15 +195,15 @@ func TestInteractivePieVariantsMechanicallyMatchPinnedUpstreamExample(t *testing
 		t.Fatalf("nested chart identity/geometry = %#v", nested)
 	}
 	outer, inner := nested.Series[0], nested.Series[1]
-	if outer.InnerRadius != 50 || outer.OuterRadius != 55 || outer.RoseMode != interactive.PieRoseArea || outer.Center != nil ||
-		inner.InnerRadius != 0 || inner.OuterRadius != 45 || inner.RoseMode != interactive.PieRoseRadius || inner.Center != nil {
+	if outer.InnerRadius != 50 || outer.OuterRadius != 55 || outer.RoseMode != interactivepie.RoseArea || outer.Center != nil ||
+		inner.InnerRadius != 0 || inner.OuterRadius != 45 || inner.RoseMode != interactivepie.RoseRadius || inner.Center != nil {
 		t.Fatalf("nested radii/centers = %#v / %#v", outer, inner)
 	}
 	assertInteractivePieValues(t, outer.Data, []float64{87, 31, 29, 56})
 	assertInteractivePieValues(t, inner.Data, []float64{37, 31, 85, 26})
 }
 
-func assertInteractivePieValues(t *testing.T, data []interactive.PieData, values []float64) {
+func assertInteractivePieValues(t *testing.T, data []interactivepie.Data, values []float64) {
 	t.Helper()
 	if len(data) != len(interactivePieSeasons) || len(data) != len(values) {
 		t.Fatalf("Pie data length = %d, want %d", len(data), len(values))
