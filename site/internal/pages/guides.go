@@ -27,13 +27,13 @@ const staticModeCode = `@line.Line(line.Config{
   }},
 })`
 
-const interactiveModeCode = `@interactive.Line(interactive.LineConfig{
+const interactiveModeCode = `@interactiveline.Line(interactiveline.Config{
   Label:   "Weekly revenue",
   Caption: "Hover for values; use the adjacent table for exact data.",
   XAxis:   []string{"Mon", "Tue", "Wed", "Thu", "Fri"},
-  Series: []interactive.LineSeries{{
+  Series: []interactiveline.Series{{
     Name: "Revenue",
-    Data: []interactive.LineData{
+    Data: []interactiveline.Data{
       {Value: 12}, {Value: 18}, {Value: 14}, {Value: 24}, {Value: 21},
     },
   }},
@@ -63,12 +63,12 @@ const controlsStaticCode = `@line.Line(line.Config{
   },
 })`
 
-const controlsInteractiveCode = `@interactive.Line(interactive.LineConfig{
+const controlsInteractiveCode = `@interactiveline.Line(interactiveline.Config{
   Label: "Weekly revenue",
   XAxis: []string{"Mon", "Tue", "Wed"},
-  Series: []interactive.LineSeries{{
+  Series: []interactiveline.Series{{
     Name: "Revenue",
-    Data: []interactive.LineData{{Value: 12}, {Value: 18}, {Value: 14}},
+    Data: []interactiveline.Data{{Value: 12}, {Value: 18}, {Value: 14}},
   }},
   Options: interactive.ChartOptions{
     Controls: chartcontrol.Options{

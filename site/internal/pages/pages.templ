@@ -8,6 +8,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/heatmap"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
+	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/components/radar"
@@ -251,16 +252,16 @@ templ interactiveChartLineContent() {
 		Description: "Ordered numeric series with categorical, numerical, and temporal axes; labels, symbols, references, fills, and multiple aligned series.",
 		Primary: componentpage.Example{
 			AbovePreview: visualizationGuidance("Show change across an ordered sequence.", "Order and direction matter, especially for a small number of time series.", "Unordered categories or many crossing series obscure comparison.", "Provide the ordered values in an adjacent table when exact readings matter."),
-			Preview:      interactive.Line(sampleInteractiveLineBase()),
+			Preview:      interactiveline.Line(sampleInteractiveLineBase()),
 			Code:         interactiveChartLineCode(),
 		},
 		Sections: []componentpage.Example{
 			{Title: "Labels and symbols", Description: "Labels expose exact point values; symbols distinguish points without changing the data.", Preview: interactiveLineLabelsAndSymbolsVariants(), Code: interactiveLineLabelsCode()},
 			{Title: "References and split lines", Description: "Calculated points and horizontal guides add context while the adjacent tables retain exact values.", Preview: interactiveLineReferenceVariants(), Code: interactiveLineReferencesCode()},
-			{Title: "Numerical axis and guides", Description: "A numerical x axis supports ranges, coordinate guides, vertical thresholds, and theme-aware scale pieces.", Preview: interactive.Line(sampleInteractiveLineNumerical()), Code: interactiveLineNumericalCode()},
+			{Title: "Numerical axis and guides", Description: "A numerical x axis supports ranges, coordinate guides, vertical thresholds, and theme-aware scale pieces.", Preview: interactiveline.Line(sampleInteractiveLineNumerical()), Code: interactiveLineNumericalCode()},
 			{Title: "Line shape treatments", Description: "Step, smooth, area, and smooth-area treatments share one component and typed series options.", Preview: interactiveLineShapeVariants(), Code: interactiveLineShapesCode()},
 			{Title: "Multi-series comparisons", Description: "Aligned series share one ordered x axis; labels and average references can be configured per series.", Preview: interactiveLineMultiVariants(), Code: interactiveLineMultiCode()},
-			{Title: "Temporal X-axis treatment", Description: "UTC timestamps keep one chronological series in order, with exact values beside the chart.", Preview: interactive.Line(sampleInteractiveLineTime()), Code: interactiveLineTimeCode()},
+			{Title: "Temporal X-axis treatment", Description: "UTC timestamps keep one chronological series in order, with exact values beside the chart.", Preview: interactiveline.Line(sampleInteractiveLineTime()), Code: interactiveLineTimeCode()},
 		},
 		After: interactiveLineDocumentation(),
 	})
@@ -268,31 +269,31 @@ templ interactiveChartLineContent() {
 
 templ interactiveLineLabelsAndSymbolsVariants() {
 	<div class="space-y-10" data-line-variant-group="labels-symbols">
-		<div data-line-variant="labels">@interactive.Line(sampleInteractiveLineLabels())</div>
-		<div data-line-variant="symbols">@interactive.Line(sampleInteractiveLineSymbols())</div>
+		<div data-line-variant="labels">@interactiveline.Line(sampleInteractiveLineLabels())</div>
+		<div data-line-variant="symbols">@interactiveline.Line(sampleInteractiveLineSymbols())</div>
 	</div>
 }
 
 templ interactiveLineReferenceVariants() {
 	<div class="space-y-10" data-line-variant-group="references">
-		<div data-line-variant="mark-points">@interactive.Line(sampleInteractiveLineMarkPoints())</div>
-		<div data-line-variant="split-lines">@interactive.Line(sampleInteractiveLineSplitLines())</div>
+		<div data-line-variant="mark-points">@interactiveline.Line(sampleInteractiveLineMarkPoints())</div>
+		<div data-line-variant="split-lines">@interactiveline.Line(sampleInteractiveLineSplitLines())</div>
 	</div>
 }
 
 templ interactiveLineShapeVariants() {
 	<div class="space-y-10" data-line-variant-group="shapes">
-		<div data-line-variant="step">@interactive.Line(sampleInteractiveLineStep())</div>
-		<div data-line-variant="smooth">@interactive.Line(sampleInteractiveLineSmooth())</div>
-		<div data-line-variant="area">@interactive.Line(sampleInteractiveLineArea())</div>
-		<div data-line-variant="smooth-area">@interactive.Line(sampleInteractiveLineSmoothArea())</div>
+		<div data-line-variant="step">@interactiveline.Line(sampleInteractiveLineStep())</div>
+		<div data-line-variant="smooth">@interactiveline.Line(sampleInteractiveLineSmooth())</div>
+		<div data-line-variant="area">@interactiveline.Line(sampleInteractiveLineArea())</div>
+		<div data-line-variant="smooth-area">@interactiveline.Line(sampleInteractiveLineSmoothArea())</div>
 	</div>
 }
 
 templ interactiveLineMultiVariants() {
 	<div class="space-y-10" data-line-variant-group="multi-series">
-		<div data-line-variant="multi">@interactive.Line(sampleInteractiveLineMulti())</div>
-		<div data-line-variant="demo">@interactive.Line(sampleInteractiveLineDemo())</div>
+		<div data-line-variant="multi">@interactiveline.Line(sampleInteractiveLineMulti())</div>
+		<div data-line-variant="demo">@interactiveline.Line(sampleInteractiveLineDemo())</div>
 	</div>
 }
 
@@ -300,7 +301,7 @@ templ interactiveLineDocumentation() {
 	<div class="space-y-4">
 		@demoNote("Time series", "Use a time axis for chronological observations; keep timestamps strictly ordered and show exact readings beside the chart when people need to compare them.")
 		@demoNote("Mixed-series composition", "The upstream mixed line and scatter overlay needs a separate renderer-neutral composite chart API. Line does not accept backing-renderer series or raw option escape hatches.")
-		@goAPIReference("interactive")
+		@goAPIReference("interactive/line")
 	</div>
 }
 

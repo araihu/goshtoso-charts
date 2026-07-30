@@ -9,6 +9,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
+	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 )
 
 func controlledOptions(title, filename string) interactive.ChartOptions {
@@ -19,11 +20,11 @@ func controlledOptions(title, filename string) interactive.ChartOptions {
 	}
 }
 
-func sampleInteractiveLine() interactive.LineConfig {
-	return interactive.LineConfig{
+func sampleInteractiveLine() interactiveline.Config {
+	return interactiveline.Config{
 		Label: "Weekly latency trend", Caption: "Interactive line component.",
 		XAxis:   []string{"Mon", "Tue", "Wed", "Thu", "Fri"},
-		Series:  []interactive.LineSeries{{Name: "Latency (ms)", Data: []interactive.LineData{{Value: 42}, {Value: 47}, {Value: 45}, {Value: 51}, {Value: 44}}}},
+		Series:  []interactiveline.Series{{Name: "Latency (ms)", Data: []interactiveline.Data{{Value: 42}, {Value: 47}, {Value: 45}, {Value: 51}, {Value: 44}}}},
 		Options: controlledOptions("Latency", "interactive-latency"),
 	}
 }
@@ -591,12 +592,12 @@ func sampleLiveAvailability() interactive.BarConfig {
 }
 
 func interactiveChartLineCode() string {
-	return `@interactive.Line(interactive.LineConfig{
+	return `@interactiveline.Line(interactiveline.Config{
   Label: "Basic line example",
   XAxis: []string{"Apple", "Banana", "Peach", "Lemon", "Pear", "Cherry"},
-  Series: []interactive.LineSeries{{
+  Series: []interactiveline.Series{{
     Name: "Category A",
-    Data: []interactive.LineData{{Value: 120}, {Value: 132}, {Value: 101}, {Value: 134}, {Value: 90}, {Value: 230}},
+    Data: []interactiveline.Data{{Value: 120}, {Value: 132}, {Value: 101}, {Value: 134}, {Value: 90}, {Value: 230}},
   }},
 })`
 }
