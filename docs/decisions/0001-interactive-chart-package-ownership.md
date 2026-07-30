@@ -37,7 +37,7 @@ behind this boundary.
 Parent `components/interactive` remains the compatibility surface. Its
 `Instance` and shared types are exact aliases to `components/chart`; functions
 retain their existing signatures. Bar, Line, Scatter, Candlestick, HeatMap,
-Pie, Radar, BoxPlot, Gauge, Funnel, Parallel, and ThemeRiver chart-specific types, validation,
+Pie, Radar, BoxPlot, Gauge, Funnel, Graph, Sankey, Parallel, and ThemeRiver chart-specific types, validation,
 rendering, exact-value details, and generated templates where present now live
 in their canonical child packages. The parent exposes exact aliases and
 forwarding constructors for those migrated families while retaining the
@@ -49,13 +49,13 @@ The dependency direction is:
 components
   <- components/chart
   <- components/internal/interactive
-  <- components/interactive/{bar,line,scatter,candlestick,heatmap,pie,radar,boxplot,gauge,funnel,parallel,themeriver}
+  <- components/interactive/{bar,line,scatter,candlestick,heatmap,pie,radar,boxplot,gauge,funnel,graph,sankey,parallel,themeriver}
   <- components/interactive (compatibility facade and remaining implementations)
 ```
 
-All twelve migrated children depend only on `components/chart`,
+All fourteen migrated children depend only on `components/chart`,
 `components/internal/interactive`, and other inward dependencies; they never
-import the parent. The parent may import exactly those twelve children and
+import the parent. The parent may import exactly those fourteen children and
 must alias or forward their public APIs. Later chart children follow the same
 bounded move. Neither shared package may import the parent or a chart child.
 
@@ -63,7 +63,7 @@ bounded move. Neither shared package may import the parent or a chart child.
 
 Existing constructors, field literals, assignments, and imports continue to
 compile. Exact aliases preserve type identity between parent shared names and
-`components/chart` names and between the parent names for all twelve migrated
+`components/chart` names and between the parent names for all fourteen migrated
 families and their child declarations. Rendered markup, runtime bytes, local asset paths, validation
 behavior, and all 24 constructor signatures remain unchanged.
 
@@ -93,7 +93,7 @@ GSC-TD-004 remains open until that sequence completes.
 
 - Child migrations gain an acyclic shared home and one private renderer adapter.
 - Bar, Line, Scatter, Candlestick, HeatMap, Pie, Radar, BoxPlot, Gauge, Funnel,
-  Parallel, and ThemeRiver now
+  Graph, Sankey, Parallel, and ThemeRiver now
   physically own their chart-specific implementations while the parent facade
   remains supported.
 - External chart components can return the same concrete `chart.Instance`.

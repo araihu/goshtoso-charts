@@ -12,9 +12,11 @@ import (
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
 	interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
+	interactivegraph "github.com/araihu/goshtoso-charts/components/interactive/graph"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
+	interactivesankey "github.com/araihu/goshtoso-charts/components/interactive/sankey"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 )
 
@@ -170,38 +172,38 @@ func sampleLiquidGaugeData() []interactivegauge.Data {
 	}
 }
 
-func sampleInteractiveGraph() interactive.Instance {
-	return interactive.Graph(interactive.GraphConfig{
+func sampleInteractiveGraph() interactivegraph.Config {
+	return interactivegraph.Config{
 		Label: "Service dependency graph", Caption: "Dependencies between edge, API, data, and notification services.",
-		Categories: []interactive.Category{{Name: "Entry"}, {Name: "Service"}, {Name: "Data"}},
-		Nodes: []interactive.Node{
+		Categories: []interactivegraph.Category{{Name: "Entry"}, {Name: "Service"}, {Name: "Data"}},
+		Nodes: []interactivegraph.Node{
 			{Name: "Edge", Category: "Entry", Value: 8, Size: 44},
 			{Name: "API", Category: "Service", Value: 12, Size: 52},
 			{Name: "Worker", Category: "Service", Value: 7, Size: 38},
 			{Name: "Database", Category: "Data", Value: 10, Size: 46},
 			{Name: "Notifications", Category: "Service", Value: 5, Size: 34},
 		},
-		Links: []interactive.Link{
+		Links: []interactivegraph.Link{
 			{Source: "Edge", Target: "API", Value: 12},
 			{Source: "API", Target: "Database", Value: 10},
 			{Source: "API", Target: "Worker", Value: 7},
 			{Source: "Worker", Target: "Notifications", Value: 5},
 		},
-		Roam:    interactive.GraphRoamEnabled,
-		Force:   &interactive.ForceOptions{Repulsion: 180, Gravity: 0.08, EdgeLength: 110},
+		Roam:    interactivegraph.RoamEnabled,
+		Force:   &interactivegraph.ForceOptions{Repulsion: 180, Gravity: 0.08, EdgeLength: 110},
 		Options: controlledOptions("Service dependencies", "service-dependencies"),
-	})
+	}
 }
 
-func sampleInteractiveSankey() interactive.Instance {
-	return interactive.Sankey(interactive.SankeyConfig{
+func sampleInteractiveSankey() interactivesankey.Config {
+	return interactivesankey.Config{
 		Label: "Request flow", Caption: "Requests flowing from ingress through services to outcomes.",
-		Series: []interactive.SankeySeries{{
+		Series: []interactivesankey.Series{{
 			Name: "Requests",
-			Nodes: []interactive.SankeyNode{
+			Nodes: []interactivesankey.Node{
 				{Name: "Ingress"}, {Name: "API"}, {Name: "Cache"}, {Name: "Database"}, {Name: "Success"}, {Name: "Error"},
 			},
-			Links: []interactive.SankeyLink{
+			Links: []interactivesankey.Link{
 				{Source: "Ingress", Target: "API", Value: 100},
 				{Source: "API", Target: "Cache", Value: 48},
 				{Source: "API", Target: "Database", Value: 45},
@@ -211,9 +213,9 @@ func sampleInteractiveSankey() interactive.Instance {
 				{Source: "Database", Target: "Error", Value: 3},
 			},
 		}},
-		Layout:  interactive.SankeyLayout{NodeWidth: 18, NodeGap: 14},
+		Layout:  interactivesankey.Layout{NodeWidth: 18, NodeGap: 14},
 		Options: controlledOptions("Request flow", "request-flow"),
-	})
+	}
 }
 
 func sampleInteractiveTree() interactive.Instance {
@@ -734,23 +736,25 @@ func liveAvailabilityCode() string {
 }
 
 func interactiveGraphCode() string {
-	return `@interactive.Graph(interactive.GraphConfig{
+	return `@interactivegraph.Graph(interactivegraph.Config{
   Label: "Service dependencies",
-  Nodes: []interactive.Node{{Name: "API"}, {Name: "Database"}},
-  Links: []interactive.Link{{Source: "API", Target: "Database", Value: 10}},
-  Layout: interactive.GraphLayoutForce,
-  Roam: interactive.GraphRoamEnabled,
+  Nodes: []interactivegraph.Node{{Name: "API"}, {Name: "Database"}},
+  Links: []interactivegraph.Link{{Source: "API", Target: "Database", Value: 10}},
+  Layout: interactivegraph.LayoutForce,
+  Roam: interactivegraph.RoamEnabled,
+  Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Service dependencies"}},
 })`
 }
 
 func interactiveSankeyCode() string {
-	return `@interactive.Sankey(interactive.SankeyConfig{
+	return `@interactivesankey.Sankey(interactivesankey.Config{
   Label: "Request flow",
-  Series: []interactive.SankeySeries{{
+  Series: []interactivesankey.Series{{
     Name: "Requests",
-    Nodes: []interactive.SankeyNode{{Name: "Ingress"}, {Name: "Success"}},
-    Links: []interactive.SankeyLink{{Source: "Ingress", Target: "Success", Value: 90}},
+    Nodes: []interactivesankey.Node{{Name: "Ingress"}, {Name: "Success"}},
+    Links: []interactivesankey.Link{{Source: "Ingress", Target: "Success", Value: 90}},
   }},
+  Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Request flow"}},
 })`
 }
 

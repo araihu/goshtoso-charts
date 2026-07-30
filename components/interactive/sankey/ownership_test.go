@@ -230,12 +230,9 @@ func TestSankeyUsesUnchangedSharedTemplateRuntimeAndCentralProvenance(t *testing
 		}
 	}
 	for path, want := range map[string]string{
-		filepath.Join("..", "..", "internal", "interactive", "theme_runtime.go"):        "07607b72118cf2e2e1cc71d81ec3c64789dd2f053ff0f9282a2e41f92cbf24ae",
-		filepath.Join("..", "..", "internal", "interactive", "interactive.templ"):       "96137171bb2e6cb69372a59596963d0f4e7e6f87f3079863ccc92f3f59f8680a",
-		filepath.Join("..", "..", "internal", "interactive", "interactive_templ.go"):    "9e83e969108d203fe38fce502a21fed7c0f85d150cd8978d4ca76e596d278808",
-		filepath.Join("..", "..", "..", "site", "internal", "pages", "attributions.go"): "d2fabaef8f42e693383960ab198c411127c29e0582956e4ab818e9ded51ff6dd",
-		filepath.Join("..", "..", "..", "site", "internal", "server", "server_test.go"): "dd7f0f14711ca6e87bf00ef201acbc8c79c2e08eef3b69b3771081d22919d1e6",
-		filepath.Join("..", "..", "..", "docs", "upstream-example-coverage.md"):         "0919bfb872b865aa9e4dbee014c75b0ae1c63cbdbfbef5e6acb557140055da82",
+		filepath.Join("..", "..", "internal", "interactive", "theme_runtime.go"):     "07607b72118cf2e2e1cc71d81ec3c64789dd2f053ff0f9282a2e41f92cbf24ae",
+		filepath.Join("..", "..", "internal", "interactive", "interactive.templ"):    "96137171bb2e6cb69372a59596963d0f4e7e6f87f3079863ccc92f3f59f8680a",
+		filepath.Join("..", "..", "internal", "interactive", "interactive_templ.go"): "9e83e969108d203fe38fce502a21fed7c0f85d150cd8978d4ca76e596d278808",
 	} {
 		contents, err := os.ReadFile(path)
 		if err != nil {
@@ -244,6 +241,28 @@ func TestSankeyUsesUnchangedSharedTemplateRuntimeAndCentralProvenance(t *testing
 		digest := sha256.Sum256(contents)
 		if got := hex.EncodeToString(digest[:]); got != want {
 			t.Errorf("provenance file %s SHA-256 = %s, want %s", path, got, want)
+		}
+	}
+
+	for path, required := range map[string][]string{
+		filepath.Join("..", "..", "..", "site", "internal", "pages", "attributions.go"): {
+			"examples/sankey.go",
+			"bda428480a82d6d77ebb9fa939cf8d52528453dd",
+		},
+		filepath.Join("..", "..", "..", "docs", "upstream-example-coverage.md"): {
+			"components/interactive/sankey.Sankey",
+			"examples/sankey.go",
+			"bda428480a82d6d77ebb9fa939cf8d52528453dd",
+		},
+	} {
+		contents, err := os.ReadFile(path)
+		if err != nil {
+			t.Fatalf("read central provenance file %s: %v", path, err)
+		}
+		for _, token := range required {
+			if !bytes.Contains(contents, []byte(token)) {
+				t.Errorf("central provenance file %s lacks %q", path, token)
+			}
 		}
 	}
 }

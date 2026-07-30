@@ -197,7 +197,7 @@ func TestGraphSharedTemplateRuntimeAndUpstreamProvenance(t *testing.T) {
 	if err != nil {
 		t.Fatalf("read central upstream provenance: %v", err)
 	}
-	if !bytes.Contains(attributions, []byte("https://github.com/go-echarts/go-echarts")) || !bytes.Contains(attributions, []byte("bda428480a82d6d77ebb9fa939cf8d52528453dd")) {
+	if !bytes.Contains(attributions, []byte("examples/graph.go")) || !bytes.Contains(attributions, []byte("bda428480a82d6d77ebb9fa939cf8d52528453dd")) {
 		t.Fatal("central upstream provenance no longer identifies the pinned interactive examples source")
 	}
 }

@@ -18,6 +18,19 @@ source evidence live here and on the Attributions page.
   links; the parent package remains an exact alias-and-forwarder compatibility
   facade.
 
+## Interactive Graph and Sankey ownership
+
+- Source repository: `github.com/go-echarts/examples`
+- Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
+- Upstream sources: `examples/graph.go` and `examples/sankey.go`
+- Canonical APIs: `components/interactive/graph.Graph` and
+  `components/interactive/sankey.Sankey`
+- Status: the package-ownership migration preserves the existing Graph and
+  Sankey datasets, hierarchy and weighted relationships, chart semantics, and
+  renderer-neutral visual intent. It changes only canonical Go ownership and
+  the site imports, snippets, and API links; the parent package remains an
+  exact alias-and-forwarder compatibility facade.
+
 ## Static/vector Bar
 
 - Source repository: `github.com/go-analyze/charts`

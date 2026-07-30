@@ -13,6 +13,7 @@ import (
 	interactivecandlestick "github.com/araihu/goshtoso-charts/components/interactive/candlestick"
 	interactivefunnel "github.com/araihu/goshtoso-charts/components/interactive/funnel"
 	interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
+	interactivegraph "github.com/araihu/goshtoso-charts/components/interactive/graph"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
@@ -124,6 +125,14 @@ func oldFacadeGaugeConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeGraphConsumer() chart.Instance {
+	return interactive.Graph(interactive.GraphConfig{
+		Label: "Service dependencies",
+		Nodes: []interactive.Node{{Name: "API"}, {Name: "Database"}},
+		Links: []interactive.Link{{Source: "API", Target: "Database", Value: 10}},
+	})
+}
+
 func oldFacadeSankeyConsumer() chart.Instance {
 	return interactive.Sankey(interactive.SankeyConfig{
 		Label: "Deployment flow",
@@ -171,6 +180,11 @@ func canonicalChildConsumers() []chart.Instance {
 			Label:   "Deployment completion",
 			Variant: interactivegauge.VariantProgress,
 			Series:  []interactivegauge.Series{{Name: "Rollout", Data: []interactivegauge.Data{{Name: "Complete", Value: 73}}}},
+		}),
+		interactivegraph.Graph(interactivegraph.Config{
+			Label: "Service dependencies",
+			Nodes: []interactivegraph.Node{{Name: "API"}, {Name: "Database"}},
+			Links: []interactivegraph.Link{{Source: "API", Target: "Database", Value: 10}},
 		}),
 		interactiveheatmap.HeatMap(interactiveheatmap.Config{
 			Label:      "Deployment activity",
@@ -231,6 +245,7 @@ var (
 	_ = oldFacadeThemeRiverConsumer
 	_ = oldFacadeParallelConsumer
 	_ = oldFacadeGaugeConsumer
+	_ = oldFacadeGraphConsumer
 	_ = oldFacadeSankeyConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer
