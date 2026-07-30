@@ -547,7 +547,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 	body := attributions.Body.String()
 	for _, want := range []string{
 		"Foundation dependencies", "Chart and rendering libraries", "Bundled runtime and assets",
-		"Goshtoso", "v0.0.14-0.20260729011747-809b903c1296", "Goshtoso App Shells", "commit 4c4aa5ae787e", "templ", "v0.3.1020",
+		"Goshtoso", "v0.1.1", "Goshtoso App Shells", "v0.1.0", "templ", "v0.3.1020",
 		"go-analyze/charts", "v0.6.0", "go-echarts", "v2.7.2", "Apache ECharts", "v5.6.0",
 		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 		"examples/pie.go",
@@ -1308,7 +1308,7 @@ func TestEveryCurrentChartPageUsesSharedControlsAndCapabilityGating(t *testing.T
 				`data-action-group-overflow`,
 				`data-goshtoso-chart-expand`, `role="dialog"`,
 				`src="` + chartassets.ControlRuntimeURL + `"`,
-				goshtosoassets.ActionGroupURL,
+				goshtosoassets.FirstPartyBundleURL,
 			} {
 				if !strings.Contains(body, want) {
 					t.Errorf("GET %s missing %q", test.path, want)
@@ -1342,12 +1342,12 @@ func TestChartControlRuntimeIsLocal(t *testing.T) {
 	}
 }
 
-func TestActionGroupRuntimeIsServedByBaseGoshtosoAssets(t *testing.T) {
+func TestFirstPartyRuntimeBundleIsServedByBaseGoshtosoAssets(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()
-	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, goshtosoassets.ActionGroupURL, nil))
+	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, goshtosoassets.FirstPartyBundleURL, nil))
 	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), "data-goshtoso-action-group") {
-		t.Fatalf("GET ActionGroup runtime status/body = %d/%q", recorder.Code, recorder.Body.String())
+		t.Fatalf("GET first-party runtime status/body = %d/%q", recorder.Code, recorder.Body.String())
 	}
 }
 
@@ -1412,9 +1412,18 @@ func TestAraiHuThemeIsCurrentAndDefault(t *testing.T) {
 
 	page := httptest.NewRecorder()
 	handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, "/", nil))
-	for _, want := range []string{`"theme":"araihu"`, `/componentdocshell/assets/araihu.css`} {
+	for _, want := range []string{
+		`"persist":false`, `"persistTheme":false`, `"theme":"araihu"`,
+		`/componentdocshell/assets/araihu.css`,
+		`data-site-version="development"`, `aria-label="Development build"`, `>dev</span>`,
+	} {
 		if !strings.Contains(page.Body.String(), want) {
 			t.Errorf("charts demo default theme missing %q", want)
+		}
+	}
+	for _, unwanted := range []string{`component-doc-shell__brand-name`, `aria-label="Theme"`} {
+		if strings.Contains(page.Body.String(), unwanted) {
+			t.Errorf("charts demo locked brand/theme rendered %q", unwanted)
 		}
 	}
 

@@ -1,14 +1,18 @@
 package pages
 
 import (
+	"regexp"
 	"strings"
 
 	"github.com/a-h/templ"
 	"github.com/araihu/goshtoso-app-shells/componentdocshell"
 	"github.com/araihu/goshtoso-charts/components/dependencies"
 	"github.com/araihu/goshtoso-charts/site/internal/brand"
+	"github.com/araihu/goshtoso-charts/site/internal/buildinfo"
 	"github.com/araihu/goshtoso/components/sidebar"
 )
+
+var releasedSiteVersionPattern = regexp.MustCompile(`^v[0-9]+\.[0-9]+\.[0-9]+$`)
 
 func tocID(title string) string {
 	return strings.ToLower(strings.ReplaceAll(title, " ", "-"))
@@ -27,6 +31,10 @@ func shellPage(title string, active string, content templ.Component) componentdo
 }
 
 func shellConfig() componentdocshell.Config {
+	return shellConfigForVersion(buildinfo.SiteVersion())
+}
+
+func shellConfigForVersion(version string) componentdocshell.Config {
 	navigation := shellNavigation()
 	navigation.SearchSlot = docsSearch(searchEntries(navigation))
 	return componentdocshell.Config{
@@ -34,16 +42,25 @@ func shellConfig() componentdocshell.Config {
 			Name:       "Charts",
 			HomeURL:    "/",
 			Logo:       brand.Logo(),
+			HideName:   true,
 			FaviconURL: brand.IconURL(),
 		},
 		Navigation: navigation,
 		Appearance: componentdocshell.AppearanceConfig{
+			DefaultTheme:         "araihu",
 			DisableThemeSelector: true,
 		},
-		Interactions:  componentdocshell.InteractionConfig{EnableHTMX: true},
+		Interactions: componentdocshell.InteractionConfig{EnableHTMX: true},
+		HeaderActions: shellVersionBadge(
+			version,
+		),
 		BodyEnd:       docsSearchRuntime(),
 		RepositoryURL: "https://github.com/araihu/goshtoso-charts",
 	}
+}
+
+func isReleasedSiteVersion(version string) bool {
+	return releasedSiteVersionPattern.MatchString(version)
 }
 
 func shellNavigation() componentdocshell.Navigation {
