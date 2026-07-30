@@ -14,6 +14,10 @@ explicit opt-in. Components provide accessible labels and adjacent exact data
 where a visual alone would be insufficient; interactive charts can also receive
 live Cartesian data through a renderer-neutral SSE snapshot contract.
 
+The documentation site's two embedded Goshtoso identity fallbacks follow the
+immutable [`araihu/assets` update contract](docs/ARAIHU_ASSETS.md). Theme CSS,
+App Shell assets, and presentation runtime remain dependency-owned.
+
 ## Install
 
 Requires Go 1.26.5+ and a Goshtoso-integrated templ application. Set up

@@ -1207,15 +1207,15 @@ func TestTopLevelDocumentationUsesNativeSidebarIcons(t *testing.T) {
 	}
 }
 
-func TestV11GoshtosoBrandAssetsAndMetadataRender(t *testing.T) {
+func TestGoshtosoBrandFallbacksAndMetadataRender(t *testing.T) {
 	t.Parallel()
 	handler := New()
 	for _, test := range []struct {
 		path string
 		want string
 	}{
-		{"/brand/goshtoso-logo-transparent.svg", "class=\"araihu-brand-v11\""},
-		{"/brand/goshtoso-icon-transparent.svg", "class=\"araihu-brand-v11\""},
+		{"/brand/goshtoso-logo-transparent.svg", `<svg xmlns="http://www.w3.org/2000/svg"`},
+		{"/brand/goshtoso-icon-transparent.svg", `<svg xmlns="http://www.w3.org/2000/svg"`},
 		{"/", `<link rel="icon" data-asset-brand="icon" href="/brand/goshtoso-icon-transparent.svg">`},
 		{"/", `<title>Getting started · Goshtoso Charts</title>`},
 	} {
@@ -1223,6 +1223,9 @@ func TestV11GoshtosoBrandAssetsAndMetadataRender(t *testing.T) {
 		handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, test.path, nil))
 		if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), test.want) {
 			t.Errorf("GET %s status/body = %d/%q, want %q", test.path, recorder.Code, recorder.Body.String(), test.want)
+		}
+		if strings.HasSuffix(test.path, ".svg") && recorder.Header().Get("Content-Type") != "image/svg+xml" {
+			t.Errorf("GET %s content type = %q, want image/svg+xml", test.path, recorder.Header().Get("Content-Type"))
 		}
 	}
 }
