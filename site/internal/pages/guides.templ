@@ -9,8 +9,8 @@ templ ChartModesPage(fragment bool) {
 	@layout("Static and interactive", "chart-modes", chartModesContent(), fragment)
 }
 
-templ ChartControlsPage(fragment bool) {
-	@layout("Chart controls", "chart-controls", chartControlsContent(), fragment)
+templ ChartControlsPage(fragment bool, examples ChartControlExamples) {
+	@layout("Chart controls", "chart-controls", chartControlsContent(examples), fragment)
 }
 
 templ chartGuideNavigation(active string) {
@@ -97,7 +97,7 @@ templ chartModesContent() {
 	</div>
 }
 
-templ chartControlsContent() {
+templ chartControlsContent(examples ChartControlExamples) {
 	<div class="mx-auto max-w-5xl space-y-10" data-chart-controls-guide>
 		<header class="space-y-4">
 			<p class="text-sm font-semibold text-primary dark:text-primary-dark">Shared behavior</p>
@@ -115,6 +115,8 @@ templ chartControlsContent() {
 				@controlFact("Collapse", "Not part of the public control API.")
 			</div>
 		</section>
+
+		@chartControlExamples(examples)
 
 		<section class="space-y-4">
 			<h2 id="wrapper-lifecycle" data-toc-heading class="scroll-mt-8 font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">Wrapper lifecycle</h2>
