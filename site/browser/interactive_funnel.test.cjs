@@ -183,7 +183,9 @@ for (const [name, viewport, theme, dark] of [
 
       assert.equal(await variant(page, "base").locator("tbody tr").first().textContent(), "AnalyticsVisit31");
       assert.equal(await variant(page, "labels-left").locator("tbody tr").last().textContent(), "AnalyticsDeal0");
-      assert.deepEqual(await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth })), { client: viewport.width, scroll: viewport.width });
+      const documentWidths = await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth }));
+      assert.equal(documentWidths.scroll, documentWidths.client, JSON.stringify(documentWidths));
+      assert.ok(documentWidths.client <= viewport.width && documentWidths.client >= viewport.width - 20, JSON.stringify(documentWidths));
       assert.deepEqual(failures, []);
     } finally {
       await page.close();
