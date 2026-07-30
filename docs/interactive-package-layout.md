@@ -44,7 +44,7 @@ required.
 ## Shared chart instance foundation
 
 `components/chart.Instance` is the canonical public identity for a renderable
-chart instance. `components/interactive.Instance` and all sixteen migrated child
+chart instance. `components/interactive.Instance` and all eighteen migrated child
 packages' `Instance` names are exact aliases, so old and new values remain
 assignment-compatible and constructor function signatures remain
 interchangeable. Consumers can mix the facade and chart-specific package paths
@@ -212,8 +212,8 @@ Standard, donut, and rose treatments remain variants of one `Pie` component
 and one component kind. Pie-specific names are concise: `Config`, `Series`,
 `Data`, `RoseMode`, `LabelContent`, `TooltipContent`, and `Center`. Percentage
 formatting and validation live only in the private interactive adapter.
-Canonical Sunburst calls that adapter directly; the thin parent percentage
-wrapper remains only for unmigrated WordCloud behavior.
+Canonical Sunburst, ThemeRiver, and WordCloud call that adapter directly; the
+compatibility parent declares no percentage helper or helper callers.
 The public parent Pie surface remains exact aliases, constants, and one
 constructor forwarder.
 
@@ -515,11 +515,55 @@ generated template and calls the private percentage adapter directly. Shared
 chart options remain in `components/chart`. The parent keeps exact aliases and
 one constructor forwarder.
 
+## Treemap
+
+Use `components/interactive/treemap` for new interactive Treemap code:
+
+```go
+import interactivetreemap "github.com/araihu/goshtoso-charts/components/interactive/treemap"
+
+chart := interactivetreemap.Treemap(interactivetreemap.Config{
+	Label: "File system usage",
+	Nodes: []*interactivetreemap.Node{{
+		Name: "directory",
+		Children: []*interactivetreemap.Node{{Name: "file", Value: 1000}},
+	}},
+})
+```
+
+Navigation, roaming, breadcrumb, levels, and exact hierarchy values remain one
+Treemap component. The child owns its chart-specific API, validation,
+rendering, and generated template. Shared labels and chart options remain in
+`components/chart`; the parent keeps exact aliases, constants, and one
+constructor forwarder.
+
+## WordCloud
+
+Use `components/interactive/wordcloud` for new interactive WordCloud code:
+
+```go
+import interactivewordcloud "github.com/araihu/goshtoso-charts/components/interactive/wordcloud"
+
+chart := interactivewordcloud.WordCloud(interactivewordcloud.Config{
+	Label: "Search terms",
+	Series: interactivewordcloud.Series{
+		Name:  "terms",
+		Words: []interactivewordcloud.Word{{Name: "charts", Value: 42}},
+	},
+})
+```
+
+Shape and typed layout variants remain one WordCloud component. The child owns
+its chart-specific API, validation, rendering, generated template, and direct
+private percentage-helper calls. The parent keeps exact aliases, constants,
+and one constructor forwarder.
+
 ## Current boundary
 
 Bar, Line, Scatter, Candlestick, HeatMap, Pie, Radar, BoxPlot, Gauge, Funnel,
-Graph, Sankey, Tree, Sunburst, Parallel, and ThemeRiver physical ownership is complete. The
-supported parent facade delegates those sixteen migrated charts. Remaining chart families
+Graph, Sankey, Tree, Sunburst, Parallel, ThemeRiver, Treemap, and WordCloud
+physical ownership is complete. The supported parent facade delegates those
+eighteen migrated charts. Remaining chart families
 continue using their existing paths
 until their own bounded migrations land, and the final v1 policy for the parent
 compatibility facade remains open. Shared public and private foundation

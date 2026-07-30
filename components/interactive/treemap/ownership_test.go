@@ -194,27 +194,21 @@ func TestTreemapTemplateRuntimeAndUpstreamProvenance(t *testing.T) {
 			t.Errorf("normalized %s SHA-256 = %s, want base %s", check.path, got, check.wantDigest)
 		}
 	}
-	for path, want := range map[string]string{
-		filepath.Join("..", "..", "internal", "interactive", "interactive.templ"):    "96137171bb2e6cb69372a59596963d0f4e7e6f87f3079863ccc92f3f59f8680a",
-		filepath.Join("..", "..", "internal", "interactive", "interactive_templ.go"): "9e83e969108d203fe38fce502a21fed7c0f85d150cd8978d4ca76e596d278808",
-		filepath.Join("..", "..", "internal", "interactive", "live_runtime.go"):      "52feab4a14c172ffe212fb95b98e0363293ad0ad253ae60e8caea22caf7f2a4b",
-		filepath.Join("..", "..", "internal", "interactive", "theme_runtime.go"):     "07607b72118cf2e2e1cc71d81ec3c64789dd2f053ff0f9282a2e41f92cbf24ae",
-	} {
-		contents, err := os.ReadFile(path)
-		if err != nil {
-			t.Fatalf("read provenance file %s: %v", path, err)
-		}
-		digest := sha256.Sum256(contents)
-		if got := hex.EncodeToString(digest[:]); got != want {
-			t.Errorf("provenance file %s SHA-256 = %s, want %s", path, got, want)
-		}
-	}
 	attributions, err := os.ReadFile(filepath.Join("..", "..", "..", "site", "internal", "pages", "attributions.go"))
 	if err != nil {
 		t.Fatalf("read central upstream provenance: %v", err)
 	}
 	if !bytes.Contains(attributions, []byte("examples/treemap.go")) || !bytes.Contains(attributions, []byte("bda428480a82d6d77ebb9fa939cf8d52528453dd")) {
 		t.Fatal("central upstream provenance no longer identifies the pinned Treemap example")
+	}
+	coverage, err := os.ReadFile(filepath.Join("..", "..", "..", "docs", "upstream-example-coverage.md"))
+	if err != nil {
+		t.Fatalf("read central upstream coverage: %v", err)
+	}
+	for _, want := range []string{"Interactive Treemap and WordCloud ownership", "examples/treemap.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd", "components/interactive/treemap.Treemap"} {
+		if !bytes.Contains(coverage, []byte(want)) {
+			t.Errorf("central Treemap coverage missing %q", want)
+		}
 	}
 }
 

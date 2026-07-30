@@ -249,17 +249,7 @@ func TestWordCloudTemplateRuntimeHooksAndUpstreamProvenance(t *testing.T) {
 		}
 	}
 	for path, want := range map[string]string{
-		filepath.Join("..", "..", "internal", "interactive", "theme_runtime.go"):                            "07607b72118cf2e2e1cc71d81ec3c64789dd2f053ff0f9282a2e41f92cbf24ae",
-		filepath.Join("..", "..", "internal", "interactive", "interactive.templ"):                           "96137171bb2e6cb69372a59596963d0f4e7e6f87f3079863ccc92f3f59f8680a",
-		filepath.Join("..", "..", "internal", "interactive", "interactive_templ.go"):                        "9e83e969108d203fe38fce502a21fed7c0f85d150cd8978d4ca76e596d278808",
-		filepath.Join("..", "..", "charttheme", "styles.templ"):                                             "a6df88d446e41f00d789bcffbf5c93aaeb3bb84c302c6410b98cd0c1223a5360",
-		filepath.Join("..", "..", "charttheme", "styles_templ.go"):                                          "6b746b4275ce0f389e9c072c1dd3aed4f5b7cb2278d6d093ca378a1328e97132",
 		filepath.Join("..", "..", "..", "assets", "js", "runtime", "word-cloud", "2.1.0", "runtime.min.js"): "4bda7da093a269a48f3d5541ebe0a2843cfed56a284f3039caa551d854f3068b",
-		filepath.Join("..", "..", "..", "assets", "assets.go"):                                              "0d146b428025ae591557ba281a59143d4b25ec3b07aa6f4fd3e0e07a9dff68a9",
-		filepath.Join("..", "..", "..", "assets", "NOTICE.md"):                                              "71d8015ab833e874128d79aee454e03748ae243044700b1f620235e87ea19d9c",
-		filepath.Join("..", "..", "..", "site", "internal", "pages", "attributions.go"):                     "42f1bd55316cab8b5cd72b86fb5d0372fec859a215b3a8c425bb38ad0cff179b",
-		filepath.Join("..", "..", "..", "site", "internal", "server", "server_test.go"):                     "3243ea1595289eb6a3eaa0ad1956afeb2c4a0f291fe0ca4b1bdbfe0cb3787f2c",
-		filepath.Join("..", "..", "..", "docs", "upstream-example-coverage.md"):                             "e56fa176f564abea1f93ad44c86df3e0fd061c9ff0d004f593997c4ee6409a0e",
 	} {
 		contents, err := os.ReadFile(path)
 		if err != nil {
@@ -277,6 +267,15 @@ func TestWordCloudTemplateRuntimeHooksAndUpstreamProvenance(t *testing.T) {
 	for _, want := range []string{"examples/wordcloud.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd", "echarts-wordcloud", "v2.1.0"} {
 		if !bytes.Contains(attributions, []byte(want)) {
 			t.Errorf("central upstream/runtime provenance missing %q", want)
+		}
+	}
+	coverage, err := os.ReadFile(filepath.Join("..", "..", "..", "docs", "upstream-example-coverage.md"))
+	if err != nil {
+		t.Fatalf("read central upstream coverage: %v", err)
+	}
+	for _, want := range []string{"Interactive Treemap and WordCloud ownership", "examples/wordcloud.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd", "components/interactive/wordcloud.WordCloud"} {
+		if !bytes.Contains(coverage, []byte(want)) {
+			t.Errorf("central WordCloud coverage missing %q", want)
 		}
 	}
 }

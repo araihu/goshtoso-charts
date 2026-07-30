@@ -22,6 +22,8 @@ import (
 	interactivesunburst "github.com/araihu/goshtoso-charts/components/interactive/sunburst"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 	interactivetree "github.com/araihu/goshtoso-charts/components/interactive/tree"
+	interactivetreemap "github.com/araihu/goshtoso-charts/components/interactive/treemap"
+	interactivewordcloud "github.com/araihu/goshtoso-charts/components/interactive/wordcloud"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/components/radar"
@@ -854,20 +856,20 @@ templ interactiveWordCloudContent() {
 			Preview:      wordCloudVariants(),
 			Code:         interactiveWordCloudCode(),
 		},
-		After: interactiveDocumentation(demoNote("Shapes", "Shapes alter layout only. The exact weighted list remains the reliable comparison surface.")),
+		After: templ.Join(demoNote("Shapes", "Shapes alter layout only. The exact weighted list remains the reliable comparison surface."), goAPIReference("interactive/wordcloud")),
 	})
 }
 
 templ wordCloudVariants() {
 	<div class="flex flex-wrap gap-6" data-word-cloud-variants>
 		<div class="min-w-0 flex-[1_1_20rem]" data-word-cloud-variant="circle">
-			@sampleInteractiveWordCloud("basic WordCloud example", interactive.WordCloudShapeCircle)
+			@interactivewordcloud.WordCloud(sampleInteractiveWordCloud("basic WordCloud example", interactivewordcloud.ShapeCircle))
 		</div>
 		<div class="min-w-0 flex-[1_1_20rem]" data-word-cloud-variant="cardioid">
-			@sampleInteractiveWordCloud("cardioid shape", interactive.WordCloudShapeCardioid)
+			@interactivewordcloud.WordCloud(sampleInteractiveWordCloud("cardioid shape", interactivewordcloud.ShapeCardioid))
 		</div>
 		<div class="min-w-0 flex-[1_1_20rem]" data-word-cloud-variant="star">
-			@sampleInteractiveWordCloud("star shape", interactive.WordCloudShapeStar)
+			@interactivewordcloud.WordCloud(sampleInteractiveWordCloud("star shape", interactivewordcloud.ShapeStar))
 		</div>
 	</div>
 }
@@ -908,10 +910,10 @@ templ interactiveTreemapContent() {
 		Description: "Weighted hierarchies shown as nested areas for broad branch-size comparison.",
 		Primary: componentpage.Example{
 			AbovePreview: visualizationGuidance("Explore weighted hierarchies with area for leaves and branch totals.", "Relative size within a recursive structure is more important than precise comparison.", "Deep nesting or exact values must be compared; use a tree and table.", "An adjacent table preserves node paths, parents, totals, leaf values, and classes."),
-			Preview:      sampleInteractiveTreemap(),
+			Preview:      interactivetreemap.Treemap(sampleInteractiveTreemap()),
 			Code:         interactiveTreemapCode(),
 		},
-		After: interactiveDocumentation(demoNote("Hierarchy values", "Leaf values determine branch area. Use the table for exact totals and paths; drill-down is only a visual exploration aid.")),
+		After: templ.Join(demoNote("Hierarchy values", "Leaf values determine branch area. Use the table for exact totals and paths; drill-down is only a visual exploration aid."), goAPIReference("interactive/treemap")),
 	})
 }
 
