@@ -21,6 +21,7 @@ import (
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
+	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 )
 
 const uninitializedRenderError = "interactive chart label is required"
@@ -166,6 +167,7 @@ func TestInstanceAliasesRetainCanonicalTypeIdentity(t *testing.T) {
 		"interactive/pie":         reflect.TypeOf(interactivepie.Instance{}),
 		"interactive/radar":       reflect.TypeOf(interactiveradar.Instance{}),
 		"interactive/scatter":     reflect.TypeOf(interactivescatter.Instance{}),
+		"interactive/themeriver":  reflect.TypeOf(interactivethemeriver.Instance{}),
 	}
 	for name, instanceType := range types {
 		if got := instanceType.PkgPath(); got != wantPackage {
@@ -200,6 +202,8 @@ var (
 	_ interactiveradar.Instance       = chart.Instance{}
 	_ chart.Instance                  = interactivescatter.Instance{}
 	_ interactivescatter.Instance     = chart.Instance{}
+	_ chart.Instance                  = interactivethemeriver.Instance{}
+	_ interactivethemeriver.Instance  = chart.Instance{}
 
 	_ func(chartcomponents.Component) chart.Instance     = chart.NewInstance
 	_ func(interactive.BarConfig) chart.Instance         = interactive.Bar
@@ -212,6 +216,7 @@ var (
 	_ func(interactive.HeatMapConfig) chart.Instance     = interactive.HeatMap
 	_ func(interactive.PieConfig) chart.Instance         = interactive.Pie
 	_ func(interactive.RadarConfig) chart.Instance       = interactive.Radar
+	_ func(interactive.ThemeRiverConfig) chart.Instance  = interactive.ThemeRiver
 	_ func(interactivebar.Config) chart.Instance         = interactivebar.Bar
 	_ func(interactiveboxplot.Config) chart.Instance     = interactiveboxplot.BoxPlot
 	_ func(interactivecandlestick.Config) chart.Instance = interactivecandlestick.Candlestick
@@ -222,4 +227,5 @@ var (
 	_ func(interactivepie.Config) chart.Instance         = interactivepie.Pie
 	_ func(interactiveradar.Config) chart.Instance       = interactiveradar.Radar
 	_ func(interactivescatter.Config) chart.Instance     = interactivescatter.Scatter
+	_ func(interactivethemeriver.Config) chart.Instance  = interactivethemeriver.ThemeRiver
 )

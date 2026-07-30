@@ -3,6 +3,7 @@ package chart_test
 import (
 	"context"
 	"io"
+	"time"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
 	"github.com/araihu/goshtoso-charts/components/chart"
@@ -17,6 +18,7 @@ import (
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
+	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 )
 
 // These snippets are compile contracts for old facade consumers, canonical
@@ -96,6 +98,14 @@ func oldFacadeFunnelConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeThemeRiverConsumer() chart.Instance {
+	date := time.Date(2026, time.July, 30, 0, 0, 0, 0, time.UTC)
+	return interactive.ThemeRiver(interactive.ThemeRiverConfig{
+		Label:   "Deployment activity",
+		Streams: []interactive.ThemeRiverStream{{Name: "Production", Points: []interactive.ThemeRiverPoint{{Time: date, Value: 8}}}},
+	})
+}
+
 func oldFacadeGaugeConsumer() chart.Instance {
 	return interactive.Gauge(interactive.GaugeConfig{
 		Label:   "Deployment completion",
@@ -157,6 +167,10 @@ func canonicalChildConsumers() []chart.Instance {
 			Indicators: []interactiveradar.Indicator{{Name: "Availability", Max: 100}},
 			Series:     []interactiveradar.Series{{Name: "Current", Data: []interactiveradar.Data{{Name: "Today", Values: []float64{99.9}}}}},
 		}),
+		interactivethemeriver.ThemeRiver(interactivethemeriver.Config{
+			Label:   "Deployment activity",
+			Streams: []interactivethemeriver.Stream{{Name: "Production", Points: []interactivethemeriver.Point{{Time: time.Date(2026, time.July, 30, 0, 0, 0, 0, time.UTC), Value: 8}}}},
+		}),
 	}
 }
 
@@ -180,6 +194,7 @@ var (
 	_ = oldFacadeBoxPlotConsumer
 	_ = oldFacadeRadarConsumer
 	_ = oldFacadeFunnelConsumer
+	_ = oldFacadeThemeRiverConsumer
 	_ = oldFacadeGaugeConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer

@@ -77,9 +77,8 @@ func TestPercentageHelperDependentsRemainOnParentWrappers(t *testing.T) {
 	t.Parallel()
 
 	wants := map[string]map[string]bool{
-		"sunburst.go":    {"percentage": true, "validPercentage": true},
-		"theme_river.go": {"percentage": true, "validPercentage": true},
-		"wordcloud.go":   {"percentage": true},
+		"sunburst.go":  {"percentage": true, "validPercentage": true},
+		"wordcloud.go": {"percentage": true},
 	}
 	for filename, required := range wants {
 		file, err := parser.ParseFile(token.NewFileSet(), filename, nil, 0)
@@ -102,6 +101,42 @@ func TestPercentageHelperDependentsRemainOnParentWrappers(t *testing.T) {
 			if !seen[helper] {
 				t.Errorf("%s no longer uses compatibility helper %s", filename, helper)
 			}
+		}
+	}
+}
+
+func TestMigratedThemeRiverUsesPrivatePercentageHelpers(t *testing.T) {
+	t.Parallel()
+
+	file, err := parser.ParseFile(token.NewFileSet(), "themeriver/themeriver.go", nil, 0)
+	if err != nil {
+		t.Fatalf("parse canonical ThemeRiver: %v", err)
+	}
+	wants := map[string]bool{"Percentage": false, "ValidPercentage": false}
+	ast.Inspect(file, func(node ast.Node) bool {
+		call, ok := node.(*ast.CallExpr)
+		if !ok {
+			return true
+		}
+		if identifier, ok := call.Fun.(*ast.Ident); ok && (identifier.Name == "percentage" || identifier.Name == "validPercentage") {
+			t.Errorf("canonical ThemeRiver calls parent compatibility helper %s", identifier.Name)
+		}
+		selector, ok := call.Fun.(*ast.SelectorExpr)
+		if !ok {
+			return true
+		}
+		if _, wanted := wants[selector.Sel.Name]; !wanted {
+			return true
+		}
+		packageName, ok := selector.X.(*ast.Ident)
+		if ok && packageName.Name == "internalinteractive" {
+			wants[selector.Sel.Name] = true
+		}
+		return true
+	})
+	for helper, seen := range wants {
+		if !seen {
+			t.Errorf("canonical ThemeRiver does not call internalinteractive.%s", helper)
 		}
 	}
 }

@@ -22,6 +22,7 @@ import (
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
+	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/components/radar"
@@ -67,7 +68,7 @@ var wrapperConfigContracts = []wrapperConfigContract{
 	{components.KindInteractiveSunburst, reflect.TypeOf(interactive.SunburstConfig{}), true},
 	{components.KindInteractiveTreemap, reflect.TypeOf(interactive.TreemapConfig{}), true},
 	{components.KindInteractiveParallel, reflect.TypeOf(interactiveparallel.Config{}), true},
-	{components.KindInteractiveThemeRiver, reflect.TypeOf(interactive.ThemeRiverConfig{}), true},
+	{components.KindInteractiveThemeRiver, reflect.TypeOf(interactivethemeriver.Config{}), true},
 	{components.KindInteractiveCandlestick, reflect.TypeOf(interactive.CandlestickConfig{}), true},
 	{components.KindInteractiveWordCloud, reflect.TypeOf(interactive.WordCloudConfig{}), true},
 	{components.KindInteractiveMap, reflect.TypeOf(interactive.MapConfig{}), true},
@@ -147,6 +148,7 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/pie/pie.go", "Pie")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/radar/radar.go", "Radar")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/scatter/scatter.go", "Scatter")
+	assertConstructorPropagatesSharedWrapperFields(t, "interactive/themeriver/themeriver.go", "ThemeRiver")
 
 	loaded, err := packages.Load(&packages.Config{
 		Mode: packages.NeedName | packages.NeedFiles | packages.NeedCompiledGoFiles | packages.NeedSyntax,
@@ -176,7 +178,7 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 			if !ok || !strings.HasSuffix(parameter.Name, "Config") {
 				continue
 			}
-			if function.Name.Name == "Bar" || function.Name.Name == "BoxPlot" || function.Name.Name == "Candlestick" || function.Name.Name == "Funnel" || function.Name.Name == "Gauge" || function.Name.Name == "HeatMap" || function.Name.Name == "Line" || function.Name.Name == "Parallel" || function.Name.Name == "Pie" || function.Name.Name == "Radar" || function.Name.Name == "Scatter" {
+			if function.Name.Name == "Bar" || function.Name.Name == "BoxPlot" || function.Name.Name == "Candlestick" || function.Name.Name == "Funnel" || function.Name.Name == "Gauge" || function.Name.Name == "HeatMap" || function.Name.Name == "Line" || function.Name.Name == "Parallel" || function.Name.Name == "Pie" || function.Name.Name == "Radar" || function.Name.Name == "Scatter" || function.Name.Name == "ThemeRiver" {
 				continue // Physical ownership is covered in the child implementations above.
 			}
 			if !containsSelectorPath(function.Body, "cfg", "Options", "Controls") || !containsSelectorPath(function.Body, "cfg", "Options", "Export") {

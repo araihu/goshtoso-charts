@@ -28,6 +28,7 @@ var publicBoundaryPackages = []string{
 	modulePath + "/components/interactive/pie",
 	modulePath + "/components/interactive/radar",
 	modulePath + "/components/interactive/scatter",
+	modulePath + "/components/interactive/themeriver",
 }
 
 func TestChartFoundationPublicAPIDoesNotExposeImplementationTypes(t *testing.T) {
