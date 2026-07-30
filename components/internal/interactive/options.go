@@ -37,6 +37,14 @@ const (
 
 func FiniteNumber(value float64) bool { return !math.IsNaN(value) && !math.IsInf(value, 0) }
 
+// Percentage formats a finite percentage value for private renderer options.
+func Percentage(value float64) string { return fmt.Sprintf("%g%%", value) }
+
+// ValidPercentage reports whether value is within the inclusive 0..100 range.
+func ValidPercentage(value float64) bool {
+	return FiniteNumber(value) && value >= 0 && value <= 100
+}
+
 func ValidateChartOptions(options ChartOptions) error {
 	if legend := options.Legend; legend != nil {
 		if legend.SelectionMode != LegendSelectionDefault && legend.SelectionMode != LegendSelectionMultiple && legend.SelectionMode != LegendSelectionSingle {

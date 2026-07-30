@@ -20,6 +20,7 @@ var publicBoundaryPackages = []string{
 	modulePath + "/components/interactive/candlestick",
 	modulePath + "/components/interactive/heatmap",
 	modulePath + "/components/interactive/line",
+	modulePath + "/components/interactive/pie",
 	modulePath + "/components/interactive/scatter",
 }
 
