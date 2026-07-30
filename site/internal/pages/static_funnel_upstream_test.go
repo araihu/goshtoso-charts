@@ -131,7 +131,7 @@ func TestStaticFunnelAttributionAndLedgerAreComplete(t *testing.T) {
 	}
 	for _, want := range []string{
 		"both dedicated Funnel-family files", "one distinct", "outside the two-file dedicated coverage denominator",
-		"Unsupported dedicated Funnel-family behaviors: none", "typed renderer-neutral configuration",
+		"the second example on the page", "Unsupported dedicated Funnel-family behaviors: none", "typed renderer-neutral configuration",
 	} {
 		if !strings.Contains(section, want) {
 			t.Errorf("static Funnel ledger missing boundary statement %q", want)

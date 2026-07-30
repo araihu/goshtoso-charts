@@ -207,7 +207,7 @@ behaviors.
 
 The supplementary file has whole-file SHA-256
 `96f110afd2d34cb3b823f3b36ecc4a48692bad91991f4010eb09322b747d20a1`.
-Its five-stage Go chart literal is covered as a second page example but remains
+Its five-stage Go chart literal is covered as the second example on the page but remains
 outside the two-file dedicated coverage denominator. The later raw browser-chart
 JSON comparison is not a static/vector Funnel API example and remains outside
 this component.
