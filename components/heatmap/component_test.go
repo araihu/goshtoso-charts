@@ -12,6 +12,7 @@ import (
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
+	chart "github.com/go-analyze/charts"
 )
 
 func basicConfig() Config {
@@ -92,6 +93,75 @@ func TestHeatMapSupportsIndexedCellsCustomStopsAndReverse(t *testing.T) {
 	}
 }
 
+func TestHeatMapMapsFinitePresentationAPI(t *testing.T) {
+	t.Parallel()
+	cfg := basicConfig()
+	cfg.TitleOptions = TitleOptions{
+		Subtext: "Same pinned matrix", Placement: PlacementEnd,
+		FontSize: 18, SubtextFontSize: 11, BorderWidth: 2,
+	}
+	cfg.XAxis.TitleFontSize = 12
+	cfg.XAxis.LabelFontSize = 8
+	cfg.XAxis.LabelRotation = 30
+	cfg.XAxis.LabelCount = 4
+	cfg.XAxis.LabelCountAdjustment = -1
+	cfg.YAxis.TitleFontSize = 13
+	cfg.YAxis.LabelFontSize = 9
+	cfg.YAxis.LabelRotation = -15
+	cfg.YAxis.LabelCount = 3
+	cfg.YAxis.LabelCountAdjustment = 1
+	cfg.Padding = Padding{Top: 18, Right: 24, Bottom: 30, Left: 36}
+	cfg.ValueLabels = ValueLabelOptions{
+		Show: true, Format: ValueFormatInteger, FontSize: 9,
+		Distance: 2, Offset: Offset{Left: 1, Top: -1},
+	}
+
+	options := heatMapOptions(cfg, cfg.Rows)
+	if options.Title.Text != "Heat Map Chart" || options.Title.Subtext != "Same pinned matrix" ||
+		options.Title.Offset != chart.OffsetRight || options.Title.FontStyle.FontSize != 18 ||
+		options.Title.SubtextFontStyle.FontSize != 11 || options.Title.BorderWidth != 2 {
+		t.Fatalf("title options = %#v", options.Title)
+	}
+	if options.Padding != chart.NewBox(36, 18, 24, 30) {
+		t.Fatalf("padding = %#v", options.Padding)
+	}
+	if options.XAxis.TitleFontStyle.FontSize != 12 || options.XAxis.LabelFontStyle.FontSize != 8 ||
+		math.Abs(options.XAxis.LabelRotation-math.Pi/6) > .0001 || options.XAxis.LabelCount != 4 ||
+		options.XAxis.LabelCountAdjustment != -1 {
+		t.Fatalf("X axis options = %#v", options.XAxis)
+	}
+	if options.YAxis.TitleFontStyle.FontSize != 13 || options.YAxis.LabelFontStyle.FontSize != 9 ||
+		math.Abs(options.YAxis.LabelRotation+math.Pi/12) > .0001 || options.YAxis.LabelCount != 3 ||
+		options.YAxis.LabelCountAdjustment != 1 {
+		t.Fatalf("Y axis options = %#v", options.YAxis)
+	}
+	if options.ValuesLabel.Show == nil || !*options.ValuesLabel.Show || options.ValuesLabel.FontStyle.FontSize != 9 ||
+		options.ValuesLabel.Distance != 2 || options.ValuesLabel.Offset != (chart.OffsetInt{Left: 1, Top: -1}) ||
+		options.ValuesLabel.ValueFormatter == nil || options.ValuesLabel.ValueFormatter(4.9) != "5" {
+		t.Fatalf("value-label options = %#v", options.ValuesLabel)
+	}
+
+	markup := render(t, HeatMap(cfg))
+	for _, want := range []string{"Same pinned matrix", ">4</text>", ">5</text>", "var(--color-chart-text)"} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("finite presentation markup missing %q", want)
+		}
+	}
+}
+
+func TestHeatMapTitleCanBeHiddenWithoutLosingAccessibleName(t *testing.T) {
+	t.Parallel()
+	cfg := basicConfig()
+	cfg.TitleOptions.Hidden = true
+	markup := render(t, HeatMap(cfg))
+	if strings.Contains(markup, ">Heat Map Chart</text>") {
+		t.Error("hidden visible title was rendered")
+	}
+	if !strings.Contains(markup, `aria-label="Basic heat map"`) {
+		t.Error("hidden visible title removed figure accessible name")
+	}
+}
+
 func TestHeatMapValidation(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
@@ -103,6 +173,19 @@ func TestHeatMapValidation(t *testing.T) {
 		{"x labels", func(cfg *Config) { cfg.XAxis.Labels = nil }, "x and y labels are required"},
 		{"empty label", func(cfg *Config) { cfg.XAxis.Labels[0] = "" }, "x label 0 is empty"},
 		{"negative width", func(cfg *Config) { cfg.Width = -1 }, "dimensions cannot be negative"},
+		{"x title font", func(cfg *Config) { cfg.XAxis.TitleFontSize = math.NaN() }, "x axis title font size"},
+		{"y label font", func(cfg *Config) { cfg.YAxis.LabelFontSize = -1 }, "y axis label font size"},
+		{"axis rotation", func(cfg *Config) { cfg.XAxis.LabelRotation = 361 }, "x axis label rotation"},
+		{"axis label count", func(cfg *Config) { cfg.YAxis.LabelCount = -1 }, "y axis label count"},
+		{"title placement", func(cfg *Config) { cfg.TitleOptions.Placement = "middle" }, "title placement"},
+		{"title font", func(cfg *Config) { cfg.TitleOptions.FontSize = math.Inf(1) }, "title font size"},
+		{"title border", func(cfg *Config) { cfg.TitleOptions.BorderWidth = -1 }, "title border width"},
+		{"value label format", func(cfg *Config) { cfg.ValueLabels = ValueLabelOptions{Show: true, Format: "callback"} }, "value label format"},
+		{"value label decimals", func(cfg *Config) { cfg.ValueLabels = ValueLabelOptions{Show: true, Decimals: 16} }, "value label decimals"},
+		{"value label font", func(cfg *Config) { cfg.ValueLabels = ValueLabelOptions{Show: true, FontSize: math.NaN()} }, "value label font size"},
+		{"value label distance", func(cfg *Config) { cfg.ValueLabels = ValueLabelOptions{Show: true, Distance: -1} }, "value label distance"},
+		{"value labels hidden", func(cfg *Config) { cfg.ValueLabels = ValueLabelOptions{Format: ValueFormatExact} }, "requires labels to be shown"},
+		{"negative padding", func(cfg *Config) { cfg.Padding.Left = -1 }, "padding cannot be negative"},
 		{"range order", func(cfg *Config) { cfg.ValueRange.Max = cfg.ValueRange.Min }, "min less than max"},
 		{"range finite", func(cfg *Config) { cfg.ValueRange.Max = math.Inf(1) }, "finite min and max"},
 		{"missing data", func(cfg *Config) { cfg.Rows = nil }, "rows or cells are required"},

@@ -13,8 +13,69 @@ import (
 
 // Axis defines one categorical heat-map axis.
 type Axis struct {
-	Title  string
-	Labels []string
+	Title         string
+	Labels        []string
+	TitleFontSize float64
+	LabelFontSize float64
+	// LabelRotation is expressed in degrees.
+	LabelRotation        float64
+	LabelCount           int
+	LabelCountAdjustment int
+}
+
+// Placement selects logical horizontal title placement.
+type Placement string
+
+const (
+	// PlacementDefault preserves the centered title used by the upstream example.
+	PlacementDefault Placement = ""
+	PlacementStart   Placement = "start"
+	PlacementCenter  Placement = "center"
+	PlacementEnd     Placement = "end"
+)
+
+// Padding controls chart inset in pixels. Its zero value preserves renderer defaults.
+type Padding struct{ Top, Right, Bottom, Left int }
+
+// TitleOptions controls finite title presentation without exposing renderer types.
+type TitleOptions struct {
+	Subtext         string
+	Hidden          bool
+	Placement       Placement
+	FontSize        float64
+	SubtextFontSize float64
+	BorderWidth     float64
+}
+
+// ValueFormat selects safe built-in cell-label formatting.
+type ValueFormat string
+
+const (
+	// ValueFormatDefault keeps the renderer's compact default.
+	ValueFormatDefault ValueFormat = ""
+	// ValueFormatExact uses the shortest decimal representation without scaling.
+	ValueFormatExact ValueFormat = "exact"
+	// ValueFormatInteger rounds rendered labels to whole numbers.
+	ValueFormatInteger ValueFormat = "integer"
+	// ValueFormatHumanized uses compact suffixes such as k and M.
+	ValueFormatHumanized ValueFormat = "humanized"
+)
+
+// Offset shifts cell labels from their cell center in pixels.
+type Offset struct{ Left, Top int }
+
+// ValueLabelOptions controls labels drawn inside heat-map cells.
+//
+// Format is intentionally a finite built-in choice. Arbitrary formatter and
+// per-cell styling callbacks remain private renderer details.
+type ValueLabelOptions struct {
+	Show          bool
+	Format        ValueFormat
+	Decimals      int
+	TrailingZeros bool
+	FontSize      float64
+	Distance      int
+	Offset        Offset
 }
 
 // Cell identifies one value by zero-based X and Y category indexes.
@@ -53,19 +114,22 @@ type Gradient struct {
 // names the figure; Caption remains visible. RootAttrs cannot replace class,
 // role, or aria-label, which remain component-owned.
 type Config struct {
-	Label      string
-	Caption    string
-	Title      string
-	XAxis      Axis
-	YAxis      Axis
-	Rows       [][]float64
-	Cells      []Cell
-	ValueRange ValueRange
-	Gradient   Gradient
-	Width      int
-	Height     int
-	Style      charttheme.Style
-	RootAttrs  templ.Attributes
+	Label        string
+	Caption      string
+	Title        string
+	XAxis        Axis
+	YAxis        Axis
+	Rows         [][]float64
+	Cells        []Cell
+	ValueRange   ValueRange
+	Gradient     Gradient
+	TitleOptions TitleOptions
+	ValueLabels  ValueLabelOptions
+	Padding      Padding
+	Width        int
+	Height       int
+	Style        charttheme.Style
+	RootAttrs    templ.Attributes
 	// Controls configures shared controls; Expand defaults on while fullscreen defaults off.
 	Controls chartcontrol.Options
 	// Export customizes or disables default SVG and PNG export.
@@ -81,6 +145,21 @@ func (cfg Config) validate() error {
 	}
 	if cfg.Width < 0 || cfg.Height < 0 {
 		return fmt.Errorf("heat map dimensions cannot be negative")
+	}
+	if err := cfg.XAxis.validate("x"); err != nil {
+		return err
+	}
+	if err := cfg.YAxis.validate("y"); err != nil {
+		return err
+	}
+	if err := cfg.TitleOptions.validate(); err != nil {
+		return err
+	}
+	if err := cfg.ValueLabels.validate(); err != nil {
+		return err
+	}
+	if negativePadding(cfg.Padding) {
+		return fmt.Errorf("heat map padding cannot be negative")
 	}
 	if !finite(cfg.ValueRange.Min) || !finite(cfg.ValueRange.Max) || cfg.ValueRange.Min >= cfg.ValueRange.Max {
 		return fmt.Errorf("heat map value range needs finite min and max with min less than max")
@@ -139,6 +218,63 @@ func (cfg Config) validate() error {
 		}
 	}
 	return cfg.Gradient.validate()
+}
+
+func (axis Axis) validate(name string) error {
+	if !finite(axis.TitleFontSize) || axis.TitleFontSize < 0 {
+		return fmt.Errorf("heat map %s axis title font size must be finite and non-negative", name)
+	}
+	if !finite(axis.LabelFontSize) || axis.LabelFontSize < 0 {
+		return fmt.Errorf("heat map %s axis label font size must be finite and non-negative", name)
+	}
+	if !finite(axis.LabelRotation) || axis.LabelRotation < -360 || axis.LabelRotation > 360 {
+		return fmt.Errorf("heat map %s axis label rotation must be finite and between -360 and 360 degrees", name)
+	}
+	if axis.LabelCount < 0 {
+		return fmt.Errorf("heat map %s axis label count cannot be negative", name)
+	}
+	return nil
+}
+
+func (options TitleOptions) validate() error {
+	switch options.Placement {
+	case PlacementDefault, PlacementStart, PlacementCenter, PlacementEnd:
+	default:
+		return fmt.Errorf("heat map title placement %q is unsupported", options.Placement)
+	}
+	for name, value := range map[string]float64{
+		"font size": options.FontSize, "subtext font size": options.SubtextFontSize, "border width": options.BorderWidth,
+	} {
+		if !finite(value) || value < 0 {
+			return fmt.Errorf("heat map title %s must be finite and non-negative", name)
+		}
+	}
+	return nil
+}
+
+func (options ValueLabelOptions) validate() error {
+	switch options.Format {
+	case ValueFormatDefault, ValueFormatExact, ValueFormatInteger, ValueFormatHumanized:
+	default:
+		return fmt.Errorf("heat map value label format %q is unsupported", options.Format)
+	}
+	if options.Decimals < 0 || options.Decimals > 15 {
+		return fmt.Errorf("heat map value label decimals must be between 0 and 15")
+	}
+	if !finite(options.FontSize) || options.FontSize < 0 {
+		return fmt.Errorf("heat map value label font size must be finite and non-negative")
+	}
+	if options.Distance < 0 {
+		return fmt.Errorf("heat map value label distance cannot be negative")
+	}
+	if !options.Show && options != (ValueLabelOptions{}) {
+		return fmt.Errorf("heat map value label presentation requires labels to be shown")
+	}
+	return nil
+}
+
+func negativePadding(padding Padding) bool {
+	return padding.Top < 0 || padding.Right < 0 || padding.Bottom < 0 || padding.Left < 0
 }
 
 func validateLabels(axis string, labels []string) error {

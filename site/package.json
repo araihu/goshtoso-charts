@@ -17,6 +17,7 @@
     "test:gauge-liquid": "node --test browser/gauge_liquid.test.cjs",
     "test:guides": "node --test browser/guides.test.cjs",
     "test:geo": "node --test browser/geo.test.cjs",
+    "test:heatmap": "node --test browser/static_heatmap_upstream_exhaustion.test.cjs",
     "test:interactive-heatmap": "node --test browser/interactive_heatmap_layout.test.cjs",
     "test:interactive-bar": "node --test browser/interactive_bar_variants.test.cjs",
     "test:interactive-pie": "node --test browser/interactive_pie.test.cjs",

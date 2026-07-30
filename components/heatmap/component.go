@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"html"
 	"io"
+	"math"
 	"regexp"
 	"sort"
 	"strconv"
@@ -65,15 +66,82 @@ func heatMapOptions(cfg Config, rows [][]float64) chart.HeatMapOption {
 	options := chart.NewHeatMapOptionWithData(rows)
 	options.Theme = tokenPalette()
 	options.Title.Text = cfg.Title
-	options.Title.Offset = chart.OffsetCenter
+	options.Title.Subtext = cfg.TitleOptions.Subtext
+	options.Title.Offset = titleOffset(cfg.TitleOptions.Placement)
+	if cfg.TitleOptions.Hidden {
+		options.Title.Show = chart.Ptr(false)
+	}
+	if cfg.TitleOptions.FontSize > 0 {
+		options.Title.FontStyle = chart.NewFontStyleWithSize(cfg.TitleOptions.FontSize)
+	}
+	if cfg.TitleOptions.SubtextFontSize > 0 {
+		options.Title.SubtextFontStyle = chart.NewFontStyleWithSize(cfg.TitleOptions.SubtextFontSize)
+	}
+	options.Title.BorderWidth = cfg.TitleOptions.BorderWidth
+	if cfg.Padding != (Padding{}) {
+		options.Padding = chart.NewBox(cfg.Padding.Left, cfg.Padding.Top, cfg.Padding.Right, cfg.Padding.Bottom)
+	}
 	options.XAxis.Title = cfg.XAxis.Title
 	options.XAxis.Labels = append([]string(nil), cfg.XAxis.Labels...)
 	options.YAxis.Title = cfg.YAxis.Title
 	options.YAxis.Labels = append([]string(nil), cfg.YAxis.Labels...)
+	applyAxisOptions(&options.XAxis, cfg.XAxis)
+	applyAxisOptions(&options.YAxis, cfg.YAxis)
 	minimum, maximum := cfg.ValueRange.Min, cfg.ValueRange.Max
 	options.ScaleMinValue = &minimum
 	options.ScaleMaxValue = &maximum
+	if cfg.ValueLabels.Show {
+		options.ValuesLabel.Show = chart.Ptr(true)
+		if cfg.ValueLabels.FontSize > 0 {
+			options.ValuesLabel.FontStyle = chart.NewFontStyleWithSize(cfg.ValueLabels.FontSize)
+		}
+		options.ValuesLabel.Distance = cfg.ValueLabels.Distance
+		options.ValuesLabel.Offset = chart.OffsetInt{Left: cfg.ValueLabels.Offset.Left, Top: cfg.ValueLabels.Offset.Top}
+		options.ValuesLabel.ValueFormatter = valueLabelFormatter(cfg.ValueLabels)
+	}
 	return options
+}
+
+func titleOffset(placement Placement) chart.OffsetStr {
+	switch placement {
+	case PlacementStart:
+		return chart.OffsetStr{}
+	case PlacementEnd:
+		return chart.OffsetRight
+	default:
+		return chart.OffsetCenter
+	}
+}
+
+func applyAxisOptions(target *chart.HeatMapAxis, source Axis) {
+	if source.TitleFontSize > 0 {
+		target.TitleFontStyle = chart.NewFontStyleWithSize(source.TitleFontSize)
+	}
+	if source.LabelFontSize > 0 {
+		target.LabelFontStyle = chart.NewFontStyleWithSize(source.LabelFontSize)
+	}
+	target.LabelRotation = source.LabelRotation * math.Pi / 180
+	target.LabelCount = source.LabelCount
+	target.LabelCountAdjustment = source.LabelCountAdjustment
+}
+
+func valueLabelFormatter(options ValueLabelOptions) chart.ValueFormatter {
+	if options.Format == ValueFormatDefault && options.Decimals == 0 {
+		return nil
+	}
+	return func(value float64) string {
+		switch options.Format {
+		case ValueFormatHumanized:
+			return chart.FormatValueHumanizeShort(value, options.Decimals, options.TrailingZeros)
+		case ValueFormatInteger:
+			return strconv.FormatFloat(value, 'f', 0, 64)
+		default:
+			if options.Decimals > 0 {
+				return strconv.FormatFloat(value, 'f', options.Decimals, 64)
+			}
+			return formatValue(value)
+		}
+	}
 }
 
 func (cfg Config) matrix() [][]float64 {

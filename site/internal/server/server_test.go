@@ -287,8 +287,8 @@ func TestHeatMapDocumentationPreservesUpstreamBasicExampleWithoutEngineBranding(
 		"Basic heat map", "Heat Map Chart", "X-Axis", "Y-Axis",
 		"4.4", "4.9", "7", "7.5", "4.3", "2.6", "5.9", "9", "6.4", "2.3",
 		"3.3", "3.2", "1.9", "6", "4.6", "1.9 · cold", "9 · warm",
-		"ValueRange", "GradientStop", "Reading a matrix",
-		"Exact values", "Custom semantic scale", "Fullscreen", "Expand", "SVG", "PNG",
+		"ValueRange", "GradientStop", "TitleOptions", "ValueLabelOptions", "Padding",
+		"Exact values", "Typed presentation options", "Static/vector behavior", "Fullscreen", "Expand", "SVG", "PNG",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("heat-map documentation missing upstream or contract content %q", want)

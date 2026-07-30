@@ -559,19 +559,39 @@ func sampleBasicHeatMap() heatmap.Config {
 			{4.4, 5.9, 7.0, 6.4, 4.6},
 		},
 		ValueRange: heatmap.ValueRange{Min: 1.9, Max: 9.0},
-		Controls:   chartcontrol.Options{Fullscreen: true},
-		Export:     &chartcontrol.ExportOptions{Filename: "basic-heat-map"},
+		Width:      600,
+		Height:     400,
+		RootAttrs: templ.Attributes{
+			"data-static-heatmap-exhaustion": "1fe31b06",
+			"data-static-heatmap-source":     "c39a3d85a0df126d",
+			"data-goshtoso-candidate":        "heatmap-basic-c39a3d85a0df126d",
+		},
+		Controls: chartcontrol.Options{Fullscreen: true},
+		Export:   &chartcontrol.ExportOptions{Filename: "basic-heat-map"},
 	}
 }
 
 func sampleBasicHeatMapOverride() heatmap.Config {
 	cfg := sampleBasicHeatMap()
-	cfg.Label = "Basic heat map with reversed custom scale"
-	cfg.Gradient = heatmap.Gradient{Reverse: true, Stops: []heatmap.GradientStop{
+	cfg.Label = "Caller-styled pinned heat map with value labels"
+	cfg.Caption = "The same pinned matrix with typed labels, spacing, and a caller-defined cold-to-warm scale."
+	cfg.TitleOptions = heatmap.TitleOptions{Subtext: "Same source data, caller presentation", FontSize: 16, SubtextFontSize: 10}
+	cfg.XAxis.TitleFontSize, cfg.XAxis.LabelFontSize, cfg.XAxis.LabelCount = 11, 9, 5
+	cfg.YAxis.TitleFontSize, cfg.YAxis.LabelFontSize, cfg.YAxis.LabelCount = 11, 9, 5
+	cfg.Padding = heatmap.Padding{Top: 20, Right: 24, Bottom: 24, Left: 28}
+	cfg.ValueLabels = heatmap.ValueLabelOptions{Show: true, Format: heatmap.ValueFormatExact, Decimals: 1, TrailingZeros: true, FontSize: 10}
+	cfg.Gradient = heatmap.Gradient{Stops: []heatmap.GradientStop{
 		{At: 0, Color: "#0e7490", Class: "scale-cold"},
 		{At: 0.5, Color: "#fbbf24", Class: "scale-middle"},
 		{At: 1, Color: "#e11d48", Class: "scale-warm"},
 	}}
+	cfg.RootAttrs = templ.Attributes{
+		"data-static-heatmap-exhaustion": "1fe31b06",
+		"data-static-heatmap-source":     "c39a3d85a0df126d",
+		"data-static-heatmap-api":        "dd9b80660b9e0c0b",
+		"data-goshtoso-candidate":        "heatmap-options-dd9b80660b9e0c0b",
+	}
+	cfg.Export = &chartcontrol.ExportOptions{Filename: "caller-styled-heat-map"}
 	return cfg
 }
 
@@ -1150,13 +1170,27 @@ func heatMapCode() string {
     {4.4, 5.9, 7.0, 6.4, 4.6},
   },
   ValueRange: heatmap.ValueRange{Min: 1.9, Max: 9},
+  Width: 600,
+  Height: 400,
 })`
 }
 
 func heatMapOverrideCode() string {
 	return `cfg := sampleBasicHeatMap()
+cfg.TitleOptions = heatmap.TitleOptions{
+  Subtext: "Same source data, caller presentation",
+  FontSize: 16,
+  SubtextFontSize: 10,
+}
+cfg.Padding = heatmap.Padding{Top: 20, Right: 24, Bottom: 24, Left: 28}
+cfg.ValueLabels = heatmap.ValueLabelOptions{
+  Show: true,
+  Format: heatmap.ValueFormatExact,
+  Decimals: 1,
+  TrailingZeros: true,
+  FontSize: 10,
+}
 cfg.Gradient = heatmap.Gradient{
-  Reverse: true,
   Stops: []heatmap.GradientStop{
     {At: 0, Color: "#0e7490", Class: "scale-cold"},
     {At: 0.5, Color: "#fbbf24", Class: "scale-middle"},

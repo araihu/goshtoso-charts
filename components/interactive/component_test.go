@@ -126,6 +126,7 @@ func TestThemeRuntimeUsesIdentityPreservingImmediateSilentMerge(t *testing.T) {
 		`resizeObserver.observe(target)`,
 		`requestAnimationFrame(function ()`,
 		`if (!explicitVisualMapColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] }`,
+		`var themedCalendars = (current.calendar || []).map`, `monthLabel: Object.assign({}, calendar.monthLabel || {}, { color: muted })`,
 		`series.type === "map"`, `themedItem.showLegendSymbol = false`, `item.sourceColor`, `item.className`,
 		`gaugeScale.stops.map`, `observeTarget`,
 		`if (value === inherited) return rendererColor(fallback, fallback)`,
