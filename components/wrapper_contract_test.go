@@ -132,6 +132,7 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 	assertWrapperLiteral(t, "internal/interactive/component.go", "interactive-raster")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/bar/bar.go", "Bar")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/line/line.go", "Line")
+	assertConstructorPropagatesSharedWrapperFields(t, "interactive/scatter/scatter.go", "Scatter")
 
 	loaded, err := packages.Load(&packages.Config{
 		Mode: packages.NeedName | packages.NeedFiles | packages.NeedCompiledGoFiles | packages.NeedSyntax,
@@ -161,7 +162,7 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 			if !ok || !strings.HasSuffix(parameter.Name, "Config") {
 				continue
 			}
-			if function.Name.Name == "Bar" || function.Name.Name == "Line" {
+			if function.Name.Name == "Bar" || function.Name.Name == "Line" || function.Name.Name == "Scatter" {
 				continue // Physical ownership is covered in the child implementations above.
 			}
 			if !containsSelectorPath(function.Body, "cfg", "Options", "Controls") || !containsSelectorPath(function.Body, "cfg", "Options", "Export") {

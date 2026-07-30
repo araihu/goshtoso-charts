@@ -18,6 +18,7 @@ var publicBoundaryPackages = []string{
 	modulePath + "/components/interactive",
 	modulePath + "/components/interactive/bar",
 	modulePath + "/components/interactive/line",
+	modulePath + "/components/interactive/scatter",
 }
 
 func TestChartFoundationPublicAPIDoesNotExposeImplementationTypes(t *testing.T) {
