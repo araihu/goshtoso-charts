@@ -15,6 +15,7 @@ import (
 	interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
+	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
@@ -106,6 +107,14 @@ func oldFacadeThemeRiverConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeParallelConsumer() chart.Instance {
+	return interactive.Parallel(interactive.ParallelConfig{
+		Label:      "Service profile",
+		Dimensions: []interactive.ParallelDimension{{Name: "Latency"}},
+		Series:     []interactive.ParallelSeries{{Name: "Production", Observations: []interactive.ParallelObservation{{Name: "Today", Values: []interactive.ParallelValue{interactive.ParallelNumber(42)}}}}},
+	})
+}
+
 func oldFacadeGaugeConsumer() chart.Instance {
 	return interactive.Gauge(interactive.GaugeConfig{
 		Label:   "Deployment completion",
@@ -162,6 +171,11 @@ func canonicalChildConsumers() []chart.Instance {
 			Label:  "Deployment outcomes",
 			Series: []interactivepie.Series{{Name: "Outcome", Data: []interactivepie.Data{{Name: "Passed", Value: 8}, {Name: "Failed", Value: 2}}}},
 		}),
+		interactiveparallel.Parallel(interactiveparallel.Config{
+			Label:      "Service profile",
+			Dimensions: []interactiveparallel.Dimension{{Name: "Latency"}},
+			Series:     []interactiveparallel.Series{{Name: "Production", Observations: []interactiveparallel.Observation{{Name: "Today", Values: []interactiveparallel.Value{interactiveparallel.Number(42)}}}}},
+		}),
 		interactiveradar.Radar(interactiveradar.Config{
 			Label:      "Service profile",
 			Indicators: []interactiveradar.Indicator{{Name: "Availability", Max: 100}},
@@ -195,6 +209,7 @@ var (
 	_ = oldFacadeRadarConsumer
 	_ = oldFacadeFunnelConsumer
 	_ = oldFacadeThemeRiverConsumer
+	_ = oldFacadeParallelConsumer
 	_ = oldFacadeGaugeConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer

@@ -44,7 +44,7 @@ required.
 ## Shared chart instance foundation
 
 `components/chart.Instance` is the canonical public identity for a renderable
-chart instance. `components/interactive.Instance` and all ten migrated child
+chart instance. `components/interactive.Instance` and all twelve migrated child
 packages' `Instance` names are exact aliases, so old and new values remain
 assignment-compatible and constructor function signatures remain
 interchangeable. Consumers can mix the facade and chart-specific package paths
@@ -212,7 +212,7 @@ Standard, donut, and rose treatments remain variants of one `Pie` component
 and one component kind. Pie-specific names are concise: `Config`, `Series`,
 `Data`, `RoseMode`, `LabelContent`, `TooltipContent`, and `Center`. Percentage
 formatting and validation live only in the private interactive adapter; thin
-parent wrappers preserve Sunburst, ThemeRiver, and WordCloud behavior.
+parent wrappers preserve Sunburst and WordCloud behavior.
 The public parent Pie surface remains exact aliases, constants, and one
 constructor forwarder.
 
@@ -324,11 +324,71 @@ component. Funnel-specific `Config`, `Order`, `Series`, and `Data` live in the
 child package; shared options remain in `components/chart`. The parent keeps
 exact aliases, order constants, and one forwarding constructor.
 
+## Parallel
+
+Use `components/interactive/parallel` for new interactive parallel-coordinate
+code:
+
+```go
+import interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
+
+profile := interactiveparallel.Parallel(interactiveparallel.Config{
+	Label: "Service profile",
+	Dimensions: []interactiveparallel.Dimension{{
+		Name: "Latency",
+	}},
+	Series: []interactiveparallel.Series{{
+		Name: "Production",
+		Observations: []interactiveparallel.Observation{{
+			Name:   "Today",
+			Values: []interactiveparallel.Value{interactiveparallel.Number(42)},
+		}},
+	}},
+})
+```
+
+Numeric and categorical dimensions, ranges, axis labels and lines, layout,
+series options, and observations remain one `Parallel` component. The child
+owns these chart-specific values, validation, rendering, and its generated
+template. Shared chart options live in `components/chart`. The parent retains
+exact aliases, constants, its two typed value helpers, and one constructor
+forwarder.
+
+## ThemeRiver
+
+Use `components/interactive/themeriver` for new interactive theme-river code:
+
+```go
+import (
+	"time"
+
+	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
+)
+
+river := interactivethemeriver.ThemeRiver(interactivethemeriver.Config{
+	Label: "Activity over time",
+	Streams: []interactivethemeriver.Stream{{
+		Name: "Search",
+		Points: []interactivethemeriver.Point{{
+			Time:  time.Date(2026, time.July, 30, 0, 0, 0, 0, time.UTC),
+			Value: 42,
+		}},
+	}},
+})
+```
+
+Aligned temporal streams, boundary gaps, and layout remain one `ThemeRiver`
+component. The child owns its chart-specific API, validation, rendering, and
+generated template and calls the private percentage adapter directly. Shared
+chart options remain in `components/chart`. The parent keeps exact aliases and
+one constructor forwarder.
+
 ## Current boundary
 
-Bar, Line, Scatter, Candlestick, HeatMap, Pie, Radar, BoxPlot, Gauge, and Funnel
-physical ownership is complete. The supported parent facade delegates those ten
-migrated charts. Remaining chart families continue using their existing paths
+Bar, Line, Scatter, Candlestick, HeatMap, Pie, Radar, BoxPlot, Gauge, Funnel,
+Parallel, and ThemeRiver physical ownership is complete. The supported parent
+facade delegates those twelve migrated charts. Remaining chart families
+continue using their existing paths
 until their own bounded migrations land, and the final v1 policy for the parent
 compatibility facade remains open. Shared public and private foundation
 ownership is fixed by

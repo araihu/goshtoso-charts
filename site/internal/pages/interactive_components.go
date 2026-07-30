@@ -14,6 +14,8 @@ import (
 	interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
+	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
+	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 )
 
 func controlledOptions(title, filename string) chart.ChartOptions {
@@ -347,12 +349,12 @@ type parallelSampleRow struct {
 	level  string
 }
 
-func sampleInteractiveParallel() interactive.Instance {
-	return interactive.Parallel(interactive.ParallelConfig{
+func sampleInteractiveParallel() interactiveparallel.Config {
+	return interactiveparallel.Config{
 		Label:   "Multi Series parallel coordinates",
 		Caption: "Daily air-quality measurements for Beijing, Guangzhou, and Shanghai across seven numeric dimensions and one categorical level.",
-		Dimensions: []interactive.ParallelDimension{
-			{Name: "Date", Range: &interactive.ParallelRange{Max: interactive.Float(31)}, Inverse: true, NameLocation: interactive.ParallelNameStart},
+		Dimensions: []interactiveparallel.Dimension{
+			{Name: "Date", Range: &interactiveparallel.Range{Max: chart.Float(31)}, Inverse: true, NameLocation: interactiveparallel.NameStart},
 			{Name: "AQI"},
 			{Name: "PM2.5"},
 			{Name: "PM10"},
@@ -361,7 +363,7 @@ func sampleInteractiveParallel() interactive.Instance {
 			{Name: "SO2"},
 			{Name: "Level", Categories: []string{"Good", "Moderate", "Lightly", "Moderately", "Heavily", "Severely"}},
 		},
-		Series: []interactive.ParallelSeries{
+		Series: []interactiveparallel.Series{
 			{Name: "Beijing", Observations: parallelSampleObservations([]parallelSampleRow{
 				{[7]float64{1, 55, 9, 56, 0.46, 18, 6}, "Moderate"},
 				{[7]float64{2, 25, 11, 21, 0.65, 34, 9}, "Good"},
@@ -433,38 +435,38 @@ func sampleInteractiveParallel() interactive.Instance {
 			})},
 		},
 		Width: "900px", Height: "500px",
-		Options: interactive.ChartOptions{
-			Title:    &interactive.TitleOptions{Text: "Multi Series"},
+		Options: chart.ChartOptions{
+			Title:    &chart.TitleOptions{Text: "Multi Series"},
 			Controls: chartcontrol.Options{Fullscreen: true},
 			Export:   &chartcontrol.ExportOptions{Filename: "multi-series-parallel-coordinates"},
 		},
 		Style: charttheme.Style{Class: "max-w-full"},
-	})
+	}
 }
 
-func parallelSampleObservations(rows []parallelSampleRow) []interactive.ParallelObservation {
-	result := make([]interactive.ParallelObservation, len(rows))
+func parallelSampleObservations(rows []parallelSampleRow) []interactiveparallel.Observation {
+	result := make([]interactiveparallel.Observation, len(rows))
 	for index, row := range rows {
-		values := make([]interactive.ParallelValue, 0, 8)
+		values := make([]interactiveparallel.Value, 0, 8)
 		for _, value := range row.values {
-			values = append(values, interactive.ParallelNumber(value))
+			values = append(values, interactiveparallel.Number(value))
 		}
-		values = append(values, interactive.ParallelCategory(row.level))
-		result[index] = interactive.ParallelObservation{Name: fmt.Sprintf("Day %d", index+1), Values: values}
+		values = append(values, interactiveparallel.Category(row.level))
+		result[index] = interactiveparallel.Observation{Name: fmt.Sprintf("Day %d", index+1), Values: values}
 	}
 	return result
 }
 
-func sampleInteractiveThemeRiver() interactive.Instance {
-	return interactive.ThemeRiver(interactive.ThemeRiverConfig{
+func sampleInteractiveThemeRiver() interactivethemeriver.Config {
+	return interactivethemeriver.Config{
 		Label: "ThemeRiver-SingleAxis-Time", Caption: "Six named streams across aligned daily values from 8–28 November 2015.",
-		Streams: sampleThemeRiverStreams(), Layout: interactive.ThemeRiverLayout{BottomPercent: interactive.Float(10)},
+		Streams: sampleThemeRiverStreams(), Layout: interactivethemeriver.Layout{BottomPercent: chart.Float(10)},
 		Width: "100%", Height: "500px",
-		Options: interactive.ChartOptions{Title: &interactive.TitleOptions{Text: "ThemeRiver-SingleAxis-Time"}, Tooltip: &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "axis"}, Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "theme-river-single-axis-time"}},
-	})
+		Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "ThemeRiver-SingleAxis-Time"}, Tooltip: &chart.TooltipOptions{Show: chart.Bool(true), Trigger: "axis"}, Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "theme-river-single-axis-time"}},
+	}
 }
 
-func sampleThemeRiverStreams() []interactive.ThemeRiverStream {
+func sampleThemeRiverStreams() []interactivethemeriver.Stream {
 	dates := make([]time.Time, 21)
 	for index := range dates {
 		dates[index] = time.Date(2015, time.November, 8+index, 0, 0, 0, 0, time.UTC)
@@ -478,13 +480,13 @@ func sampleThemeRiverStreams() []interactive.ThemeRiverStream {
 		{10, 15, 35, 38, 22, 16, 7, 2, 17, 33, 4, 32, 26, 35, 40, 32, 26, 22, 16, 22, 10},
 	}
 	names := []string{"DQ", "TY", "SS", "QG", "SY", "DD"}
-	streams := make([]interactive.ThemeRiverStream, len(names))
+	streams := make([]interactivethemeriver.Stream, len(names))
 	for streamIndex, name := range names {
-		points := make([]interactive.ThemeRiverPoint, len(dates))
+		points := make([]interactivethemeriver.Point, len(dates))
 		for pointIndex, date := range dates {
-			points[pointIndex] = interactive.ThemeRiverPoint{Time: date, Value: values[streamIndex][pointIndex]}
+			points[pointIndex] = interactivethemeriver.Point{Time: date, Value: values[streamIndex][pointIndex]}
 		}
-		streams[streamIndex] = interactive.ThemeRiverStream{Name: name, Class: "stream-" + strings.ToLower(name), Points: points}
+		streams[streamIndex] = interactivethemeriver.Stream{Name: name, Class: "stream-" + strings.ToLower(name), Points: points}
 	}
 	return streams
 }
@@ -830,44 +832,47 @@ func interactiveTreemapCode() string {
 }
 
 func interactiveParallelCode() string {
-	return `@interactive.Parallel(interactive.ParallelConfig{
+	return `@interactiveparallel.Parallel(interactiveparallel.Config{
   Label: "Multi Series parallel coordinates",
-  Dimensions: []interactive.ParallelDimension{
-    {Name: "Date", Range: &interactive.ParallelRange{Max: interactive.Float(31)},
-      Inverse: true, NameLocation: interactive.ParallelNameStart},
+  Dimensions: []interactiveparallel.Dimension{
+    {Name: "Date", Range: &interactiveparallel.Range{Max: chart.Float(31)},
+      Inverse: true, NameLocation: interactiveparallel.NameStart},
     {Name: "AQI"}, {Name: "PM2.5"}, {Name: "PM10"}, {Name: "CO"},
     {Name: "NO2"}, {Name: "SO2"},
     {Name: "Level", Categories: []string{
       "Good", "Moderate", "Lightly", "Moderately", "Heavily", "Severely",
     }},
   },
-  Series: []interactive.ParallelSeries{
+  Series: []interactiveparallel.Series{
     {Name: "Beijing", Observations: beijingObservations},
     {Name: "Guangzhou", Observations: guangzhouObservations},
     {Name: "Shanghai", Observations: shanghaiObservations},
   },
   Width: "900px", Height: "500px",
+  Options: chart.ChartOptions{
+    Title: &chart.TitleOptions{Text: "Multi Series"},
+  },
   Style: charttheme.Style{Class: "max-w-full"},
 })`
 }
 
 func interactiveThemeRiverCode() string {
-	return `@interactive.ThemeRiver(interactive.ThemeRiverConfig{
+	return `@interactivethemeriver.ThemeRiver(interactivethemeriver.Config{
   Label: "ThemeRiver-SingleAxis-Time",
   Caption: "Six named streams across aligned daily values.",
-  Streams: []interactive.ThemeRiverStream{
-    {Name: "DQ", Class: "stream-dq", Points: []interactive.ThemeRiverPoint{
+  Streams: []interactivethemeriver.Stream{
+    {Name: "DQ", Class: "stream-dq", Points: []interactivethemeriver.Point{
       {Time: time.Date(2015, time.November, 8, 0, 0, 0, 0, time.UTC), Value: 10},
       {Time: time.Date(2015, time.November, 9, 0, 0, 0, 0, time.UTC), Value: 15},
       // Remaining aligned dates continue through 28 November.
     }},
     // TY, SS, QG, SY, and DD use the same aligned dates.
   },
-  Layout: interactive.ThemeRiverLayout{BottomPercent: interactive.Float(10)},
+  Layout: interactivethemeriver.Layout{BottomPercent: chart.Float(10)},
   Width: "100%", Height: "500px",
-  Options: interactive.ChartOptions{
-    Title: &interactive.TitleOptions{Text: "ThemeRiver-SingleAxis-Time"},
-    Tooltip: &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "axis"},
+  Options: chart.ChartOptions{
+    Title: &chart.TitleOptions{Text: "ThemeRiver-SingleAxis-Time"},
+    Tooltip: &chart.TooltipOptions{Show: chart.Bool(true), Trigger: "axis"},
   },
 })`
 }

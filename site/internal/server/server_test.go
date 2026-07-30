@@ -1345,6 +1345,8 @@ func TestMigratedPagesLinkCanonicalChildAPIs(t *testing.T) {
 		{path: "/components/interactive/boxplot", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/boxplot"},
 		{path: "/components/interactive/gauge", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/gauge"},
 		{path: "/components/interactive/funnel", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/funnel"},
+		{path: "/components/interactive/parallel", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/parallel"},
+		{path: "/components/interactive/theme-river", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/themeriver"},
 	} {
 		recorder := httptest.NewRecorder()
 		handler.ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, test.path, nil))

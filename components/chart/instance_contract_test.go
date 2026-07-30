@@ -18,6 +18,7 @@ import (
 	interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
+	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
@@ -165,6 +166,7 @@ func TestInstanceAliasesRetainCanonicalTypeIdentity(t *testing.T) {
 		"interactive/heatmap":     reflect.TypeOf(interactiveheatmap.Instance{}),
 		"interactive/line":        reflect.TypeOf(interactiveline.Instance{}),
 		"interactive/pie":         reflect.TypeOf(interactivepie.Instance{}),
+		"interactive/parallel":    reflect.TypeOf(interactiveparallel.Instance{}),
 		"interactive/radar":       reflect.TypeOf(interactiveradar.Instance{}),
 		"interactive/scatter":     reflect.TypeOf(interactivescatter.Instance{}),
 		"interactive/themeriver":  reflect.TypeOf(interactivethemeriver.Instance{}),
@@ -198,6 +200,8 @@ var (
 	_ interactiveline.Instance        = chart.Instance{}
 	_ chart.Instance                  = interactivepie.Instance{}
 	_ interactivepie.Instance         = chart.Instance{}
+	_ chart.Instance                  = interactiveparallel.Instance{}
+	_ interactiveparallel.Instance    = chart.Instance{}
 	_ chart.Instance                  = interactiveradar.Instance{}
 	_ interactiveradar.Instance       = chart.Instance{}
 	_ chart.Instance                  = interactivescatter.Instance{}
@@ -215,6 +219,7 @@ var (
 	_ func(interactive.GaugeConfig) chart.Instance       = interactive.Gauge
 	_ func(interactive.HeatMapConfig) chart.Instance     = interactive.HeatMap
 	_ func(interactive.PieConfig) chart.Instance         = interactive.Pie
+	_ func(interactive.ParallelConfig) chart.Instance    = interactive.Parallel
 	_ func(interactive.RadarConfig) chart.Instance       = interactive.Radar
 	_ func(interactive.ThemeRiverConfig) chart.Instance  = interactive.ThemeRiver
 	_ func(interactivebar.Config) chart.Instance         = interactivebar.Bar
@@ -225,6 +230,7 @@ var (
 	_ func(interactiveheatmap.Config) chart.Instance     = interactiveheatmap.HeatMap
 	_ func(interactiveline.Config) chart.Instance        = interactiveline.Line
 	_ func(interactivepie.Config) chart.Instance         = interactivepie.Pie
+	_ func(interactiveparallel.Config) chart.Instance    = interactiveparallel.Parallel
 	_ func(interactiveradar.Config) chart.Instance       = interactiveradar.Radar
 	_ func(interactivescatter.Config) chart.Instance     = interactivescatter.Scatter
 	_ func(interactivethemeriver.Config) chart.Instance  = interactivethemeriver.ThemeRiver
