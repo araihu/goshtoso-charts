@@ -18,6 +18,7 @@ const (
 	boxPlotPackage     = childPackagePrefix + "boxplot"
 	funnelPackage      = childPackagePrefix + "funnel"
 	gaugePackage       = childPackagePrefix + "gauge"
+	graphPackage       = childPackagePrefix + "graph"
 	linePackage        = childPackagePrefix + "line"
 	parallelPackage    = childPackagePrefix + "parallel"
 	scatterPackage     = childPackagePrefix + "scatter"
@@ -31,7 +32,7 @@ const (
 func TestChartFoundationPackageDAG(t *testing.T) {
 	t.Parallel()
 
-	childPackages := []string{barPackage, boxPlotPackage, candlestickPackage, funnelPackage, gaugePackage, heatmapPackage, linePackage, parallelPackage, piePackage, radarPackage, scatterPackage, themeRiverPackage}
+	childPackages := []string{barPackage, boxPlotPackage, candlestickPackage, funnelPackage, gaugePackage, graphPackage, heatmapPackage, linePackage, parallelPackage, piePackage, radarPackage, scatterPackage, themeRiverPackage}
 	foundationPackages := append([]string{chartPackage, internalPackage, parentFacade}, childPackages...)
 	loaded, err := packages.Load(&packages.Config{
 		Mode: packages.NeedName | packages.NeedImports,

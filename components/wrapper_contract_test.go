@@ -19,6 +19,7 @@ import (
 	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
 	interactivefunnel "github.com/araihu/goshtoso-charts/components/interactive/funnel"
 	interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
+	interactivegraph "github.com/araihu/goshtoso-charts/components/interactive/graph"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
@@ -62,7 +63,7 @@ var wrapperConfigContracts = []wrapperConfigContract{
 	{components.KindInteractiveBoxPlot, reflect.TypeOf(interactiveboxplot.Config{}), true},
 	{components.KindInteractiveGauge, reflect.TypeOf(interactivegauge.Config{}), true},
 	{components.KindInteractiveFunnel, reflect.TypeOf(interactivefunnel.Config{}), true},
-	{components.KindInteractiveGraph, reflect.TypeOf(interactive.GraphConfig{}), true},
+	{components.KindInteractiveGraph, reflect.TypeOf(interactivegraph.Config{}), true},
 	{components.KindInteractiveSankey, reflect.TypeOf(interactive.SankeyConfig{}), true},
 	{components.KindInteractiveTree, reflect.TypeOf(interactive.TreeConfig{}), true},
 	{components.KindInteractiveSunburst, reflect.TypeOf(interactive.SunburstConfig{}), true},
@@ -77,7 +78,7 @@ var wrapperConfigContracts = []wrapperConfigContract{
 
 var migratedChildConstructors = map[string]bool{
 	"Bar": true, "BoxPlot": true, "Candlestick": true, "Funnel": true,
-	"Gauge": true, "HeatMap": true, "Line": true, "Parallel": true,
+	"Gauge": true, "Graph": true, "HeatMap": true, "Line": true, "Parallel": true,
 	"Pie": true, "Radar": true, "Scatter": true, "ThemeRiver": true,
 }
 
@@ -148,6 +149,7 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/candlestick/candlestick.go", "Candlestick")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/funnel/funnel.go", "Funnel")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/gauge/gauge.go", "Gauge")
+	assertConstructorPropagatesSharedWrapperFields(t, "interactive/graph/graph.go", "Graph")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/heatmap/heatmap.go", "HeatMap")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/line/line.go", "Line")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/parallel/parallel.go", "Parallel")

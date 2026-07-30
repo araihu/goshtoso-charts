@@ -22,6 +22,7 @@ var publicBoundaryPackages = []string{
 	modulePath + "/components/interactive/candlestick",
 	modulePath + "/components/interactive/funnel",
 	modulePath + "/components/interactive/gauge",
+	modulePath + "/components/interactive/graph",
 	modulePath + "/components/interactive/heatmap",
 	modulePath + "/components/interactive/line",
 	modulePath + "/components/interactive/parallel",
