@@ -17,6 +17,7 @@
     "test:funnel": "node --test browser/funnel.test.cjs",
     "test:gauge-liquid": "node --test browser/gauge_liquid.test.cjs",
     "test:guides": "node --test browser/guides.test.cjs",
+    "test:theme-playground": "node --test browser/theme_playground.test.cjs",
     "test:geo": "node --test browser/geo.test.cjs",
     "test:heatmap": "node --test browser/static_heatmap_upstream_exhaustion.test.cjs",
     "test:interactive-heatmap": "node --test browser/interactive_heatmap_layout.test.cjs",

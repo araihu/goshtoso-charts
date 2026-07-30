@@ -43,6 +43,12 @@ func New() http.Handler {
 		}
 		render(writer, request, pages.ChartControlsPage(isFragment(request), examples))
 	})
+	mux.HandleFunc("GET /docs/theme-playground", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.ThemePlaygroundPage(isFragment(request)))
+	})
+	mux.HandleFunc("GET /docs/theme-playground/frame", func(writer http.ResponseWriter, request *http.Request) {
+		render(writer, request, pages.ThemePlaygroundFrame())
+	})
 	mux.HandleFunc("GET /components/heartbeat", func(writer http.ResponseWriter, request *http.Request) {
 		http.Redirect(writer, request, "/examples/live-availability", http.StatusPermanentRedirect)
 	})

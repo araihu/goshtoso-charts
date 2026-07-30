@@ -24,6 +24,8 @@ func TestDemoRoutesRender(t *testing.T) {
 		{"/", "Getting Started"},
 		{"/docs/chart-modes", "Static/vector and interactive charts"},
 		{"/docs/chart-controls", "Chart controls"},
+		{"/docs/theme-playground", "Theme playground"},
+		{"/docs/theme-playground/frame", "Live theme preview"},
 		{"/attributions", "Foundation dependencies"},
 		{"/components/line", "Line chart"},
 		{"/components/bar", "Bar chart"},
