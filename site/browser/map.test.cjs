@@ -359,6 +359,7 @@ test("390, 768, 1499, and 1440 fullscreen fallback resizes the same corrected ma
       await wrapper.evaluate((element) => {
         const host = element.querySelector("[_echarts_instance_]");
         element.__mapInstance = window.echarts.getInstanceByDom(host);
+        element.__mapHostWidth = host.clientWidth;
         element.classList.add("goshtoso-charts-fullscreen-fallback");
         document.body.appendChild(element.closest("[data-map-variant]"));
         element.dispatchEvent(new CustomEvent("goshtoso-charts:resize", { bubbles: true }));
