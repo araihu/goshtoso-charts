@@ -340,7 +340,7 @@ func TestFunnelDocumentationPreservesPinnedOfficialExampleWithoutEngineBranding(
 	for _, want := range []string{
 		"Basic funnel", "Funnel", "Show", "Click", "Visit", "Inquiry", "Order", "Pay", "Cancel",
 		"100", "80", "60", "40", "20", "10", "2", "Exact stage values", "Share of first stage",
-		"SVG", "PNG", "Interpreting stages",
+		"SVG", "PNG", "Compact five-stage sequence", "Static/vector behavior", "Go API", "v0.0.1",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("funnel documentation missing upstream or contract content %q", want)
@@ -353,7 +353,12 @@ func TestFunnelDocumentationPreservesPinnedOfficialExampleWithoutEngineBranding(
 	}
 	attributions := httptest.NewRecorder()
 	New().ServeHTTP(attributions, httptest.NewRequest(http.MethodGet, "/attributions", nil))
-	for _, want := range []string{"examples/1-Painter/funnel_chart-1-basic/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2"} {
+	for _, want := range []string{
+		"examples/1-Painter/funnel_chart-1-basic/main.go",
+		"examples/2-OptionFunc/funnel_chart-1-basic/main.go",
+		"examples/2-OptionFunc/web-1/main.go",
+		"1fe31b06b8a82e00df877ff4417a75858547c1c2",
+	} {
 		if !strings.Contains(attributions.Body.String(), want) {
 			t.Errorf("central attributions missing pinned funnel source %q", want)
 		}

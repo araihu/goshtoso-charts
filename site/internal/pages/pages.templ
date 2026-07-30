@@ -904,13 +904,21 @@ templ interactiveTreeContent() {
 templ interactiveChartFunnelContent() {
 	@componentpage.Page(componentpage.Config{
 		Title:       "Interactive funnel",
-		Description: "Named stage volumes in a fixed order, emphasizing reduction or conversion.",
+		Description: "Named values across a short ordered sequence, emphasizing stage shape and relative magnitude.",
 		Primary: componentpage.Example{
-			AbovePreview: visualizationGuidance("Show progressive reduction or conversion across a small sequence of stages.", "The stage order and relative loss are meaningful.", "Stages are not a sequence or exact conversion rates are the primary task.", "Preserve stage names, values, and intended order in adjacent content."),
-			Preview:      interactive.Funnel(sampleInteractiveFunnel()),
-			Code:         interactiveChartFunnelCode(),
+			AbovePreview: visualizationGuidance("Show named values across a short sequence as progressively shaped stages.", "Use when stage order and broad relative magnitude matter more than precise comparison.", "Avoid when values must only decrease, paths branch, close values require comparison, or rates are the primary task; use a bar, Sankey, or explicit table instead.", "Every example preserves series, stage, value, and intended order in an adjacent exact-value table."),
+			Preview:      interactiveFunnelCandidate("base", sampleInteractiveFunnel()),
+			Code:         interactiveFunnelBaseCode(),
 		},
-		After: interactiveDocumentation(demoNote("Stage order", "Make intended stage order explicit. Sorting by value can be useful, but must not replace process order.")),
+		Sections: []componentpage.Example{
+			{
+				Title:       "Visible labels on the left",
+				Description: "The same upstream helper supplies a second deterministic value group. Labels remain visible to the left without changing series, stage order, or exact-data access.",
+				Preview:     interactiveFunnelCandidate("labels-left", sampleInteractiveFunnelLabels()),
+				Code:        interactiveFunnelLabelsCode(),
+			},
+		},
+		After: interactiveDocumentation(demoNote("Stage meaning", "A funnel does not prove conversion or enforce decreasing values. State what each stage means, preserve caller order when process order matters, and use the exact table for values.")),
 	})
 }
 
@@ -1110,7 +1118,15 @@ templ funnelContent() {
 			Preview:      funnel.Funnel(sampleBasicFunnel()),
 			Code:         funnelCode(),
 		},
-		After: chartDocumentation("Interpreting stages", "A funnel communicates a deliberate ordered progression. If values rise or paths split, choose a chart that represents that behavior directly.", "funnel"),
+		Sections: []componentpage.Example{
+			{
+				Title:       "Compact five-stage sequence",
+				Description: "The same component accepts a shorter ordered sequence while preserving every exact value beside the geometry.",
+				Preview:     funnel.Funnel(sampleCompactFunnel()),
+				Code:        compactFunnelCode(),
+			},
+		},
+		After: chartDocumentation("Static/vector behavior", "Funnel renders inline SVG on the server, follows Goshtoso chart tokens in light and dark mode, remains useful in print or without JavaScript, and exports resolved SVG plus opaque PNG through the shared wrapper. Use the exact table for comparisons that cannot be judged from narrowing geometry; shared chart controls and chart modes guides document lifecycle and delivery choices.", "funnel"),
 	})
 }
 

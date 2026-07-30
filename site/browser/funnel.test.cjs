@@ -129,14 +129,21 @@ for (const width of [390, 1440]) {
             document.documentElement.dataset.theme = selected;
             document.documentElement.classList.toggle("dark", dark);
           }, { selected: theme, dark: mode === "dark" });
-          const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+          const wrappers = page.locator("[data-goshtoso-chart-wrapper]");
+          assert.equal(await wrappers.count(), 2);
+          const wrapper = wrappers.filter({ has: page.locator('figure[aria-label="Basic funnel"]') }).first();
+          const compact = wrappers.filter({ has: page.locator('figure[aria-label="Compact five-stage funnel"]') }).first();
           assert.equal(await wrapper.getByRole("button").count(), 2);
+          assert.equal(await compact.getByRole("button").count(), 2);
           assert.equal(await wrapper.locator("figure").getAttribute("aria-label"), "Basic funnel");
           assert.equal(await wrapper.locator("table").getAttribute("aria-label"), "Basic funnel exact stage values");
           assert.deepEqual(await wrapper.locator("table tbody th").allTextContents(), ["Show", "Click", "Visit", "Inquiry", "Order", "Pay", "Cancel"]);
           assert.deepEqual(await wrapper.locator("table tbody td:nth-child(2)").allTextContents(), ["100", "80", "60", "40", "20", "10", "2"]);
-          const layout = await page.evaluate(() => {
-            const content = document.querySelector("[data-goshtoso-chart-content]");
+          assert.equal(await compact.locator("figure").getAttribute("aria-label"), "Compact five-stage funnel");
+          assert.equal(await compact.locator("table").getAttribute("aria-label"), "Compact five-stage funnel exact stage values");
+          assert.deepEqual(await compact.locator("table tbody th").allTextContents(), ["Show", "Click", "Visit", "Inquiry", "Order"]);
+          assert.deepEqual(await compact.locator("table tbody td:nth-child(2)").allTextContents(), ["100", "80", "60", "40", "20"]);
+          const layouts = await page.evaluate(() => [...document.querySelectorAll("[data-goshtoso-chart-content]")].map((content) => {
             const viewport = content.querySelector(".goshtoso-charts-funnel__viewport");
             const svg = viewport.querySelector("svg");
             const stage = [...svg.querySelectorAll("path")].find((path) => path.getAttribute("style")?.includes("--color-chart-series-1"));
@@ -153,14 +160,17 @@ for (const width of [390, 1440]) {
               viewBox: svg.getAttribute("viewBox"),
               stageFill: stage && getComputedStyle(stage).fill,
             };
-          });
-          assert.equal(layout.documentScroll, layout.documentClient);
-          assert.ok(layout.contentScroll <= layout.contentClient + 1);
-          assert.ok(layout.viewportScroll <= layout.viewportClient + 1);
-          assert.equal(layout.viewBox, "0 0 600 400");
-          assert.ok(layout.svgWidth <= layout.viewportClient + 1);
-          assert.ok(Math.abs(layout.svgWidth / layout.svgHeight - 1.5) < 0.02);
-          assert.ok(layout.stageFill);
+          }));
+          assert.equal(layouts.length, 2);
+          for (const layout of layouts) {
+            assert.equal(layout.documentScroll, layout.documentClient);
+            assert.ok(layout.contentScroll <= layout.contentClient + 1);
+            assert.ok(layout.viewportScroll <= layout.viewportClient + 1);
+            assert.equal(layout.viewBox, "0 0 600 400");
+            assert.ok(layout.svgWidth <= layout.viewportClient + 1);
+            assert.ok(Math.abs(layout.svgWidth / layout.svgHeight - 1.5) < 0.02);
+            assert.ok(layout.stageFill);
+          }
           if (screenshotDirectory) await page.screenshot({ path: path.join(screenshotDirectory, `funnel-${width}-${theme}-${mode}.png`), fullPage: true });
 
           await wrapper.evaluate((element) => { element.__funnelContent = element.querySelector("[data-goshtoso-chart-content]"); });
