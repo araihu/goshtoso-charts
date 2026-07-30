@@ -8,11 +8,13 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"reflect"
 	"strings"
 	"testing"
 	"time"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chart"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	"github.com/araihu/goshtoso-charts/components/interactive/line"
 )
@@ -95,7 +97,7 @@ func TestCanonicalAndCompatibilityPathsPreserveValidation(t *testing.T) {
 	}
 }
 
-func TestCanonicalPackageDoesNotExposeRendererNamesOrImports(t *testing.T) {
+func TestCanonicalPackageDoesNotImportCompatibilityParentOrExportRendererNames(t *testing.T) {
 	t.Parallel()
 	entries, err := os.ReadDir(".")
 	if err != nil {
@@ -112,8 +114,8 @@ func TestCanonicalPackageDoesNotExposeRendererNamesOrImports(t *testing.T) {
 			t.Fatalf("parse %s: %v", entry.Name(), err)
 		}
 		for _, imported := range file.Imports {
-			if strings.Contains(imported.Path.Value, "go-echarts") {
-				t.Errorf("%s imports renderer package %s", entry.Name(), imported.Path.Value)
+			if strings.Trim(imported.Path.Value, `"`) == "github.com/araihu/goshtoso-charts/components/interactive" {
+				t.Errorf("%s imports compatibility parent %s", entry.Name(), imported.Path.Value)
 			}
 		}
 		ast.Inspect(file, func(node ast.Node) bool {
@@ -123,6 +125,104 @@ func TestCanonicalPackageDoesNotExposeRendererNamesOrImports(t *testing.T) {
 			}
 			return true
 		})
+	}
+}
+
+func TestLineSpecificTypesAreOwnedByCanonicalPackage(t *testing.T) {
+	t.Parallel()
+	const canonicalPackage = "github.com/araihu/goshtoso-charts/components/interactive/line"
+
+	canonicalTypes := []reflect.Type{
+		reflect.TypeOf(line.Config{}),
+		reflect.TypeOf(line.TimeAxis{}),
+		reflect.TypeOf(line.ValueAxis{}),
+		reflect.TypeOf(line.VisualDimension("")),
+		reflect.TypeOf(line.VisualScale{}),
+		reflect.TypeOf(line.VisualPiece{}),
+		reflect.TypeOf(line.Statistic("")),
+		reflect.TypeOf(line.Coordinate{}),
+		reflect.TypeOf(line.PointReference{}),
+		reflect.TypeOf(line.GuideReference{}),
+		reflect.TypeOf(line.RangeReference{}),
+		reflect.TypeOf(line.References{}),
+		reflect.TypeOf(line.Series{}),
+		reflect.TypeOf(line.Data{}),
+	}
+	for _, typ := range canonicalTypes {
+		if got := typ.PkgPath(); got != canonicalPackage {
+			t.Errorf("%s PkgPath() = %q, want %q", typ, got, canonicalPackage)
+		}
+	}
+
+	compatibilityTypes := []reflect.Type{
+		reflect.TypeOf(interactive.LineConfig{}),
+		reflect.TypeOf(interactive.LineTimeAxis{}),
+		reflect.TypeOf(interactive.LineValueAxis{}),
+		reflect.TypeOf(interactive.LineVisualDimension("")),
+		reflect.TypeOf(interactive.LineVisualScale{}),
+		reflect.TypeOf(interactive.LineVisualPiece{}),
+		reflect.TypeOf(interactive.LineStatistic("")),
+		reflect.TypeOf(interactive.LineCoordinate{}),
+		reflect.TypeOf(interactive.LinePointReference{}),
+		reflect.TypeOf(interactive.LineGuideReference{}),
+		reflect.TypeOf(interactive.LineRangeReference{}),
+		reflect.TypeOf(interactive.LineReferences{}),
+		reflect.TypeOf(interactive.LineSeries{}),
+		reflect.TypeOf(interactive.LineData{}),
+	}
+	for index, typ := range compatibilityTypes {
+		if typ != canonicalTypes[index] {
+			t.Errorf("compatibility type %s is not identical to canonical %s", typ, canonicalTypes[index])
+		}
+	}
+
+	configType := reflect.TypeOf(line.Config{})
+	options, _ := configType.FieldByName("Options")
+	seriesOptions, _ := configType.FieldByName("SeriesOptions")
+	live, _ := configType.FieldByName("Live")
+	if options.Type != reflect.TypeOf(chart.ChartOptions{}) || seriesOptions.Type != reflect.TypeOf(chart.SeriesOptions{}) || live.Type != reflect.TypeOf((*chart.LiveData)(nil)) {
+		t.Fatalf("shared Config fields are not owned by chart: Options=%v SeriesOptions=%v Live=%v", options.Type, seriesOptions.Type, live.Type)
+	}
+}
+
+func TestCompatibilityParentContainsOnlyAliasesConstantsAndForwarder(t *testing.T) {
+	t.Parallel()
+	files := token.NewFileSet()
+	file, err := parser.ParseFile(files, filepath.Join("..", "line.go"), nil, 0)
+	if err != nil {
+		t.Fatalf("parse parent facade: %v", err)
+	}
+	if len(file.Imports) != 1 || strings.Trim(file.Imports[0].Path.Value, `"`) != "github.com/araihu/goshtoso-charts/components/interactive/line" {
+		t.Fatalf("parent imports = %v, want only canonical Line package", file.Imports)
+	}
+
+	functions := 0
+	for _, declaration := range file.Decls {
+		switch declaration := declaration.(type) {
+		case *ast.FuncDecl:
+			functions++
+			if declaration.Name.Name != "Line" || declaration.Body == nil || len(declaration.Body.List) != 1 {
+				t.Errorf("parent function %s is not the single Line forwarder", declaration.Name.Name)
+			}
+		case *ast.GenDecl:
+			switch declaration.Tok {
+			case token.IMPORT, token.CONST:
+			case token.TYPE:
+				for _, spec := range declaration.Specs {
+					typeSpec := spec.(*ast.TypeSpec)
+					if !typeSpec.Assign.IsValid() {
+						t.Errorf("parent type %s is not an alias", typeSpec.Name.Name)
+					}
+				}
+			default:
+				t.Errorf("parent contains forbidden %s declaration", declaration.Tok)
+			}
+		default:
+			t.Errorf("parent contains unexpected declaration %T", declaration)
+		}
+	}
+	if functions != 1 {
+		t.Errorf("parent functions = %d, want only Line", functions)
 	}
 }
 

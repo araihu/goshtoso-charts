@@ -1,11 +1,11 @@
-package interactive
+package line
 
 import (
 	"fmt"
 	"strconv"
 )
 
-templ lineExactValues(cfg LineConfig) {
+templ lineExactValues(cfg Config) {
 	<details class="mt-3 max-w-full text-sm text-on-surface dark:text-on-surface-dark" { lineExactValuesAttributes(cfg)... }>
 		<summary class="cursor-pointer font-semibold">{ lineExactValuesTitle(cfg) }</summary>
 		if cfg.TimeAxis != nil {

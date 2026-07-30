@@ -130,51 +130,68 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 		assertWrapperLiteral(t, filename, "static-svg")
 	}
 	assertWrapperLiteral(t, "internal/interactive/component.go", "interactive-raster")
+	assertConstructorPropagatesSharedWrapperFields(t, "interactive/bar/bar.go", "Bar")
+	assertConstructorPropagatesSharedWrapperFields(t, "interactive/line/line.go", "Line")
 
 	loaded, err := packages.Load(&packages.Config{
 		Mode: packages.NeedName | packages.NeedFiles | packages.NeedCompiledGoFiles | packages.NeedSyntax,
 		Dir:  "interactive",
-	}, ".", "./bar")
+	}, ".")
 	if err != nil {
 		t.Fatalf("load interactive constructors: %v", err)
 	}
-	if len(loaded) != 2 {
-		t.Fatalf("load interactive constructors: got %d packages, want 2", len(loaded))
+	if len(loaded) != 1 {
+		t.Fatalf("load interactive constructors: got %d packages, want 1", len(loaded))
 	}
-	propagatesWrapper := make(map[string]bool)
-	for _, pkg := range loaded {
-		if len(pkg.Errors) > 0 {
-			t.Fatalf("load interactive constructors: %v", pkg.Errors)
-		}
-		for _, file := range pkg.Syntax {
-			for _, declaration := range file.Decls {
-				function, ok := declaration.(*ast.FuncDecl)
-				if !ok || function.Recv != nil || !function.Name.IsExported() || function.Type.Results == nil || len(function.Type.Results.List) != 1 {
-					continue
-				}
-				result, ok := function.Type.Results.List[0].Type.(*ast.Ident)
-				if !ok || result.Name != "Instance" || function.Type.Params == nil || len(function.Type.Params.List) != 1 {
-					continue
-				}
-				parameter, ok := function.Type.Params.List[0].Type.(*ast.Ident)
-				if !ok || !strings.HasSuffix(parameter.Name, "Config") {
-					continue
-				}
-				propagatesWrapper[function.Name.Name] = propagatesWrapper[function.Name.Name] ||
-					(containsSelectorPath(function.Body, "cfg", "Options", "Controls") && containsSelectorPath(function.Body, "cfg", "Options", "Export"))
-			}
-		}
+	if len(loaded[0].Errors) > 0 {
+		t.Fatalf("load interactive constructors: %v", loaded[0].Errors)
 	}
 	var missing []string
-	for constructor, propagates := range propagatesWrapper {
-		if !propagates {
-			missing = append(missing, constructor)
+	for _, file := range loaded[0].Syntax {
+		for _, declaration := range file.Decls {
+			function, ok := declaration.(*ast.FuncDecl)
+			if !ok || function.Recv != nil || !function.Name.IsExported() || function.Type.Results == nil || len(function.Type.Results.List) != 1 {
+				continue
+			}
+			result, ok := function.Type.Results.List[0].Type.(*ast.Ident)
+			if !ok || result.Name != "Instance" || function.Type.Params == nil || len(function.Type.Params.List) != 1 {
+				continue
+			}
+			parameter, ok := function.Type.Params.List[0].Type.(*ast.Ident)
+			if !ok || !strings.HasSuffix(parameter.Name, "Config") {
+				continue
+			}
+			if function.Name.Name == "Bar" || function.Name.Name == "Line" {
+				continue // Physical ownership is covered in the child implementations above.
+			}
+			if !containsSelectorPath(function.Body, "cfg", "Options", "Controls") || !containsSelectorPath(function.Body, "cfg", "Options", "Export") {
+				missing = append(missing, function.Name.Name)
+			}
 		}
 	}
 	if len(missing) > 0 {
 		sort.Strings(missing)
 		t.Fatalf("interactive constructors do not propagate ChartOptions Controls/Export: %v", missing)
 	}
+}
+
+func assertConstructorPropagatesSharedWrapperFields(t *testing.T, filename, name string) {
+	t.Helper()
+	file, err := parser.ParseFile(token.NewFileSet(), filename, nil, 0)
+	if err != nil {
+		t.Fatalf("parse %s: %v", filename, err)
+	}
+	for _, declaration := range file.Decls {
+		function, ok := declaration.(*ast.FuncDecl)
+		if !ok || function.Name.Name != name {
+			continue
+		}
+		if !containsSelectorPath(function.Body, "cfg", "Options", "Controls") || !containsSelectorPath(function.Body, "cfg", "Options", "Export") {
+			t.Fatalf("%s constructor %s does not propagate ChartOptions Controls/Export", filename, name)
+		}
+		return
+	}
+	t.Fatalf("%s constructor %s not found", filename, name)
 }
 
 func assertWrapperLiteral(t *testing.T, filename, capability string) {
