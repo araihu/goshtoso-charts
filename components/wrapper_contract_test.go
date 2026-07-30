@@ -134,34 +134,41 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 	loaded, err := packages.Load(&packages.Config{
 		Mode: packages.NeedName | packages.NeedFiles | packages.NeedCompiledGoFiles | packages.NeedSyntax,
 		Dir:  "interactive",
-	}, ".")
+	}, ".", "./bar")
 	if err != nil {
 		t.Fatalf("load interactive constructors: %v", err)
 	}
-	if len(loaded) != 1 {
-		t.Fatalf("load interactive constructors: got %d packages, want 1", len(loaded))
+	if len(loaded) != 2 {
+		t.Fatalf("load interactive constructors: got %d packages, want 2", len(loaded))
 	}
-	if len(loaded[0].Errors) > 0 {
-		t.Fatalf("load interactive constructors: %v", loaded[0].Errors)
+	propagatesWrapper := make(map[string]bool)
+	for _, pkg := range loaded {
+		if len(pkg.Errors) > 0 {
+			t.Fatalf("load interactive constructors: %v", pkg.Errors)
+		}
+		for _, file := range pkg.Syntax {
+			for _, declaration := range file.Decls {
+				function, ok := declaration.(*ast.FuncDecl)
+				if !ok || function.Recv != nil || !function.Name.IsExported() || function.Type.Results == nil || len(function.Type.Results.List) != 1 {
+					continue
+				}
+				result, ok := function.Type.Results.List[0].Type.(*ast.Ident)
+				if !ok || result.Name != "Instance" || function.Type.Params == nil || len(function.Type.Params.List) != 1 {
+					continue
+				}
+				parameter, ok := function.Type.Params.List[0].Type.(*ast.Ident)
+				if !ok || !strings.HasSuffix(parameter.Name, "Config") {
+					continue
+				}
+				propagatesWrapper[function.Name.Name] = propagatesWrapper[function.Name.Name] ||
+					(containsSelectorPath(function.Body, "cfg", "Options", "Controls") && containsSelectorPath(function.Body, "cfg", "Options", "Export"))
+			}
+		}
 	}
 	var missing []string
-	for _, file := range loaded[0].Syntax {
-		for _, declaration := range file.Decls {
-			function, ok := declaration.(*ast.FuncDecl)
-			if !ok || function.Recv != nil || !function.Name.IsExported() || function.Type.Results == nil || len(function.Type.Results.List) != 1 {
-				continue
-			}
-			result, ok := function.Type.Results.List[0].Type.(*ast.Ident)
-			if !ok || result.Name != "Instance" || function.Type.Params == nil || len(function.Type.Params.List) != 1 {
-				continue
-			}
-			parameter, ok := function.Type.Params.List[0].Type.(*ast.Ident)
-			if !ok || !strings.HasSuffix(parameter.Name, "Config") {
-				continue
-			}
-			if !containsSelectorPath(function.Body, "cfg", "Options", "Controls") || !containsSelectorPath(function.Body, "cfg", "Options", "Export") {
-				missing = append(missing, function.Name.Name)
-			}
+	for constructor, propagates := range propagatesWrapper {
+		if !propagates {
+			missing = append(missing, constructor)
 		}
 	}
 	if len(missing) > 0 {

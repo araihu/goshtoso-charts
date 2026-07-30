@@ -13,6 +13,7 @@ const (
 	internalPackage    = modulePath + "/components/internal/interactive"
 	parentFacade       = modulePath + "/components/interactive"
 	childPackagePrefix = parentFacade + "/"
+	barPackage         = childPackagePrefix + "bar"
 )
 
 func TestChartFoundationPackageDAG(t *testing.T) {
@@ -20,12 +21,12 @@ func TestChartFoundationPackageDAG(t *testing.T) {
 
 	loaded, err := packages.Load(&packages.Config{
 		Mode: packages.NeedName | packages.NeedImports,
-	}, chartPackage, internalPackage, parentFacade)
+	}, chartPackage, internalPackage, parentFacade, barPackage)
 	if err != nil {
 		t.Fatalf("load chart foundation packages: %v", err)
 	}
-	if len(loaded) != 3 {
-		t.Fatalf("loaded packages = %d, want 3", len(loaded))
+	if len(loaded) != 4 {
+		t.Fatalf("loaded packages = %d, want 4", len(loaded))
 	}
 
 	byPath := make(map[string]*packages.Package, len(loaded))
@@ -35,7 +36,7 @@ func TestChartFoundationPackageDAG(t *testing.T) {
 		}
 		byPath[pkg.PkgPath] = pkg
 	}
-	for _, path := range []string{chartPackage, internalPackage, parentFacade} {
+	for _, path := range []string{chartPackage, internalPackage, parentFacade, barPackage} {
 		if byPath[path] == nil {
 			t.Fatalf("foundation package %s was not loaded", path)
 		}
@@ -48,8 +49,14 @@ func TestChartFoundationPackageDAG(t *testing.T) {
 		return path == internalPackage || path == parentFacade || strings.HasPrefix(path, childPackagePrefix) || isRenderingEnginePackage(path)
 	}, "internal implementation, interactive facade, or rendering engine")
 	assertNoImports(t, byPath[parentFacade], func(path string) bool {
-		return strings.HasPrefix(path, childPackagePrefix)
+		return strings.HasPrefix(path, childPackagePrefix) && path != barPackage
 	}, "child interactive package")
+	assertNoImports(t, byPath[barPackage], func(path string) bool {
+		return path == parentFacade
+	}, "parent interactive facade")
+	if _, ok := byPath[parentFacade].Imports[barPackage]; !ok {
+		t.Errorf("%s does not forward to canonical %s", parentFacade, barPackage)
+	}
 }
 
 func assertNoImports(t *testing.T, pkg *packages.Package, forbidden func(string) bool, description string) {

@@ -3,11 +3,15 @@ package bar_test
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chart"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 )
@@ -51,6 +55,10 @@ func TestBarPreservesLegacyRenderContract(t *testing.T) {
 	if canonicalMarkup != legacyMarkup {
 		t.Fatalf("canonical render differs from legacy render\ncanonical: %s\nlegacy: %s", canonicalMarkup, legacyMarkup)
 	}
+	digest := sha256.Sum256([]byte(canonicalMarkup))
+	if got, want := hex.EncodeToString(digest[:]), "f9270acadd88778afa13f78b99855026a90b07d069cb574583c1a67472c55d0e"; got != want {
+		t.Fatalf("normalized render SHA-256 = %s, want %s", got, want)
+	}
 }
 
 func TestBarPreservesLegacyValidation(t *testing.T) {
@@ -78,6 +86,46 @@ func TestBarExportsConciseChartSpecificConstants(t *testing.T) {
 	_ = []interactivebar.ZoomMode{interactivebar.ZoomInside, interactivebar.ZoomSlider}
 	_ = []interactivebar.Statistic{interactivebar.StatisticMinimum, interactivebar.StatisticMaximum, interactivebar.StatisticAverage}
 }
+
+func TestBarSpecificTypesHaveCanonicalChildIdentity(t *testing.T) {
+	t.Parallel()
+
+	wantPackage := "github.com/araihu/goshtoso-charts/components/interactive/bar"
+	barTypes := []reflect.Type{
+		reflect.TypeOf(interactivebar.Config{}),
+		reflect.TypeOf(interactivebar.Series{}),
+		reflect.TypeOf(interactivebar.Data{}),
+		reflect.TypeOf(interactivebar.Orientation("")),
+		reflect.TypeOf(interactivebar.ZoomMode("")),
+		reflect.TypeOf(interactivebar.Zoom{}),
+		reflect.TypeOf(interactivebar.Statistic("")),
+		reflect.TypeOf(interactivebar.Coordinate{}),
+		reflect.TypeOf(interactivebar.PointReference{}),
+		reflect.TypeOf(interactivebar.GuideReference{}),
+		reflect.TypeOf(interactivebar.References{}),
+	}
+	for _, barType := range barTypes {
+		if got := barType.PkgPath(); got != wantPackage {
+			t.Errorf("%s PkgPath() = %q, want %q", barType, got, wantPackage)
+		}
+	}
+
+	if reflect.TypeOf(interactive.BarConfig{}) != reflect.TypeOf(interactivebar.Config{}) {
+		t.Fatal("interactive.BarConfig is not an exact alias of bar.Config")
+	}
+	if reflect.TypeOf(interactive.BarSeries{}) != reflect.TypeOf(interactivebar.Series{}) {
+		t.Fatal("interactive.BarSeries is not an exact alias of bar.Series")
+	}
+	if reflect.TypeOf(interactive.BarData{}) != reflect.TypeOf(interactivebar.Data{}) {
+		t.Fatal("interactive.BarData is not an exact alias of bar.Data")
+	}
+}
+
+var (
+	_ func(interactivebar.Config) chart.Instance = interactivebar.Bar
+	_ func(interactivebar.Config) chart.Instance = interactive.Bar
+	_ func(interactive.BarConfig) chart.Instance = interactivebar.Bar
+)
 
 func render(t *testing.T, instance interactive.Instance) string {
 	t.Helper()
