@@ -3,6 +3,7 @@ package charttheme
 import (
 	"bytes"
 	"context"
+	"reflect"
 	"strings"
 	"testing"
 )
@@ -31,6 +32,13 @@ func TestAutoUsesBoldLiteralFallback(t *testing.T) {
 	}
 	if got := (Style{}).RootClasses("chart"); got != "chart goshtoso-charts-palette goshtoso-charts-palette-auto" {
 		t.Fatalf("auto classes = %q", got)
+	}
+	unknown := Style{Palette: Palette("future-theme")}
+	if got := unknown.RootClasses("chart"); got != "chart goshtoso-charts-palette goshtoso-charts-palette-bold" {
+		t.Fatalf("unknown palette classes = %q", got)
+	}
+	if got := unknown.ResolvedColors(); !reflect.DeepEqual(got, palettes[PaletteBold]) {
+		t.Fatalf("unknown palette fallback = %#v", got)
 	}
 }
 
@@ -76,19 +84,19 @@ func TestStylesExposeLightAndDarkSemanticChartTokens(t *testing.T) {
 		`--color-chart-series-1: color-mix(in srgb, var(--color-success, var(--color-green-600, #16a34a)) 80%`,
 		`--color-chart-series-2: color-mix(in srgb, var(--color-warning, var(--color-amber-600, #d97706)) 80%`,
 		`--color-chart-series-3: color-mix(in srgb, var(--color-danger, var(--color-red-600, #dc2626)) 80%`,
-		`.dark .goshtoso-charts-palette-status`,
+		`:where(.dark) :where(.goshtoso-charts-palette-status)`,
 		`--color-chart-series-1: color-mix(in srgb, var(--color-success, var(--color-green-400, #4ade80)) 80%`,
-		`.dark .goshtoso-charts-palette`,
+		`:where(.dark) :where(.goshtoso-charts-palette)`,
 		`--color-chart-surface: var(--color-surface-dark)`,
 		`--color-chart-text-strong: var(--color-on-surface-dark-strong`,
 		`--color-chart-text-muted: var(--color-on-surface-dark-muted`,
-		`[data-theme="araihu"] .goshtoso-charts-palette-auto`,
-		`--color-chart-series-1: var(--color-lime-700, #4d7c0f)`,
-		`--color-chart-series-1: var(--color-lime-400, #c7ff4a)`,
-		`--color-chart-scale-low: var(--color-sky-400`,
-		`--color-chart-scale-mid: var(--color-amber-500`,
-		`--color-chart-scale-high: var(--color-rose-600`,
-		`--color-chart-scale-high: var(--color-rose-400`,
+		`:where([data-theme="araihu"]) :where(.goshtoso-charts-palette-auto)`,
+		`--color-chart-series-1: #4d7c0f`,
+		`--color-chart-series-1: #c7ff4a`,
+		`--color-chart-scale-low: #38bdf8`,
+		`--color-chart-scale-mid: #f59e0b`,
+		`--color-chart-scale-high: #e11d48`,
+		`--color-chart-scale-high: #fb7185`,
 		`--color-chart-scale-mid: var(--color-amber-200`,
 		`.goshtoso-charts-scatter__viewport`,
 		`min-width: 36rem`,
@@ -106,8 +114,8 @@ func TestAraiHuAutoPaletteSplitsLightAndDarkSeriesOneWithoutChangingSemanticPale
 		t.Fatalf("Styles().Render() error = %v", err)
 	}
 	markup := output.String()
-	lightStart := strings.Index(markup, `.goshtoso-charts-palette-araihu,`)
-	darkStart := strings.Index(markup, `.dark .goshtoso-charts-palette-araihu,`)
+	lightStart := strings.Index(markup, `/* goshtoso-charts-theme:araihu:light */`)
+	darkStart := strings.Index(markup, `/* goshtoso-charts-theme:araihu:dark */`)
 	if lightStart == -1 || darkStart == -1 || darkStart <= lightStart {
 		t.Fatal("AraiHu light/dark palette rules are missing or unordered")
 	}
@@ -117,17 +125,17 @@ func TestAraiHuAutoPaletteSplitsLightAndDarkSeriesOneWithoutChangingSemanticPale
 		t.Fatal("AraiHu dark palette rule is incomplete")
 	}
 	darkRule := markup[darkStart : darkStart+darkRuleEnd]
-	if !strings.Contains(lightRule, `--color-chart-series-1: var(--color-lime-700, #4d7c0f)`) || strings.Contains(lightRule, `--color-chart-series-1: var(--color-lime-400, #c7ff4a)`) {
+	if !strings.Contains(lightRule, `--color-chart-series-1: #4d7c0f`) || strings.Contains(lightRule, `--color-chart-series-1: #c7ff4a`) {
 		t.Fatalf("AraiHu light series-1 token is not contrast-safe: %q", lightRule)
 	}
-	if !strings.Contains(darkRule, `--color-chart-series-1: var(--color-lime-400, #c7ff4a)`) || strings.Contains(darkRule, `--color-chart-series-1: var(--color-lime-700, #4d7c0f)`) {
+	if !strings.Contains(darkRule, `--color-chart-series-1: #c7ff4a`) || strings.Contains(darkRule, `--color-chart-series-1: #4d7c0f`) {
 		t.Fatalf("AraiHu dark series-1 token does not restore bright lime: %q", darkRule)
 	}
 	for _, unchanged := range []string{
-		`--color-chart-series-2: var(--color-orange-400, #ff8a3d)`,
-		`--color-chart-scale-low: var(--color-sky-400, #38bdf8)`,
-		`--color-chart-scale-mid: var(--color-amber-500, #f59e0b)`,
-		`--color-chart-scale-high: var(--color-rose-600, #e11d48)`,
+		`--color-chart-series-2: #ff8a3d`,
+		`--color-chart-scale-low: #38bdf8`,
+		`--color-chart-scale-mid: #f59e0b`,
+		`--color-chart-scale-high: #e11d48`,
 		`--color-chart-series-1: color-mix(in srgb, var(--color-success`,
 		`--color-chart-series-2: color-mix(in srgb, var(--color-warning`,
 		`--color-chart-series-3: color-mix(in srgb, var(--color-danger`,
@@ -135,6 +143,100 @@ func TestAraiHuAutoPaletteSplitsLightAndDarkSeriesOneWithoutChangingSemanticPale
 		if !strings.Contains(markup, unchanged) {
 			t.Errorf("unrelated semantic palette token changed or missing: %q", unchanged)
 		}
+	}
+}
+
+func TestThemePaletteCatalogIsExactCompleteAndUnique(t *testing.T) {
+	t.Parallel()
+	wantIDs := []string{
+		"araihu", "goshtoso", "arctic", "high-contrast", "minimal", "modern",
+		"neo-brutalism", "halloween", "zombie", "pastel", "90s", "christmas",
+		"prototype", "news", "industrial", "dracula",
+	}
+	gotIDs := make([]string, 0, len(themePalettes))
+	seenIDs := map[string]bool{}
+	seenModes := map[string]string{}
+	for _, theme := range themePalettes {
+		if seenIDs[theme.ID] {
+			t.Fatalf("duplicate theme %q", theme.ID)
+		}
+		seenIDs[theme.ID] = true
+		gotIDs = append(gotIDs, theme.ID)
+		for name, mode := range map[string]themePaletteMode{"light": theme.Light, "dark": theme.Dark} {
+			seenColors := map[string]bool{}
+			for index, color := range mode.Series {
+				if strings.TrimSpace(color) == "" {
+					t.Fatalf("%s:%s series-%d is blank", theme.ID, name, index+1)
+				}
+				if seenColors[color] {
+					t.Fatalf("%s:%s repeats categorical color %q", theme.ID, name, color)
+				}
+				seenColors[color] = true
+			}
+			for index, color := range mode.Scale {
+				if strings.TrimSpace(color) == "" {
+					t.Fatalf("%s:%s scale-%d is blank", theme.ID, name, index)
+				}
+			}
+			signature := strings.Join(mode.Series[:], "|") + ":" + strings.Join(mode.Scale[:], "|")
+			if previous, exists := seenModes[name+":"+signature]; exists {
+				t.Fatalf("%s:%s reuses %s palette", theme.ID, name, previous)
+			}
+			seenModes[name+":"+signature] = theme.ID
+		}
+	}
+	if !reflect.DeepEqual(gotIDs, wantIDs) {
+		t.Fatalf("theme IDs = %v, want %v", gotIDs, wantIDs)
+	}
+}
+
+func TestGeneratedThemeCSSCoversFullContractAndTemplateIsCurrent(t *testing.T) {
+	t.Parallel()
+	contract := resolvedThemeTokens(false, themePaletteMode{})
+	if len(contract) != 26 {
+		t.Fatalf("chart token contract size = %d, want 26", len(contract))
+	}
+	for _, theme := range themePalettes {
+		for _, mode := range []string{"light", "dark"} {
+			marker := "/* goshtoso-charts-theme:" + theme.ID + ":" + mode + " */"
+			start := strings.Index(generatedThemeCSS, marker)
+			if start == -1 {
+				t.Fatalf("missing generated rule %s:%s", theme.ID, mode)
+			}
+			end := strings.Index(generatedThemeCSS[start:], "}\n")
+			if end == -1 {
+				t.Fatalf("incomplete generated rule %s:%s", theme.ID, mode)
+			}
+			rule := generatedThemeCSS[start : start+end]
+			for _, token := range contract {
+				if !strings.Contains(rule, "--color-chart-"+token.Name+":") {
+					t.Errorf("%s:%s missing %s", theme.ID, mode, token.Name)
+				}
+			}
+		}
+	}
+	var output strings.Builder
+	if err := Styles().Render(context.Background(), &output); err != nil {
+		t.Fatalf("Styles().Render() error = %v", err)
+	}
+	if !strings.Contains(output.String(), generatedThemeCSS) {
+		t.Fatal("styles_templ.go drifted from generated theme CSS injection")
+	}
+}
+
+func TestThemeSelectorsKeepCallerTokenOverridesAuthoritative(t *testing.T) {
+	t.Parallel()
+	for _, theme := range themePalettes {
+		for _, dark := range []bool{false, true} {
+			for _, selector := range themeSelectors(theme.ID, dark) {
+				if !strings.HasPrefix(selector, ":where(") {
+					t.Errorf("theme selector has nonzero specificity: %q", selector)
+				}
+			}
+		}
+	}
+	if strings.Contains(generatedThemeCSS, "!important") {
+		t.Fatal("generated palette CSS must not defeat caller overrides")
 	}
 }
 
