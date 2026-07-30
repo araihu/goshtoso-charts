@@ -56,11 +56,13 @@ func shellConfigForVersion(version string) componentdocshell.Config {
 			HideName:      true,
 			ManageFavicon: true,
 			FaviconURL:    brand.IconURL(),
+			Badge:         shellBrandBadge(version),
 		},
 		Navigation: navigation,
 		Appearance: componentdocshell.AppearanceConfig{
 			DefaultTheme:         "araihu",
 			DisableThemeSelector: true,
+			PersistPreferences:   true,
 		},
 		Interactions: componentdocshell.InteractionConfig{
 			EnableHTMX: true,
@@ -72,16 +74,24 @@ func shellConfigForVersion(version string) componentdocshell.Config {
 				UseBaselineLabel: "Use standard appearance",
 			},
 		},
-		HeaderActions: shellVersionBadge(
-			version,
-		),
 		BodyEnd:       docsSearchRuntime(),
 		RepositoryURL: "https://github.com/araihu/goshtoso-charts",
 	}
 }
 
-func isReleasedSiteVersion(version string) bool {
-	return releasedSiteVersionPattern.MatchString(version)
+func shellBrandBadge(version string) *componentdocshell.BrandBadge {
+	switch {
+	case version == "development":
+		return &componentdocshell.BrandBadge{Label: "dev", AriaLabel: "Development build"}
+	case releasedSiteVersionPattern.MatchString(version):
+		return &componentdocshell.BrandBadge{
+			Label:     version,
+			AriaLabel: "Goshtoso Charts release " + version,
+			Href:      "https://github.com/araihu/goshtoso-charts/releases/tag/" + version,
+		}
+	default:
+		return nil
+	}
 }
 
 func shellNavigation() componentdocshell.Navigation {

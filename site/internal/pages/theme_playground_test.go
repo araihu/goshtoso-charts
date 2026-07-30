@@ -88,8 +88,8 @@ func TestThemePlaygroundParentDisablesShellThemeSelector(t *testing.T) {
 	if !shellConfig().Appearance.DisableThemeSelector {
 		t.Fatal("documentation shell theme selector remains enabled")
 	}
-	if shellConfig().Appearance.PersistPreferences {
-		t.Fatal("documentation shell still reads or writes stale theme preferences")
+	if !shellConfig().Appearance.PersistPreferences {
+		t.Fatal("documentation shell no longer persists non-theme appearance preferences")
 	}
 
 	body := renderThemePlayground(t, ThemePlaygroundPage(false))

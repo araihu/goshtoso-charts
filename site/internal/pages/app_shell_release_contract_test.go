@@ -28,7 +28,7 @@ func TestReleasedAppShellDependenciesArePinnedWithoutOverrides(t *testing.T) {
 		version string
 	}{
 		{path: "github.com/araihu/goshtoso", version: "v0.1.1"},
-		{path: "github.com/araihu/goshtoso-app-shells", version: "v0.1.0"},
+		{path: "github.com/araihu/goshtoso-app-shells", version: "v0.1.1-0.20260730145401-4f5174eeb1a9"},
 	} {
 		if !moduleRequiresVersion(module, dependency.path, dependency.version) {
 			t.Errorf("released consumer dependency %s is not pinned to exact %s", dependency.path, dependency.version)
@@ -98,7 +98,7 @@ func TestReleasedShellKeepsChartsIdentityAndCurrentNavigation(t *testing.T) {
 	if cfg.Brand.ManagedLogo == nil || cfg.Brand.ManagedLogo.URL != brand.LogoURL() || cfg.Brand.ManagedLogo.Alt != "Goshtoso" || cfg.Brand.ManagedLogo.Width != 120 || cfg.Brand.ManagedLogo.Height != 32 || !cfg.Brand.ManageFavicon || cfg.Brand.FaviconURL != brand.IconURL() {
 		t.Fatalf("managed brand contract = %#v", cfg.Brand)
 	}
-	if !cfg.Appearance.DisableThemeSelector || cfg.Appearance.PersistPreferences {
+	if !cfg.Appearance.DisableThemeSelector || !cfg.Appearance.PersistPreferences {
 		t.Fatalf("parent appearance contract = %#v", cfg.Appearance)
 	}
 	channel := cfg.Interactions.PresentationChannel
@@ -143,30 +143,16 @@ func TestReleasedShellKeepsChartsIdentityAndCurrentNavigation(t *testing.T) {
 	}
 }
 
-func TestReleasedHeaderActionsRenderDevelopmentAndStableReleaseBadges(t *testing.T) {
+func TestReleasedBrandRendersDevelopmentAndStableReleaseBadges(t *testing.T) {
 	t.Parallel()
-	development := renderHeaderActions(t, shellConfigForVersion("development"))
-	for _, want := range []string{`data-site-version`, `>dev<`} {
-		if !strings.Contains(development, want) {
-			t.Errorf("development badge missing %q in %q", want, development)
-		}
-	}
-	if strings.Contains(development, "<a ") {
-		t.Fatalf("development badge must not link: %q", development)
+	development := shellConfigForVersion("development").Brand.Badge
+	if development == nil || development.Label != "dev" || development.AriaLabel != "Development build" || development.Href != "" {
+		t.Fatalf("development badge = %#v", development)
 	}
 
-	release := renderHeaderActions(t, shellConfigForVersion("v0.1.1"))
-	for _, want := range []string{
-		`data-site-version`,
-		`>v0.1.1<`,
-		`href="https://github.com/araihu/goshtoso-charts/releases/tag/v0.1.1"`,
-		`target="_blank"`,
-		`rel="noopener noreferrer"`,
-		`aria-label="Goshtoso Charts release v0.1.1"`,
-	} {
-		if !strings.Contains(release, want) {
-			t.Errorf("release badge missing %q in %q", want, release)
-		}
+	release := shellConfigForVersion("v0.1.1").Brand.Badge
+	if release == nil || release.Label != "v0.1.1" || release.AriaLabel != "Goshtoso Charts release v0.1.1" || release.Href != "https://github.com/araihu/goshtoso-charts/releases/tag/v0.1.1" {
+		t.Fatalf("release badge = %#v", release)
 	}
 
 	for _, version := range []string{
@@ -175,8 +161,8 @@ func TestReleasedHeaderActionsRenderDevelopmentAndStableReleaseBadges(t *testing
 		"v0.1.1/../../unexpected",
 		`v0.1.1" onclick="alert(1)`,
 	} {
-		if got := strings.TrimSpace(renderHeaderActions(t, shellConfigForVersion(version))); got != "" {
-			t.Errorf("unsafe or malformed version %q rendered badge %q", version, got)
+		if got := shellConfigForVersion(version).Brand.Badge; got != nil {
+			t.Errorf("unsafe or malformed version %q rendered badge %#v", version, got)
 		}
 	}
 }
@@ -206,7 +192,7 @@ func TestReleasedShellUsesCanonicalStylesAndKeepsThemePlaygroundIsolated(t *test
 		`Getting started`,
 		`/componentdocshell/assets/shell.css?v=`,
 		goshtosoassets.FirstPartyBundleURL,
-		`data-site-version`,
+		`class="component-doc-shell__brand-badge"`,
 		`data-campaign-toggle`,
 		`data-use-campaign-label="Use seasonal appearance"`,
 		`data-use-baseline-label="Use standard appearance"`,
@@ -278,18 +264,6 @@ func TestSiteDoesNotForkAppShellLayoutCSS(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-}
-
-func renderHeaderActions(t *testing.T, cfg componentdocshell.Config) string {
-	t.Helper()
-	if cfg.HeaderActions == nil {
-		return ""
-	}
-	var output bytes.Buffer
-	if err := cfg.HeaderActions.Render(context.Background(), &output); err != nil {
-		t.Fatal(err)
-	}
-	return output.String()
 }
 
 func moduleRequiresVersion(module, path, version string) bool {

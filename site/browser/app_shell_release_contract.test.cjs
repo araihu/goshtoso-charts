@@ -66,9 +66,9 @@ for (const width of [390, 1440]) {
       await page.goto(`${baseURL}/`);
       await page.locator('[data-asset-brand="logo"]').waitFor();
       assert.equal(await page.locator(".component-doc-shell__brand-name").count(), 0);
-      assert.equal(await page.locator('[data-site-version]').count(), 1);
-      assert.equal((await page.locator('[data-site-version]').textContent()).trim(), "dev");
-      assert.equal(await page.locator('[data-site-version] a').count(), 0);
+      assert.equal(await page.locator('.component-doc-shell__brand-badge').count(), 1);
+      assert.equal((await page.locator('.component-doc-shell__brand-badge').textContent()).trim(), "dev");
+      assert.equal(await page.locator('a.component-doc-shell__brand-badge').count(), 0);
       assert.equal(await page.locator('#componentdocshell-theme-trigger, [aria-label="Theme"]').count(), 0);
       const managedLogo = page.locator('[data-asset-brand="logo"]');
       assert.equal(await managedLogo.getAttribute("src"), "/brand/goshtoso-logo-transparent.svg");
@@ -88,7 +88,7 @@ for (const width of [390, 1440]) {
       const current = page.locator('[aria-current="page"]');
       assert.equal(await current.getAttribute("href"), "/");
       assert.match((await current.textContent()).trim(), /^Getting started(?:\s+active)?$/);
-      assert.equal(await page.getByRole("heading", { name: "Getting Started", exact: true }).count(), 1);
+      assert.equal(await page.getByRole("heading", { name: "Add your first chart", exact: true }).count(), 1);
 
       const state = await page.evaluate(() => {
         const logo = document.querySelector('[data-asset-brand="logo"]').getBoundingClientRect();
@@ -120,7 +120,7 @@ test("Theme Playground keeps its picker inside the isolated frame", async () => 
   try {
     await page.goto(`${baseURL}/docs/theme-playground`);
     assert.equal(await page.locator('#componentdocshell-theme-trigger, [aria-label="Theme"]').count(), 0);
-    assert.equal(await page.locator('[data-site-version]').count(), 1);
+    assert.equal(await page.locator('.component-doc-shell__brand-badge').count(), 1);
     assert.equal(await page.locator("[data-campaign-toggle]").count(), 1);
     assert.equal(await page.locator("[data-campaign-toggle]").isHidden(), true);
     const frame = page.frames().find((candidate) => candidate.url().endsWith("/docs/theme-playground/frame"));
@@ -128,7 +128,7 @@ test("Theme Playground keeps its picker inside the isolated frame", async () => 
     assert.equal(new URL(frame.url()).origin, new URL(page.url()).origin);
     await frame.getByRole("combobox", { name: "Theme" }).waitFor();
     assert.equal(await frame.getByRole("combobox", { name: "Theme" }).count(), 1);
-    assert.equal(await frame.locator(".component-doc-shell__header, [data-site-version]").count(), 0);
+    assert.equal(await frame.locator(".component-doc-shell__header, .component-doc-shell__brand-badge").count(), 0);
     assert.equal(await frame.locator('script[src*="/assets/js/action-group.js"]').count(), 0);
     assert.deepEqual(browserIssues, []);
   } finally {

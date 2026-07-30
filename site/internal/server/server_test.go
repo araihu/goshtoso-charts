@@ -547,7 +547,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 	body := attributions.Body.String()
 	for _, want := range []string{
 		"Foundation dependencies", "Chart and rendering libraries", "Bundled runtime and assets",
-		"Goshtoso", "v0.1.1", "Goshtoso App Shells", "v0.1.0", "templ", "v0.3.1020",
+		"Goshtoso", "v0.1.1", "Goshtoso App Shells", "v0.1.1-0.20260730145401-4f5174eeb1a9", "templ", "v0.3.1020",
 		"go-analyze/charts", "v0.6.0", "go-echarts", "v2.7.2", "Apache ECharts", "v5.6.0",
 		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 		"examples/pie.go",
@@ -1432,8 +1432,22 @@ func TestComponentDocsShellAssetsRender(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, "/componentdocshell/assets/shell.css", nil))
-	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), ".component-doc-shell__frame") {
+	body := recorder.Body.String()
+	if recorder.Code != http.StatusOK || !strings.Contains(body, ".component-doc-shell__frame") {
 		t.Fatalf("GET shell stylesheet status/body = %d/%q", recorder.Code, recorder.Body.String())
+	}
+	for _, want := range []string{
+		`.component-doc-shell__brand-badge`,
+		`padding: 0.75rem 2rem 1rem`,
+		`padding: 0.75rem 2rem 0.5rem`,
+		`scroll-padding-block: 2rem`,
+	} {
+		if !strings.Contains(body, want) {
+			t.Errorf("shell stylesheet missing released contract %q", want)
+		}
+	}
+	if strings.Contains(body, `.component-doc-shell__main::after`) {
+		t.Error("shell stylesheet retains artificial viewport tail")
 	}
 }
 
@@ -1444,9 +1458,10 @@ func TestAraiHuThemeIsCurrentAndDefault(t *testing.T) {
 	page := httptest.NewRecorder()
 	handler.ServeHTTP(page, httptest.NewRequest(http.MethodGet, "/", nil))
 	for _, want := range []string{
-		`"persist":false`, `"persistTheme":false`, `"theme":"araihu"`,
+		`"persist":true`, `"persistTheme":false`, `"theme":"araihu"`,
+		`document.documentElement.dataset.themeSource=source`,
 		`/componentdocshell/assets/araihu.css`,
-		`data-site-version="development"`, `aria-label="Development build"`, `>dev</span>`,
+		`class="component-doc-shell__brand-badge"`, `aria-label="Development build"`, `>dev</span>`,
 	} {
 		if !strings.Contains(page.Body.String(), want) {
 			t.Errorf("charts demo default theme missing %q", want)
