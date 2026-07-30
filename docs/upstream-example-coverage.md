@@ -496,9 +496,11 @@ chart API because consumers own page layout.
   renderer-neutral `interactive.Funnel` component.
 - Deterministic adaptation: the ambient random helper becomes a local seed-1
   sequence in original function and helper-call order. `Visit`, `Add`, `Order`,
-  `Payment`, and `Deal` remain ordered, and every generated value remains in
-  the upstream `[0,50)` domain. Concrete fixture values are reproducible
-  documentation data, not claimed upstream constants.
+  `Payment`, and `Deal` retain their source sequence in typed data and the exact
+  table, while chart geometry retains the upstream default descending-by-value
+  order. Every generated value remains in the upstream `[0,50)` domain.
+  Concrete fixture values are reproducible documentation data, not claimed
+  upstream constants.
 
 | Upstream behavior function | Coverage | Goshtoso Charts treatment |
 | --- | --- | --- |

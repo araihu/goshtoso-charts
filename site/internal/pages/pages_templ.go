@@ -3546,7 +3546,7 @@ func interactiveChartFunnelContent() templ.Component {
 					Code:        interactiveFunnelLabelsCode(),
 				},
 			},
-			After: interactiveDocumentation(demoNote("Stage meaning", "A funnel does not prove conversion or enforce decreasing values. State what each stage means, preserve caller order when process order matters, and use the exact table for values.")),
+			After: interactiveDocumentation(demoNote("Stage meaning", "A funnel does not prove conversion or enforce decreasing values. The upstream default sorts geometry by descending value; set FunnelOrderData when process order matters, and use the exact table for values and source order.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err

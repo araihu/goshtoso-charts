@@ -21,7 +21,8 @@ func TestInteractiveFunnelDocumentationCoversPinnedSourceFamily(t *testing.T) {
 		`"value":31`, `"value":37`, `"value":47`, `"value":9`,
 		"Visible labels on the left", "show label", `"value":18`, `"value":25`, `"value":40`, `"value":6`, `"value":0`, `"show":true`, `"position":"left"`,
 		"Exact funnel values", `data-funnel-variant="base"`, `data-funnel-variant="labels-left"`,
-		"Stage meaning", "chart controls", "static/vector and interactive capabilities",
+		"upstream source sequence in the exact table", "upstream default descending-by-value order",
+		"Stage meaning", "FunnelOrderData", "chart controls", "static/vector and interactive capabilities",
 		`data-go-api-version="v0.0.1"`, "Open v0.0.1 API", "github.com/araihu/goshtoso-charts/components/interactive",
 	} {
 		if !strings.Contains(body, want) {

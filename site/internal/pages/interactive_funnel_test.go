@@ -60,6 +60,9 @@ func TestInteractiveFunnelExamplesMapBothPinnedBehaviors(t *testing.T) {
 	if base.Label != "Basic five-stage funnel" || base.Width != "100%" || base.Height != "420px" || base.Options.Title.Text != "basic funnel example" {
 		t.Fatalf("base Funnel presentation = %#v", base)
 	}
+	if base.Order != interactive.FunnelOrderDescending || base.Caption != "Five deterministic values preserve the upstream source sequence in the exact table and [0,50) value domain; the chart keeps the upstream default descending-by-value order." {
+		t.Fatalf("base Funnel order disclosure = %q / %q", base.Order, base.Caption)
+	}
 	if len(base.Series) != 1 || base.Series[0].Name != "Analytics" || !reflect.DeepEqual(base.Series[0].Data, fixedInteractiveFunnelData(0)) {
 		t.Fatalf("base Funnel series = %#v", base.Series)
 	}
@@ -70,6 +73,9 @@ func TestInteractiveFunnelExamplesMapBothPinnedBehaviors(t *testing.T) {
 	labels := sampleInteractiveFunnelLabels()
 	if labels.Options.Title.Text != "show label" || !reflect.DeepEqual(labels.Series[0].Data, fixedInteractiveFunnelData(1)) {
 		t.Fatalf("label Funnel data or title = %#v", labels)
+	}
+	if labels.Order != interactive.FunnelOrderDescending || labels.Caption != "Every stage label remains visible to the left of its shape; the exact table keeps source order while the chart keeps the upstream default descending-by-value order." {
+		t.Fatalf("label Funnel order disclosure = %q / %q", labels.Order, labels.Caption)
 	}
 	if labels.SeriesOptions.Label == nil || labels.SeriesOptions.Label.Show == nil || !*labels.SeriesOptions.Label.Show || labels.SeriesOptions.Label.Position != "left" {
 		t.Fatalf("label Funnel options = %#v", labels.SeriesOptions.Label)

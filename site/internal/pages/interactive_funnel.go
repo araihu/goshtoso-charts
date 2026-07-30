@@ -73,7 +73,7 @@ func interactiveFunnelOptions(title, filename string) interactive.ChartOptions {
 func sampleInteractiveFunnel() interactive.FunnelConfig {
 	return interactive.FunnelConfig{
 		Label:   "Basic five-stage funnel",
-		Caption: "Five deterministic values preserve the upstream stage order and [0,50) value domain.",
+		Caption: "Five deterministic values preserve the upstream source sequence in the exact table and [0,50) value domain; the chart keeps the upstream default descending-by-value order.",
 		Series:  []interactive.FunnelSeries{{Name: "Analytics", Data: fixedInteractiveFunnelData(0)}},
 		Width:   "100%", Height: "420px",
 		Options: interactiveFunnelOptions("basic funnel example", "basic-five-stage-funnel"),
@@ -84,7 +84,7 @@ func sampleInteractiveFunnel() interactive.FunnelConfig {
 func sampleInteractiveFunnelLabels() interactive.FunnelConfig {
 	return interactive.FunnelConfig{
 		Label:   "Funnel with left labels",
-		Caption: "Every stage label remains visible to the left of its shape and in the adjacent exact-value table.",
+		Caption: "Every stage label remains visible to the left of its shape; the exact table keeps source order while the chart keeps the upstream default descending-by-value order.",
 		Series:  []interactive.FunnelSeries{{Name: "Analytics", Data: fixedInteractiveFunnelData(1)}},
 		Width:   "100%", Height: "420px",
 		Options:       interactiveFunnelOptions("show label", "funnel-left-labels"),
