@@ -12,7 +12,10 @@ import (
 	"github.com/araihu/goshtoso/components/sidebar"
 )
 
-var releasedSiteVersionPattern = regexp.MustCompile(`^v[0-9]+\.[0-9]+\.[0-9]+$`)
+var (
+	releasedSiteVersionPattern = regexp.MustCompile(`^v[0-9]+\.[0-9]+\.[0-9]+$`)
+	commitSiteVersionPattern   = regexp.MustCompile(`^commit-[0-9a-f]{12}$`)
+)
 
 const (
 	seasonalAssetsRuntimeURL = "https://araihu.com/assets/campaign/v1.js"
@@ -83,6 +86,11 @@ func shellBrandBadge(version string) *componentdocshell.BrandBadge {
 	switch {
 	case version == "development":
 		return &componentdocshell.BrandBadge{Label: "dev", AriaLabel: "Development build"}
+	case commitSiteVersionPattern.MatchString(version):
+		return &componentdocshell.BrandBadge{
+			Label:     version,
+			AriaLabel: "Goshtoso Charts commit build " + version,
+		}
 	case releasedSiteVersionPattern.MatchString(version):
 		return &componentdocshell.BrandBadge{
 			Label:     version,

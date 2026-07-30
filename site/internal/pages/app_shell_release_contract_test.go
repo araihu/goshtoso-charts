@@ -150,6 +150,11 @@ func TestReleasedBrandRendersDevelopmentAndStableReleaseBadges(t *testing.T) {
 		t.Fatalf("development badge = %#v", development)
 	}
 
+	commitBuild := shellConfigForVersion("commit-0ba2442b339d").Brand.Badge
+	if commitBuild == nil || commitBuild.Label != "commit-0ba2442b339d" || commitBuild.AriaLabel != "Goshtoso Charts commit build commit-0ba2442b339d" || commitBuild.Href != "" {
+		t.Fatalf("commit build badge = %#v", commitBuild)
+	}
+
 	release := shellConfigForVersion("v0.1.1").Brand.Badge
 	if release == nil || release.Label != "v0.1.1" || release.AriaLabel != "Goshtoso Charts release v0.1.1" || release.Href != "https://github.com/araihu/goshtoso-charts/releases/tag/v0.1.1" {
 		t.Fatalf("release badge = %#v", release)
@@ -157,6 +162,8 @@ func TestReleasedBrandRendersDevelopmentAndStableReleaseBadges(t *testing.T) {
 
 	for _, version := range []string{
 		"release-candidate",
+		"commit-0ba2442b339",
+		"commit-0BA2442B339D",
 		"v0.1.1-beta.1",
 		"v0.1.1/../../unexpected",
 		`v0.1.1" onclick="alert(1)`,
@@ -164,6 +171,28 @@ func TestReleasedBrandRendersDevelopmentAndStableReleaseBadges(t *testing.T) {
 		if got := shellConfigForVersion(version).Brand.Badge; got != nil {
 			t.Errorf("unsafe or malformed version %q rendered badge %#v", version, got)
 		}
+	}
+}
+
+func TestCommitBuildBadgeRendersAsNonLink(t *testing.T) {
+	t.Parallel()
+
+	var output bytes.Buffer
+	err := componentdocshell.Layout(shellConfigForVersion("commit-0ba2442b339d"), componentdocshell.Page{
+		Title:   "Getting Started",
+		Content: templ.NopComponent,
+	}).Render(context.Background(), &output)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	body := output.String()
+	want := `<span class="component-doc-shell__brand-badge" aria-label="Goshtoso Charts commit build commit-0ba2442b339d">commit-0ba2442b339d</span>`
+	if !strings.Contains(body, want) {
+		t.Fatalf("commit build badge missing from rendered shell: %q", body)
+	}
+	if strings.Contains(body, `<a class="component-doc-shell__brand-badge"`) {
+		t.Fatalf("commit build badge must not render as a link: %q", body)
 	}
 }
 
