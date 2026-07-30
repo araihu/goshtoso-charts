@@ -23,6 +23,7 @@ import (
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 	interactivesunburst "github.com/araihu/goshtoso-charts/components/interactive/sunburst"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
+	interactivetree "github.com/araihu/goshtoso-charts/components/interactive/tree"
 )
 
 // These snippets are compile contracts for old facade consumers, canonical
@@ -152,6 +153,13 @@ func oldFacadeSunburstConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeTreeConsumer() chart.Instance {
+	return interactive.Tree(interactive.TreeConfig{
+		Label: "Deployment hierarchy",
+		Roots: []*interactive.TreeNode{{Name: "Production", Children: []*interactive.TreeNode{{Name: "API"}}}},
+	})
+}
+
 func canonicalChildConsumers() []chart.Instance {
 	return []chart.Instance{
 		interactivebar.Bar(interactivebar.Config{
@@ -227,6 +235,10 @@ func canonicalChildConsumers() []chart.Instance {
 			Label: "Deployment hierarchy",
 			Nodes: []*interactivesunburst.Node{{Name: "Production", Value: 8}},
 		}),
+		interactivetree.Tree(interactivetree.Config{
+			Label: "Deployment hierarchy",
+			Roots: []*interactivetree.Node{{Name: "Production", Children: []*interactivetree.Node{{Name: "API"}}}},
+		}),
 		interactivethemeriver.ThemeRiver(interactivethemeriver.Config{
 			Label:   "Deployment activity",
 			Streams: []interactivethemeriver.Stream{{Name: "Production", Points: []interactivethemeriver.Point{{Time: time.Date(2026, time.July, 30, 0, 0, 0, 0, time.UTC), Value: 8}}}},
@@ -260,6 +272,7 @@ var (
 	_ = oldFacadeGraphConsumer
 	_ = oldFacadeSankeyConsumer
 	_ = oldFacadeSunburstConsumer
+	_ = oldFacadeTreeConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer
 )

@@ -17,7 +17,9 @@ import (
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
 	interactivesankey "github.com/araihu/goshtoso-charts/components/interactive/sankey"
+	interactivesunburst "github.com/araihu/goshtoso-charts/components/interactive/sunburst"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
+	interactivetree "github.com/araihu/goshtoso-charts/components/interactive/tree"
 )
 
 func controlledOptions(title, filename string) chart.ChartOptions {
@@ -218,28 +220,28 @@ func sampleInteractiveSankey() interactivesankey.Config {
 	}
 }
 
-func sampleInteractiveTree() interactive.Instance {
-	return interactive.Tree(interactive.TreeConfig{
+func sampleInteractiveTree() interactivetree.Config {
+	return interactivetree.Config{
 		Label:   "Basic tree example",
 		Caption: "One root with three branches. Node3 starts collapsed; expand it to reveal its children.",
-		Roots: []*interactive.TreeNode{{
+		Roots: []*interactivetree.Node{{
 			Name: "Root",
-			Children: []*interactive.TreeNode{
+			Children: []*interactivetree.Node{
 				{
 					Name:     "Node1",
-					Children: []*interactive.TreeNode{{Name: "Child1"}},
+					Children: []*interactivetree.Node{{Name: "Child1"}},
 				},
 				{
 					Name: "Node2",
-					Children: []*interactive.TreeNode{
+					Children: []*interactivetree.Node{
 						{Name: "Child1"},
 						{Name: "Child2"},
 						{Name: "Child3"},
 					},
 				},
 				{
-					Name: "Node3", Collapsed: interactive.Bool(true),
-					Children: []*interactive.TreeNode{
+					Name: "Node3", Collapsed: chart.Bool(true),
+					Children: []*interactivetree.Node{
 						{Name: "Child1"},
 						{Name: "Child2"},
 						{Name: "Child3"},
@@ -247,43 +249,43 @@ func sampleInteractiveTree() interactive.Instance {
 				},
 			},
 		}},
-		Orientation:  interactive.TreeOrientationLeftToRight,
-		InitialDepth: interactive.Int(-1),
-		NodeLabel:    &interactive.LabelOptions{Show: interactive.Bool(true), Position: "top"},
-		LeafLabel:    &interactive.LabelOptions{Show: interactive.Bool(true), Position: "right"},
-		Insets:       interactive.TreeInsets{Left: "14%", Right: "14%", Top: "12%", Bottom: "12%"},
+		Orientation:  interactivetree.OrientationLeftToRight,
+		InitialDepth: chart.Int(-1),
+		NodeLabel:    &chart.LabelOptions{Show: chart.Bool(true), Position: "top"},
+		LeafLabel:    &chart.LabelOptions{Show: chart.Bool(true), Position: "right"},
+		Insets:       interactivetree.Insets{Left: "14%", Right: "14%", Top: "12%", Bottom: "12%"},
 		Width:        "100%",
 		Height:       "440px",
 		Options:      controlledOptions("Basic tree example", "basic-tree-example"),
-	})
+	}
 }
 
-func sampleInteractiveSunburst() interactive.Instance {
-	return interactive.Sunburst(interactive.SunburstConfig{
+func sampleInteractiveSunburst() interactivesunburst.Config {
+	return interactivesunburst.Config{
 		Label:   "Basic sunburst example",
 		Caption: "Seven parent nodes, each paired with one child. Select a sector to focus the hierarchy; select the center to return.",
-		Nodes: []*interactive.SunburstNode{
-			{Name: "parent-0", Value: 0.81, Children: []*interactive.SunburstNode{{Name: "child-0", Value: 0.34}}},
-			{Name: "parent-1", Value: 0.62, Children: []*interactive.SunburstNode{{Name: "child-1", Value: 0.57}}},
-			{Name: "parent-2", Value: 0.45, Children: []*interactive.SunburstNode{{Name: "child-2", Value: 0.73}}},
-			{Name: "parent-3", Value: 0.93, Children: []*interactive.SunburstNode{{Name: "child-3", Value: 0.28}}},
-			{Name: "parent-4", Value: 0.38, Children: []*interactive.SunburstNode{{Name: "child-4", Value: 0.66}}},
-			{Name: "parent-5", Value: 0.71, Children: []*interactive.SunburstNode{{Name: "child-5", Value: 0.49}}},
-			{Name: "parent-6", Value: 0.54, Children: []*interactive.SunburstNode{{Name: "child-6", Value: 0.87}}},
+		Nodes: []*interactivesunburst.Node{
+			{Name: "parent-0", Value: 0.81, Children: []*interactivesunburst.Node{{Name: "child-0", Value: 0.34}}},
+			{Name: "parent-1", Value: 0.62, Children: []*interactivesunburst.Node{{Name: "child-1", Value: 0.57}}},
+			{Name: "parent-2", Value: 0.45, Children: []*interactivesunburst.Node{{Name: "child-2", Value: 0.73}}},
+			{Name: "parent-3", Value: 0.93, Children: []*interactivesunburst.Node{{Name: "child-3", Value: 0.28}}},
+			{Name: "parent-4", Value: 0.38, Children: []*interactivesunburst.Node{{Name: "child-4", Value: 0.66}}},
+			{Name: "parent-5", Value: 0.71, Children: []*interactivesunburst.Node{{Name: "child-5", Value: 0.49}}},
+			{Name: "parent-6", Value: 0.54, Children: []*interactivesunburst.Node{{Name: "child-6", Value: 0.87}}},
 		},
-		LabelOptions: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "inside", FontSize: 10},
+		LabelOptions: &chart.LabelOptions{Show: chart.Bool(true), Position: "inside", FontSize: 10},
 		InnerRadius:  16,
 		OuterRadius:  88,
 		Width:        "100%",
 		Height:       "32rem",
-		Options: interactive.ChartOptions{
-			Title:    &interactive.TitleOptions{Text: "Basic sunburst example"},
-			Legend:   &interactive.LegendOptions{Show: interactive.Bool(false)},
-			Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "item"},
+		Options: chart.ChartOptions{
+			Title:    &chart.TitleOptions{Text: "Basic sunburst example"},
+			Legend:   &chart.LegendOptions{Show: chart.Bool(false)},
+			Tooltip:  &chart.TooltipOptions{Show: chart.Bool(true), Trigger: "item"},
 			Controls: chartcontrol.Options{Fullscreen: true},
 			Export:   &chartcontrol.ExportOptions{Filename: "basic-sunburst-example"},
 		},
-	})
+	}
 }
 
 func sampleInteractiveTreemap() interactive.Instance {
@@ -759,47 +761,47 @@ func interactiveSankeyCode() string {
 }
 
 func interactiveTreeCode() string {
-	return `@interactive.Tree(interactive.TreeConfig{
+	return `@interactivetree.Tree(interactivetree.Config{
   Label: "Basic tree example",
   Caption: "One root with three branches; Node3 starts collapsed.",
-  Roots: []*interactive.TreeNode{{
+  Roots: []*interactivetree.Node{{
     Name: "Root",
-    Children: []*interactive.TreeNode{
-      {Name: "Node1", Children: []*interactive.TreeNode{{Name: "Child1"}}},
-      {Name: "Node2", Children: []*interactive.TreeNode{
+    Children: []*interactivetree.Node{
+      {Name: "Node1", Children: []*interactivetree.Node{{Name: "Child1"}}},
+      {Name: "Node2", Children: []*interactivetree.Node{
         {Name: "Child1"}, {Name: "Child2"}, {Name: "Child3"},
       }},
-      {Name: "Node3", Collapsed: interactive.Bool(true), Children: []*interactive.TreeNode{
+      {Name: "Node3", Collapsed: chart.Bool(true), Children: []*interactivetree.Node{
         {Name: "Child1"}, {Name: "Child2"}, {Name: "Child3"},
       }},
     },
   }},
-  Orientation: interactive.TreeOrientationLeftToRight,
-  InitialDepth: interactive.Int(-1),
-  NodeLabel: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "top"},
-  LeafLabel: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "right"},
-	Insets: interactive.TreeInsets{Left: "14%", Right: "14%", Top: "12%", Bottom: "12%"},
+  Orientation: interactivetree.OrientationLeftToRight,
+  InitialDepth: chart.Int(-1),
+  NodeLabel: &chart.LabelOptions{Show: chart.Bool(true), Position: "top"},
+  LeafLabel: &chart.LabelOptions{Show: chart.Bool(true), Position: "right"},
+  Insets: interactivetree.Insets{Left: "14%", Right: "14%", Top: "12%", Bottom: "12%"},
   Width: "100%",
   Height: "440px",
 })`
 }
 
 func interactiveSunburstCode() string {
-	return `@interactive.Sunburst(interactive.SunburstConfig{
+	return `@interactivesunburst.Sunburst(interactivesunburst.Config{
   Label: "Basic sunburst example",
   Caption: "Seven parent nodes, each paired with one child.",
-  Nodes: []*interactive.SunburstNode{
-    {Name: "parent-0", Value: 0.81, Children: []*interactive.SunburstNode{
+  Nodes: []*interactivesunburst.Node{
+    {Name: "parent-0", Value: 0.81, Children: []*interactivesunburst.Node{
       {Name: "child-0", Value: 0.34},
     }},
     // parent-1 through parent-5 retain the same one-child shape.
-    {Name: "parent-6", Value: 0.54, Children: []*interactive.SunburstNode{
+    {Name: "parent-6", Value: 0.54, Children: []*interactivesunburst.Node{
       {Name: "child-6", Value: 0.87},
     }},
   },
-  Navigation: interactive.SunburstNavigationDrillDown,
-  Sort: interactive.SunburstSortDescending,
-  LabelOptions: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "inside", FontSize: 10},
+  Navigation: interactivesunburst.NavigationDrillDown,
+  Sort: interactivesunburst.SortDescending,
+  LabelOptions: &chart.LabelOptions{Show: chart.Bool(true), Position: "inside", FontSize: 10},
   InnerRadius: 16,
   OuterRadius: 88,
   Width: "100%",

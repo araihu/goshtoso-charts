@@ -206,8 +206,17 @@ func TestTreeUsesUnchangedSharedTemplateRuntimeAndCentralProvenance(t *testing.T
 	if err != nil {
 		t.Fatalf("read central upstream provenance: %v", err)
 	}
-	if !bytes.Contains(attributions, []byte("https://github.com/go-echarts/go-echarts")) || !bytes.Contains(attributions, []byte("bda428480a82d6d77ebb9fa939cf8d52528453dd")) {
+	if !bytes.Contains(attributions, []byte("examples/tree.go")) || !bytes.Contains(attributions, []byte("bda428480a82d6d77ebb9fa939cf8d52528453dd")) {
 		t.Fatal("central provenance no longer identifies the pinned interactive examples source")
+	}
+	coverage, err := os.ReadFile(filepath.Join("..", "..", "..", "docs", "upstream-example-coverage.md"))
+	if err != nil {
+		t.Fatalf("read central coverage ledger: %v", err)
+	}
+	for _, token := range []string{"components/interactive/tree.Tree", "examples/tree.go", "bda428480a82d6d77ebb9fa939cf8d52528453dd"} {
+		if !bytes.Contains(coverage, []byte(token)) {
+			t.Errorf("central coverage ledger lacks %q", token)
+		}
 	}
 }
 

@@ -44,7 +44,7 @@ required.
 ## Shared chart instance foundation
 
 `components/chart.Instance` is the canonical public identity for a renderable
-chart instance. `components/interactive.Instance` and all fourteen migrated child
+chart instance. `components/interactive.Instance` and all sixteen migrated child
 packages' `Instance` names are exact aliases, so old and new values remain
 assignment-compatible and constructor function signatures remain
 interchangeable. Consumers can mix the facade and chart-specific package paths
@@ -211,8 +211,9 @@ chart := interactivepie.Pie(interactivepie.Config{
 Standard, donut, and rose treatments remain variants of one `Pie` component
 and one component kind. Pie-specific names are concise: `Config`, `Series`,
 `Data`, `RoseMode`, `LabelContent`, `TooltipContent`, and `Center`. Percentage
-formatting and validation live only in the private interactive adapter; thin
-parent wrappers preserve Sunburst and WordCloud behavior.
+formatting and validation live only in the private interactive adapter.
+Canonical Sunburst calls that adapter directly; the thin parent percentage
+wrapper remains only for unmigrated WordCloud behavior.
 The public parent Pie surface remains exact aliases, constants, and one
 constructor forwarder.
 
@@ -393,6 +394,68 @@ plus validation and rendering. Shared chart, series, and paint options remain
 in `components/chart`. The parent keeps exact aliases, constants, and one
 forwarding constructor.
 
+## Tree
+
+Use `components/interactive/tree` for new interactive hierarchy trees:
+
+```go
+import (
+	"github.com/araihu/goshtoso-charts/components/chart"
+	interactivetree "github.com/araihu/goshtoso-charts/components/interactive/tree"
+)
+
+hierarchy := interactivetree.Tree(interactivetree.Config{
+	Label: "Basic tree example",
+	Roots: []*interactivetree.Node{{
+		Name: "Root",
+		Children: []*interactivetree.Node{
+			{Name: "Node1", Children: []*interactivetree.Node{{Name: "Child1"}}},
+			{Name: "Node2"},
+		},
+	}},
+	Orientation:  interactivetree.OrientationLeftToRight,
+	InitialDepth: chart.Int(-1),
+	NodeLabel:    &chart.LabelOptions{Show: chart.Bool(true), Position: "top"},
+})
+```
+
+Layered and radial layouts, four layered orientations, roaming, initial depth,
+collapse state, symbols, labels, and insets remain options on one `Tree`
+component. The child owns Tree-specific config, node, layout, orientation,
+roam, symbol, inset, validation, and rendering declarations. Shared chart,
+label, line, and paint options remain in `components/chart`. The parent keeps
+exact aliases, constants, and one forwarding constructor.
+
+## Sunburst
+
+Use `components/interactive/sunburst` for new interactive radial hierarchies:
+
+```go
+import (
+	"github.com/araihu/goshtoso-charts/components/chart"
+	interactivesunburst "github.com/araihu/goshtoso-charts/components/interactive/sunburst"
+)
+
+hierarchy := interactivesunburst.Sunburst(interactivesunburst.Config{
+	Label: "Basic sunburst example",
+	Nodes: []*interactivesunburst.Node{{
+		Name: "parent-0",
+		Value: 0.81,
+		Children: []*interactivesunburst.Node{{Name: "child-0", Value: 0.34}},
+	}},
+	Navigation:  interactivesunburst.NavigationDrillDown,
+	Sort:        interactivesunburst.SortDescending,
+	LabelOptions: &chart.LabelOptions{Show: chart.Bool(true), Position: "inside"},
+})
+```
+
+Drill-down or disabled navigation, descending, ascending, or caller-input sort,
+radii, zero labels, and nested nodes remain options on one `Sunburst`
+component. The child owns Sunburst-specific config, node, navigation, sort,
+validation, rendering, and generated template. Shared chart, label, and paint
+options remain in `components/chart`. The parent keeps exact aliases, constants,
+and one forwarding constructor.
+
 ## Parallel
 
 Use `components/interactive/parallel` for new interactive parallel-coordinate
@@ -455,8 +518,8 @@ one constructor forwarder.
 ## Current boundary
 
 Bar, Line, Scatter, Candlestick, HeatMap, Pie, Radar, BoxPlot, Gauge, Funnel,
-Graph, Sankey, Parallel, and ThemeRiver physical ownership is complete. The
-supported parent facade delegates those fourteen migrated charts. Remaining chart families
+Graph, Sankey, Tree, Sunburst, Parallel, and ThemeRiver physical ownership is complete. The
+supported parent facade delegates those sixteen migrated charts. Remaining chart families
 continue using their existing paths
 until their own bounded migrations land, and the final v1 policy for the parent
 compatibility facade remains open. Shared public and private foundation
