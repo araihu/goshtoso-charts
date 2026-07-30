@@ -536,8 +536,12 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 				return { itemStyle: Object.assign({}, geo.itemStyle || {}, { areaColor: areaColor, borderColor: outline }) };
 			});
 			var themedCalendars = (current.calendar || []).map(function (calendar) {
+				var calendarItemStyle = calendar.itemStyle || {};
 				return {
-					itemStyle: Object.assign({}, calendar.itemStyle || {}, { color: surfaceAlt, borderColor: outline }),
+					itemStyle: Object.assign({}, calendarItemStyle, {
+						color: calendarItemStyle.color ? rendererColor(calendarItemStyle.color, surfaceAlt) : surfaceAlt,
+						borderColor: calendarItemStyle.borderColor ? rendererColor(calendarItemStyle.borderColor, outline) : outline
+					}),
 					splitLine: { lineStyle: { color: outline } },
 					dayLabel: Object.assign({}, calendar.dayLabel || {}, { color: muted }),
 					monthLabel: Object.assign({}, calendar.monthLabel || {}, { color: muted }),

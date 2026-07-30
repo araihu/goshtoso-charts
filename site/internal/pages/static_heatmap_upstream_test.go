@@ -61,6 +61,7 @@ func TestStaticHeatMapExamplesPreserveSinglePinnedTreatmentBoundary(t *testing.T
 	override := sampleBasicHeatMapOverride()
 	if !reflect.DeepEqual(override.Rows, wantRows) || override.Gradient.Reverse || len(override.Gradient.Stops) != 3 ||
 		!override.ValueLabels.Show || override.ValueLabels.Format != heatmap.ValueFormatExact ||
+		override.ValueLabels.Decimals != 1 || !override.ValueLabels.TrailingZeros ||
 		override.RootAttrs["data-static-heatmap-api"] != "dd9b80660b9e0c0b" {
 		t.Fatalf("caller-style override drifted or implied another source: %#v", override)
 	}
@@ -76,7 +77,7 @@ func TestStaticHeatMapSnippetsMatchBothPreviews(t *testing.T) {
 		}
 	}
 	for _, want := range []string{
-		`TitleOptions`, `XAxis.TitleFontSize`, `YAxis.TitleFontSize`, `Padding`, `ValueLabelOptions`, `ValueFormatExact`, `Decimals: 1`, `#0e7490`, `#e11d48`,
+		`TitleOptions`, `XAxis.TitleFontSize`, `YAxis.TitleFontSize`, `Padding`, `ValueLabelOptions`, `ValueFormatExact`, `Decimals: 1`, `TrailingZeros: true`, `#0e7490`, `#e11d48`,
 	} {
 		if !strings.Contains(heatMapOverrideCode(), want) {
 			t.Errorf("caller-style HeatMap snippet missing %q", want)
@@ -139,11 +140,12 @@ func TestStaticHeatMapAttributionLedgerAndPageExplainBoundary(t *testing.T) {
 	if start < 0 {
 		t.Fatal("cannot find static HeatMap page")
 	}
-	end := strings.Index(page[start:], "templ tableContent")
+	searchStart := start + len("templ heatMapContent")
+	end := strings.Index(page[searchStart:], "\ntempl ")
 	if end < 0 {
 		t.Fatal("cannot isolate static HeatMap page")
 	}
-	heatMapPage := page[start : start+end]
+	heatMapPage := page[start : searchStart+end]
 	for _, want := range []string{
 		"AbovePreview: visualizationGuide(", "concentration, gaps, and broad patterns", "exact cell-by-cell comparison",
 		"Typed presentation options", "same pinned upstream matrix", "not counted as a second upstream example",

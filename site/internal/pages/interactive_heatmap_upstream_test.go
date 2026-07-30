@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"strings"
 	"testing"
-	"time"
 
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 )
@@ -65,8 +64,8 @@ func TestInteractiveHeatMapCalendarSampleIsDeterministicAndPreservesSourceShape(
 	if first.ValueRange.Min != 0 || first.ValueRange.Max != 20 {
 		t.Fatalf("calendar value range = %#v", first.ValueRange)
 	}
-	if got := first.Calendar.End.Sub(first.Calendar.Start); got != 366*24*time.Hour {
-		t.Fatalf("calendar span = %v", got)
+	if got := int(first.Calendar.End.Sub(first.Calendar.Start).Hours()/24) + 1; got != 366 {
+		t.Fatalf("calendar inclusive span = %d days", got)
 	}
 	var sequence strings.Builder
 	missing := 0
@@ -90,7 +89,7 @@ func TestInteractiveHeatMapCalendarSampleIsDeterministicAndPreservesSourceShape(
 	if missing != 30 {
 		t.Fatalf("calendar missing cells = %d, want 30", missing)
 	}
-	if got := fmt.Sprintf("%x", sha256.Sum256([]byte(sequence.String()))); got != "0bd0ca55cfff925363b0cb268fd75ccc13d5291b8ba1a91344ce884025d78867" {
+	if got := fmt.Sprintf("%x", sha256.Sum256([]byte(sequence.String()))); got != "9a40cbf37efd7a63deedac491f5c22b2dce085bd73ff23bf08aa98cd6d36d431" {
 		t.Fatalf("calendar sequence SHA-256 = %s", got)
 	}
 }
@@ -107,7 +106,7 @@ func TestInteractiveHeatMapSnippetsAreSelfContained(t *testing.T) {
 			t.Fatalf("calendar snippet keeps unresolved identifier %q: %s", unresolved, calendar)
 		}
 	}
-	for _, want := range []string{`Add "time"`, "time.Date(2026", "[]interactive.HeatMapData", "Missing: true"} {
+	for _, want := range []string{`Add "time"`, "time.Date(2024", "[]interactive.HeatMapData", "Missing: true"} {
 		if !strings.Contains(calendar, want) {
 			t.Fatalf("calendar snippet missing %q: %s", want, calendar)
 		}

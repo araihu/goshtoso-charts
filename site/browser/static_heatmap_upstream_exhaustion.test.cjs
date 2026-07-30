@@ -12,6 +12,7 @@ const screenshotDirectory = process.env.GOSHTOSO_SCREENSHOT_DIR;
 let baseURL;
 let browser;
 let server;
+let serverStderr = "";
 
 async function randomPort() {
   return new Promise((resolve, reject) => {
@@ -34,7 +35,7 @@ async function ready() {
     }
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
-  throw new Error(`HeatMap verification server did not start at ${baseURL}`);
+  throw new Error(`HeatMap verification server did not start at ${baseURL}: ${serverStderr.trim() || "no stderr output"}`);
 }
 
 before(async () => {
@@ -43,8 +44,10 @@ before(async () => {
   assert.notEqual(port, 8096);
   baseURL = `http://127.0.0.1:${port}`;
   server = spawn("go", ["run", "./cmd/server", "-port", String(port)], {
-    cwd: path.resolve(__dirname, ".."), detached: true, stdio: "ignore",
+    cwd: path.resolve(__dirname, ".."), detached: true, stdio: ["ignore", "ignore", "pipe"],
   });
+  server.stderr.setEncoding("utf8");
+  server.stderr.on("data", (chunk) => { serverStderr += chunk; });
   await ready();
   browser = await chromium.launch({ headless: true });
   if (screenshotDirectory) await fs.mkdir(screenshotDirectory, { recursive: true });
@@ -84,7 +87,7 @@ async function openExpand(wrapper) {
   const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
   await trigger.click();
   if (stacked) {
-    const action = wrapper.locator('[id$="-chart-expand-action"]');
+    const action = wrapper.locator('[id$="-chart-expand-action"]').first();
     await action.waitFor({ state: "visible" });
     await action.click();
   }
@@ -299,7 +302,15 @@ test("HeatMap exports resolved SVG and opaque PNG", async () => {
     const metadata = await sharp(png.bytes).metadata();
     assert.deepEqual({ width: metadata.width, height: metadata.height }, { width: 600, height: 400 });
     const pixels = await sharp(png.bytes).ensureAlpha().raw().toBuffer();
-    for (let index = 3; index < pixels.length; index += 4) assert.equal(pixels[index], 255);
+    let transparentAt = -1;
+    for (let index = 3; index < pixels.length; index += 4) {
+      if (pixels[index] !== 255) {
+        transparentAt = index;
+        break;
+      }
+    }
+    const transparentAlpha = transparentAt >= 0 ? pixels[transparentAt] : 255;
+    assert.equal(transparentAt, -1, `PNG has a transparent pixel at byte ${transparentAt} (alpha ${transparentAlpha})`);
     if (screenshotDirectory) await fs.writeFile(path.join(screenshotDirectory, png.filename), png.bytes);
     assert.deepEqual(failures, []);
     assert.deepEqual(errors, []);

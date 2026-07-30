@@ -252,8 +252,19 @@ func TestInteractiveHeatMapCoverageUsesCanonicalLedgerWithoutLostEntries(t *test
 		if count := strings.Count(section, "`"+span.SHA256+"`"); count != 1 {
 			t.Errorf("interactive HeatMap source hash %q occurs %d times, want 1", span.SHA256, count)
 		}
-		if !strings.Contains(section, "`"+span.Name+"`") {
+		var nameFound, pairFound bool
+		for _, row := range strings.Split(section, "\n") {
+			if strings.Contains(row, "| `"+span.Name+"` |") {
+				nameFound = true
+				if strings.Contains(row, "`"+span.SHA256+"`") {
+					pairFound = true
+				}
+			}
+		}
+		if !nameFound {
 			t.Errorf("interactive HeatMap source name %q missing", span.Name)
+		} else if !pairFound {
+			t.Errorf("interactive HeatMap source %q has no row containing hash %q", span.Name, span.SHA256)
 		}
 	}
 }

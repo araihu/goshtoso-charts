@@ -1,6 +1,6 @@
 const assert = require("node:assert/strict");
 const { after, before, test } = require("node:test");
-const fs = require("node:fs");
+const fs = require("node:fs/promises");
 const net = require("node:net");
 const path = require("node:path");
 const { spawn } = require("node:child_process");
@@ -12,7 +12,6 @@ let browser;
 let server;
 
 const screenshotDirectory = process.env.GOSHTOSO_SCREENSHOT_DIR;
-if (screenshotDirectory) fs.mkdirSync(screenshotDirectory, { recursive: true });
 
 async function randomPort() {
   return new Promise((resolve, reject) => {
@@ -40,6 +39,7 @@ async function ready() {
 }
 
 before(async () => {
+  if (screenshotDirectory) await fs.mkdir(screenshotDirectory, { recursive: true });
   const port = await randomPort();
   assert.notEqual(port, 8091);
   baseURL = `http://127.0.0.1:${port}`;
@@ -126,6 +126,49 @@ async function waitForChartGeometry(figure) {
       last = key;
       if (stableFrames >= 2) resolve();
       else requestAnimationFrame(check);
+    };
+    requestAnimationFrame(check);
+  }));
+}
+
+async function waitForThemeScale(figure) {
+  await figure.evaluate((element) => new Promise((resolve, reject) => {
+    const colorCanvas = document.createElement("canvas");
+    colorCanvas.width = 1;
+    colorCanvas.height = 1;
+    const colorContext = colorCanvas.getContext("2d", { willReadFrequently: true });
+    const normalize = (value) => {
+      colorContext.clearRect(0, 0, 1, 1);
+      colorContext.fillStyle = value;
+      colorContext.fillRect(0, 0, 1, 1);
+      const pixel = colorContext.getImageData(0, 0, 1, 1).data;
+      return `${pixel[0]},${pixel[1]},${pixel[2]},${pixel[3]}`;
+    };
+    const tokenColor = (name) => {
+      const probe = document.createElement("span");
+      probe.hidden = true;
+      probe.style.color = `var(${name})`;
+      element.appendChild(probe);
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return normalize(color);
+    };
+    let attempts = 0;
+    const check = () => {
+      const host = element.querySelector("[_echarts_instance_]");
+      const chart = host && window.echarts.getInstanceByDom(host);
+      const actual = chart?.getOption()?.visualMap?.[0]?.inRange?.color;
+      const expected = ["--color-chart-scale-low", "--color-chart-scale-mid", "--color-chart-scale-high"].map(tokenColor);
+      if (Array.isArray(actual) && actual.map(normalize).every((color, index) => color === expected[index])) {
+        resolve();
+        return;
+      }
+      attempts += 1;
+      if (attempts >= 120) {
+        reject(new Error(`HeatMap theme scale did not settle: ${JSON.stringify(actual)} != ${JSON.stringify(expected)}`));
+        return;
+      }
+      requestAnimationFrame(check);
     };
     requestAnimationFrame(check);
   }));
@@ -267,7 +310,8 @@ for (const width of [390, 1440]) {
             document.documentElement.dataset.theme = selected;
             document.documentElement.classList.toggle("dark", dark);
           }, { selected: theme, dark: mode === "dark" });
-          await page.waitForTimeout(300);
+          await waitForThemeScale(category);
+          await waitForThemeScale(calendar);
 
           for (const [figure, label, assertion] of [
             [category, "Weekly activity by hour", assertCategory],
@@ -337,7 +381,8 @@ test("both HeatMap instances resize in place and react to live theme changes", a
       document.documentElement.dataset.theme = "araihu";
       document.documentElement.classList.add("dark");
     });
-    await page.waitForTimeout(350);
+    await waitForThemeScale(category);
+    await waitForThemeScale(calendar);
     await waitForChartGeometry(category);
     await waitForChartGeometry(calendar);
     const themedCategory = await measure(category);
@@ -363,14 +408,19 @@ test("both HeatMap instances preserve identity and geometry through native fulls
       await waitForChartGeometry(figure);
       const before = await measure(figure);
       await enterFullscreen(wrapper);
-      await page.waitForFunction(() => Boolean(document.fullscreenElement));
-      await waitForChartGeometry(figure);
-      const fullscreen = await measure(figure);
-      assertion(fullscreen, `${label} fullscreen`);
-      assert.equal(fullscreen.instanceID, before.instanceID);
-      assert.ok(fullscreen.chart.width > before.chart.width, `${label} did not grow in fullscreen`);
-      await page.evaluate(() => document.exitFullscreen());
-      await page.waitForFunction(() => !document.fullscreenElement);
+      try {
+        await page.waitForFunction(() => Boolean(document.fullscreenElement));
+        await waitForChartGeometry(figure);
+        const fullscreen = await measure(figure);
+        assertion(fullscreen, `${label} fullscreen`);
+        assert.equal(fullscreen.instanceID, before.instanceID);
+        assert.ok(fullscreen.chart.width > before.chart.width, `${label} did not grow in fullscreen`);
+      } finally {
+        if (await page.evaluate(() => Boolean(document.fullscreenElement))) {
+          await page.evaluate(() => document.exitFullscreen());
+          await page.waitForFunction(() => !document.fullscreenElement);
+        }
+      }
       await waitForChartGeometry(figure);
       assert.equal((await measure(figure)).instanceID, before.instanceID);
     }

@@ -85,11 +85,11 @@ func sampleInteractiveHeatMap() interactive.HeatMapConfig {
 }
 
 func sampleInteractiveCalendarHeatMap() interactive.HeatMapConfig {
-	end := time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC)
-	start := end.AddDate(0, 0, -366)
+	start := time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC)
+	end := time.Date(2024, time.December, 31, 0, 0, 0, 0, time.UTC)
 	random := rand.New(rand.NewSource(1))
 	data := make([]interactive.HeatMapData, 0, 366)
-	for date := start; date.Before(end); date = date.AddDate(0, 0, 1) {
+	for date := start; !date.After(end); date = date.AddDate(0, 0, 1) {
 		value := random.Intn(21)
 		data = append(data, interactive.HeatMapData{Date: date, Value: float64(value), Missing: value == 0})
 	}
@@ -642,8 +642,8 @@ func interactiveCalendarHeatMapCode() string {
   Label: "Calendar activity",
   Coordinate: interactive.HeatMapCoordinateCalendar,
   Calendar: &interactive.HeatMapCalendar{
-    Start: time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC),
-    End: time.Date(2027, time.January, 1, 0, 0, 0, 0, time.UTC),
+    Start: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC),
+    End: time.Date(2024, time.December, 31, 0, 0, 0, 0, time.UTC),
     Options: interactive.CalendarOptions{
       Top: "100", Left: "30", Right: "30",
       CellSize: "auto", Orient: "horizontal",
@@ -655,9 +655,9 @@ func interactiveCalendarHeatMapCode() string {
   Series: []interactive.HeatMapSeries{{
     Name: "Calendar activity",
     Data: []interactive.HeatMapData{
-      {Date: time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC), Value: 12},
-      {Date: time.Date(2026, time.January, 2, 0, 0, 0, 0, time.UTC), Missing: true},
-      {Date: time.Date(2026, time.January, 3, 0, 0, 0, 0, time.UTC), Value: 7},
+      {Date: time.Date(2024, time.January, 1, 0, 0, 0, 0, time.UTC), Value: 12},
+      {Date: time.Date(2024, time.January, 2, 0, 0, 0, 0, time.UTC), Missing: true},
+      {Date: time.Date(2024, time.January, 3, 0, 0, 0, 0, time.UTC), Value: 7},
     },
   }},
 })`

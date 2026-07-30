@@ -3,7 +3,7 @@ package interactive
 templ heatMapExactValues(label string, coordinate HeatMapCoordinate, rows []heatMapValueRow) {
 	<details class="mt-3 max-w-full text-sm text-on-surface dark:text-on-surface-dark" data-heatmap-exact-values>
 		<summary class="cursor-pointer font-semibold">Exact heatmap values</summary>
-		<div class="mt-2 max-h-80 max-w-full overflow-auto rounded-radius border border-outline dark:border-outline-dark">
+		<div tabindex="0" role="region" aria-label={ label + " exact heatmap values" } class="mt-2 max-h-80 max-w-full overflow-auto rounded-radius border border-outline dark:border-outline-dark">
 			<table class="min-w-full border-collapse text-left" aria-label={ label + " exact heatmap values" }>
 				<thead class="sticky top-0 bg-surface-alt dark:bg-surface-dark-alt">
 					<tr>

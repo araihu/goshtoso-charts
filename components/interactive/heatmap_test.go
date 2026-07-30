@@ -61,8 +61,9 @@ func TestHeatMapRendersCalendarChart(t *testing.T) {
 		Calendar: &HeatMapCalendar{
 			Start: start, End: end,
 			Options: CalendarOptions{
-				Top: "80", CellSize: "20", Orient: "horizontal", CellStyle: &ItemStyle{BorderWidth: 0.5},
-				DayLabel: &CalendarLabelOptions{Margin: 4, Position: "left", FontSize: 9},
+				Top: "80", CellSize: "20", Orient: "horizontal",
+				CellStyle: &ItemStyle{Color: "#112233", BorderColor: "#445566", BorderWidth: 0.5},
+				DayLabel:  &CalendarLabelOptions{Margin: 4, Position: "left", FontSize: 9},
 			},
 		},
 		ValueRange: HeatMapValueRange{Min: 0, Max: 10},
@@ -76,10 +77,10 @@ func TestHeatMapRendersCalendarChart(t *testing.T) {
 	markup := renderHeatMap(t, instance)
 	for _, want := range []string{
 		`"calendar"`, `"range":["2026-07-01","2026-07-31"]`, `"cellSize":"20"`, `"orient":"horizontal"`,
-		`"itemStyle":{"borderWidth":0.5`, `"dayLabel":{"margin":4,"position":"left","fontSize":9}`,
+		`"itemStyle":{"color":"#112233","borderColor":"#445566","borderWidth":0.5`, `"dayLabel":{"margin":4,"position":"left","fontSize":9}`,
 		`"coordinateSystem":"calendar"`, `"value":["2026-07-01",3]`,
 		`"value":["2026-07-31",8]`, `"color":["#93c5fd","#fca5a5"`,
-		`"right":"0","bottom":"24"`, `July activity exact heatmap values`,
+		`"right":"0","bottom":"24"`, `July activity exact heatmap values`, `tabindex="0" role="region"`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
@@ -125,7 +126,12 @@ func TestHeatMapRejectsInvalidDataContract(t *testing.T) {
 			cfg.Calendar = &HeatMapCalendar{Start: start, End: end}
 			return cfg
 		}, "heatmap chart calendar is not allowed for Cartesian coordinates"},
-		"axes in calendar mode":  {func() HeatMapConfig { cfg := validCalendar(); cfg.XAxis = []string{"bad"}; return cfg }, "heatmap chart category axes are not allowed for calendar coordinates"},
+		"axes in calendar mode": {func() HeatMapConfig { cfg := validCalendar(); cfg.XAxis = []string{"bad"}; return cfg }, "heatmap chart category axes are not allowed for calendar coordinates"},
+		"split area in calendar mode": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.SplitArea = Bool(true)
+			return cfg
+		}, "heatmap chart split area is not allowed for calendar coordinates"},
 		"missing calendar":       {func() HeatMapConfig { cfg := validCalendar(); cfg.Calendar = nil; return cfg }, "heatmap chart calendar is required for calendar coordinates"},
 		"missing calendar dates": {func() HeatMapConfig { cfg := validCalendar(); cfg.Calendar.Start = time.Time{}; return cfg }, "heatmap chart calendar start and end dates are required"},
 		"reversed calendar": {func() HeatMapConfig {
@@ -149,6 +155,11 @@ func TestHeatMapRejectsInvalidDataContract(t *testing.T) {
 			cfg.Calendar.Options.CellStyle = &ItemStyle{BorderWidth: -0.5}
 			return cfg
 		}, "heatmap chart calendar cell border width must be nonnegative"},
+		"calendar cell opacity out of range": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.Calendar.Options.CellStyle = &ItemStyle{Opacity: Float(1.5)}
+			return cfg
+		}, "heatmap chart calendar cell opacity must be between 0 and 1"},
 		"negative calendar label margin": {func() HeatMapConfig {
 			cfg := validCalendar()
 			cfg.Calendar.Options.MonthLabel = &CalendarLabelOptions{Margin: -1}

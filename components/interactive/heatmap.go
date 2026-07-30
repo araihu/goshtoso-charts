@@ -236,6 +236,9 @@ func validateHeatMapConfig(cfg HeatMapConfig) error {
 		return fmt.Errorf("heatmap chart value range exceeds renderer limits")
 	}
 	if cfg.Coordinate == HeatMapCoordinateCalendar {
+		if cfg.SplitArea != nil {
+			return fmt.Errorf("heatmap chart split area is not allowed for calendar coordinates")
+		}
 		if len(cfg.XAxis) != 0 || len(cfg.YAxis) != 0 {
 			return fmt.Errorf("heatmap chart category axes are not allowed for calendar coordinates")
 		}
