@@ -14,6 +14,7 @@ import (
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 	interactivecandlestick "github.com/araihu/goshtoso-charts/components/interactive/candlestick"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
+	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 )
 
 const uninitializedRenderError = "interactive chart label is required"
@@ -152,6 +153,7 @@ func TestInstanceAliasesRetainCanonicalTypeIdentity(t *testing.T) {
 		"interactive/bar":         reflect.TypeOf(interactivebar.Instance{}),
 		"interactive/candlestick": reflect.TypeOf(interactivecandlestick.Instance{}),
 		"interactive/line":        reflect.TypeOf(interactiveline.Instance{}),
+		"interactive/scatter":     reflect.TypeOf(interactivescatter.Instance{}),
 	}
 	for name, instanceType := range types {
 		if got := instanceType.PkgPath(); got != wantPackage {
@@ -172,12 +174,16 @@ var (
 	_ interactivecandlestick.Instance = chart.Instance{}
 	_ chart.Instance                  = interactiveline.Instance{}
 	_ interactiveline.Instance        = chart.Instance{}
+	_ chart.Instance                  = interactivescatter.Instance{}
+	_ interactivescatter.Instance     = chart.Instance{}
 
 	_ func(chartcomponents.Component) chart.Instance     = chart.NewInstance
 	_ func(interactive.BarConfig) chart.Instance         = interactive.Bar
 	_ func(interactive.LineConfig) chart.Instance        = interactive.Line
+	_ func(interactive.ScatterConfig) chart.Instance     = interactive.Scatter
 	_ func(interactive.CandlestickConfig) chart.Instance = interactive.Candlestick
 	_ func(interactivebar.Config) chart.Instance         = interactivebar.Bar
 	_ func(interactivecandlestick.Config) chart.Instance = interactivecandlestick.Candlestick
 	_ func(interactiveline.Config) chart.Instance        = interactiveline.Line
+	_ func(interactivescatter.Config) chart.Instance     = interactivescatter.Scatter
 )

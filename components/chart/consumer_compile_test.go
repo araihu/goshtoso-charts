@@ -10,6 +10,7 @@ import (
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 	interactivecandlestick "github.com/araihu/goshtoso-charts/components/interactive/candlestick"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
+	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 )
 
 // These snippets are compile contracts for old facade consumers, canonical
@@ -29,6 +30,14 @@ func oldFacadeLineConsumer() chart.Instance {
 		Label:  "Weekly latency",
 		XAxis:  []string{"Mon", "Tue"},
 		Series: []interactive.LineSeries{{Name: "p95 (ms)", Data: []interactive.LineData{{Value: 42}, {Value: 47}}}},
+	})
+}
+
+func oldFacadeScatterConsumer() chart.Instance {
+	return interactive.Scatter(interactive.ScatterConfig{
+		Label:  "Weekly throughput",
+		XAxis:  []string{"Mon", "Tue"},
+		Series: []interactive.ScatterSeries{{Name: "Requests", Data: []interactive.ScatterData{{Value: 42}, {Value: 47}}}},
 	})
 }
 
@@ -52,6 +61,11 @@ func canonicalChildConsumers() []chart.Instance {
 			XAxis:  []string{"Mon", "Tue"},
 			Series: []interactiveline.Series{{Name: "p95 (ms)", Data: []interactiveline.Data{{Value: 42}, {Value: 47}}}},
 		}),
+		interactivescatter.Scatter(interactivescatter.Config{
+			Label:  "Weekly throughput",
+			XAxis:  []string{"Mon", "Tue"},
+			Series: []interactivescatter.Series{{Name: "Requests", Data: []interactivescatter.Data{{Value: 42}, {Value: 47}}}},
+		}),
 		interactivecandlestick.Candlestick(interactivecandlestick.Config{
 			Label:      "Daily prices",
 			Categories: []string{"Mon"},
@@ -73,6 +87,7 @@ func customExtensionConsumer() chart.Instance {
 var (
 	_ = oldFacadeConsumer
 	_ = oldFacadeLineConsumer
+	_ = oldFacadeScatterConsumer
 	_ = oldFacadeCandlestickConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer

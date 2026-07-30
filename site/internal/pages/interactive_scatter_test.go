@@ -4,7 +4,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/araihu/goshtoso-charts/components/interactive"
+	"github.com/araihu/goshtoso-charts/components/chart"
+	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 )
 
 func TestInteractiveScatterUpstreamCoverageIsExhaustiveAndPinned(t *testing.T) {
@@ -40,15 +41,15 @@ func TestInteractiveScatterUpstreamCoverageIsExhaustiveAndPinned(t *testing.T) {
 func TestInteractiveScatterSamplesPreserveUpstreamSemantics(t *testing.T) {
 	t.Parallel()
 	tests := []struct {
-		config  interactive.ScatterConfig
-		variant interactive.ScatterVariant
+		config  interactivescatter.Config
+		variant interactivescatter.Variant
 		values  [][]float64
 	}{
-		{sampleInteractiveScatter(), interactive.ScatterVariantStandard, [][]float64{{81, 87, 47, 59, 81, 18}, {25, 40, 56, 0, 94, 11}}},
-		{sampleInteractiveScatterLabels(), interactive.ScatterVariantStandard, [][]float64{{62, 89, 28, 74, 11, 45}, {37, 6, 95, 66, 28, 58}}},
-		{sampleInteractiveScatterSplitLines(), interactive.ScatterVariantStandard, [][]float64{{47, 47, 87, 88, 90, 15}, {41, 8, 87, 31, 29, 56}}},
-		{sampleInteractiveEffectScatter(), interactive.ScatterVariantEffect, [][]float64{{37, 31, 85, 26, 13, 90}}},
-		{sampleInteractiveEffectScatterStyles(), interactive.ScatterVariantEffect, [][]float64{{94, 63, 33, 47, 78, 24}, {59, 53, 57, 21, 89, 99}}},
+		{sampleInteractiveScatter(), interactivescatter.VariantStandard, [][]float64{{81, 87, 47, 59, 81, 18}, {25, 40, 56, 0, 94, 11}}},
+		{sampleInteractiveScatterLabels(), interactivescatter.VariantStandard, [][]float64{{62, 89, 28, 74, 11, 45}, {37, 6, 95, 66, 28, 58}}},
+		{sampleInteractiveScatterSplitLines(), interactivescatter.VariantStandard, [][]float64{{47, 47, 87, 88, 90, 15}, {41, 8, 87, 31, 29, 56}}},
+		{sampleInteractiveEffectScatter(), interactivescatter.VariantEffect, [][]float64{{37, 31, 85, 26, 13, 90}}},
+		{sampleInteractiveEffectScatterStyles(), interactivescatter.VariantEffect, [][]float64{{94, 63, 33, 47, 78, 24}, {59, 53, 57, 21, 89, 99}}},
 	}
 	for _, test := range tests {
 		if test.config.Variant != test.variant {
@@ -77,7 +78,7 @@ func TestInteractiveScatterSamplesPreserveUpstreamSemantics(t *testing.T) {
 		t.Errorf("split-line treatment = %#v", split.Options)
 	}
 	styles := sampleInteractiveEffectScatterStyles()
-	if !reflect.DeepEqual(styles.Series[0].Ripple, &interactive.RippleOptions{Period: 4, Scale: 10, BrushType: "stroke"}) || !reflect.DeepEqual(styles.Series[1].Ripple, &interactive.RippleOptions{Period: 3, Scale: 6, BrushType: "fill"}) {
+	if !reflect.DeepEqual(styles.Series[0].Ripple, &chart.RippleOptions{Period: 4, Scale: 10, BrushType: "stroke"}) || !reflect.DeepEqual(styles.Series[1].Ripple, &chart.RippleOptions{Period: 3, Scale: 6, BrushType: "fill"}) {
 		t.Errorf("effect ripple treatments = %#v", styles.Series)
 	}
 }
