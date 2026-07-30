@@ -6,7 +6,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/araihu/goshtoso-charts/components/interactive"
+	"github.com/araihu/goshtoso-charts/components/chart"
+	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 )
 
 func TestInteractiveRadarUpstreamCoverageIsExhaustiveAndPinned(t *testing.T) {
@@ -45,8 +46,11 @@ func TestInteractiveRadarSamplesPreserveEveryUpstreamDatasetAndTreatment(t *test
 	style := sampleInteractiveRadarStyle()
 	multiple := sampleInteractiveRadarLegendMulti()
 	single := sampleInteractiveRadarLegendSingle()
+	if got := reflect.TypeOf(base).PkgPath(); got != "github.com/araihu/goshtoso-charts/components/interactive/radar" {
+		t.Fatalf("site Radar config package = %q", got)
+	}
 
-	for _, config := range []interactive.RadarConfig{base, style, multiple, single} {
+	for _, config := range []interactiveradar.Config{base, style, multiple, single} {
 		if !reflect.DeepEqual(config.Indicators, interactiveRadarIndicators) {
 			t.Errorf("%q indicators = %#v", config.Label, config.Indicators)
 		}
@@ -63,16 +67,16 @@ func TestInteractiveRadarSamplesPreserveEveryUpstreamDatasetAndTreatment(t *test
 	if base.Coordinate.SplitArea == nil || !*base.Coordinate.SplitArea || base.Coordinate.SplitLine == nil || base.Coordinate.SplitLine.Show == nil || !*base.Coordinate.SplitLine.Show {
 		t.Fatalf("base coordinate = %#v", base.Coordinate)
 	}
-	if style.Coordinate.Shape != interactive.RadarShapeCircle || style.Coordinate.SplitNumber != 5 ||
+	if style.Coordinate.Shape != interactiveradar.ShapeCircle || style.Coordinate.SplitNumber != 5 ||
 		style.Coordinate.SplitArea != nil ||
 		style.SeriesOptions.LineStyle == nil || style.SeriesOptions.LineStyle.Opacity == nil || *style.SeriesOptions.LineStyle.Opacity != 0.5 ||
 		style.SeriesOptions.AreaStyle == nil || style.SeriesOptions.AreaStyle.Opacity == nil || *style.SeriesOptions.AreaStyle.Opacity != 0.1 {
 		t.Fatalf("style treatment = %#v", style)
 	}
-	if len(multiple.Series) != 3 || multiple.Options.Legend == nil || multiple.Options.Legend.SelectionMode != interactive.LegendSelectionMultiple {
+	if len(multiple.Series) != 3 || multiple.Options.Legend == nil || multiple.Options.Legend.SelectionMode != chart.LegendSelectionMultiple {
 		t.Fatalf("multiple legend treatment = %#v", multiple)
 	}
-	if len(single.Series) != 3 || single.Options.Legend == nil || single.Options.Legend.SelectionMode != interactive.LegendSelectionSingle ||
+	if len(single.Series) != 3 || single.Options.Legend == nil || single.Options.Legend.SelectionMode != chart.LegendSelectionSingle ||
 		single.SeriesOptions.AreaStyle == nil || single.SeriesOptions.AreaStyle.Opacity == nil || *single.SeriesOptions.AreaStyle.Opacity != 0.5 {
 		t.Fatalf("single legend treatment = %#v", single)
 	}
@@ -104,7 +108,7 @@ func TestInteractiveRadarCoverageUsesCanonicalLedger(t *testing.T) {
 	section := canonicalLedgerSection(t, string(data), "## Interactive Radar")
 	for _, want := range []string{
 		interactiveRadarUpstreamRevision, interactiveRadarUpstreamPath, interactiveRadarUpstreamSHA256,
-		"all four upstream behavior functions", "renderer-neutral `interactive.Radar` component",
+		"all four upstream behavior functions", "renderer-neutral `interactiveradar.Radar` component",
 		"seventh value", "day index", "Goshtoso theme tokens", "Unsupported dedicated Radar-family behaviors: none",
 	} {
 		if !strings.Contains(section, want) {

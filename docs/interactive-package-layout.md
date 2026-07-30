@@ -44,7 +44,7 @@ required.
 ## Shared chart instance foundation
 
 `components/chart.Instance` is the canonical public identity for a renderable
-chart instance. `components/interactive.Instance` and all six migrated child
+chart instance. `components/interactive.Instance` and all eight migrated child
 packages' `Instance` names are exact aliases, so old and new values remain
 assignment-compatible and constructor function signatures remain
 interchangeable. Consumers can mix the facade and chart-specific package paths
@@ -216,11 +216,70 @@ parent wrappers preserve Gauge, Sunburst, ThemeRiver, and WordCloud behavior.
 The public parent Pie surface remains exact aliases, constants, and one
 constructor forwarder.
 
+## Radar
+
+Use `components/interactive/radar` for new interactive Radar code:
+
+```go
+import (
+	"github.com/araihu/goshtoso-charts/components/chart"
+	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
+)
+
+profile := interactiveradar.Radar(interactiveradar.Config{
+	Label:      "Service profile",
+	Indicators: []interactiveradar.Indicator{{Name: "Availability", Max: 100}},
+	Series: []interactiveradar.Series{{
+		Name: "Current",
+		Data: []interactiveradar.Data{{Name: "Today", Values: []float64{99.9}}},
+	}},
+	Coordinate: interactiveradar.CoordinateOptions{
+		Shape:     interactiveradar.ShapeCircle,
+		SplitArea: chart.Bool(true),
+	},
+})
+```
+
+Default polygon, explicit polygon, and circular coordinates remain variants of
+one `Radar` component and one component kind. Radar-specific names are concise:
+`Config`, `Shape`, `CoordinateOptions`, `SplitLineOptions`, `Indicator`,
+`Series`, and `Data`. Shared chart and series options remain in
+`components/chart`. Parent Radar names and shape constants are exact aliases;
+its constructor is one forwarder with identical validation and rendered markup.
+
+## BoxPlot
+
+Use `components/interactive/boxplot` for new interactive BoxPlot code:
+
+```go
+import (
+	"github.com/araihu/goshtoso-charts/components/chart"
+	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
+)
+
+distribution := interactiveboxplot.BoxPlot(interactiveboxplot.Config{
+	Label:      "Request latency",
+	Categories: []string{"Production"},
+	Series: []interactiveboxplot.Series{{
+		Name: "Milliseconds",
+		Data: []interactiveboxplot.Data{{Min: 18, Q1: 31, Median: 42, Q3: 58, Max: 94}},
+	}},
+	Options: chart.ChartOptions{Animation: chart.Bool(false)},
+})
+```
+
+Single-series, multiple-series, and point-level label, item-style, emphasis,
+and tooltip overrides remain one `BoxPlot` component. BoxPlot-specific names
+are `Config`, `Series`, and `Data`; shared options stay in `components/chart`.
+The parent preserves three exact type aliases and one forwarding constructor,
+including five-number ordering validation, component kind, and markup.
+
 ## Current boundary
 
-Bar, Line, Scatter, Candlestick, HeatMap, and Pie physical ownership is
-complete. The supported parent facade delegates those six migrated charts. Remaining chart
-families continue using their existing paths until their own bounded migrations
-land, and the final v1 policy for the parent compatibility facade remains open.
-Shared public and private foundation ownership is fixed by
+Bar, Line, Scatter, Candlestick, HeatMap, Pie, Radar, and BoxPlot physical
+ownership is complete. The supported parent facade delegates those eight
+migrated charts. Remaining chart families continue using their existing paths
+until their own bounded migrations land, and the final v1 policy for the parent
+compatibility facade remains open. Shared public and private foundation
+ownership is fixed by
 [ADR 0001](decisions/0001-interactive-chart-package-ownership.md).

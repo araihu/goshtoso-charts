@@ -4,13 +4,16 @@ import (
 	"github.com/araihu/goshtoso-app-shells/componentpage"
 	"github.com/araihu/goshtoso-charts/components/bar"
 	"github.com/araihu/goshtoso-charts/components/candlestick"
+	"github.com/araihu/goshtoso-charts/components/chart"
 	"github.com/araihu/goshtoso-charts/components/funnel"
 	"github.com/araihu/goshtoso-charts/components/heatmap"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
+	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
+	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
@@ -536,15 +539,15 @@ templ interactiveChartRadarContent() {
 		Primary: componentpage.Example{
 			Title:        "Daily Beijing air quality",
 			AbovePreview: visualizationGuidance("Compare repeated observations over the same bounded dimensions.", "A few dimensions share stable maxima and the profile shape matters more than precise pairwise ranking.", "Exact ranking, many dimensions, incompatible scales, or small differences are the goal; use bars, parallel coordinates, or a table.", "Every chart is followed by a keyboard-accessible exact-value table with the city, day, and six pollutant values."),
-			Preview:      interactiveRadarVariant("base", interactive.Radar(sampleInteractiveRadarBase())),
+			Preview:      interactiveRadarVariant("base", interactiveradar.Radar(sampleInteractiveRadarBase())),
 			Code:         interactiveRadarBaseCode(),
 		},
 		Sections: []componentpage.Example{
-			{Title: "Circular style", Description: "Shape, split count, split-line treatment, line opacity, and area opacity remain typed options on the same Radar component.", Preview: interactiveRadarVariant("style", interactive.Radar(sampleInteractiveRadarStyle())), Code: interactiveRadarStyleCode()},
-			{Title: "Multiple-series legend", Description: "All three city profiles may remain visible or be toggled independently.", Preview: interactiveRadarVariant("legend-multiple", interactive.Radar(sampleInteractiveRadarLegendMulti())), Code: interactiveRadarLegendCode(interactive.LegendSelectionMultiple)},
-			{Title: "Single-series legend", Description: "Exclusive legend selection reduces overlap while retaining all source observations in the exact-value table.", Preview: interactiveRadarVariant("legend-single", interactive.Radar(sampleInteractiveRadarLegendSingle())), Code: interactiveRadarLegendCode(interactive.LegendSelectionSingle)},
+			{Title: "Circular style", Description: "Shape, split count, split-line treatment, line opacity, and area opacity remain typed options on the same Radar component.", Preview: interactiveRadarVariant("style", interactiveradar.Radar(sampleInteractiveRadarStyle())), Code: interactiveRadarStyleCode()},
+			{Title: "Multiple-series legend", Description: "All three city profiles may remain visible or be toggled independently.", Preview: interactiveRadarVariant("legend-multiple", interactiveradar.Radar(sampleInteractiveRadarLegendMulti())), Code: interactiveRadarLegendCode(chart.LegendSelectionMultiple)},
+			{Title: "Single-series legend", Description: "Exclusive legend selection reduces overlap while retaining all source observations in the exact-value table.", Preview: interactiveRadarVariant("legend-single", interactiveradar.Radar(sampleInteractiveRadarLegendSingle())), Code: interactiveRadarLegendCode(chart.LegendSelectionSingle)},
 		},
-		After: interactiveDocumentation(interactiveRadarUsage()),
+		After: templ.Join(interactiveRadarUsage(), goAPIReference("interactive/radar")),
 	})
 }
 
@@ -658,10 +661,10 @@ templ interactiveChartBoxPlotContent() {
 		Description: "Distribution centers, spread, and range across categories through five-number summaries.",
 		Primary: componentpage.Example{
 			AbovePreview: visualizationGuidance("Compare distribution centers, spreads, and ranges across categories.", "Five-number summaries reveal how groups differ.", "Individual observations or unusual distribution shape must be inspected.", "Preserve five-number summaries in nearby content for exact comparison."),
-			Preview:      interactive.BoxPlot(sampleInteractiveBoxPlot()),
+			Preview:      interactiveboxplot.BoxPlot(sampleInteractiveBoxPlot()),
 			Code:         interactiveChartBoxPlotCode(),
 		},
-		After: interactiveDocumentation(demoNote("Five-number summary", "Read minimum, first quartile, median, third quartile, and maximum together; this summary does not reveal individual observations.")),
+		After: templ.Join(demoNote("Five-number summary", "Read minimum, first quartile, median, third quartile, and maximum together; this summary does not reveal individual observations."), goAPIReference("interactive/boxplot")),
 	})
 }
 

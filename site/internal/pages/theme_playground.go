@@ -4,6 +4,7 @@ import (
 	"github.com/araihu/goshtoso-app-shells/componentdocshell"
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/interactive"
+	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
 	selectfield "github.com/araihu/goshtoso/components/select"
@@ -54,7 +55,7 @@ func themePlaygroundInteractiveBar() interactive.BarConfig {
 	return cfg
 }
 
-func themePlaygroundInteractiveRadar() interactive.RadarConfig {
+func themePlaygroundInteractiveRadar() interactiveradar.Config {
 	cfg := sampleInteractiveRadarBase()
 	cfg.Label = "Interactive radar theme preview"
 	cfg.Caption = ""

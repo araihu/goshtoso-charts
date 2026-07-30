@@ -474,7 +474,8 @@ counted as a tenth upstream function.
 - Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
 - Source SHA-256: `f6b8e26399826e7f979717fbb4a30b48a8c8d10e8f496da60c430aaadc0e8ffb`
 - Status: all four upstream behavior functions are covered by the one
-  renderer-neutral `interactive.Radar` component.
+  renderer-neutral `interactiveradar.Radar` component in
+  `components/interactive/radar`.
 - Data correction: upstream rows contain six pollutant dimensions followed by
   a seventh value used as the day index. Goshtoso retains the first six values
   as the aligned radar vector and names each observation from that day index.

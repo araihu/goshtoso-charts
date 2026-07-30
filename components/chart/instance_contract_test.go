@@ -17,6 +17,7 @@ import (
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
+	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 )
 
@@ -159,6 +160,7 @@ func TestInstanceAliasesRetainCanonicalTypeIdentity(t *testing.T) {
 		"interactive/heatmap":     reflect.TypeOf(interactiveheatmap.Instance{}),
 		"interactive/line":        reflect.TypeOf(interactiveline.Instance{}),
 		"interactive/pie":         reflect.TypeOf(interactivepie.Instance{}),
+		"interactive/radar":       reflect.TypeOf(interactiveradar.Instance{}),
 		"interactive/scatter":     reflect.TypeOf(interactivescatter.Instance{}),
 	}
 	for name, instanceType := range types {
@@ -186,6 +188,8 @@ var (
 	_ interactiveline.Instance        = chart.Instance{}
 	_ chart.Instance                  = interactivepie.Instance{}
 	_ interactivepie.Instance         = chart.Instance{}
+	_ chart.Instance                  = interactiveradar.Instance{}
+	_ interactiveradar.Instance       = chart.Instance{}
 	_ chart.Instance                  = interactivescatter.Instance{}
 	_ interactivescatter.Instance     = chart.Instance{}
 
@@ -197,11 +201,13 @@ var (
 	_ func(interactive.CandlestickConfig) chart.Instance = interactive.Candlestick
 	_ func(interactive.HeatMapConfig) chart.Instance     = interactive.HeatMap
 	_ func(interactive.PieConfig) chart.Instance         = interactive.Pie
+	_ func(interactive.RadarConfig) chart.Instance       = interactive.Radar
 	_ func(interactivebar.Config) chart.Instance         = interactivebar.Bar
 	_ func(interactiveboxplot.Config) chart.Instance     = interactiveboxplot.BoxPlot
 	_ func(interactivecandlestick.Config) chart.Instance = interactivecandlestick.Candlestick
 	_ func(interactiveheatmap.Config) chart.Instance     = interactiveheatmap.HeatMap
 	_ func(interactiveline.Config) chart.Instance        = interactiveline.Line
 	_ func(interactivepie.Config) chart.Instance         = interactivepie.Pie
+	_ func(interactiveradar.Config) chart.Instance       = interactiveradar.Radar
 	_ func(interactivescatter.Config) chart.Instance     = interactivescatter.Scatter
 )

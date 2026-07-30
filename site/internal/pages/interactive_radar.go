@@ -3,9 +3,10 @@ package pages
 import (
 	"fmt"
 
+	"github.com/araihu/goshtoso-charts/components/chart"
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
-	"github.com/araihu/goshtoso-charts/components/interactive"
+	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 )
 
 const (
@@ -45,7 +46,7 @@ func interactiveRadarSourceFunctions() []interactiveRadarSourceFunction {
 	}
 }
 
-var interactiveRadarIndicators = []interactive.RadarIndicator{
+var interactiveRadarIndicators = []interactiveradar.Indicator{
 	{Name: "AQI", Max: 300}, {Name: "PM2.5", Max: 250}, {Name: "PM10", Max: 300},
 	{Name: "CO", Max: 5}, {Name: "NO2", Max: 200}, {Name: "SO2", Max: 100},
 }
@@ -83,102 +84,102 @@ var interactiveRadarShanghai = [][]float64{
 	{97, 71, 113, 1.17, 88, 31}, {84, 57, 91, .85, 55, 31}, {87, 63, 101, .9, 56, 41},
 }
 
-func interactiveRadarData(values [][]float64) []interactive.RadarData {
-	data := make([]interactive.RadarData, len(values))
+func interactiveRadarData(values [][]float64) []interactiveradar.Data {
+	data := make([]interactiveradar.Data, len(values))
 	for index, vector := range values {
-		data[index] = interactive.RadarData{Name: fmt.Sprintf("Day %d", index+1), Values: vector}
+		data[index] = interactiveradar.Data{Name: fmt.Sprintf("Day %d", index+1), Values: vector}
 	}
 	return data
 }
 
-func interactiveRadarOptions(title, filename string, mode interactive.LegendSelectionMode) interactive.ChartOptions {
-	return interactive.ChartOptions{
-		Title:    &interactive.TitleOptions{Text: title, Left: "center"},
-		Legend:   &interactive.LegendOptions{Show: interactive.Bool(true), Left: "center", Bottom: "0", SelectionMode: mode},
-		Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "item"},
+func interactiveRadarOptions(title, filename string, mode chart.LegendSelectionMode) chart.ChartOptions {
+	return chart.ChartOptions{
+		Title:    &chart.TitleOptions{Text: title, Left: "center"},
+		Legend:   &chart.LegendOptions{Show: chart.Bool(true), Left: "center", Bottom: "0", SelectionMode: mode},
+		Tooltip:  &chart.TooltipOptions{Show: chart.Bool(true), Trigger: "item"},
 		Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: filename},
 	}
 }
 
-func interactiveRadarConfig(label, caption, title, filename string) interactive.RadarConfig {
-	return interactive.RadarConfig{
+func interactiveRadarConfig(label, caption, title, filename string) interactiveradar.Config {
+	return interactiveradar.Config{
 		Label: label, Caption: caption, Indicators: interactiveRadarIndicators,
-		Width: "100%", Height: "520px", Options: interactiveRadarOptions(title, filename, interactive.LegendSelectionDefault),
+		Width: "100%", Height: "520px", Options: interactiveRadarOptions(title, filename, chart.LegendSelectionDefault),
 		Style: charttheme.Style{Class: "max-w-5xl mx-auto"},
 	}
 }
 
-func sampleInteractiveRadarBase() interactive.RadarConfig {
+func sampleInteractiveRadarBase() interactiveradar.Config {
 	config := interactiveRadarConfig("Daily Beijing air quality", "Twenty-one daily observations across six pollutant dimensions.", "Basic radar example", "daily-beijing-air-quality")
-	config.Series = []interactive.RadarSeries{{Name: "Beijing", Data: interactiveRadarData(interactiveRadarBeijing)}}
-	config.Coordinate = interactive.RadarCoordinateOptions{SplitArea: interactive.Bool(true), SplitLine: &interactive.RadarSplitLineOptions{Show: interactive.Bool(true)}}
+	config.Series = []interactiveradar.Series{{Name: "Beijing", Data: interactiveRadarData(interactiveRadarBeijing)}}
+	config.Coordinate = interactiveradar.CoordinateOptions{SplitArea: chart.Bool(true), SplitLine: &interactiveradar.SplitLineOptions{Show: chart.Bool(true)}}
 	return config
 }
 
-func sampleInteractiveRadarStyle() interactive.RadarConfig {
+func sampleInteractiveRadarStyle() interactiveradar.Config {
 	config := interactiveRadarConfig("Circular style", "The Beijing observations use a circular coordinate with five subtle rings.", "Style options", "circular-beijing-air-quality")
-	config.Series = []interactive.RadarSeries{{Name: "Beijing", Data: interactiveRadarData(interactiveRadarBeijing)}}
-	config.Coordinate = interactive.RadarCoordinateOptions{Shape: interactive.RadarShapeCircle, SplitNumber: 5, SplitLine: &interactive.RadarSplitLineOptions{Show: interactive.Bool(true), Style: &interactive.LineStyle{Width: 1, Opacity: interactive.Float(.1)}}}
-	config.SeriesOptions = interactive.SeriesOptions{LineStyle: &interactive.LineStyle{Width: 1, Opacity: interactive.Float(.5)}, AreaStyle: &interactive.AreaStyle{Opacity: interactive.Float(.1)}}
+	config.Series = []interactiveradar.Series{{Name: "Beijing", Data: interactiveRadarData(interactiveRadarBeijing)}}
+	config.Coordinate = interactiveradar.CoordinateOptions{Shape: interactiveradar.ShapeCircle, SplitNumber: 5, SplitLine: &interactiveradar.SplitLineOptions{Show: chart.Bool(true), Style: &chart.LineStyle{Width: 1, Opacity: chart.Float(.1)}}}
+	config.SeriesOptions = chart.SeriesOptions{LineStyle: &chart.LineStyle{Width: 1, Opacity: chart.Float(.5)}, AreaStyle: &chart.AreaStyle{Opacity: chart.Float(.1)}}
 	return config
 }
 
-func interactiveRadarCitySeries() []interactive.RadarSeries {
-	return []interactive.RadarSeries{
+func interactiveRadarCitySeries() []interactiveradar.Series {
+	return []interactiveradar.Series{
 		{Name: "Beijing", Data: interactiveRadarData(interactiveRadarBeijing)},
 		{Name: "Guangzhou", Data: interactiveRadarData(interactiveRadarGuangzhou)},
 		{Name: "Shanghai", Data: interactiveRadarData(interactiveRadarShanghai)},
 	}
 }
 
-func sampleInteractiveRadarLegendMulti() interactive.RadarConfig {
+func sampleInteractiveRadarLegendMulti() interactiveradar.Config {
 	config := interactiveRadarConfig("Multiple-series legend", "Toggle any combination of Beijing, Guangzhou, and Shanghai.", "Multiple legend selection", "multiple-city-air-quality")
 	config.Series = interactiveRadarCitySeries()
-	config.Coordinate = interactive.RadarCoordinateOptions{Shape: interactive.RadarShapeCircle, SplitNumber: 5, SplitLine: &interactive.RadarSplitLineOptions{Show: interactive.Bool(true), Style: &interactive.LineStyle{Opacity: interactive.Float(.1)}}}
-	config.Options.Legend.SelectionMode = interactive.LegendSelectionMultiple
-	config.SeriesOptions = interactive.SeriesOptions{LineStyle: &interactive.LineStyle{Width: 1, Opacity: interactive.Float(.5)}, AreaStyle: &interactive.AreaStyle{Opacity: interactive.Float(.1)}}
+	config.Coordinate = interactiveradar.CoordinateOptions{Shape: interactiveradar.ShapeCircle, SplitNumber: 5, SplitLine: &interactiveradar.SplitLineOptions{Show: chart.Bool(true), Style: &chart.LineStyle{Opacity: chart.Float(.1)}}}
+	config.Options.Legend.SelectionMode = chart.LegendSelectionMultiple
+	config.SeriesOptions = chart.SeriesOptions{LineStyle: &chart.LineStyle{Width: 1, Opacity: chart.Float(.5)}, AreaStyle: &chart.AreaStyle{Opacity: chart.Float(.1)}}
 	return config
 }
 
-func sampleInteractiveRadarLegendSingle() interactive.RadarConfig {
+func sampleInteractiveRadarLegendSingle() interactiveradar.Config {
 	config := interactiveRadarConfig("Single-series legend", "Select one city's twenty-one daily profiles at a time.", "Single legend selection", "single-city-air-quality")
 	config.Series = interactiveRadarCitySeries()
-	config.Coordinate = interactive.RadarCoordinateOptions{Shape: interactive.RadarShapeCircle, SplitNumber: 5, SplitLine: &interactive.RadarSplitLineOptions{Show: interactive.Bool(true), Style: &interactive.LineStyle{Opacity: interactive.Float(.1)}}}
-	config.Options.Legend.SelectionMode = interactive.LegendSelectionSingle
-	config.SeriesOptions = interactive.SeriesOptions{LineStyle: &interactive.LineStyle{Width: 1, Opacity: interactive.Float(.5)}, AreaStyle: &interactive.AreaStyle{Opacity: interactive.Float(.5)}}
+	config.Coordinate = interactiveradar.CoordinateOptions{Shape: interactiveradar.ShapeCircle, SplitNumber: 5, SplitLine: &interactiveradar.SplitLineOptions{Show: chart.Bool(true), Style: &chart.LineStyle{Opacity: chart.Float(.1)}}}
+	config.Options.Legend.SelectionMode = chart.LegendSelectionSingle
+	config.SeriesOptions = chart.SeriesOptions{LineStyle: &chart.LineStyle{Width: 1, Opacity: chart.Float(.5)}, AreaStyle: &chart.AreaStyle{Opacity: chart.Float(.5)}}
 	return config
 }
 
 func interactiveRadarBaseCode() string {
-	return `@interactive.Radar(interactive.RadarConfig{
+	return `@interactiveradar.Radar(interactiveradar.Config{
   Label: "Daily Beijing air quality",
   Indicators: pollutantIndicators,
-  Series: []interactive.RadarSeries{{Name: "Beijing", Data: dailyBeijingValues}},
-  Coordinate: interactive.RadarCoordinateOptions{
-    SplitArea: interactive.Bool(true),
-    SplitLine: &interactive.RadarSplitLineOptions{Show: interactive.Bool(true)},
+  Series: []interactiveradar.Series{{Name: "Beijing", Data: dailyBeijingValues}},
+  Coordinate: interactiveradar.CoordinateOptions{
+    SplitArea: chart.Bool(true),
+    SplitLine: &interactiveradar.SplitLineOptions{Show: chart.Bool(true)},
   },
 })`
 }
 
 func interactiveRadarStyleCode() string {
-	return `Coordinate: interactive.RadarCoordinateOptions{
-  Shape: interactive.RadarShapeCircle,
+	return `Coordinate: interactiveradar.CoordinateOptions{
+  Shape: interactiveradar.ShapeCircle,
   SplitNumber: 5,
-  SplitLine: &interactive.RadarSplitLineOptions{
-    Show: interactive.Bool(true),
-    Style: &interactive.LineStyle{Width: 1, Opacity: interactive.Float(.1)},
+  SplitLine: &interactiveradar.SplitLineOptions{
+    Show: chart.Bool(true),
+    Style: &chart.LineStyle{Width: 1, Opacity: chart.Float(.1)},
   },
 },
-SeriesOptions: interactive.SeriesOptions{
-  LineStyle: &interactive.LineStyle{Width: 1, Opacity: interactive.Float(.5)},
-  AreaStyle: &interactive.AreaStyle{Opacity: interactive.Float(.1)},
+SeriesOptions: chart.SeriesOptions{
+  LineStyle: &chart.LineStyle{Width: 1, Opacity: chart.Float(.5)},
+  AreaStyle: &chart.AreaStyle{Opacity: chart.Float(.1)},
 }`
 }
 
-func interactiveRadarLegendCode(mode interactive.LegendSelectionMode) string {
-	return fmt.Sprintf(`Series: []interactive.RadarSeries{beijing, guangzhou, shanghai},
-Options: interactive.ChartOptions{
-  Legend: &interactive.LegendOptions{SelectionMode: interactive.LegendSelection%s},
-}`, map[interactive.LegendSelectionMode]string{interactive.LegendSelectionMultiple: "Multiple", interactive.LegendSelectionSingle: "Single"}[mode])
+func interactiveRadarLegendCode(mode chart.LegendSelectionMode) string {
+	return fmt.Sprintf(`Series: []interactiveradar.Series{beijing, guangzhou, shanghai},
+Options: chart.ChartOptions{
+  Legend: &chart.LegendOptions{SelectionMode: chart.LegendSelection%s},
+}`, map[chart.LegendSelectionMode]string{chart.LegendSelectionMultiple: "Multiple", chart.LegendSelectionSingle: "Single"}[mode])
 }

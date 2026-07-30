@@ -4,6 +4,7 @@ import (
 	shellassets "github.com/araihu/goshtoso-app-shells/componentdocshell/assets"
 	"github.com/araihu/goshtoso-charts/components/dependencies"
 	"github.com/araihu/goshtoso-charts/components/interactive"
+	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso/components/head"
@@ -67,7 +68,7 @@ templ ThemePlaygroundFrame() {
 					@themePlaygroundChartCard("Static line", "vector", line.Line(themePlaygroundStaticLine()))
 					@themePlaygroundChartCard("Static pie", "vector", pie.Pie(themePlaygroundStaticPie()))
 					@themePlaygroundChartCard("Interactive bar", "interactive", interactive.Bar(themePlaygroundInteractiveBar()))
-					@themePlaygroundChartCard("Interactive radar", "interactive", interactive.Radar(themePlaygroundInteractiveRadar()))
+					@themePlaygroundChartCard("Interactive radar", "interactive", interactiveradar.Radar(themePlaygroundInteractiveRadar()))
 				</div>
 			</main>
 		</body>

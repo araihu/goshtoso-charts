@@ -13,6 +13,7 @@ import (
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
+	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 )
 
@@ -77,6 +78,14 @@ func oldFacadeBoxPlotConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeRadarConsumer() chart.Instance {
+	return interactive.Radar(interactive.RadarConfig{
+		Label:      "Service profile",
+		Indicators: []interactive.RadarIndicator{{Name: "Availability", Max: 100}},
+		Series:     []interactive.RadarSeries{{Name: "Current", Data: []interactive.RadarData{{Name: "Today", Values: []float64{99.9}}}}},
+	})
+}
+
 func canonicalChildConsumers() []chart.Instance {
 	return []chart.Instance{
 		interactivebar.Bar(interactivebar.Config{
@@ -115,6 +124,11 @@ func canonicalChildConsumers() []chart.Instance {
 			Label:  "Deployment outcomes",
 			Series: []interactivepie.Series{{Name: "Outcome", Data: []interactivepie.Data{{Name: "Passed", Value: 8}, {Name: "Failed", Value: 2}}}},
 		}),
+		interactiveradar.Radar(interactiveradar.Config{
+			Label:      "Service profile",
+			Indicators: []interactiveradar.Indicator{{Name: "Availability", Max: 100}},
+			Series:     []interactiveradar.Series{{Name: "Current", Data: []interactiveradar.Data{{Name: "Today", Values: []float64{99.9}}}}},
+		}),
 	}
 }
 
@@ -136,6 +150,7 @@ var (
 	_ = oldFacadeHeatMapConsumer
 	_ = oldFacadePieConsumer
 	_ = oldFacadeBoxPlotConsumer
+	_ = oldFacadeRadarConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer
 )
