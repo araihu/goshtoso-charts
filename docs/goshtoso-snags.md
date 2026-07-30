@@ -373,4 +373,4 @@ the standalone document must provide the literal
 Go helper for that expression is private and the public `Head` helper also emits
 the full shell bootstrap. A future exported appearance-controller component or
 standalone data helper would remove this literal while preserving the frame's
-non-persistent, same-origin storage isolation.
+non-persistent storage behavior and same-origin asset access.
