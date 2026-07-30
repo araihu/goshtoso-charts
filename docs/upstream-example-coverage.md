@@ -4,6 +4,20 @@ This is the central source ledger for examples adapted into Goshtoso Charts.
 Component pages stay renderer-neutral; backing-library attribution and immutable
 source evidence live here and on the Attributions page.
 
+## Interactive Treemap and WordCloud ownership
+
+- Source repository: `github.com/go-echarts/examples`
+- Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
+- Upstream sources: `examples/treemap.go` and `examples/wordcloud.go`
+- Canonical APIs: `components/interactive/treemap.Treemap` and
+  `components/interactive/wordcloud.WordCloud`
+- Status: Treemap preserves the pinned file-system hierarchy, deterministic
+  leaf values, drill-down and breadcrumb semantics, levels, and exact-value
+  table. WordCloud preserves the pinned weighted terms and circle, cardioid,
+  and star treatments. The ownership migration changes only canonical Go
+  ownership and site imports, snippets, renderers, and API links; the parent
+  package remains an exact alias-and-forwarder compatibility facade.
+
 ## Interactive Parallel and ThemeRiver ownership
 
 - Source repository: `github.com/go-echarts/examples`

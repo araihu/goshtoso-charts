@@ -30,6 +30,8 @@ import (
 	interactivesunburst "github.com/araihu/goshtoso-charts/components/interactive/sunburst"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 	interactivetree "github.com/araihu/goshtoso-charts/components/interactive/tree"
+	interactivetreemap "github.com/araihu/goshtoso-charts/components/interactive/treemap"
+	interactivewordcloud "github.com/araihu/goshtoso-charts/components/interactive/wordcloud"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/components/radar"
@@ -1292,7 +1294,7 @@ func interactiveScatterVariant(name string, config interactivescatter.Config) te
 		var templ_7745c5c3_Var32 string
 		templ_7745c5c3_Var32, templ_7745c5c3_Err = templ.ResolveAttributeValue(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 345, Col: 33}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 347, Col: 33}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var32)
 		if templ_7745c5c3_Err != nil {
@@ -2145,7 +2147,7 @@ func interactiveRadarVariant(name string, chart templ.Component) templ.Component
 		var templ_7745c5c3_Var53 string
 		templ_7745c5c3_Var53, templ_7745c5c3_Err = templ.ResolveAttributeValue(name)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 562, Col: 31}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 564, Col: 31}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var53)
 		if templ_7745c5c3_Err != nil {
@@ -3191,7 +3193,7 @@ func interactiveGeoVariants() templ.Component {
 			var templ_7745c5c3_Var81 string
 			templ_7745c5c3_Var81, templ_7745c5c3_Err = templ.ResolveAttributeValue(variant.name)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 818, Col: 72}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 820, Col: 72}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var81)
 			if templ_7745c5c3_Err != nil {
@@ -3289,7 +3291,7 @@ func interactiveMapVariants() templ.Component {
 			var templ_7745c5c3_Var84 string
 			templ_7745c5c3_Var84, templ_7745c5c3_Err = templ.ResolveAttributeValue(string(variant.variant))
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 841, Col: 83}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 843, Col: 83}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var84)
 			if templ_7745c5c3_Err != nil {
@@ -3345,7 +3347,7 @@ func interactiveWordCloudContent() templ.Component {
 				Preview:      wordCloudVariants(),
 				Code:         interactiveWordCloudCode(),
 			},
-			After: interactiveDocumentation(demoNote("Shapes", "Shapes alter layout only. The exact weighted list remains the reliable comparison surface.")),
+			After: templ.Join(demoNote("Shapes", "Shapes alter layout only. The exact weighted list remains the reliable comparison surface."), goAPIReference("interactive/wordcloud")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -3379,7 +3381,7 @@ func wordCloudVariants() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = sampleInteractiveWordCloud("basic WordCloud example", interactive.WordCloudShapeCircle).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = interactivewordcloud.WordCloud(sampleInteractiveWordCloud("basic WordCloud example", interactivewordcloud.ShapeCircle)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -3387,7 +3389,7 @@ func wordCloudVariants() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = sampleInteractiveWordCloud("cardioid shape", interactive.WordCloudShapeCardioid).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = interactivewordcloud.WordCloud(sampleInteractiveWordCloud("cardioid shape", interactivewordcloud.ShapeCardioid)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -3395,7 +3397,7 @@ func wordCloudVariants() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = sampleInteractiveWordCloud("star shape", interactive.WordCloudShapeStar).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = interactivewordcloud.WordCloud(sampleInteractiveWordCloud("star shape", interactivewordcloud.ShapeStar)).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -3538,10 +3540,10 @@ func interactiveTreemapContent() templ.Component {
 			Description: "Weighted hierarchies shown as nested areas for broad branch-size comparison.",
 			Primary: componentpage.Example{
 				AbovePreview: visualizationGuidance("Explore weighted hierarchies with area for leaves and branch totals.", "Relative size within a recursive structure is more important than precise comparison.", "Deep nesting or exact values must be compared; use a tree and table.", "An adjacent table preserves node paths, parents, totals, leaf values, and classes."),
-				Preview:      sampleInteractiveTreemap(),
+				Preview:      interactivetreemap.Treemap(sampleInteractiveTreemap()),
 				Code:         interactiveTreemapCode(),
 			},
-			After: interactiveDocumentation(demoNote("Hierarchy values", "Leaf values determine branch area. Use the table for exact totals and paths; drill-down is only a visual exploration aid.")),
+			After: templ.Join(demoNote("Hierarchy values", "Leaf values determine branch area. Use the table for exact totals and paths; drill-down is only a visual exploration aid."), goAPIReference("interactive/treemap")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -4563,7 +4565,7 @@ func demoNote(title string, text string) templ.Component {
 		var templ_7745c5c3_Var112 string
 		templ_7745c5c3_Var112, templ_7745c5c3_Err = templ.ResolveAttributeValue(tocID(title))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1358, Col: 145}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1360, Col: 145}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var112)
 		if templ_7745c5c3_Err != nil {
@@ -4576,7 +4578,7 @@ func demoNote(title string, text string) templ.Component {
 		var templ_7745c5c3_Var113 string
 		templ_7745c5c3_Var113, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1358, Col: 256}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1360, Col: 256}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var113))
 		if templ_7745c5c3_Err != nil {
@@ -4589,7 +4591,7 @@ func demoNote(title string, text string) templ.Component {
 		var templ_7745c5c3_Var114 string
 		templ_7745c5c3_Var114, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1358, Col: 347}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1360, Col: 347}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var114))
 		if templ_7745c5c3_Err != nil {
@@ -4631,7 +4633,7 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 		var templ_7745c5c3_Var116 string
 		templ_7745c5c3_Var116, templ_7745c5c3_Err = templ.JoinStringErrs(purpose)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1364, Col: 204}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1366, Col: 204}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var116))
 		if templ_7745c5c3_Err != nil {
@@ -4644,7 +4646,7 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 		var templ_7745c5c3_Var117 string
 		templ_7745c5c3_Var117, templ_7745c5c3_Err = templ.JoinStringErrs(useWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1365, Col: 205}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1367, Col: 205}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var117))
 		if templ_7745c5c3_Err != nil {
@@ -4657,7 +4659,7 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 		var templ_7745c5c3_Var118 string
 		templ_7745c5c3_Var118, templ_7745c5c3_Err = templ.JoinStringErrs(avoidWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1366, Col: 209}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1368, Col: 209}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var118))
 		if templ_7745c5c3_Err != nil {
@@ -4675,7 +4677,7 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 			var templ_7745c5c3_Var119 string
 			templ_7745c5c3_Var119, templ_7745c5c3_Err = templ.JoinStringErrs(equivalentData)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1368, Col: 220}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1370, Col: 220}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var119))
 			if templ_7745c5c3_Err != nil {
@@ -4755,7 +4757,7 @@ func visualizationGuide(purpose string, useWhen string, avoidWhen string, equiva
 		var templ_7745c5c3_Var122 string
 		templ_7745c5c3_Var122, templ_7745c5c3_Err = templ.JoinStringErrs(purpose)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1382, Col: 204}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1384, Col: 204}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var122))
 		if templ_7745c5c3_Err != nil {
@@ -4768,7 +4770,7 @@ func visualizationGuide(purpose string, useWhen string, avoidWhen string, equiva
 		var templ_7745c5c3_Var123 string
 		templ_7745c5c3_Var123, templ_7745c5c3_Err = templ.JoinStringErrs(useWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1383, Col: 205}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1385, Col: 205}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var123))
 		if templ_7745c5c3_Err != nil {
@@ -4781,7 +4783,7 @@ func visualizationGuide(purpose string, useWhen string, avoidWhen string, equiva
 		var templ_7745c5c3_Var124 string
 		templ_7745c5c3_Var124, templ_7745c5c3_Err = templ.JoinStringErrs(avoidWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1384, Col: 209}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1386, Col: 209}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var124))
 		if templ_7745c5c3_Err != nil {
@@ -4799,7 +4801,7 @@ func visualizationGuide(purpose string, useWhen string, avoidWhen string, equiva
 			var templ_7745c5c3_Var125 string
 			templ_7745c5c3_Var125, templ_7745c5c3_Err = templ.JoinStringErrs(equivalentData)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1386, Col: 220}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1388, Col: 220}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var125))
 			if templ_7745c5c3_Err != nil {
@@ -4880,7 +4882,7 @@ func goAPIReference(packageName string) templ.Component {
 		var templ_7745c5c3_Var128 string
 		templ_7745c5c3_Var128, templ_7745c5c3_Err = templ.JoinStringErrs(packagePath)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1404, Col: 126}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1406, Col: 126}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var128))
 		if templ_7745c5c3_Err != nil {

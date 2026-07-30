@@ -14,7 +14,7 @@ const (
 	internalPackage    = modulePath + "/components/internal/interactive"
 	parentFacade       = modulePath + "/components/interactive"
 	childPackagePrefix = parentFacade + "/"
-	migratedChildCount = 16
+	migratedChildCount = 18
 	barPackage         = childPackagePrefix + "bar"
 	boxPlotPackage     = childPackagePrefix + "boxplot"
 	funnelPackage      = childPackagePrefix + "funnel"
@@ -31,12 +31,14 @@ const (
 	sunburstPackage    = childPackagePrefix + "sunburst"
 	themeRiverPackage  = childPackagePrefix + "themeriver"
 	treePackage        = childPackagePrefix + "tree"
+	treemapPackage     = childPackagePrefix + "treemap"
+	wordCloudPackage   = childPackagePrefix + "wordcloud"
 )
 
 func TestChartFoundationPackageDAG(t *testing.T) {
 	t.Parallel()
 
-	childPackages := []string{barPackage, boxPlotPackage, candlestickPackage, funnelPackage, gaugePackage, graphPackage, heatmapPackage, linePackage, parallelPackage, piePackage, radarPackage, sankeyPackage, scatterPackage, sunburstPackage, themeRiverPackage, treePackage}
+	childPackages := []string{barPackage, boxPlotPackage, candlestickPackage, funnelPackage, gaugePackage, graphPackage, heatmapPackage, linePackage, parallelPackage, piePackage, radarPackage, sankeyPackage, scatterPackage, sunburstPackage, themeRiverPackage, treePackage, treemapPackage, wordCloudPackage}
 	if got := len(childPackages); got != migratedChildCount {
 		t.Fatalf("migrated child packages = %d, want %d", got, migratedChildCount)
 	}

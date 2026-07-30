@@ -20,6 +20,8 @@ import (
 	interactivesunburst "github.com/araihu/goshtoso-charts/components/interactive/sunburst"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 	interactivetree "github.com/araihu/goshtoso-charts/components/interactive/tree"
+	interactivetreemap "github.com/araihu/goshtoso-charts/components/interactive/treemap"
+	interactivewordcloud "github.com/araihu/goshtoso-charts/components/interactive/wordcloud"
 )
 
 func controlledOptions(title, filename string) chart.ChartOptions {
@@ -288,26 +290,26 @@ func sampleInteractiveSunburst() interactivesunburst.Config {
 	}
 }
 
-func sampleInteractiveTreemap() interactive.Instance {
-	d3Children := make([]*interactive.TreemapNode, 40)
+func sampleInteractiveTreemap() interactivetreemap.Config {
+	d3Children := make([]*interactivetreemap.Node, 40)
 	for index := range d3Children {
-		d3Children[index] = &interactive.TreemapNode{
+		d3Children[index] = &interactivetreemap.Node{
 			Name:  fmt.Sprintf("f%d", index),
 			Value: float64(5 + (index*7+3)%10),
 			Class: "file",
 		}
 	}
-	return interactive.Treemap(interactive.TreemapConfig{
+	return interactivetreemap.Config{
 		Label:   "Basic treemap example",
 		Caption: "File system usage in KB. Select a directory to focus it in the same chart; use the breadcrumb to return.",
-		Nodes: []*interactive.TreemapNode{
+		Nodes: []*interactivetreemap.Node{
 			{
 				Name: "d1", Class: "directory",
-				Children: []*interactive.TreemapNode{{Name: "f1", Value: 1000, Class: "file"}},
+				Children: []*interactivetreemap.Node{{Name: "f1", Value: 1000, Class: "file"}},
 			},
 			{
 				Name: "d2", Class: "directory",
-				Children: []*interactive.TreemapNode{
+				Children: []*interactivetreemap.Node{
 					{Name: "f1", Value: 100, Class: "file"},
 					{Name: "f2", Value: 300, Class: "file"},
 					{Name: "f3", Value: 200, Class: "file"},
@@ -316,36 +318,36 @@ func sampleInteractiveTreemap() interactive.Instance {
 			{Name: "d3", Class: "directory", Children: d3Children},
 			{Name: "f1", Value: 450, Class: "file"},
 		},
-		Navigation: interactive.TreemapNavigationDrillDown,
-		Roam:       interactive.TreemapRoamEnabled,
-		LabelOptions: &interactive.LabelOptions{
-			Show: interactive.Bool(true), Position: "inside", FontSize: 11,
+		Navigation: interactivetreemap.NavigationDrillDown,
+		Roam:       interactivetreemap.RoamEnabled,
+		LabelOptions: &chart.LabelOptions{
+			Show: chart.Bool(true), Position: "inside", FontSize: 11,
 		},
-		UpperLabel: &interactive.LabelOptions{Show: interactive.Bool(true), FontSize: 12},
-		Breadcrumb: &interactive.TreemapBreadcrumb{Show: interactive.Bool(true), Height: 24, ItemGap: 8},
-		NodeStyle:  interactive.TreemapNodeStyle{BorderWidth: 1, GapWidth: 1},
-		LeafDepth:  interactive.Int(1),
-		Levels: []interactive.TreemapLevel{
+		UpperLabel: &chart.LabelOptions{Show: chart.Bool(true), FontSize: 12},
+		Breadcrumb: &interactivetreemap.Breadcrumb{Show: chart.Bool(true), Height: 24, ItemGap: 8},
+		NodeStyle:  interactivetreemap.NodeStyle{BorderWidth: 1, GapWidth: 1},
+		LeafDepth:  chart.Int(1),
+		Levels: []interactivetreemap.Level{
 			{
-				UpperLabel: &interactive.LabelOptions{Show: interactive.Bool(true)},
-				NodeStyle:  interactive.TreemapNodeStyle{BorderWidth: 1, GapWidth: 1},
+				UpperLabel: &chart.LabelOptions{Show: chart.Bool(true)},
+				NodeStyle:  interactivetreemap.NodeStyle{BorderWidth: 1, GapWidth: 1},
 			},
-			{NodeStyle: interactive.TreemapNodeStyle{BorderWidth: 2, GapWidth: 1}},
+			{NodeStyle: interactivetreemap.NodeStyle{BorderWidth: 2, GapWidth: 1}},
 			{
-				NodeStyle:       interactive.TreemapNodeStyle{GapWidth: 1},
-				ColorSaturation: &interactive.TreemapColorRange{Min: 0.35, Max: 0.5},
+				NodeStyle:       interactivetreemap.NodeStyle{GapWidth: 1},
+				ColorSaturation: &interactivetreemap.ColorRange{Min: 0.35, Max: 0.5},
 			},
 		},
 		Width:  "100%",
 		Height: "500px",
-		Options: interactive.ChartOptions{
-			Title:    &interactive.TitleOptions{Text: "Basic treemap example", Subtitle: "File system usage", Left: "center"},
-			Legend:   &interactive.LegendOptions{Show: interactive.Bool(false)},
-			Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "item"},
+		Options: chart.ChartOptions{
+			Title:    &chart.TitleOptions{Text: "Basic treemap example", Subtitle: "File system usage", Left: "center"},
+			Legend:   &chart.LegendOptions{Show: chart.Bool(false)},
+			Tooltip:  &chart.TooltipOptions{Show: chart.Bool(true), Trigger: "item"},
 			Controls: chartcontrol.Options{Fullscreen: true},
 			Export:   &chartcontrol.ExportOptions{Filename: "basic-treemap-example"},
 		},
-	})
+	}
 }
 
 type parallelSampleRow struct {
@@ -495,26 +497,26 @@ func sampleThemeRiverStreams() []interactivethemeriver.Stream {
 	return streams
 }
 
-func sampleInteractiveWordCloud(title string, shape interactive.WordCloudShape) interactive.Instance {
-	return interactive.WordCloud(interactive.WordCloudConfig{
+func sampleInteractiveWordCloud(title string, shape interactivewordcloud.Shape) interactivewordcloud.Config {
+	return interactivewordcloud.Config{
 		Label: title, Caption: "Twenty weighted terms with exact values available below the canvas.",
-		Series: interactive.WordCloudSeries{
+		Series: interactivewordcloud.Series{
 			Name: "wordcloud", Words: sampleWordCloudWords(),
-			Options: interactive.WordCloudSeriesOptions{
-				Shape: shape, SizeRange: &interactive.WordCloudSizeRange{Min: 14, Max: 80},
+			Options: interactivewordcloud.SeriesOptions{
+				Shape: shape, SizeRange: &interactivewordcloud.SizeRange{Min: 14, Max: 80},
 			},
 		},
-		Options: interactive.ChartOptions{
-			Title:    &interactive.TitleOptions{Text: title},
-			Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "item"},
+		Options: chart.ChartOptions{
+			Title:    &chart.TitleOptions{Text: title},
+			Tooltip:  &chart.TooltipOptions{Show: chart.Bool(true), Trigger: "item"},
 			Controls: chartcontrol.Options{Fullscreen: true},
 			Export:   &chartcontrol.ExportOptions{Filename: strings.ReplaceAll(strings.ToLower(title), " ", "-")},
 		},
-	})
+	}
 }
 
-func sampleWordCloudWords() []interactive.Word {
-	return []interactive.Word{
+func sampleWordCloudWords() []interactivewordcloud.Word {
+	return []interactivewordcloud.Word{
 		{Name: "Sam S Club", Value: 10000, Class: "retail"},
 		{Name: "Macys", Value: 6181, Class: "retail", Color: "#ff8a3d"},
 		{Name: "Amy Schumer", Value: 4386},
@@ -816,26 +818,26 @@ func interactiveSunburstCode() string {
 }
 
 func interactiveTreemapCode() string {
-	return `@interactive.Treemap(interactive.TreemapConfig{
+	return `@interactivetreemap.Treemap(interactivetreemap.Config{
   Label: "Basic treemap example",
   Caption: "File system usage in KB. Select a directory; use the breadcrumb to return.",
-  Nodes: []*interactive.TreemapNode{
-    {Name: "d1", Class: "directory", Children: []*interactive.TreemapNode{
+  Nodes: []*interactivetreemap.Node{
+    {Name: "d1", Class: "directory", Children: []*interactivetreemap.Node{
       {Name: "f1", Value: 1000, Class: "file"},
     }},
-    {Name: "d2", Class: "directory", Children: []*interactive.TreemapNode{
+    {Name: "d2", Class: "directory", Children: []*interactivetreemap.Node{
       {Name: "f1", Value: 100}, {Name: "f2", Value: 300}, {Name: "f3", Value: 200},
     }},
     {Name: "d3", Class: "directory", Children: deterministicFiles},
     {Name: "f1", Value: 450, Class: "file"},
   },
-  Navigation: interactive.TreemapNavigationDrillDown,
-  Roam: interactive.TreemapRoamEnabled,
-  LabelOptions: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "inside"},
-  UpperLabel: &interactive.LabelOptions{Show: interactive.Bool(true)},
-  Breadcrumb: &interactive.TreemapBreadcrumb{Show: interactive.Bool(true)},
-  NodeStyle: interactive.TreemapNodeStyle{BorderWidth: 1, GapWidth: 1},
-  LeafDepth: interactive.Int(1),
+  Navigation: interactivetreemap.NavigationDrillDown,
+  Roam: interactivetreemap.RoamEnabled,
+  LabelOptions: &chart.LabelOptions{Show: chart.Bool(true), Position: "inside"},
+  UpperLabel: &chart.LabelOptions{Show: chart.Bool(true)},
+  Breadcrumb: &interactivetreemap.Breadcrumb{Show: chart.Bool(true)},
+  NodeStyle: interactivetreemap.NodeStyle{BorderWidth: 1, GapWidth: 1},
+  LeafDepth: chart.Int(1),
   Width: "100%",
   Height: "500px",
 })`
@@ -888,17 +890,17 @@ func interactiveThemeRiverCode() string {
 }
 
 func interactiveWordCloudCode() string {
-	return `@interactive.WordCloud(interactive.WordCloudConfig{
+	return `@interactivewordcloud.WordCloud(interactivewordcloud.Config{
   Label: "star shape",
-  Series: interactive.WordCloudSeries{
+  Series: interactivewordcloud.Series{
     Name: "wordcloud",
-    Words: []interactive.Word{
+    Words: []interactivewordcloud.Word{
       {Name: "Sam S Club", Value: 10000, Class: "retail"},
       {Name: "Macys", Value: 6181, Color: "#ff8a3d"},
     },
-    Options: interactive.WordCloudSeriesOptions{
-      Shape: interactive.WordCloudShapeStar,
-      SizeRange: &interactive.WordCloudSizeRange{Min: 14, Max: 80},
+    Options: interactivewordcloud.SeriesOptions{
+      Shape: interactivewordcloud.ShapeStar,
+      SizeRange: &interactivewordcloud.SizeRange{Min: 14, Max: 80},
     },
   },
 })`
