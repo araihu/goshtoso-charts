@@ -24,6 +24,7 @@ var publicBoundaryPackages = []string{
 	modulePath + "/components/interactive/gauge",
 	modulePath + "/components/interactive/heatmap",
 	modulePath + "/components/interactive/line",
+	modulePath + "/components/interactive/parallel",
 	modulePath + "/components/interactive/pie",
 	modulePath + "/components/interactive/radar",
 	modulePath + "/components/interactive/scatter",
