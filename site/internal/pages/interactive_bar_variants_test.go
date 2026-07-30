@@ -4,7 +4,7 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/araihu/goshtoso-charts/components/interactive"
+	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 )
 
 func TestInteractiveBarUpstreamCoverageIsExhaustiveAndPinned(t *testing.T) {
@@ -55,10 +55,10 @@ func TestInteractiveBarSamplesPreserveUpstreamShapesDeterministically(t *testing
 		}
 	}
 
-	tests := []interactive.BarConfig{
+	tests := []interactivebar.Config{
 		sampleInteractiveBar(), sampleInteractiveBarLabels(), sampleInteractiveBarAxes(), sampleInteractiveBarColors(),
 		sampleInteractiveBarWidthsAndGap(), sampleInteractiveBarHorizontal(), sampleInteractiveBarStacked(),
-		sampleInteractiveBarZoom(interactive.BarZoomInside), sampleInteractiveBarZoom(interactive.BarZoomSlider),
+		sampleInteractiveBarZoom(interactivebar.ZoomInside), sampleInteractiveBarZoom(interactivebar.ZoomSlider),
 		sampleInteractiveBarMarkPoints(), sampleInteractiveBarMarkLines(), sampleInteractiveBarLargeCanvas(),
 	}
 	for _, cfg := range tests {
@@ -72,13 +72,13 @@ func TestInteractiveBarSamplesPreserveUpstreamShapesDeterministically(t *testing
 		}
 	}
 
-	if sampleInteractiveBarHorizontal().Orientation != interactive.BarOrientationHorizontal {
+	if sampleInteractiveBarHorizontal().Orientation != interactivebar.OrientationHorizontal {
 		t.Error("horizontal sample lost axis reversal")
 	}
 	if sampleInteractiveBarStacked().SeriesOptions.Stack != "stackA" {
 		t.Error("stacked sample lost shared stack")
 	}
-	if zoom := sampleInteractiveBarZoom(interactive.BarZoomSlider).Zoom; zoom == nil || zoom.Mode != interactive.BarZoomSlider || zoom.StartPercent != 10 || zoom.EndPercent != 50 {
+	if zoom := sampleInteractiveBarZoom(interactivebar.ZoomSlider).Zoom; zoom == nil || zoom.Mode != interactivebar.ZoomSlider || zoom.StartPercent != 10 || zoom.EndPercent != 50 {
 		t.Errorf("slider zoom = %#v", zoom)
 	}
 	if cfg := sampleInteractiveBarLargeCanvas(); cfg.Width != "100%" || cfg.Height != "600px" {

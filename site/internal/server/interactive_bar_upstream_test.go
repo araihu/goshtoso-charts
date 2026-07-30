@@ -26,6 +26,7 @@ func TestInteractiveBarPageExhaustsPinnedExamplesWithoutRendererBranding(t *test
 		"Large canvas", "600-pixel height",
 		"Shared chart behavior", "/docs/chart-controls", "/docs/chart-modes",
 		"Mixed-series composition", "renderer-neutral composite chart API", "Go API", "v0.0.1",
+		"github.com/araihu/goshtoso-charts/components/interactive/bar",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("interactive Bar page missing %q", want)
