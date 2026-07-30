@@ -8,6 +8,45 @@ import (
 	"testing"
 )
 
+var themePlaygroundBuiltInThemes = []struct {
+	value string
+	label string
+}{
+	{value: "araihu", label: "Arai Hû"},
+	{value: "goshtoso", label: "Goshtoso"},
+	{value: "arctic", label: "Arctic"},
+	{value: "high-contrast", label: "High Contrast"},
+	{value: "minimal", label: "Minimal"},
+	{value: "modern", label: "Modern"},
+	{value: "neo-brutalism", label: "Neo Brutalism"},
+	{value: "halloween", label: "Halloween"},
+	{value: "zombie", label: "Zombie"},
+	{value: "pastel", label: "Pastel"},
+	{value: "90s", label: "90s"},
+	{value: "christmas", label: "Christmas"},
+	{value: "prototype", label: "Prototype"},
+	{value: "news", label: "News"},
+	{value: "industrial", label: "Industrial"},
+	{value: "dracula", label: "Dracula"},
+}
+
+func TestThemePlaygroundOffersEveryBuiltInTheme(t *testing.T) {
+	t.Parallel()
+	themes := themePlaygroundThemes()
+	if len(themes) != len(themePlaygroundBuiltInThemes) {
+		t.Fatalf("theme playground themes = %d, want %d", len(themes), len(themePlaygroundBuiltInThemes))
+	}
+	for index, want := range themePlaygroundBuiltInThemes {
+		got := themes[index]
+		if got.Value != want.value || got.Label != want.label {
+			t.Errorf("theme %d = (%q, %q), want (%q, %q)", index, got.Value, got.Label, want.value, want.label)
+		}
+		if got.Selected != (got.Value == "araihu") {
+			t.Errorf("theme %q selected = %t, want %t", got.Value, got.Selected, got.Value == "araihu")
+		}
+	}
+}
+
 func TestThemePlaygroundReusesCentralizedExamples(t *testing.T) {
 	t.Parallel()
 	// The static source paths are centralized in the Line/Pie coverage records;
@@ -78,6 +117,7 @@ func TestThemePlaygroundFrameOwnsNonPersistentPickerAndFourCharts(t *testing.T) 
 		`componentDocShell({&#34;persist&#34;:false,&#34;theme&#34;:&#34;araihu&#34;,&#34;colorScheme&#34;:&#34;light&#34;})`,
 		`id="theme-playground-theme-trigger"`,
 		`aria-label="Theme"`,
+		`All 16 built-in Goshtoso themes provide chart tokens`,
 		`data-theme-playground-grid`,
 		`Static line`,
 		`Static pie`,

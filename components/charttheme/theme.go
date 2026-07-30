@@ -74,6 +74,8 @@ func (style Style) RootClasses(base string) string {
 	palette := style.Palette
 	if palette == PaletteAuto {
 		palette = "auto"
+	} else if _, ok := palettes[palette]; !ok {
+		palette = PaletteBold
 	}
 	parts := []string{strings.TrimSpace(base), "goshtoso-charts-palette", "goshtoso-charts-palette-" + string(palette)}
 	if class := strings.TrimSpace(style.Class); class != "" {

@@ -35,9 +35,9 @@ namespace. Tailwind arbitrary-variable utilities such as
 
 ## Chart palettes
 
-Default `charttheme.PaletteAuto` detects AraiHu in SSR markup and adds a warm,
-contrasting palette around its lime accent. Themes without chart CSS receive the
-high-contrast Bold fallback. Neutral and Pastel fallbacks are also built in.
+Default `charttheme.PaletteAuto` follows dedicated chart tokens for all 16
+built-in Goshtoso themes. Neutral, Pastel, Bold, Status, and Arai Hû palettes
+remain available when an application needs an explicit semantic treatment.
 
 ```go
 import "github.com/araihu/goshtoso-charts/components/charttheme"
@@ -59,8 +59,9 @@ Style: charttheme.Style{
 },
 ```
 
-Application CSS may target `my-chart` and override any
-`--color-chart-series-*` token. Interactive canvas
+Application CSS may target `my-chart` and override any `--color-chart-*` token;
+the built-in theme values are defaults, not a closed styling boundary.
+Interactive canvas
 charts resolve these CSS tokens through the private runtime bridge and refresh
 when Goshtoso theme or dark-mode state changes. Explicit `Style.Colors` remain
 authoritative.
