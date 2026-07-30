@@ -44,7 +44,7 @@ required.
 ## Shared chart instance foundation
 
 `components/chart.Instance` is the canonical public identity for a renderable
-chart instance. `components/interactive.Instance` and all eight migrated child
+chart instance. `components/interactive.Instance` and all ten migrated child
 packages' `Instance` names are exact aliases, so old and new values remain
 assignment-compatible and constructor function signatures remain
 interchangeable. Consumers can mix the facade and chart-specific package paths
@@ -212,7 +212,7 @@ Standard, donut, and rose treatments remain variants of one `Pie` component
 and one component kind. Pie-specific names are concise: `Config`, `Series`,
 `Data`, `RoseMode`, `LabelContent`, `TooltipContent`, and `Center`. Percentage
 formatting and validation live only in the private interactive adapter; thin
-parent wrappers preserve Gauge, Sunburst, ThemeRiver, and WordCloud behavior.
+parent wrappers preserve Sunburst, ThemeRiver, and WordCloud behavior.
 The public parent Pie surface remains exact aliases, constants, and one
 constructor forwarder.
 
@@ -274,10 +274,60 @@ are `Config`, `Series`, and `Data`; shared options stay in `components/chart`.
 The parent preserves three exact type aliases and one forwarding constructor,
 including five-number ordering validation, component kind, and markup.
 
+## Gauge
+
+Use `components/interactive/gauge` for new interactive Gauge code:
+
+```go
+import interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
+
+completion := interactivegauge.Gauge(interactivegauge.Config{
+	Label:   "Deployment completion",
+	Variant: interactivegauge.VariantProgress,
+	Series: []interactivegauge.Series{{
+		Name: "Rollout",
+		Data: []interactivegauge.Data{{Name: "Complete", Value: 73}},
+	}},
+})
+```
+
+Standard, progress, and liquid treatments remain variants of one `Gauge`
+component. Gauge-specific scale, progress, liquid-shape, paint, outline,
+background, label, series, and data types live in the child package; shared
+chart and series options remain in `components/chart`. The parent preserves
+exact aliases, constants, and one forwarding constructor. Remaining parent
+percentage helpers serve only unmigrated parent implementations; Gauge calls
+the private adapter directly.
+
+## Funnel
+
+Use `components/interactive/funnel` for new interactive Funnel code:
+
+```go
+import interactivefunnel "github.com/araihu/goshtoso-charts/components/interactive/funnel"
+
+pipeline := interactivefunnel.Funnel(interactivefunnel.Config{
+	Label: "Deployment pipeline",
+	Order: interactivefunnel.OrderData,
+	Series: []interactivefunnel.Series{{
+		Name: "Deployments",
+		Data: []interactivefunnel.Data{
+			{Name: "Started", Value: 10},
+			{Name: "Completed", Value: 8},
+		},
+	}},
+})
+```
+
+Descending, ascending, and caller-data ordering remain options on one `Funnel`
+component. Funnel-specific `Config`, `Order`, `Series`, and `Data` live in the
+child package; shared options remain in `components/chart`. The parent keeps
+exact aliases, order constants, and one forwarding constructor.
+
 ## Current boundary
 
-Bar, Line, Scatter, Candlestick, HeatMap, Pie, Radar, and BoxPlot physical
-ownership is complete. The supported parent facade delegates those eight
+Bar, Line, Scatter, Candlestick, HeatMap, Pie, Radar, BoxPlot, Gauge, and Funnel
+physical ownership is complete. The supported parent facade delegates those ten
 migrated charts. Remaining chart families continue using their existing paths
 until their own bounded migrations land, and the final v1 policy for the parent
 compatibility facade remains open. Shared public and private foundation

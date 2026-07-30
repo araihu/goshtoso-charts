@@ -2,9 +2,10 @@ package pages
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 
-	"github.com/araihu/goshtoso-charts/components/interactive"
+	interactivefunnel "github.com/araihu/goshtoso-charts/components/interactive/funnel"
 )
 
 func TestInteractiveFunnelCoverageInventoriesEveryPinnedBehaviorAndSourceSpan(t *testing.T) {
@@ -57,10 +58,13 @@ func TestFixedInteractiveFunnelDataPreservesOrderDomainAndHelperCallSequence(t *
 func TestInteractiveFunnelExamplesMapBothPinnedBehaviors(t *testing.T) {
 	t.Parallel()
 	base := sampleInteractiveFunnel()
+	if got := reflect.TypeOf(base).PkgPath(); got != "github.com/araihu/goshtoso-charts/components/interactive/funnel" {
+		t.Fatalf("site Funnel config package = %q", got)
+	}
 	if base.Label != "Basic five-stage funnel" || base.Width != "100%" || base.Height != "420px" || base.Options.Title.Text != "basic funnel example" {
 		t.Fatalf("base Funnel presentation = %#v", base)
 	}
-	if base.Order != interactive.FunnelOrderDescending || base.Caption != "Five deterministic values preserve the upstream source sequence in the exact table and [0,50) value domain; the chart keeps the upstream default descending-by-value order." {
+	if base.Order != interactivefunnel.OrderDescending || base.Caption != "Five deterministic values preserve the upstream source sequence in the exact table and [0,50) value domain; the chart keeps the upstream default descending-by-value order." {
 		t.Fatalf("base Funnel order disclosure = %q / %q", base.Order, base.Caption)
 	}
 	if len(base.Series) != 1 || base.Series[0].Name != "Analytics" || !reflect.DeepEqual(base.Series[0].Data, fixedInteractiveFunnelData(0)) {
@@ -74,15 +78,29 @@ func TestInteractiveFunnelExamplesMapBothPinnedBehaviors(t *testing.T) {
 	if labels.Options.Title.Text != "show label" || !reflect.DeepEqual(labels.Series[0].Data, fixedInteractiveFunnelData(1)) {
 		t.Fatalf("label Funnel data or title = %#v", labels)
 	}
-	if labels.Order != interactive.FunnelOrderDescending || labels.Caption != "Every stage label remains visible to the left of its shape; the exact table keeps source order while the chart keeps the upstream default descending-by-value order." {
+	if labels.Order != interactivefunnel.OrderDescending || labels.Caption != "Every stage label remains visible to the left of its shape; the exact table keeps source order while the chart keeps the upstream default descending-by-value order." {
 		t.Fatalf("label Funnel order disclosure = %q / %q", labels.Order, labels.Caption)
 	}
 	if labels.SeriesOptions.Label == nil || labels.SeriesOptions.Label.Show == nil || !*labels.SeriesOptions.Label.Show || labels.SeriesOptions.Label.Position != "left" {
 		t.Fatalf("label Funnel options = %#v", labels.SeriesOptions.Label)
 	}
-	for _, cfg := range []interactive.FunnelConfig{base, labels} {
+	for _, cfg := range []interactivefunnel.Config{base, labels} {
 		if cfg.Options.Legend == nil || cfg.Options.Legend.Bottom != "0" || cfg.Options.Tooltip == nil || cfg.Options.Tooltip.Trigger != "item" {
 			t.Errorf("contained Funnel options = %#v", cfg.Options)
+		}
+	}
+	for name, code := range map[string]string{"base": interactiveFunnelBaseCode(), "labels": interactiveFunnelLabelsCode()} {
+		for _, want := range []string{"@interactivefunnel.Funnel(interactivefunnel.Config{", "[]interactivefunnel.Series", "[]interactivefunnel.Data"} {
+			if !strings.Contains(code, want) {
+				t.Errorf("%s Funnel snippet missing canonical API %q", name, want)
+			}
+		}
+		sharedOptions := map[string]string{"base": "chart.ChartOptions", "labels": "chart.SeriesOptions"}[name]
+		if !strings.Contains(code, sharedOptions) {
+			t.Errorf("%s Funnel snippet missing shared options %q", name, sharedOptions)
+		}
+		if strings.Contains(code, "interactive.Funnel") {
+			t.Errorf("%s Funnel snippet still teaches compatibility facade", name)
 		}
 	}
 }

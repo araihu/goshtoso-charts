@@ -544,7 +544,8 @@ chart API because consumers own page layout.
 - Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
 - Source SHA-256: `c532e6490bad284b4b6a5dec20825359abc795a8ee9f3bb5febbcfb4e0cd2d55`
 - Status: both dedicated behavior functions are covered by the one
-  renderer-neutral `interactive.Funnel` component.
+  renderer-neutral `interactivefunnel.Funnel` component in
+  `components/interactive/funnel`.
 - Deterministic adaptation: the ambient random helper becomes a local seed-1
   sequence in original function and helper-call order. `Visit`, `Add`, `Order`,
   `Payment`, and `Deal` retain their source sequence in typed data and the exact

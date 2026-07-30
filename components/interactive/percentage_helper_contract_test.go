@@ -77,7 +77,6 @@ func TestPercentageHelperDependentsRemainOnParentWrappers(t *testing.T) {
 	t.Parallel()
 
 	wants := map[string]map[string]bool{
-		"gauge.go":       {"percentage": true},
 		"sunburst.go":    {"percentage": true, "validPercentage": true},
 		"theme_river.go": {"percentage": true, "validPercentage": true},
 		"wordcloud.go":   {"percentage": true},

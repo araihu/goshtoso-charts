@@ -10,6 +10,7 @@ import (
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
+	interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
@@ -681,39 +682,39 @@ templ interactiveChartGaugeContent() {
 			Preview:      interactiveGaugeVariants(),
 			Code:         interactiveChartGaugeCode(),
 		},
-		After: interactiveDocumentation(interactiveGaugeUsage()),
+		After: templ.Join(interactiveGaugeUsage(), goAPIReference("interactive/gauge")),
 	})
 }
 
 templ interactiveGaugeVariants() {
 	<div class="space-y-8">
 		<div data-gauge-variant="progress">
-			@interactive.Gauge(sampleInteractiveGauge())
+			@interactivegauge.Gauge(sampleInteractiveGauge())
 		</div>
 		<div class="flex flex-wrap gap-6" data-gauge-liquid-variants>
 			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="basic">
-				@interactive.Gauge(sampleInteractiveLiquidGauge("basic liquid example", interactive.GaugeLiquidShapeCircle, false, false, interactive.Bool(true)))
+				@interactivegauge.Gauge(sampleInteractiveLiquidGauge("basic liquid example", interactivegauge.LiquidShapeCircle, false, false, chart.Bool(true)))
 			</div>
 			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="label">
-				@interactive.Gauge(sampleInteractiveLiquidGauge("show label", interactive.GaugeLiquidShapeCircle, true, false, interactive.Bool(true)))
+				@interactivegauge.Gauge(sampleInteractiveLiquidGauge("show label", interactivegauge.LiquidShapeCircle, true, false, chart.Bool(true)))
 			</div>
 			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="outline">
-				@interactive.Gauge(sampleInteractiveLiquidGauge("show outline", interactive.GaugeLiquidShapeCircle, true, true, interactive.Bool(true)))
+				@interactivegauge.Gauge(sampleInteractiveLiquidGauge("show outline", interactivegauge.LiquidShapeCircle, true, true, chart.Bool(true)))
 			</div>
 			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="static">
-				@interactive.Gauge(sampleInteractiveLiquidGauge("disable wave animation", interactive.GaugeLiquidShapeCircle, true, true, interactive.Bool(false)))
+				@interactivegauge.Gauge(sampleInteractiveLiquidGauge("disable wave animation", interactivegauge.LiquidShapeCircle, true, true, chart.Bool(false)))
 			</div>
 			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="diamond">
-				@interactive.Gauge(sampleInteractiveLiquidGauge("shape(Diamond)", interactive.GaugeLiquidShapeDiamond, false, false, interactive.Bool(true)))
+				@interactivegauge.Gauge(sampleInteractiveLiquidGauge("shape(Diamond)", interactivegauge.LiquidShapeDiamond, false, false, chart.Bool(true)))
 			</div>
 			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="pin">
-				@interactive.Gauge(sampleInteractiveLiquidGauge("shape(Pin)", interactive.GaugeLiquidShapePin, false, false, interactive.Bool(true)))
+				@interactivegauge.Gauge(sampleInteractiveLiquidGauge("shape(Pin)", interactivegauge.LiquidShapePin, false, false, chart.Bool(true)))
 			</div>
 			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="arrow">
-				@interactive.Gauge(sampleInteractiveLiquidGauge("shape(Arrow)", interactive.GaugeLiquidShapeArrow, false, false, interactive.Bool(true)))
+				@interactivegauge.Gauge(sampleInteractiveLiquidGauge("shape(Arrow)", interactivegauge.LiquidShapeArrow, false, false, chart.Bool(true)))
 			</div>
 			<div class="min-w-0 flex-[1_1_20rem]" data-gauge-liquid-variant="triangle">
-				@interactive.Gauge(sampleInteractiveLiquidGauge("shape(Triangle)", interactive.GaugeLiquidShapeTriangle, false, false, interactive.Bool(true)))
+				@interactivegauge.Gauge(sampleInteractiveLiquidGauge("shape(Triangle)", interactivegauge.LiquidShapeTriangle, false, false, chart.Bool(true)))
 			</div>
 		</div>
 	</div>
@@ -951,7 +952,7 @@ templ interactiveChartFunnelContent() {
 				Code:        interactiveFunnelLabelsCode(),
 			},
 		},
-		After: interactiveDocumentation(demoNote("Stage meaning", "A funnel does not prove conversion or enforce decreasing values. The upstream default sorts geometry by descending value; set FunnelOrderData when process order matters, and use the exact table for values and source order.")),
+		After: templ.Join(demoNote("Stage meaning", "A funnel does not prove conversion or enforce decreasing values. The upstream default sorts geometry by descending value; set OrderData when process order matters, and use the exact table for values and source order."), goAPIReference("interactive/funnel")),
 	})
 }
 

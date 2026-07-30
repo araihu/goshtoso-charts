@@ -1,10 +1,10 @@
-package interactive
+package gauge
 
 import (
 	"strconv"
 )
 
-templ gaugeLiquidExactValues(label string, minimum, maximum int, values []GaugeData) {
+templ liquidExactValues(label string, minimum, maximum int, values []Data) {
 	<details class="mt-3 max-w-full text-sm text-on-surface dark:text-on-surface-dark" data-goshtoso-gauge-liquid-values>
 		<summary class="cursor-pointer font-semibold">Exact bounded readings</summary>
 		<p class="mt-2 text-on-surface-muted dark:text-on-surface-dark-muted">{ label }. Range: { strconv.Itoa(minimum) } to { strconv.Itoa(maximum) }.</p>
