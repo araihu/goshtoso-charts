@@ -265,7 +265,7 @@ func chartActions(cfg WrapperConfig, formats []ExportFormat) actiongroup.Config 
 		}
 	}
 
-	rootClass := "goshtoso-charts-controls mb-2"
+	rootClass := "goshtoso-charts-controls goshtoso-charts-controls-neutral mb-2"
 	if stacked != nil {
 		rootClass += " goshtoso-charts-stacked-primary"
 	}
@@ -276,7 +276,8 @@ func chartActions(cfg WrapperConfig, formats []ExportFormat) actiongroup.Config 
 		OverflowLabel: "More " + cfg.Label + " chart actions",
 		RootClass:     rootClass,
 		RootAttrs: templ.Attributes{
-			"data-goshtoso-chart-actions": true,
+			"data-goshtoso-chart-actions":      true,
+			"data-goshtoso-chart-control-tone": "neutral",
 		},
 	}
 }

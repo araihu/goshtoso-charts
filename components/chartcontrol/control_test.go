@@ -3,6 +3,7 @@ package chartcontrol_test
 import (
 	"bytes"
 	"context"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -42,6 +43,7 @@ func TestDefaultWrapperEnablesExpandAndCapabilityDerivedExport(t *testing.T) {
 		`class="goshtoso-charts-control-wrapper"`, `data-goshtoso-chart-expand`,
 		`data-goshtoso-chart-wrapper-mode="enabled"`, `data-goshtoso-chart-actions-fieldset`,
 		`data-goshtoso-action-group`, `data-action-group-primary`,
+		`goshtoso-charts-controls-neutral`, `data-goshtoso-chart-control-tone="neutral"`,
 		`role="dialog"`, `aria-modal="true"`, `x-trap.inert.noscroll`,
 		`id="latency-chart-expand-export"`, `data-action-group-overflow`,
 		`More Latency chart actions`, `Export`, `>SVG</button>`, `>PNG</button>`,
@@ -54,6 +56,27 @@ func TestDefaultWrapperEnablesExpandAndCapabilityDerivedExport(t *testing.T) {
 	for _, unwanted := range []string{`Collapse`, `data-goshtoso-chart-secondary-actions`, `data-goshtoso-chart-overflow`} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("default wrapper unexpectedly contains %q", unwanted)
+		}
+	}
+}
+
+func TestDefaultControlsShareNeutralToneAndStableDimensions(t *testing.T) {
+	t.Parallel()
+	output, err := os.ReadFile("styles.templ")
+	if err != nil {
+		t.Fatal(err)
+	}
+	markup := string(output)
+	for _, want := range []string{
+		`--goshtoso-chart-control-height: 2.75rem`,
+		`--goshtoso-chart-control-width: 7.5rem`,
+		`.goshtoso-charts-controls-neutral > [data-action-group-primary] > button`,
+		`background-color: var(--color-surface-alt)`,
+		`.dark .goshtoso-charts-controls-neutral`,
+		`[role="menuitem"]`,
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("default control styling missing %q", want)
 		}
 	}
 }
