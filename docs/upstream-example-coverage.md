@@ -440,7 +440,7 @@ page composition stay consumer-owned and do not become chart API modes.
 - Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
 - Source SHA-256: `a59bb6f11818d4175d033f025f00a58e6a191eff5acf30f0e0cd5f98cd493ada`
 - Status: all nine upstream Pie behavior functions are covered by the one
-  renderer-neutral `interactive.Pie` component. No Pie function requires a raw
+  renderer-neutral `interactive/pie.Pie` component. No Pie function requires a raw
   renderer option or backing-engine public type.
 - Deterministic adaptation: the upstream ambient random sequence is replaced by
   its recorded seed-1 value groups in original call order. The upstream
@@ -581,7 +581,7 @@ outside the public chart API because consumers own page layout.
 - Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
 - Source SHA-256: `c08b194eafa5e02e941ad91f7ff8402448bc77b407cc97903b19063d06dd6f14`
 - Status: both dedicated behavior functions are covered by the one
-  renderer-neutral `interactive.HeatMap` component.
+  renderer-neutral `interactive/heatmap.HeatMap` component.
 - Deterministic adaptation: the Cartesian grid preserves all 168 source cells,
   seven weekday labels, twenty-four hour labels, ordering, and explicit missing
   cells. Calendar generation uses a local seed-1 sequence over the same 366-day
