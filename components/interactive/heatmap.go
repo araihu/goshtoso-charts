@@ -252,8 +252,8 @@ func validateHeatMapConfig(cfg HeatMapConfig) error {
 			return fmt.Errorf("heatmap chart calendar start must not follow end")
 		}
 		if style := cfg.Calendar.Options.CellStyle; style != nil {
-			if style.BorderWidth < 0 {
-				return fmt.Errorf("heatmap chart calendar cell border width must be nonnegative")
+			if !finiteHeatMapNumber(style.BorderWidth) || style.BorderWidth < 0 {
+				return fmt.Errorf("heatmap chart calendar cell border width must be finite and nonnegative")
 			}
 			if style.Opacity != nil && (!finiteHeatMapNumber(*style.Opacity) || *style.Opacity < 0 || *style.Opacity > 1) {
 				return fmt.Errorf("heatmap chart calendar cell opacity must be between 0 and 1")
@@ -271,8 +271,8 @@ func validateHeatMapConfig(cfg HeatMapConfig) error {
 			if label == nil {
 				continue
 			}
-			if label.Margin < 0 || label.FontSize < 0 {
-				return fmt.Errorf("heatmap chart calendar %s label margin and font size must be nonnegative", name)
+			if !finiteHeatMapNumber(label.Margin) || label.Margin < 0 || label.FontSize < 0 {
+				return fmt.Errorf("heatmap chart calendar %s label margin and font size must be finite and nonnegative", name)
 			}
 			if label.Position != "" && label.Position != "left" && label.Position != "right" && label.Position != "top" && label.Position != "bottom" {
 				return fmt.Errorf("heatmap chart calendar %s label position %q is not supported", name, label.Position)

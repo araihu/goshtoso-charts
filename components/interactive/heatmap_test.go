@@ -154,7 +154,12 @@ func TestHeatMapRejectsInvalidDataContract(t *testing.T) {
 			cfg := validCalendar()
 			cfg.Calendar.Options.CellStyle = &ItemStyle{BorderWidth: -0.5}
 			return cfg
-		}, "heatmap chart calendar cell border width must be nonnegative"},
+		}, "heatmap chart calendar cell border width must be finite and nonnegative"},
+		"nonfinite calendar cell border": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.Calendar.Options.CellStyle = &ItemStyle{BorderWidth: math.NaN()}
+			return cfg
+		}, "heatmap chart calendar cell border width must be finite and nonnegative"},
 		"calendar cell opacity out of range": {func() HeatMapConfig {
 			cfg := validCalendar()
 			cfg.Calendar.Options.CellStyle = &ItemStyle{Opacity: Float(1.5)}
@@ -164,7 +169,12 @@ func TestHeatMapRejectsInvalidDataContract(t *testing.T) {
 			cfg := validCalendar()
 			cfg.Calendar.Options.MonthLabel = &CalendarLabelOptions{Margin: -1}
 			return cfg
-		}, "heatmap chart calendar month label margin and font size must be nonnegative"},
+		}, "heatmap chart calendar month label margin and font size must be finite and nonnegative"},
+		"nonfinite calendar label margin": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.Calendar.Options.MonthLabel = &CalendarLabelOptions{Margin: math.Inf(1)}
+			return cfg
+		}, "heatmap chart calendar month label margin and font size must be finite and nonnegative"},
 		"unsupported calendar label position": {func() HeatMapConfig {
 			cfg := validCalendar()
 			cfg.Calendar.Options.YearLabel = &CalendarLabelOptions{Position: "center"}
@@ -176,7 +186,7 @@ func TestHeatMapRejectsInvalidDataContract(t *testing.T) {
 			cfg.Calendar.Options.MonthLabel = &CalendarLabelOptions{Margin: -1}
 			cfg.Calendar.Options.YearLabel = &CalendarLabelOptions{Margin: -1}
 			return cfg
-		}, "heatmap chart calendar day label margin and font size must be nonnegative"},
+		}, "heatmap chart calendar day label margin and font size must be finite and nonnegative"},
 	}
 
 	for name, test := range tests {
