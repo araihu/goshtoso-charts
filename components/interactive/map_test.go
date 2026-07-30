@@ -39,6 +39,8 @@ func TestMapRendersTypedRegionsResourceScaleThemeAndExactValues(t *testing.T) {
 		`class="goshtoso-charts-interactive goshtoso-charts-palette goshtoso-charts-palette-araihu goshtoso-charts-map caller-class"`,
 		`role="img"`, `aria-label="basic map example"`, `id="regional-values"`, `data-purpose="geography"`,
 		`style="width:100%;height:500px;"`, `"type":"map"`, `"map":"brazil"`, `"show":true`,
+		`"aspectScale":1`, `"layoutCenter":["50%","46%"]`, `"layoutSize":"82%"`,
+		`"left":"center"`, `"bottom":"8"`, `"orient":"horizontal"`,
 		`"calculable":true`, `"max":150`, `"color":["#50a3ba","#eac736","#d94e5d"]`,
 		`function(params){return params.data.code;}`, `"fontSize":11`,
 		`{"name":"Rondônia","code":"RO","value":42,"className":"capital-region"}`,
@@ -76,7 +78,7 @@ func TestMapVariantsPreserveOneKindAndBrazilGeometry(t *testing.T) {
 func TestMapDefaultsToSharedExpandDirectPNGAndResponsiveSize(t *testing.T) {
 	t.Parallel()
 	markup := renderMap(t, Map(validMapConfig()))
-	for _, want := range []string{`data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`, `aspect-ratio: 9 / 5`, `style="width:100%;height:500px;"`, `var resizeObserver = window.ResizeObserver ? new ResizeObserver`} {
+	for _, want := range []string{`data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`, `aspect-ratio: 9 / 5`, `style="width:100%;height:500px;"`, `"aspectScale":1`, `"layoutCenter":["50%","50%"]`, `"layoutSize":"92%"`, `var resizeObserver = window.ResizeObserver ? new ResizeObserver`} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("default markup missing %q", want)
 		}

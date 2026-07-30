@@ -137,6 +137,9 @@ func Map(cfg MapConfig) Instance {
 		Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export,
 		RootAttrs: cfg.RootAttrs, Details: mapExactValues(mapDetailRows(cfg.Series.Regions, maxMapDetailRows)),
 		ExplicitVisualMapColors: mapScaleHasColors(resolvedMapScale(cfg)),
+		ScriptReplacements: geographicLayoutReplacements(
+			rendererMapName(cfg.Geometry), hasChartTitle(cfg.Options), resolvedMapScale(cfg) != nil,
+		),
 	})
 }
 
@@ -163,7 +166,10 @@ func resolvedMapScale(cfg MapConfig) *MapScale {
 }
 
 func rendererMapScale(scale *MapScale) opts.VisualMap {
-	result := opts.VisualMap{Min: float32(scale.Min), Max: float32(scale.Max)}
+	result := opts.VisualMap{
+		Min: float32(scale.Min), Max: float32(scale.Max),
+		Orient: "horizontal", Left: "center", Bottom: "8",
+	}
 	if scale.Calculable != nil {
 		result.Calculable = opts.Bool(*scale.Calculable)
 	}
