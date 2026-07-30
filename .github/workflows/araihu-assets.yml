@@ -96,6 +96,9 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           persist-credentials: false
 
+      - name: Test archive link rejection
+        run: ./scripts/reject-archive-links_test.sh
+
       - name: Set up Go
         uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
         with:
@@ -118,10 +121,7 @@ jobs:
               /*|../*|*/../*|*/..) echo "unsafe archive member: $member" >&2; exit 1 ;;
             esac
           done < <(tar --list --gzip --file "$archive")
-          if tar --list --verbose --gzip --file "$archive" | grep --extended-regexp --quiet '^[lh]'; then
-            echo "release archive contains a link" >&2
-            exit 1
-          fi
+          ./scripts/reject-archive-links.sh "$archive"
           mkdir "$extracted"
           tar --extract --gzip --file "$archive" --directory "$extracted" \
             --no-same-owner --no-same-permissions
