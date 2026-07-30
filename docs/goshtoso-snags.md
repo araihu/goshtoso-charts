@@ -361,3 +361,16 @@ hidden Collapse or export action, and expect two visible buttons at narrow
 widths versus three at wide widths. Renderer, data, theme, and geometry
 assertions were unchanged. The complete random-port browser gate then passed
 176 of 176 tests at concurrency one.
+
+## 2026-07-30: standalone theme pickers reuse a JavaScript-only shell factory
+
+The component docs shell exports its theme list and deterministic runtime asset,
+and Goshtoso exports the Select component with Alpine model binding. That was
+enough to build the isolated theme-playground frame without copying the picker
+or authoring site JavaScript. The small integration seam remains JavaScript-only:
+the standalone document must provide the literal
+`componentDocShell({persist:false, ...})` Alpine expression because the shell's
+Go helper for that expression is private and the public `Head` helper also emits
+the full shell bootstrap. A future exported appearance-controller component or
+standalone data helper would remove this literal while preserving the frame's
+non-persistent, same-origin storage isolation.
