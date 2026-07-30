@@ -1,10 +1,10 @@
 # Goshtoso Charts
 
-Static/vector and opt-in interactive chart components for Go/templ applications
-using [Goshtoso](https://github.com/araihu/goshtoso). The public contract stays
-renderer-neutral: typed configs, instances, and options do not expose a backing
-renderer. Initial product driver was Xisnove monitoring, but the library is
-product-neutral.
+Chart components for Go/templ applications using
+[Goshtoso](https://github.com/araihu/goshtoso). Render static SVG charts on the
+server or opt into interactive charts when browser exploration is necessary.
+The public contract stays renderer-neutral: typed configs, instances, and
+options do not expose a backing renderer.
 
 Charts use Goshtoso theme tokens, including Tailwind-compatible chart tokens,
 and responsive Goshtoso ActionGroup controls. Static/vector and interactive
@@ -16,11 +16,55 @@ live Cartesian data through a renderer-neutral SSE snapshot contract.
 
 ## Install
 
-Requires Go 1.26.5+ and a Goshtoso-integrated templ application.
+Requires Go 1.26.5+ and a Goshtoso-integrated templ application. Set up
+Goshtoso's `/assets/` handler and `head.Dependencies()` first; see the
+[consumer integration guide](https://github.com/araihu/goshtoso/blob/main/docs/USAGE.md).
 
 ```bash
 go get github.com/araihu/goshtoso-charts
 ```
+
+### Render your first chart
+
+Mount the Charts asset handler beside Goshtoso's handler. Static SVG charts do
+not need a browser chart runtime; the mount enables their default expand and
+export controls. Mount it directly because `Handler()` removes its own prefix.
+
+```go
+import (
+	"net/http"
+
+	goshtosoassets "github.com/araihu/goshtoso/assets"
+	chartassets "github.com/araihu/goshtoso-charts/assets"
+)
+
+func routes() http.Handler {
+	mux := http.NewServeMux()
+	mux.Handle("GET /assets/", goshtosoassets.Handler())
+	mux.Handle("GET "+chartassets.Prefix, chartassets.Handler())
+	return mux
+}
+```
+
+Render a static line chart from one of your `.templ` files:
+
+```templ
+import "github.com/araihu/goshtoso-charts/components/line"
+
+templ WeeklySignups() {
+	@line.Line(line.Config{
+		Label:  "Weekly signups",
+		Caption: "New signups from Monday to Friday.",
+		Labels: []string{"Mon", "Tue", "Wed", "Thu", "Fri"},
+		Series: []line.Series{{
+			Name: "Signups", Values: []float64{12, 18, 15, 21, 24},
+		}},
+	})
+}
+```
+
+Run `templ generate`, then build or test the application. Add a nearby table,
+summary, or download whenever people need exact values.
 
 ## Component contract
 

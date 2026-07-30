@@ -63,7 +63,7 @@ func GettingStartedPage(fragment bool) templ.Component {
 			templ_7745c5c3_Var1 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = layout("Getting Started", "getting-started", gettingStartedContent(), fragment).Render(ctx, templ_7745c5c3_Buffer)
+		templ_7745c5c3_Err = layout("Getting started", "getting-started", gettingStartedContent(), fragment).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -92,7 +92,7 @@ func gettingStartedContent() templ.Component {
 			templ_7745c5c3_Var2 = templ.NopComponent
 		}
 		ctx = templ.ClearChildren(ctx)
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-3xl space-y-12\"><section class=\"space-y-4\"><p class=\"text-sm font-semibold text-primary dark:text-primary-dark\">Goshtoso Charts</p><h1 class=\"font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong\">Getting Started</h1><p class=\"text-lg text-on-surface-muted dark:text-on-surface-dark-muted\">Add chart examples that help people compare categories, trends, distributions, relationships, and geographic patterns.</p></section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"install-the-module\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">1. Install the module</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Add Goshtoso Charts to an existing Go and templ application.</p>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 1, "<div class=\"max-w-3xl space-y-12\"><section class=\"space-y-4\"><p class=\"text-sm font-semibold text-primary dark:text-primary-dark\">Goshtoso Charts</p><h1 class=\"font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong\">Add your first chart</h1><p class=\"text-lg text-on-surface-muted dark:text-on-surface-dark-muted\">Render a static SVG chart in an existing Goshtoso application, then add the local browser runtime only if the chart needs interaction.</p></section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"install-the-module\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">1. Install the module</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Add Goshtoso Charts to an existing Go and templ application.</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -100,7 +100,7 @@ func gettingStartedContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"mount-chart-assets\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">2. Mount chart assets</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Interactive charts use a versioned runtime embedded in the module. Mount its handler at the exported prefix; the handler removes that prefix itself.</p>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 2, "</section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"mount-chart-assets\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">2. Mount chart assets</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Shared controls and interactive charts use versioned assets embedded in the module. Mount the handler at its exported prefix; the handler removes that prefix itself.</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -108,15 +108,7 @@ func gettingStartedContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"include-chart-dependencies\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">3. Include chart dependencies</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Render the dependency component once in the document head, before interactive chart initialization. Local vendored delivery is the default.</p>")
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = codeblock.CodeBlock(gettingStartedCodeBlock("templ", "templ", gettingStartedDependenciesCode)).Render(ctx, templ_7745c5c3_Buffer)
-		if templ_7745c5c3_Err != nil {
-			return templ_7745c5c3_Err
-		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "<p class=\"text-sm text-on-surface-muted dark:text-on-surface-dark-muted\">Third-party delivery is explicit: use <code class=\"font-mono\">dependencies.WithCDN()</code> only when the application accepts that network and CSP boundary.</p></section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"render-a-static-chart\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">4. Render a static chart</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Static/vector components render on the server and need no browser chart runtime.</p>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 3, "</section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"render-a-static-chart\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">3. Render a static chart</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Static/vector components render on the server and need no browser chart runtime.</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -124,7 +116,15 @@ func gettingStartedContent() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "</section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"render-an-interactive-chart\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">5. Render an interactive chart</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Interactive examples focus on visual behavior, exploration, and composition.</p>")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 4, "</section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"include-chart-dependencies\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">4. Add interactive dependencies</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">For interactive charts, render the dependency component once in the document head before chart initialization. Local vendored delivery is the default.</p>")
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = codeblock.CodeBlock(gettingStartedCodeBlock("templ", "templ", gettingStartedDependenciesCode)).Render(ctx, templ_7745c5c3_Buffer)
+		if templ_7745c5c3_Err != nil {
+			return templ_7745c5c3_Err
+		}
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 5, "<p class=\"text-sm text-on-surface-muted dark:text-on-surface-dark-muted\">Third-party delivery is explicit: use <code class=\"font-mono\">dependencies.WithCDN()</code> only when the application accepts that network and CSP boundary.</p></section><section class=\"space-y-4\" data-getting-started-step><h2 id=\"render-an-interactive-chart\" data-toc-heading class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">5. Render an interactive chart</h2><p class=\"text-on-surface-muted dark:text-on-surface-dark-muted\">Interactive examples focus on visual behavior, exploration, and composition.</p>")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}

@@ -35,15 +35,15 @@ import (
 )
 
 templ GettingStartedPage(fragment bool) {
-	@layout("Getting Started", "getting-started", gettingStartedContent(), fragment)
+	@layout("Getting started", "getting-started", gettingStartedContent(), fragment)
 }
 
 templ gettingStartedContent() {
 	<div class="max-w-3xl space-y-12">
 		<section class="space-y-4">
 			<p class="text-sm font-semibold text-primary dark:text-primary-dark">Goshtoso Charts</p>
-			<h1 class="font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong">Getting Started</h1>
-			<p class="text-lg text-on-surface-muted dark:text-on-surface-dark-muted">Add chart examples that help people compare categories, trends, distributions, relationships, and geographic patterns.</p>
+			<h1 class="font-title text-4xl font-bold tracking-tight text-on-surface-strong dark:text-on-surface-dark-strong">Add your first chart</h1>
+			<p class="text-lg text-on-surface-muted dark:text-on-surface-dark-muted">Render a static SVG chart in an existing Goshtoso application, then add the local browser runtime only if the chart needs interaction.</p>
 		</section>
 		<section class="space-y-4" data-getting-started-step>
 			<h2 id="install-the-module" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">1. Install the module</h2>
@@ -52,19 +52,19 @@ templ gettingStartedContent() {
 		</section>
 		<section class="space-y-4" data-getting-started-step>
 			<h2 id="mount-chart-assets" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">2. Mount chart assets</h2>
-			<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Interactive charts use a versioned runtime embedded in the module. Mount its handler at the exported prefix; the handler removes that prefix itself.</p>
+			<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Shared controls and interactive charts use versioned assets embedded in the module. Mount the handler at its exported prefix; the handler removes that prefix itself.</p>
 			@codeblock.CodeBlock(gettingStartedCodeBlock("go", "Go", gettingStartedAssetsCode))
 		</section>
 		<section class="space-y-4" data-getting-started-step>
-			<h2 id="include-chart-dependencies" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">3. Include chart dependencies</h2>
-			<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Render the dependency component once in the document head, before interactive chart initialization. Local vendored delivery is the default.</p>
-			@codeblock.CodeBlock(gettingStartedCodeBlock("templ", "templ", gettingStartedDependenciesCode))
-			<p class="text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Third-party delivery is explicit: use <code class="font-mono">dependencies.WithCDN()</code> only when the application accepts that network and CSP boundary.</p>
-		</section>
-		<section class="space-y-4" data-getting-started-step>
-			<h2 id="render-a-static-chart" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">4. Render a static chart</h2>
+			<h2 id="render-a-static-chart" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">3. Render a static chart</h2>
 			<p class="text-on-surface-muted dark:text-on-surface-dark-muted">Static/vector components render on the server and need no browser chart runtime.</p>
 			@codeblock.CodeBlock(gettingStartedCodeBlock("templ", "templ", gettingStartedStaticCode))
+		</section>
+		<section class="space-y-4" data-getting-started-step>
+			<h2 id="include-chart-dependencies" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">4. Add interactive dependencies</h2>
+			<p class="text-on-surface-muted dark:text-on-surface-dark-muted">For interactive charts, render the dependency component once in the document head before chart initialization. Local vendored delivery is the default.</p>
+			@codeblock.CodeBlock(gettingStartedCodeBlock("templ", "templ", gettingStartedDependenciesCode))
+			<p class="text-sm text-on-surface-muted dark:text-on-surface-dark-muted">Third-party delivery is explicit: use <code class="font-mono">dependencies.WithCDN()</code> only when the application accepts that network and CSP boundary.</p>
 		</section>
 		<section class="space-y-4" data-getting-started-step>
 			<h2 id="render-an-interactive-chart" data-toc-heading class="font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong">5. Render an interactive chart</h2>
