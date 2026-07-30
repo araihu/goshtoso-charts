@@ -8,8 +8,8 @@ github.com/alecthomas/repr v0.5.2 h1:SU73FTI9D1P5UNtvseffFSGmdNci/O6RsqzeXJtP0Qs
 github.com/alecthomas/repr v0.5.2/go.mod h1:Fr0507jx4eOXV7AlPV6AVZLYrLIuIeSOWtW57eE/O/4=
 github.com/araihu/goshtoso v0.1.1 h1:SprKJ3htcsmLEsyd7WjP0S7SbsaTF7V5R68oLdri6RE=
 github.com/araihu/goshtoso v0.1.1/go.mod h1:mY8kbNpqILeQ2MLW1eh14EIaudanLjAs6bf0sv51NXE=
-github.com/araihu/goshtoso-app-shells v0.1.1-0.20260730145401-4f5174eeb1a9 h1:cJP0YtKUfJfgLrmp9rH4rFGqNC0dRQci63zZ3Lh2BWI=
-github.com/araihu/goshtoso-app-shells v0.1.1-0.20260730145401-4f5174eeb1a9/go.mod h1:Nw6QAzP/ufjO4roQqTW2MePEG7annlRmlt7FQHA3ka0=
+github.com/araihu/goshtoso-app-shells v0.1.1 h1:0n6A5lcW5vfXR3Cgzz4sQycyE++S+NWFnJRMWRCed9Q=
+github.com/araihu/goshtoso-app-shells v0.1.1/go.mod h1:Nw6QAzP/ufjO4roQqTW2MePEG7annlRmlt7FQHA3ka0=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/dlclark/regexp2 v1.12.0 h1:0j4c5qQmnC6XOWNjP3PIXURXN2gWx76rd3KvgdPkCz8=
