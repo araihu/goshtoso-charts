@@ -661,7 +661,7 @@ func interactiveChartBarContent() templ.Component {
 				Code:         interactiveChartBarCode(),
 			},
 			Sections: []componentpage.Example{
-				{Title: "Labels", Description: "Visible labels repeat exact values directly on the marks while the disclosure table remains the complete reading path.", Preview: interactivebar.Bar(sampleInteractiveBarLabels()), Code: `SeriesOptions: interactive.SeriesOptions{Label: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "top"}}`},
+				{Title: "Labels", Description: "Visible labels repeat exact values directly on the marks while the disclosure table remains the complete reading path.", Preview: interactivebar.Bar(sampleInteractiveBarLabels()), Code: `SeriesOptions: chart.SeriesOptions{Label: &chart.LabelOptions{Show: chart.Bool(true), Position: "top"}}`},
 				{Title: "Axes and units", Description: "Named axes, literal unit suffixes, and split lines add reading context without accepting executable formatter code.", Preview: interactivebar.Bar(sampleInteractiveBarAxes()), Code: interactiveBarAxesCode()},
 				{Title: "Explicit colors", Description: "Caller-selected colors override theme series tokens when a fixed visual identity is required.", Preview: interactivebar.Bar(sampleInteractiveBarColors()), Code: `Style: charttheme.Style{Colors: []string{"#2563eb", "#db2777"}}`},
 				{Title: "Series arrangement", Description: "Widths, gaps, horizontal orientation, and stacking are typed treatments on the same Bar component.", Preview: interactiveBarArrangementVariants(), Code: interactiveBarLayoutCode()},

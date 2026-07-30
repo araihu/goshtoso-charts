@@ -10,7 +10,7 @@ Use `components/interactive/bar` for new interactive Bar code:
 
 ```go
 import (
-	interactive "github.com/araihu/goshtoso-charts/components/interactive"
+	"github.com/araihu/goshtoso-charts/components/chart"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 )
 
@@ -21,8 +21,8 @@ chart := interactivebar.Bar(interactivebar.Config{
 		Name: "Production",
 		Data: []interactivebar.Data{{Value: 3}, {Value: 5}},
 	}},
-	Options: interactive.ChartOptions{
-		Animation: interactive.Bool(false),
+	Options: chart.ChartOptions{
+		Animation: chart.Bool(false),
 	},
 })
 ```
@@ -30,19 +30,16 @@ chart := interactivebar.Bar(interactivebar.Config{
 The chart-named `Bar` constructor matches other Goshtoso component packages.
 Chart-specific names are concise: `Config`, `Series`, `Data`, `Orientation`,
 `Zoom`, `Statistic`, `Coordinate`, and reference types. Shared options such as
-`interactive.ChartOptions`, `interactive.SeriesOptions`, and
-`interactive.LiveData` remain available through exact parent-package aliases
-during phase 1. Their canonical ownership now lives in `components/chart`, and
-they appear unchanged through the aliased `Config` and `Series` fields.
+`chart.ChartOptions`, `chart.SeriesOptions`, and `chart.LiveData` live in
+`components/chart`. Their parent-package names remain exact compatibility
+aliases.
 
 Existing `interactive.Bar(interactive.BarConfig{...})` code still compiles and
-renders identically. The child declarations are type aliases and a forwarding
-constructor, so old and new configurations retain the same type identity,
-validation, component kind, and markup semantics. No bulk rewrite is required.
-
-Phase 1 does not complete chart-specific ownership. Bar implementation still
-lives in the parent package; shared public types now live in `components/chart`
-and private renderer/runtime behavior in `components/internal/interactive`.
+renders identically. The child owns the concrete chart-specific declarations,
+validation, rendering, and template; the parent exposes exact aliases and a
+forwarding constructor. Old and new configurations retain the same type
+identity, validation, component kind, and markup semantics. No bulk rewrite is
+required.
 
 ## Shared chart instance foundation
 
@@ -59,11 +56,11 @@ Foundation imports point inward:
 1. `components/chart` depends only on public component contracts.
 2. `components/internal/interactive` may depend on that foundation, but never
    on the parent facade or a chart-specific child package.
-3. `components/interactive` may depend on the internal implementation and the
-   chart foundation, but never on a child package.
-4. Child packages may temporarily forward to the parent facade. Future child
-   implementation moves must preserve the same inward direction rather than
-   making the internal package depend on a facade.
+3. Migrated child packages may depend on the chart foundation and private
+   interactive implementation, but never on the parent facade.
+4. `components/interactive` may depend on exactly the migrated children while
+   retaining implementations for unmigrated families. Future moves preserve
+   that inward direction.
 
 The ownership move has one intentional pre-v1 compatibility limit. Reflection
 reports the canonical package path as `components/chart`, including for values
@@ -78,7 +75,7 @@ Use `components/interactive/line` for new interactive Line code:
 
 ```go
 import (
-	interactive "github.com/araihu/goshtoso-charts/components/interactive"
+	"github.com/araihu/goshtoso-charts/components/chart"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 )
 
@@ -89,26 +86,27 @@ chart := interactiveline.Line(interactiveline.Config{
 		Name: "p95 (ms)",
 		Data: []interactiveline.Data{{Value: 42}, {Value: 47}},
 	}},
-	Options: interactive.ChartOptions{
-		Animation: interactive.Bool(false),
+	Options: chart.ChartOptions{
+		Animation: chart.Bool(false),
 	},
 })
 ```
 
 Line-specific names are concise: `Config`, `Series`, `Data`, `TimeAxis`,
 `ValueAxis`, `VisualScale`, `VisualPiece`, `Statistic`, `Coordinate`, and
-reference types. Shared options stay available through exact parent aliases
-during phase 1 while canonical ownership lives in `components/chart`. Existing
+reference types. Shared options live in `components/chart` and stay available
+through exact parent aliases. Existing
 `interactive.Line(interactive.LineConfig{...})` code remains supported and
-assignment-compatible with the canonical package. Constructor behavior,
-validation, component kind, live data, time and value axes, visual scales,
-references, and rendered markup remain identical.
+assignment-compatible with the canonical package. The child owns the concrete
+Line implementation and template; the parent is an alias-and-forwarder facade.
+Constructor behavior, validation, component kind, live data, time and value
+axes, visual scales, references, and rendered markup remain identical.
 
-## Phase 1 boundary
+## Current boundary
 
-Bar and Line are the first canonical child packages. Remaining chart families
-continue using their existing paths until their own bounded migrations land.
-Physical chart implementation ownership and the final fate of the parent
-compatibility facade remain deliberately deferred decisions that must be
-settled before v1. Shared public and private foundation ownership is fixed by
+Bar and Line physical ownership is complete. The supported parent facade
+delegates those migrated charts. Remaining chart families continue using their
+existing paths until their own bounded migrations land, and the final v1 policy
+for the parent compatibility facade remains open. Shared public and private
+foundation ownership is fixed by
 [ADR 0001](decisions/0001-interactive-chart-package-ownership.md).
