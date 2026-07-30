@@ -38,6 +38,56 @@ func TestReleasedAppShellDependenciesArePinnedWithoutOverrides(t *testing.T) {
 	}
 }
 
+func TestModuleReplacesPathRecognizesDirectiveForms(t *testing.T) {
+	t.Parallel()
+	for _, test := range []struct {
+		name   string
+		module string
+		path   string
+		want   bool
+	}{
+		{
+			name:   "single line",
+			module: "replace example.com/target => ../target\n",
+			path:   "example.com/target",
+			want:   true,
+		},
+		{
+			name: "block",
+			module: `replace (
+	example.com/other => ../other
+	example.com/target => ../target
+)
+`,
+			path: "example.com/target",
+			want: true,
+		},
+		{
+			name:   "versioned block entry",
+			module: "replace (\n\texample.com/target v1.2.3 => ../target\n)\n",
+			path:   "example.com/target",
+			want:   true,
+		},
+		{
+			name:   "different left hand module",
+			module: "replace example.com/other => ../other\n",
+			path:   "example.com/target",
+		},
+		{
+			name:   "target appears only on right hand side",
+			module: "replace (\n\texample.com/other => example.com/target\n)\n",
+			path:   "example.com/target",
+		},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			t.Parallel()
+			if got := moduleReplacesPath(test.module, test.path); got != test.want {
+				t.Errorf("moduleReplacesPath() = %t, want %t", got, test.want)
+			}
+		})
+	}
+}
+
 func TestReleasedShellKeepsChartsIdentityAndCurrentNavigation(t *testing.T) {
 	t.Parallel()
 	cfg := shellConfigForVersion("development")
@@ -232,11 +282,34 @@ func moduleRequiresVersion(module, path, version string) bool {
 }
 
 func moduleReplacesPath(module, path string) bool {
+	inReplaceBlock := false
 	for _, line := range strings.Split(module, "\n") {
 		fields := strings.Fields(line)
-		if len(fields) >= 3 && fields[0] == "replace" && fields[1] == path {
+		if len(fields) == 0 {
+			continue
+		}
+		if inReplaceBlock {
+			if fields[0] == ")" {
+				inReplaceBlock = false
+				continue
+			}
+			if replacementEntryTargets(fields, path) {
+				return true
+			}
+			continue
+		}
+		if len(fields) >= 2 && fields[0] == "replace" && fields[1] == "(" {
+			inReplaceBlock = true
+			continue
+		}
+		if fields[0] == "replace" && replacementEntryTargets(fields[1:], path) {
 			return true
 		}
 	}
 	return false
+}
+
+func replacementEntryTargets(fields []string, path string) bool {
+	return len(fields) >= 3 && fields[0] == path &&
+		(fields[1] == "=>" || len(fields) >= 4 && fields[2] == "=>")
 }
