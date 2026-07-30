@@ -418,6 +418,10 @@ See [chart-library evaluation](docs/chart-library-evaluation.md), [surface brief
 
 ## Development
 
+Delivery trade-offs and deferred broad checks live in the actionable
+[technical-debt ledger](docs/technical-debt.md). Review it after every two
+merged delivery lanes and before a release.
+
 ```bash
 templ generate
 go test ./...

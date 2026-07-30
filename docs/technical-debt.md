@@ -1,0 +1,39 @@
+# Technical-debt ledger
+
+This ledger records deliberate delivery trade-offs. It is not a permanent
+backlog: every open or accepted item has a revisit trigger and measurable exit
+criteria.
+
+Last reviewed: 2026-07-30
+
+## Status and review rules
+
+- **Open**: work remains and must be scheduled, accepted, superseded, or closed.
+- **Accepted**: current risk is deliberate and time-bounded by its revisit
+  trigger.
+- **Closed**: exit criteria were proved; retain the row as decision history.
+- **Superseded**: another ledger item or decision replaces the work; link it in
+  the row.
+- Review this ledger after every two merged delivery lanes and before every
+  release. Update evidence, status, and dates during that review.
+
+Fast-track lanes run focused correctness and build checks by default. A broad
+visual or end-to-end matrix may be deferred only when the changed surface makes
+that safe; any normally applicable deferred gate must be recorded here. Never
+defer API-leakage checks, secret or security boundaries, destructive-Git
+safety, generated-artifact integrity, or the requirement that `main` remains
+buildable. A check that does not apply to the changed surface is an omission,
+not debt.
+
+## Current items
+
+| ID | Status | Area | Risk / impact | Evidence / source | Deferred work | Revisit trigger | Exit criteria |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| GSC-TD-001 | Accepted | Review quality | Low residual risk that an advisory reviewer would find a scoped Map/Geo defect after merge. | [PR #23](https://github.com/araihu/goshtoso-charts/pull/23) merged exact reviewed head `a99767b` after manual scoped review and required gates; substantive exact-head CodeRabbit review was quota-limited. | One substantive post-merge review of that exact diff. | Next ledger review, no later than the next release. | Review completed against the exact merged diff; valid findings fixed with focused checks, or a no-finding result recorded here and item closed. |
+| GSC-TD-002 | Open | Browser tests | Slow feedback and timing-sensitive failures make fast iteration harder. | `site/browser` currently contains 77 `waitForTimeout` calls, 17 `networkidle` navigations, and inherited fixed `setTimeout` waits (inventory on 2026-07-30). | Replace fixed waits with condition-specific readiness, fake time, or event-driven settlement; measure and shard the long suite. | Next browser-test maintenance lane, or any full-suite runtime above 10 minutes. | Publish before/after runtime evidence; remove unjustified fixed waits from affected tests; focused and full suites remain green with at least 30% lower wall time for the optimized slice. |
+| GSC-TD-003 | Open | Hosted deployment | A merged or tagged revision may not reach the public demo. | [`.github/workflows/deploy.yml`](../.github/workflows/deploy.yml) requires `secrets.FLY_DEPLOY_DISPATCH_TOKEN` as `github-token`; the current deployment failed because that secret was unavailable. | Provision the repository/org secret and prove the central `fly-deploy` dispatch. No retry or substitute credential is allowed while it is missing. | Secret becomes available, or before the next public release. | One workflow run dispatches the exact source SHA and version successfully; downstream deployment reports the same SHA. |
+| GSC-TD-004 | Open | Go package layout | The interactive package is difficult to discover and increasingly expensive to evolve without accidental API coupling. | 2026-07-29 package audit: `components/interactive` exposes 380 API symbols and contains 13,452 of 24,324 non-test component LOC (55.3%). | Split interactive chart families into `components/interactive/<chart>` while keeping a compatibility facade; keep existing static chart package paths rather than adding symmetry-only moves. | Architecture lane before v1, and before another substantial interactive API expansion. | Child packages own chart-specific APIs, shared types have an acyclic home, compatibility and migration policy are documented and tested, and v1 import paths are frozen. |
+| GSC-TD-005 | Accepted | App Shell adoption | Charts docs cannot consume the intended generic branding and module-navigation hooks from a reproducible dependency yet. | [`site/go.mod`](../site/go.mod) remains pinned to `goshtoso-app-shells` commit `4c4aa5ae787e`; `Brand.HideName`, `Brand.Badge`, and module-doc changes exist only in uncommitted upstream worktrees as of 2026-07-30. | Adopt only the generic App Shell hooks after upstream publishes an immutable commit; keep theme and consumer landing policy in this repository. | Upstream commit/tag becomes pinnable. | Pin the immutable upstream revision, remove any temporary replace, pass current-source and `GOWORK=off` consumer contracts, and verify desktop/mobile shell, navigation, badge, and footer behavior. |
+| GSC-TD-006 | Open | Raw-data export | Ad-hoc per-chart downloads can diverge in schema, safety, and extension behavior. | Existing components expose exact adjacent data and some chart-specific CSV links, but no renderer-neutral all-chart export contract exists. | Decide a typed `chartdata.Document`/provider contract; keep deterministic JSON and spreadsheet-safe CSV in core; evaluate optional XML, YAML, XLSX, ODS, and Google Sheets packages or publishers without global registration. | Dedicated data-export design lane before adding another chart-specific exporter. | Accepted design documents ordering, live-snapshot semantics, size limits, CSV formula-injection handling, encoder/provider registration, errors, and compatibility; core JSON/CSV tests pass across representative static and interactive data shapes. |
+| GSC-TD-007 | Open | JavaScript ownership and build | Unclassified scripts can be co-bundled across library, site, compatibility, and per-instance lifecycles, causing dependency or CSS-source leakage. | Reusable controls live under `assets/js/controls/`; site search owns `/search/assets/search.js`; interactive theme/live runtimes and renderer-instance scripts are generated separately. Goshtoso's merged detector/build formula is not yet adopted here. | Add deterministic lint/build/drift checks while preserving four boundaries: reusable chart runtime, site/demo JS, compatibility outputs, and generated renderer-instance/theme/live scripts. Include authored JS in Tailwind source discovery. | Before adding new authored chart JavaScript or publishing v0.1. | Ownership manifest and detector classify every script; deterministic outputs pass drift checks; public dependencies exclude site code; instance/runtime lifecycle tests and CSS source discovery pass. |
+| GSC-TD-008 | Accepted | Local demo operations | Local visual review can exercise an older validated artifact than current `main`, hiding newly merged behavior. This is operational debt, not product/API debt. | Control-plane inventory on 2026-07-30: stable ports 8091 and 8096 intentionally remain on the prior validated artifact; current main `25248f954bdb0e444b22285bf04d3b20de95d2fa` has not been promoted. | Build and promote one immutable current-main artifact using the guarded single-attempt procedure; do not disturb both healthy services together. | Before relying on local stable servers for acceptance of post-#23 behavior, or at the next planned runtime promotion. | Artifact SHA and source revision match; label, PID, listener, HTTP, executable path, and dark/light smoke pass; at least one service stays healthy throughout. |

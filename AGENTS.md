@@ -19,3 +19,8 @@
 - Merge each completed pair through a fresh integration task.
 - Archive bounded tasks after completion.
 - The control-plane task coordinates work and does not implement source changes.
+- Fast-track lanes use focused checks. Record any normally applicable deferred
+  broad visual or end-to-end gate in `docs/technical-debt.md`; review that
+  ledger after every two merged lanes and before release.
+- Never fast-track past API leakage, secret or security boundaries, destructive
+  Git safety, generated-artifact integrity, or a broken `main` branch.
