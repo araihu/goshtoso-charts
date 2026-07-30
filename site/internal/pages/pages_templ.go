@@ -3532,13 +3532,21 @@ func interactiveChartFunnelContent() templ.Component {
 		ctx = templ.ClearChildren(ctx)
 		templ_7745c5c3_Err = componentpage.Page(componentpage.Config{
 			Title:       "Interactive funnel",
-			Description: "Named stage volumes in a fixed order, emphasizing reduction or conversion.",
+			Description: "Named values across a short ordered sequence, emphasizing stage shape and relative magnitude.",
 			Primary: componentpage.Example{
-				AbovePreview: visualizationGuidance("Show progressive reduction or conversion across a small sequence of stages.", "The stage order and relative loss are meaningful.", "Stages are not a sequence or exact conversion rates are the primary task.", "Preserve stage names, values, and intended order in adjacent content."),
-				Preview:      interactive.Funnel(sampleInteractiveFunnel()),
-				Code:         interactiveChartFunnelCode(),
+				AbovePreview: visualizationGuidance("Show named values across a short sequence as progressively shaped stages.", "Use when stage order and broad relative magnitude matter more than precise comparison.", "Avoid when values must only decrease, paths branch, close values require comparison, or rates are the primary task; use a bar, Sankey, or explicit table instead.", "Every example preserves series, stage, value, and intended order in an adjacent exact-value table."),
+				Preview:      interactiveFunnelCandidate("base", sampleInteractiveFunnel()),
+				Code:         interactiveFunnelBaseCode(),
 			},
-			After: interactiveDocumentation(demoNote("Stage order", "Make intended stage order explicit. Sorting by value can be useful, but must not replace process order.")),
+			Sections: []componentpage.Example{
+				{
+					Title:       "Visible labels on the left",
+					Description: "The same upstream helper supplies a second deterministic value group. Labels remain visible to the left without changing series, stage order, or exact-data access.",
+					Preview:     interactiveFunnelCandidate("labels-left", sampleInteractiveFunnelLabels()),
+					Code:        interactiveFunnelLabelsCode(),
+				},
+			},
+			After: interactiveDocumentation(demoNote("Stage meaning", "A funnel does not prove conversion or enforce decreasing values. The upstream default sorts geometry by descending value; set FunnelOrderData when process order matters, and use the exact table for values and source order.")),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -3901,7 +3909,15 @@ func funnelContent() templ.Component {
 				Preview:      funnel.Funnel(sampleBasicFunnel()),
 				Code:         funnelCode(),
 			},
-			After: chartDocumentation("Interpreting stages", "A funnel communicates a deliberate ordered progression. If values rise or paths split, choose a chart that represents that behavior directly.", "funnel"),
+			Sections: []componentpage.Example{
+				{
+					Title:       "Compact five-stage sequence",
+					Description: "The same component accepts a shorter ordered sequence while preserving every exact value beside the geometry.",
+					Preview:     funnel.Funnel(sampleCompactFunnel()),
+					Code:        compactFunnelCode(),
+				},
+			},
+			After: chartDocumentation("Static/vector behavior", "Funnel renders inline SVG on the server, follows Goshtoso chart tokens in light and dark mode, remains useful in print or without JavaScript, and exports resolved SVG plus opaque PNG through the shared wrapper. Use the exact table for comparisons that cannot be judged from narrowing geometry; shared chart controls and chart modes guides document lifecycle and delivery choices.", "funnel"),
 		}).Render(ctx, templ_7745c5c3_Buffer)
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
@@ -4430,7 +4446,7 @@ func demoNote(title string, text string) templ.Component {
 		var templ_7745c5c3_Var110 string
 		templ_7745c5c3_Var110, templ_7745c5c3_Err = templ.ResolveAttributeValue(tocID(title))
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1302, Col: 145}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1318, Col: 145}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var110)
 		if templ_7745c5c3_Err != nil {
@@ -4443,7 +4459,7 @@ func demoNote(title string, text string) templ.Component {
 		var templ_7745c5c3_Var111 string
 		templ_7745c5c3_Var111, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1302, Col: 256}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1318, Col: 256}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var111))
 		if templ_7745c5c3_Err != nil {
@@ -4456,7 +4472,7 @@ func demoNote(title string, text string) templ.Component {
 		var templ_7745c5c3_Var112 string
 		templ_7745c5c3_Var112, templ_7745c5c3_Err = templ.JoinStringErrs(text)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1302, Col: 347}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1318, Col: 347}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var112))
 		if templ_7745c5c3_Err != nil {
@@ -4498,7 +4514,7 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 		var templ_7745c5c3_Var114 string
 		templ_7745c5c3_Var114, templ_7745c5c3_Err = templ.JoinStringErrs(purpose)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1308, Col: 204}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1324, Col: 204}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var114))
 		if templ_7745c5c3_Err != nil {
@@ -4511,7 +4527,7 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 		var templ_7745c5c3_Var115 string
 		templ_7745c5c3_Var115, templ_7745c5c3_Err = templ.JoinStringErrs(useWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1309, Col: 205}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1325, Col: 205}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var115))
 		if templ_7745c5c3_Err != nil {
@@ -4524,7 +4540,7 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 		var templ_7745c5c3_Var116 string
 		templ_7745c5c3_Var116, templ_7745c5c3_Err = templ.JoinStringErrs(avoidWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1310, Col: 209}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1326, Col: 209}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var116))
 		if templ_7745c5c3_Err != nil {
@@ -4542,7 +4558,7 @@ func visualizationGuidance(purpose string, useWhen string, avoidWhen string, equ
 			var templ_7745c5c3_Var117 string
 			templ_7745c5c3_Var117, templ_7745c5c3_Err = templ.JoinStringErrs(equivalentData)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1312, Col: 220}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1328, Col: 220}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var117))
 			if templ_7745c5c3_Err != nil {
@@ -4622,7 +4638,7 @@ func visualizationGuide(purpose string, useWhen string, avoidWhen string, equiva
 		var templ_7745c5c3_Var120 string
 		templ_7745c5c3_Var120, templ_7745c5c3_Err = templ.JoinStringErrs(purpose)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1326, Col: 204}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1342, Col: 204}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var120))
 		if templ_7745c5c3_Err != nil {
@@ -4635,7 +4651,7 @@ func visualizationGuide(purpose string, useWhen string, avoidWhen string, equiva
 		var templ_7745c5c3_Var121 string
 		templ_7745c5c3_Var121, templ_7745c5c3_Err = templ.JoinStringErrs(useWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1327, Col: 205}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1343, Col: 205}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var121))
 		if templ_7745c5c3_Err != nil {
@@ -4648,7 +4664,7 @@ func visualizationGuide(purpose string, useWhen string, avoidWhen string, equiva
 		var templ_7745c5c3_Var122 string
 		templ_7745c5c3_Var122, templ_7745c5c3_Err = templ.JoinStringErrs(avoidWhen)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1328, Col: 209}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1344, Col: 209}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var122))
 		if templ_7745c5c3_Err != nil {
@@ -4666,7 +4682,7 @@ func visualizationGuide(purpose string, useWhen string, avoidWhen string, equiva
 			var templ_7745c5c3_Var123 string
 			templ_7745c5c3_Var123, templ_7745c5c3_Err = templ.JoinStringErrs(equivalentData)
 			if templ_7745c5c3_Err != nil {
-				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1330, Col: 220}
+				return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1346, Col: 220}
 			}
 			_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var123))
 			if templ_7745c5c3_Err != nil {
@@ -4747,7 +4763,7 @@ func goAPIReference(packageName string) templ.Component {
 		var templ_7745c5c3_Var126 string
 		templ_7745c5c3_Var126, templ_7745c5c3_Err = templ.JoinStringErrs(packagePath)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1348, Col: 126}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/pages.templ`, Line: 1364, Col: 126}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var126))
 		if templ_7745c5c3_Err != nil {

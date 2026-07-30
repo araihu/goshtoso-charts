@@ -3,6 +3,7 @@ package interactive
 import (
 	"fmt"
 	"math"
+	"strconv"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
@@ -83,7 +84,28 @@ func Funnel(cfg FunnelConfig) Instance {
 
 	return newInstance(chartcomponents.KindInteractiveFunnel, renderConfig{
 		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: cfg.Style, Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export, ResponsiveWidth: responsiveWidth(cfg.Width),
+		Details: funnelExactValues(cfg.Label, funnelDetailRows(cfg.Series)),
 	})
+}
+
+type funnelValueRow struct {
+	Series string
+	Stage  string
+	Value  string
+}
+
+func funnelDetailRows(series []FunnelSeries) []funnelValueRow {
+	rows := make([]funnelValueRow, 0)
+	for _, current := range series {
+		for _, stage := range current.Data {
+			rows = append(rows, funnelValueRow{
+				Series: current.Name,
+				Stage:  stage.Name,
+				Value:  strconv.FormatFloat(stage.Value, 'f', -1, 64),
+			})
+		}
+	}
+	return rows
 }
 
 func funnelOrderOption(order FunnelOrder) charts.SeriesOpts {
@@ -97,6 +119,9 @@ func funnelOrderOption(order FunnelOrder) charts.SeriesOpts {
 }
 
 func validateFunnelConfig(cfg FunnelConfig) error {
+	if err := validateChartOptions(cfg.Options); err != nil {
+		return err
+	}
 	if cfg.Label == "" {
 		return fmt.Errorf("funnel chart label is required")
 	}

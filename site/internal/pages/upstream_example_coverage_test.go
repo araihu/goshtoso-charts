@@ -197,6 +197,41 @@ func TestInteractiveCandlestickCoverageUsesCanonicalLedgerWithoutLostEntries(t *
 	}
 }
 
+func TestInteractiveFunnelCoverageUsesCanonicalLedgerWithoutLostEntries(t *testing.T) {
+	t.Parallel()
+	data, err := os.ReadFile("../../../docs/upstream-example-coverage.md")
+	if err != nil {
+		t.Fatalf("read canonical upstream coverage ledger: %v", err)
+	}
+	section := canonicalLedgerSection(t, string(data), "## Interactive Funnel")
+	for _, want := range []string{
+		interactiveFunnelUpstreamRevision, interactiveFunnelUpstreamPath, interactiveFunnelUpstreamSHA256,
+		"both dedicated behavior functions", "Unsupported dedicated Funnel behaviors: none",
+		"local seed-1", "[0,50)",
+	} {
+		if !strings.Contains(section, want) {
+			t.Errorf("canonical ledger missing interactive Funnel evidence %q", want)
+		}
+	}
+	for _, entry := range interactiveFunnelUpstreamCoverage() {
+		if count := strings.Count(section, "| `"+entry.Name+"` | Example |"); count != 1 {
+			t.Errorf("interactive Funnel behavior row %q occurs %d times, want 1", entry.Name, count)
+		}
+	}
+	for _, span := range interactiveFunnelSourceSpans() {
+		wantNameCount := 1
+		if span.Name == "funnelBase" || span.Name == "funnelShowLabel" {
+			wantNameCount = 2
+		}
+		if count := strings.Count(section, "`"+span.Name+"`"); count != wantNameCount {
+			t.Errorf("interactive Funnel source name %q occurs %d times, want %d", span.Name, count, wantNameCount)
+		}
+		if count := strings.Count(section, "`"+span.SHA256+"`"); count != 1 {
+			t.Errorf("interactive Funnel source hash %q occurs %d times, want 1", span.SHA256, count)
+		}
+	}
+}
+
 func canonicalLedgerSection(t *testing.T, document, heading string) string {
 	t.Helper()
 	start := strings.Index(document, heading)

@@ -177,6 +177,60 @@ functions, and mark/trend fields not exercised by these sources remain private;
 typed formats, theme tokens, safe pattern labels, shared controls, exact tables,
 and SVG or PNG export provide the supported equivalents.
 
+## Static/vector Funnel
+
+- Source repository: `github.com/go-analyze/charts`
+- Revision: `1fe31b06b8a82e00df877ff4417a75858547c1c2`
+- Status: both dedicated Funnel-family files at that revision are covered by
+  the one renderer-neutral `funnel.Funnel` component. They contain one distinct
+  visual treatment: the option-function source repeats the Painter seven-stage
+  example through a second construction style.
+
+| Upstream example | SHA-256 | Goshtoso coverage | Adaptation note |
+| --- | --- | --- | --- |
+| `examples/1-Painter/funnel_chart-1-basic/main.go` | `a54875c89cd0be43fa7c0614520a11c489562bbc72f8c577a314eb3f24f75a6d` | Basic seven-stage funnel | Preserves values 100, 80, 60, 40, 20, 10, and 2; Show-through-Cancel order; title; 100-pixel left legend padding; and 600x400 geometry. |
+| `examples/2-OptionFunc/funnel_chart-1-basic/main.go` | `332ffeb340e1236170f41a3a93a46499897af75df261ed60f7ac01dd35ae4893` | Duplicate basic treatment | Preserves the same data and presentation once without exposing upstream option functions. |
+
+Every function in the two dedicated files and the exact supplementary web
+source span is inventoried below. Hashes cover exact source bytes at the pinned
+revision. Filesystem-only helpers are recorded but do not count as chart
+behaviors.
+
+| Source span | Lines | SHA-256 | Role |
+| --- | --- | --- | --- |
+| Painter basic `writeFile` | 14-22 | `9a3e255a47b40c36123b225677519f09a62c7f0f38cd1341515d30ce687f1fc5` | Filesystem output helper; no chart behavior. |
+| Painter basic `main` | 24-46 | `82bd67be63d88d6ef2312890964ed595ff9a12990ee89bc4edc85e4bc93f9892` | Seven-stage dataset, title, legend padding, and 600x400 presentation. |
+| Option-function basic `writeFile` | 14-22 | `9a3e255a47b40c36123b225677519f09a62c7f0f38cd1341515d30ce687f1fc5` | Identical filesystem output helper; no chart behavior. |
+| Option-function basic `main` | 24-44 | `1289983e007306c2d3b1d44136aaa35ec56691a5d05f502a3c718d6d356b69a3` | Duplicate seven-stage presentation through option functions. |
+| Web `indexHandler` in `examples/2-OptionFunc/web-1/main.go` | 145-547 | `c9970d3ac7aab849623793deee832f1c1fec5569c4964e3b84b61857424b8068` | Mixed-family page composition containing the supplementary Funnel literal. |
+| Funnel literal in `examples/2-OptionFunc/web-1/main.go` | 450-487 | `f2a990a30d9a89a7d982bc79522c1fb11b2611173ac54c31a19382a543b1ba45` | Five-stage Show-through-Order dataset rendered as the compact page example. |
+
+The supplementary file has whole-file SHA-256
+`96f110afd2d34cb3b823f3b36ecc4a48692bad91991f4010eb09322b747d20a1`.
+Its five-stage Go chart literal is covered as the second example on the page but remains
+outside the two-file dedicated coverage denominator. The later raw browser-chart
+JSON comparison is not a static/vector Funnel API example and remains outside
+this component.
+
+Relevant Funnel-specific implementation and finite presentation API evidence
+at the same revision is pinned separately:
+
+| Upstream API source | SHA-256 | Renderer-neutral coverage |
+| --- | --- | --- |
+| `funnel_chart.go` | `d8c1d8e5ee84ae0f534da3046bd7d43973f7afbf9298e8b8d86c4200f0db6cfb` | Ordered nonnegative stages, proportional widths, title, legend, padding, and default percent labels. |
+| `series.go` | `953f4e5d555701348ebcb8eb0bfe1753a6df56eb4f94a86403c6dc6cecf79217` | Named stage values and shared label options. |
+| `series_label.go` | `d7b176bea3679542e878c4c5703db3711d1e258b64efb7d19614a16fc5722611` | Safe built-in name, value, name-and-value, percent, and hidden label treatments replace arbitrary formatter callbacks. |
+| `title.go` | `e85f6a0fe2e8fd7c253ac226d780164beb0cc7214e94979241d1e9fbce824b26` | Visible title text exercised by both dedicated examples. |
+| `legend.go` | `eaad1144ff1c5af84049a2968e952caba2dac3970558d542c18c6a98ba6d515b` | Visibility, flow, logical horizontal placement, and four-side padding use typed options. |
+| `chart_option.go` | `0b298fcd45fab6bbe476514d90e5107d65d32bd8ba985f2411e79ec88fd2b858` | Option-function parity remains behind the same typed component. |
+
+Unsupported dedicated Funnel-family behaviors: none. Every behavior in both
+dedicated files maps to typed renderer-neutral configuration. Raw theme,
+painter, output-encoder, generic-series, and option-function types remain
+private. Theme tokens, caller stage colors or classes, shared lifecycle
+controls, adjacent exact-value evidence, and SVG or PNG export provide the
+supported equivalents.
+
 ## Static/vector Line
 
 - Source repository: `github.com/go-analyze/charts`
@@ -431,3 +485,41 @@ split count, slider and inside zoom on either axis, combined zoom controls,
 direction classes or explicit paint, border styling, and highest or lowest
 range marks are typed. The upstream page renderer remains outside the public
 chart API because consumers own page layout.
+
+## Interactive Funnel
+
+- Source repository: `github.com/go-echarts/examples`
+- Source file: `examples/funnel.go`
+- Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
+- Source SHA-256: `c532e6490bad284b4b6a5dec20825359abc795a8ee9f3bb5febbcfb4e0cd2d55`
+- Status: both dedicated behavior functions are covered by the one
+  renderer-neutral `interactive.Funnel` component.
+- Deterministic adaptation: the ambient random helper becomes a local seed-1
+  sequence in original function and helper-call order. `Visit`, `Add`, `Order`,
+  `Payment`, and `Deal` retain their source sequence in typed data and the exact
+  table, while chart geometry retains the upstream default descending-by-value
+  order. Every generated value remains in the upstream `[0,50)` domain.
+  Concrete fixture values are reproducible documentation data, not claimed
+  upstream constants.
+
+| Upstream behavior function | Coverage | Goshtoso Charts treatment |
+| --- | --- | --- |
+| `funnelBase` | Example | Basic five-stage Analytics series with the upstream title |
+| `funnelShowLabel` | Example | A second five-stage value group with visible labels positioned left |
+
+Every declared data source, function, and method in the pinned file is
+inventoried below. Span hashes cover exact source text at the pinned revision.
+
+| Exact source span | Lines | SHA-256 | Role and coverage |
+| --- | --- | --- | --- |
+| `dimensions` | 13 | `bd5b4e6a9c429f461f802686cfe0539b660b85c12fc382656d0097d07d1f7e83` | Ordered stage labels preserved exactly. |
+| `genFunnelKvItems` | 15–21 | `9bf2059b03ae41f499ad99ac7ece0ac9deec70fe0fc3df8052310b1f8a64ac1c` | Ambient random helper adapted to a local fixed seed while preserving call order and value domain. |
+| `funnelBase` | 22–30 | `88c9efbc1bdda11af5c7cbad673b7cd568941ed9248a6428ec5ea5c45184fd45` | Basic example. |
+| `funnelShowLabel` | 33–47 | `ed198502f5b56653897070b7ba9b7fb862a8ceb4255ac4242cd817d0be0e23d7` | Visible left-label example. |
+| `FunnelExamples.Examples` | 51–63 | `6c55c7a63e033a5b0f6de045c16c31d16eee67a134000a1e240da88ffbb1ca97` | Page composition only; preserves the two-example order without entering the component API. |
+
+Unsupported dedicated Funnel behaviors: none. Named finite nonnegative values,
+caller or value ordering, title, labels and left placement, responsive sizing,
+theme colors, exact-value disclosure, controls, PNG export, resize, and wrapper
+lifecycle are typed and renderer-neutral. The upstream page renderer remains
+outside the public chart API because consumers own page layout.

@@ -1,0 +1,9 @@
+package pages
+
+import "github.com/araihu/goshtoso-charts/components/interactive"
+
+templ interactiveFunnelCandidate(variant string, cfg interactive.FunnelConfig) {
+	<div data-funnel-variant={ variant }>
+		@interactive.Funnel(cfg)
+	</div>
+}

@@ -40,10 +40,32 @@ func TestFunnelRendersConfiguredChart(t *testing.T) {
 		`"name":"Checkout"`, `"name":"Visit","value":100`, `"name":"Payment","value":24`,
 		`"sort":"ascending"`, `"show":true`, `"position":"left"`, `"animation":false`,
 		`"text":"Conversion"`, `"color":["#123456","#ff8a3d"`,
-		"goshtoso-charts-palette-araihu min-h-80",
+		"goshtoso-charts-palette-araihu min-h-80", "Exact funnel values",
+		`aria-label="Checkout funnel exact funnel values"`, "Checkout", "Visit", "100", "Payment", "24",
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
+		}
+	}
+}
+
+func TestFunnelDetailRowsPreserveSeriesStageOrderAndExactValues(t *testing.T) {
+	t.Parallel()
+	rows := funnelDetailRows([]FunnelSeries{
+		{Name: "First", Data: []FunnelData{{Name: "Visit", Value: 31}, {Name: "Add", Value: 37.5}}},
+		{Name: "Second", Data: []FunnelData{{Name: "Deal", Value: 0}}},
+	})
+	want := []funnelValueRow{
+		{Series: "First", Stage: "Visit", Value: "31"},
+		{Series: "First", Stage: "Add", Value: "37.5"},
+		{Series: "Second", Stage: "Deal", Value: "0"},
+	}
+	if len(rows) != len(want) {
+		t.Fatalf("funnelDetailRows() length = %d, want %d", len(rows), len(want))
+	}
+	for index := range want {
+		if rows[index] != want[index] {
+			t.Errorf("funnelDetailRows()[%d] = %#v, want %#v", index, rows[index], want[index])
 		}
 	}
 }
@@ -94,6 +116,11 @@ func TestFunnelRejectsInvalidDataContract(t *testing.T) {
 		"missing data name":   {func() FunnelConfig { cfg := valid(); cfg.Series[0].Data[0].Name = ""; return cfg }, `funnel chart series "Pipeline" data point 0 name is required`},
 		"negative value":      {func() FunnelConfig { cfg := valid(); cfg.Series[0].Data[0].Value = -1; return cfg }, `funnel chart series "Pipeline" data point "Lead" value must be a finite nonnegative value`},
 		"nonfinite value":     {func() FunnelConfig { cfg := valid(); cfg.Series[0].Data[0].Value = math.NaN(); return cfg }, `funnel chart series "Pipeline" data point "Lead" value must be a finite nonnegative value`},
+		"invalid shared option": {func() FunnelConfig {
+			cfg := valid()
+			cfg.Options.Legend = &LegendOptions{Padding: &EdgeInsets{Left: -1}}
+			return cfg
+		}, "legend padding must be nonnegative"},
 	}
 
 	for name, test := range tests {

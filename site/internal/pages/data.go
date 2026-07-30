@@ -442,9 +442,28 @@ func sampleBasicFunnel() funnel.Config {
 			{Label: "Pay", Value: 10},
 			{Label: "Cancel", Value: 2},
 		},
-		Options:  funnel.Options{Legend: funnel.Legend{Padding: funnel.Padding{Left: 100}}},
-		Controls: chartcontrol.Options{Fullscreen: true},
-		Export:   &chartcontrol.ExportOptions{Filename: "basic-funnel"},
+		Options:   funnel.Options{Legend: funnel.Legend{Padding: funnel.Padding{Left: 100}}},
+		RootAttrs: templ.Attributes{"data-static-funnel-source": "a54875c89cd0be43"},
+		Controls:  chartcontrol.Options{Fullscreen: true},
+		Export:    &chartcontrol.ExportOptions{Filename: "basic-funnel"},
+	}
+}
+
+func sampleCompactFunnel() funnel.Config {
+	return funnel.Config{
+		Label:   "Compact five-stage funnel",
+		Caption: "Five ordered stages retain the supplementary source sequence and exact values.",
+		Title:   "Funnel",
+		Stages: []funnel.Stage{
+			{Label: "Show", Value: 100},
+			{Label: "Click", Value: 80},
+			{Label: "Visit", Value: 60},
+			{Label: "Inquiry", Value: 40},
+			{Label: "Order", Value: 20},
+		},
+		RootAttrs: templ.Attributes{"data-static-funnel-source": "f2a990a30d9a89a7"},
+		Controls:  chartcontrol.Options{Fullscreen: true},
+		Export:    &chartcontrol.ExportOptions{Filename: "compact-five-stage-funnel"},
 	}
 }
 
@@ -1059,6 +1078,20 @@ func funnelCode() string {
   },
   Options: funnel.Options{
     Legend: funnel.Legend{Padding: funnel.Padding{Left: 100}},
+  },
+})`
+}
+
+func compactFunnelCode() string {
+	return `@funnel.Funnel(funnel.Config{
+  Label: "Compact five-stage funnel",
+  Title: "Funnel",
+  Stages: []funnel.Stage{
+    {Label: "Show", Value: 100},
+    {Label: "Click", Value: 80},
+    {Label: "Visit", Value: 60},
+    {Label: "Inquiry", Value: 40},
+    {Label: "Order", Value: 20},
   },
 })`
 }

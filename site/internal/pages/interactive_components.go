@@ -96,22 +96,6 @@ func sampleLiquidGaugeData() []interactive.GaugeData {
 	}
 }
 
-func sampleInteractiveFunnel() interactive.FunnelConfig {
-	return interactive.FunnelConfig{
-		Label: "Release pipeline", Caption: "Builds progressing through release stages.",
-		Series: []interactive.FunnelSeries{{
-			Name: "Pipeline",
-			Data: []interactive.FunnelData{
-				{Name: "Built", Value: 120},
-				{Name: "Tested", Value: 94},
-				{Name: "Approved", Value: 61},
-				{Name: "Deployed", Value: 48},
-			},
-		}},
-		Options: controlledOptions("Release pipeline", "release-pipeline"),
-	}
-}
-
 func sampleInteractiveGraph() interactive.Instance {
 	return interactive.Graph(interactive.GraphConfig{
 		Label: "Service dependency graph", Caption: "Dependencies between edge, API, data, and notification services.",
@@ -623,20 +607,6 @@ func interactiveGaugeLiquidCode() string {
     Animate: interactive.Bool(true),
     Label: &interactive.GaugeLiquidLabel{Show: interactive.Bool(true)},
   },
-})`
-}
-
-func interactiveChartFunnelCode() string {
-	return `@interactive.Funnel(interactive.FunnelConfig{
-  Label: "Release pipeline",
-  Series: []interactive.FunnelSeries{{
-    Name: "Pipeline",
-    Data: []interactive.FunnelData{
-      {Name: "Built", Value: 120},
-      {Name: "Tested", Value: 94},
-      {Name: "Deployed", Value: 48},
-    },
-  }},
 })`
 }
 
