@@ -148,7 +148,7 @@ func ThemePlaygroundFrame() templ.Component {
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
-		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"></head><body class=\"min-h-screen bg-surface p-4 text-on-surface dark:bg-surface-dark dark:text-on-surface-dark sm:p-6\"><main class=\"mx-auto max-w-6xl space-y-5\" data-theme-playground-frame><header class=\"flex flex-wrap items-end justify-between gap-4 rounded-radius border border-outline bg-surface-alt p-4 dark:border-outline-dark dark:bg-surface-dark-alt\"><div class=\"space-y-1\"><h1 class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Live theme preview</h1><p class=\"text-sm text-on-surface-muted dark:text-on-surface-dark-muted\">One picker updates static vector and interactive charts together.</p></div><div class=\"w-44\">")
+		templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 6, "\"></head><body class=\"min-h-screen bg-surface p-4 text-on-surface dark:bg-surface-dark dark:text-on-surface-dark sm:p-6\"><main class=\"mx-auto max-w-6xl space-y-5\" data-theme-playground-frame><header class=\"flex flex-wrap items-end justify-between gap-4 rounded-radius border border-outline bg-surface-alt p-4 dark:border-outline-dark dark:bg-surface-dark-alt\"><div class=\"space-y-1\"><h1 class=\"font-title text-2xl font-bold text-on-surface-strong dark:text-on-surface-dark-strong\">Live theme preview</h1><p class=\"text-sm text-on-surface-muted dark:text-on-surface-dark-muted\">One picker updates static vector and interactive charts together.</p><p class=\"max-w-2xl text-xs text-on-surface-muted dark:text-on-surface-dark-muted\">All 16 built-in Goshtoso themes provide chart tokens. Application CSS can still override them on a chart root.</p></div><div class=\"w-44\">")
 		if templ_7745c5c3_Err != nil {
 			return templ_7745c5c3_Err
 		}
@@ -219,7 +219,7 @@ func themePlaygroundChartCard(title string, renderer string, chart templ.Compone
 		var templ_7745c5c3_Var8 string
 		templ_7745c5c3_Var8, templ_7745c5c3_Err = templ.ResolveAttributeValue(renderer)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/theme_playground.templ`, Line: 77, Col: 186}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/theme_playground.templ`, Line: 78, Col: 186}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ_7745c5c3_Var8)
 		if templ_7745c5c3_Err != nil {
@@ -232,7 +232,7 @@ func themePlaygroundChartCard(title string, renderer string, chart templ.Compone
 		var templ_7745c5c3_Var9 string
 		templ_7745c5c3_Var9, templ_7745c5c3_Err = templ.JoinStringErrs(title)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/theme_playground.templ`, Line: 79, Col: 113}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/theme_playground.templ`, Line: 80, Col: 113}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var9))
 		if templ_7745c5c3_Err != nil {
@@ -245,7 +245,7 @@ func themePlaygroundChartCard(title string, renderer string, chart templ.Compone
 		var templ_7745c5c3_Var10 string
 		templ_7745c5c3_Var10, templ_7745c5c3_Err = templ.JoinStringErrs(renderer)
 		if templ_7745c5c3_Err != nil {
-			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/theme_playground.templ`, Line: 80, Col: 127}
+			return templ.Error{Err: templ_7745c5c3_Err, FileName: `internal/pages/theme_playground.templ`, Line: 81, Col: 127}
 		}
 		_, templ_7745c5c3_Err = templ_7745c5c3_Buffer.WriteString(templ.EscapeString(templ_7745c5c3_Var10))
 		if templ_7745c5c3_Err != nil {
