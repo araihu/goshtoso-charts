@@ -94,3 +94,22 @@ func TestInteractiveHeatMapCalendarSampleIsDeterministicAndPreservesSourceShape(
 		t.Fatalf("calendar sequence SHA-256 = %s", got)
 	}
 }
+
+func TestInteractiveHeatMapSnippetsAreSelfContained(t *testing.T) {
+	t.Parallel()
+	category := interactiveChartHeatMapCode()
+	if strings.Contains(category, "dayHours") || !strings.Contains(category, `"12a"`) || !strings.Contains(category, `"11p"`) {
+		t.Fatalf("category snippet keeps unresolved labels: %s", category)
+	}
+	calendar := interactiveCalendarHeatMapCode()
+	for _, unresolved := range []string{"Start: start", "End: end", "calendarValues"} {
+		if strings.Contains(calendar, unresolved) {
+			t.Fatalf("calendar snippet keeps unresolved identifier %q: %s", unresolved, calendar)
+		}
+	}
+	for _, want := range []string{`Add "time"`, "time.Date(2026", "[]interactive.HeatMapData", "Missing: true"} {
+		if !strings.Contains(calendar, want) {
+			t.Fatalf("calendar snippet missing %q: %s", want, calendar)
+		}
+	}
+}

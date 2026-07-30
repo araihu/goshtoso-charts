@@ -616,7 +616,10 @@ func interactiveChartPieCode() string {
 func interactiveChartHeatMapCode() string {
 	return `@interactive.HeatMap(interactive.HeatMapConfig{
   Label: "Weekly activity by hour",
-  XAxis: dayHours, // 12a through 11p.
+  XAxis: []string{
+    "12a", "1a", "2a", "3a", "4a", "5a", "6a", "7a", "8a", "9a", "10a", "11a",
+    "12p", "1p", "2p", "3p", "4p", "5p", "6p", "7p", "8p", "9p", "10p", "11p",
+  },
   YAxis: []string{"Saturday", "Friday", "Thursday", "Wednesday", "Tuesday", "Monday", "Sunday"},
   ValueRange: interactive.HeatMapValueRange{
     Min: 0, Max: 10, Calculable: interactive.Bool(true),
@@ -634,12 +637,13 @@ func interactiveChartHeatMapCode() string {
 }
 
 func interactiveCalendarHeatMapCode() string {
-	return `@interactive.HeatMap(interactive.HeatMapConfig{
+	return `// Add "time" to the templ file's Go import block.
+@interactive.HeatMap(interactive.HeatMapConfig{
   Label: "Calendar activity",
   Coordinate: interactive.HeatMapCoordinateCalendar,
   Calendar: &interactive.HeatMapCalendar{
-    Start: start,
-    End: end,
+    Start: time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC),
+    End: time.Date(2027, time.January, 1, 0, 0, 0, 0, time.UTC),
     Options: interactive.CalendarOptions{
       Top: "100", Left: "30", Right: "30",
       CellSize: "auto", Orient: "horizontal",
@@ -650,7 +654,11 @@ func interactiveCalendarHeatMapCode() string {
   ValueRange: interactive.HeatMapValueRange{Min: 0, Max: 20},
   Series: []interactive.HeatMapSeries{{
     Name: "Calendar activity",
-    Data: calendarValues, // Ordered dates; Missing marks explicit no-data days.
+    Data: []interactive.HeatMapData{
+      {Date: time.Date(2026, time.January, 1, 0, 0, 0, 0, time.UTC), Value: 12},
+      {Date: time.Date(2026, time.January, 2, 0, 0, 0, 0, time.UTC), Missing: true},
+      {Date: time.Date(2026, time.January, 3, 0, 0, 0, 0, time.UTC), Value: 7},
+    },
   }},
 })`
 }

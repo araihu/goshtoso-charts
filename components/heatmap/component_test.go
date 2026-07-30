@@ -149,6 +149,23 @@ func TestHeatMapMapsFinitePresentationAPI(t *testing.T) {
 	}
 }
 
+func TestHeatMapMapsEveryTitlePlacement(t *testing.T) {
+	t.Parallel()
+	for _, test := range []struct {
+		placement Placement
+		want      chart.OffsetStr
+	}{
+		{placement: PlacementStart, want: chart.OffsetLeft},
+		{placement: PlacementCenter, want: chart.OffsetCenter},
+		{placement: PlacementEnd, want: chart.OffsetRight},
+		{placement: PlacementDefault, want: chart.OffsetCenter},
+	} {
+		if got := titleOffset(test.placement); got != test.want {
+			t.Errorf("titleOffset(%q) = %#v, want %#v", test.placement, got, test.want)
+		}
+	}
+}
+
 func TestHeatMapTitleCanBeHiddenWithoutLosingAccessibleName(t *testing.T) {
 	t.Parallel()
 	cfg := basicConfig()

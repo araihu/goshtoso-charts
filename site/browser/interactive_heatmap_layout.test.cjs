@@ -316,6 +316,8 @@ for (const width of [390, 1440]) {
 test("both HeatMap instances resize in place and react to live theme changes", async () => {
   const { page, failures, category, calendar } = await heatmapPage(1440);
   try {
+    await waitForChartGeometry(category);
+    await waitForChartGeometry(calendar);
     const beforeCategory = await measure(category);
     const beforeCalendar = await measure(calendar);
     await page.setViewportSize({ width: 390, height: 1000 });

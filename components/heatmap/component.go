@@ -105,7 +105,7 @@ func heatMapOptions(cfg Config, rows [][]float64) chart.HeatMapOption {
 func titleOffset(placement Placement) chart.OffsetStr {
 	switch placement {
 	case PlacementStart:
-		return chart.OffsetStr{}
+		return chart.OffsetLeft
 	case PlacementEnd:
 		return chart.OffsetRight
 	default:
