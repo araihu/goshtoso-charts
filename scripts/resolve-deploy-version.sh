@@ -12,6 +12,11 @@ ref_name=$2
 source_sha=$3
 script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 
+if [[ ! "$source_sha" =~ ^[0-9a-f]{40}$ ]]; then
+	echo "source SHA is not a full lowercase Git SHA-1" >&2
+	exit 1
+fi
+
 case "$ref_type" in
 tag)
 	if ! "$script_dir/validate-release-version.sh" "$ref_name"; then
@@ -23,10 +28,6 @@ tag)
 branch)
 	if [ "$ref_name" != "main" ]; then
 		echo "ref branch is not deployable: $ref_name" >&2
-		exit 1
-	fi
-	if [[ ! "$source_sha" =~ ^[0-9a-f]{40}$ ]]; then
-		echo "source SHA is not a full lowercase Git SHA-1" >&2
 		exit 1
 	fi
 	printf 'commit-%s\n' "${source_sha:0:12}"
