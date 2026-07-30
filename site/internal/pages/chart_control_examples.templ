@@ -61,7 +61,7 @@ templ staticChartControlExample(state staticChartControlState) {
 			},
 		}) {
 			<input type="hidden" name="static_present" value="1"/>
-			<fieldset class="m-0 grid min-w-0 gap-4 border-0 p-0 md:grid-cols-3">
+			<fieldset class="m-0 grid min-w-0 gap-4 border-0 p-0 lg:grid-cols-3">
 				<legend class="sr-only">Static chart form controls</legend>
 				@form.FieldGroup(form.FieldGroupConfig{ID: "static-mode", RootID: "static-mode-field", Label: "Wrapper mode", Hints: []string{"Hidden keeps chart state in the DOM; omitted removes only the shared wrapper."}}) {
 					<select id="static-mode" name="static_mode" aria-describedby="static-mode-hints" class="min-h-11 w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface-strong focus-visible:outline-2 focus-visible:outline-primary dark:border-outline-dark dark:bg-surface-dark dark:text-on-surface-dark-strong dark:focus-visible:outline-primary-dark" { chartControlHTMXAttrs(staticChartControlTarget)... }>
@@ -77,7 +77,7 @@ templ staticChartControlExample(state staticChartControlState) {
 				</div>
 				<div class="space-y-3">
 					@checkbox.Checkbox(checkbox.Config{ID: "static-area", Name: "static_area", Value: "on", Label: "Fill area below line", Checked: state.Area, HelperText: "Unchecked sends omission as off.", HelperTextID: "static-area-help", InputAttrs: chartControlHTMXAttrs(staticChartControlTarget)})
-					@button.Button(button.WithType("submit"), button.WithID("static-apply"), button.WithRootClass("w-full md:w-auto"), button.WithLoadingText("Applying…")) { Apply static controls }
+					@button.Button(button.WithType("submit"), button.WithID("static-apply"), button.WithRootClass("w-full lg:w-auto"), button.WithLoadingText("Applying…")) { Apply static controls }
 				</div>
 			</fieldset>
 			if len(state.Errors) > 0 {
@@ -106,7 +106,7 @@ templ interactiveChartControlExample(state interactiveChartControlState) {
 			},
 		}) {
 			<input type="hidden" name="interactive_present" value="1"/>
-			<fieldset class="m-0 grid min-w-0 gap-4 border-0 p-0 md:grid-cols-3">
+			<fieldset class="m-0 grid min-w-0 gap-4 border-0 p-0 lg:grid-cols-3">
 				<legend class="sr-only">Interactive chart form controls</legend>
 				@form.FieldGroup(form.FieldGroupConfig{ID: "interactive-orientation", RootID: "interactive-orientation-field", Label: "Orientation", Hints: []string{"Moves categories between horizontal and vertical axes."}}) {
 					<select id="interactive-orientation" name="interactive_orientation" aria-describedby="interactive-orientation-hints" class="min-h-11 w-full rounded-radius border border-outline bg-surface px-3 py-2 text-sm text-on-surface-strong focus-visible:outline-2 focus-visible:outline-primary dark:border-outline-dark dark:bg-surface-dark dark:text-on-surface-dark-strong dark:focus-visible:outline-primary-dark" { chartControlHTMXAttrs(interactiveChartControlTarget)... }>
@@ -120,7 +120,7 @@ templ interactiveChartControlExample(state interactiveChartControlState) {
 				</div>
 				<div class="space-y-3">
 					@checkbox.Checkbox(checkbox.Config{ID: "interactive-labels", Name: "interactive_labels", Value: "on", Label: "Show value labels", Checked: state.ShowLabels, HelperText: "Exact values remain in the disclosure either way.", HelperTextID: "interactive-labels-help", InputAttrs: chartControlHTMXAttrs(interactiveChartControlTarget)})
-					@button.Button(button.WithType("submit"), button.WithID("interactive-apply"), button.WithRootClass("w-full md:w-auto"), button.WithLoadingText("Applying…")) { Apply interactive controls }
+					@button.Button(button.WithType("submit"), button.WithID("interactive-apply"), button.WithRootClass("w-full lg:w-auto"), button.WithLoadingText("Applying…")) { Apply interactive controls }
 				</div>
 			</fieldset>
 			if len(state.Errors) > 0 {

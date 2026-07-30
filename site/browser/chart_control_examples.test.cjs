@@ -234,7 +234,7 @@ test("one custom palette updates all four chart semantics through HTMX", async (
   }
 });
 
-for (const width of [390, 1440]) {
+for (const width of [390, 768, 1440]) {
   for (const mode of ["light", "dark"]) {
     test(`forms remain usable after swaps at ${width}px in ${mode} mode`, async () => {
       const page = await browser.newPage({ viewport: { width, height: 900 }, colorScheme: mode });
@@ -256,6 +256,14 @@ for (const width of [390, 1440]) {
         await afterHTMXSettle(page, () => setColor(page, "#palette-color-1", "#123456"));
         const geometry = await page.evaluate(() => {
           const cards = [...document.querySelectorAll("[data-palette-chart]")].map((card) => card.getBoundingClientRect());
+          const formButtons = [
+            [document.querySelector("#static-chart-control-form"), document.querySelector("#static-apply")],
+            [document.querySelector("#interactive-chart-control-form"), document.querySelector("#interactive-apply")],
+          ].map(([form, button]) => {
+            const formRect = form.getBoundingClientRect();
+            const buttonRect = button.getBoundingClientRect();
+            return { formLeft: formRect.left, formRight: formRect.right, buttonLeft: buttonRect.left, buttonRight: buttonRect.right };
+          });
           return {
             clientWidth: document.documentElement.clientWidth,
             scrollWidth: document.documentElement.scrollWidth,
@@ -263,10 +271,15 @@ for (const width of [390, 1440]) {
               .map((element) => element.id)
               .filter((id, index, ids) => ids.indexOf(id) !== index),
             cards: cards.map(({ x, y, width: cardWidth }) => ({ x: Math.round(x), y: Math.round(y), width: Math.round(cardWidth) })),
+            formButtons,
           };
         });
         assert.equal(geometry.scrollWidth, geometry.clientWidth, JSON.stringify(geometry));
         assert.deepEqual(geometry.duplicateIDs, []);
+        for (const bounds of geometry.formButtons) {
+          assert.ok(bounds.buttonLeft >= bounds.formLeft, JSON.stringify(bounds));
+          assert.ok(bounds.buttonRight <= bounds.formRight, JSON.stringify(bounds));
+        }
         assert.equal(geometry.cards.length, 4);
         if (width === 1440) {
           assert.equal(geometry.cards[0].y, geometry.cards[1].y);

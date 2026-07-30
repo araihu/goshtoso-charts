@@ -178,7 +178,7 @@ func staticChartControlExample(state staticChartControlState) templ.Component {
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<input type=\"hidden\" name=\"static_present\" value=\"1\"><fieldset class=\"m-0 grid min-w-0 gap-4 border-0 p-0 md:grid-cols-3\"><legend class=\"sr-only\">Static chart form controls</legend>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 12, "<input type=\"hidden\" name=\"static_present\" value=\"1\"><fieldset class=\"m-0 grid min-w-0 gap-4 border-0 p-0 lg:grid-cols-3\"><legend class=\"sr-only\">Static chart form controls</legend>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -299,7 +299,7 @@ func staticChartControlExample(state staticChartControlState) templ.Component {
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = button.Button(button.WithType("submit"), button.WithID("static-apply"), button.WithRootClass("w-full md:w-auto"), button.WithLoadingText("Applying…")).Render(templ.WithChildren(ctx, templ_7745c5c3_Var10), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = button.Button(button.WithType("submit"), button.WithID("static-apply"), button.WithRootClass("w-full lg:w-auto"), button.WithLoadingText("Applying…")).Render(templ.WithChildren(ctx, templ_7745c5c3_Var10), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -491,7 +491,7 @@ func interactiveChartControlExample(state interactiveChartControlState) templ.Co
 				}()
 			}
 			ctx = templ.InitializeContext(ctx)
-			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<input type=\"hidden\" name=\"interactive_present\" value=\"1\"><fieldset class=\"m-0 grid min-w-0 gap-4 border-0 p-0 md:grid-cols-3\"><legend class=\"sr-only\">Interactive chart form controls</legend>")
+			templ_7745c5c3_Err = templruntime.WriteString(templ_7745c5c3_Buffer, 41, "<input type=\"hidden\" name=\"interactive_present\" value=\"1\"><fieldset class=\"m-0 grid min-w-0 gap-4 border-0 p-0 lg:grid-cols-3\"><legend class=\"sr-only\">Interactive chart form controls</legend>")
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
@@ -592,7 +592,7 @@ func interactiveChartControlExample(state interactiveChartControlState) templ.Co
 				}
 				return nil
 			})
-			templ_7745c5c3_Err = button.Button(button.WithType("submit"), button.WithID("interactive-apply"), button.WithRootClass("w-full md:w-auto"), button.WithLoadingText("Applying…")).Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
+			templ_7745c5c3_Err = button.Button(button.WithType("submit"), button.WithID("interactive-apply"), button.WithRootClass("w-full lg:w-auto"), button.WithLoadingText("Applying…")).Render(templ.WithChildren(ctx, templ_7745c5c3_Var23), templ_7745c5c3_Buffer)
 			if templ_7745c5c3_Err != nil {
 				return templ_7745c5c3_Err
 			}
