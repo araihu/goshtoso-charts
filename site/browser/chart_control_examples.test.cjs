@@ -10,6 +10,7 @@ const screenshotDirectory = process.env.GOSHTOSO_SCREENSHOT_DIR;
 let baseURL;
 let browser;
 let server;
+let serverOutput = "";
 
 async function randomPort() {
   return new Promise((resolve, reject) => {
@@ -42,7 +43,13 @@ before(async () => {
   server = spawn("go", ["run", "./cmd/server", "-port", String(port)], {
     cwd: path.resolve(__dirname, ".."), detached: true, stdio: "pipe",
   });
-  await ready();
+  server.stdout.on("data", (chunk) => { serverOutput += String(chunk); });
+  server.stderr.on("data", (chunk) => { serverOutput += String(chunk); });
+  try {
+    await ready();
+  } catch (error) {
+    throw new Error(`${error.message}\n${serverOutput}`);
+  }
   browser = await chromium.launch({ headless: true });
   if (screenshotDirectory) await fs.mkdir(screenshotDirectory, { recursive: true });
 });
@@ -314,7 +321,7 @@ test("static form has a no-JavaScript GET submission fallback", async () => {
     await page.locator("#static-stroke").fill("8");
     await page.locator("#static-area").uncheck();
     await Promise.all([
-      page.waitForNavigation(),
+      page.waitForURL(/static_present=1/),
       page.locator("#static-apply").click(),
     ]);
     assert.match(page.url(), /static_present=1/);
@@ -338,12 +345,13 @@ test("palette form has a no-JavaScript custom-color GET fallback", async () => {
     await page.goto(`${baseURL}/docs/chart-controls`);
     await page.locator("#chart-palette").selectOption("custom");
     // Disabled inputs are intentionally absent until the custom server state is selected.
-    await Promise.all([page.waitForNavigation(), page.locator("#palette-apply").click()]);
+    await Promise.all([page.waitForURL(/chart_palette=custom/), page.locator("#palette-apply").click()]);
     assert.match(page.url(), /chart_palette=custom/);
+    assert.equal(await page.locator('[data-chart-control-errors="palette-grid"]').count(), 0);
     for (let index = 0; index < 4; index += 1) {
       await page.locator(`#palette-color-${index + 1}`).fill(["#123456", "#236789", "#b45309", "#be123c"][index]);
     }
-    await Promise.all([page.waitForNavigation(), page.locator("#palette-apply").click()]);
+    await Promise.all([page.waitForURL(/palette_color_4=%23be123c/i), page.locator("#palette-apply").click()]);
     const example = page.locator("#palette-chart-control-example");
     assert.equal(await example.getAttribute("data-chart-palette"), "custom");
     const body = (await example.innerHTML()).toLowerCase();

@@ -3,7 +3,6 @@ package chartcontrol_test
 import (
 	"bytes"
 	"context"
-	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -62,11 +61,11 @@ func TestDefaultWrapperEnablesExpandAndCapabilityDerivedExport(t *testing.T) {
 
 func TestDefaultControlsShareNeutralToneAndStableDimensions(t *testing.T) {
 	t.Parallel()
-	output, err := os.ReadFile("styles.templ")
-	if err != nil {
-		t.Fatal(err)
+	var output bytes.Buffer
+	if err := chartcontrol.Styles().Render(context.Background(), &output); err != nil {
+		t.Fatalf("Styles().Render() error = %v", err)
 	}
-	markup := string(output)
+	markup := output.String()
 	for _, want := range []string{
 		`--goshtoso-chart-control-height: 2.75rem`,
 		`--goshtoso-chart-control-width: 7.5rem`,

@@ -53,6 +53,9 @@ func parsePaletteChartControlState(values url.Values) paletteChartControlState {
 		state.PaletteValue, state.Custom = choice, true
 		for index := range state.Colors {
 			name := fmt.Sprintf("palette_color_%d", index+1)
+			if !values.Has(name) {
+				continue
+			}
 			color := strings.ToLower(strings.TrimSpace(values.Get(name)))
 			if validHexColor(color) {
 				state.Colors[index] = color
@@ -125,6 +128,7 @@ func paletteHeatMapConfig(state paletteChartControlState) heatmap.Config {
 	cfg.Label = "Shared-palette heat map"
 	cfg.Caption = "The same palette becomes an ordered cold-to-warm value gradient."
 	cfg.Style = charttheme.Style{Palette: state.Palette}
+	// The sample root attributes are cleared so repeated HTMX swaps cannot duplicate them.
 	cfg.RootAttrs = nil
 	if state.Custom {
 		cfg.Gradient = heatmap.Gradient{Stops: []heatmap.GradientStop{
@@ -136,6 +140,26 @@ func paletteHeatMapConfig(state paletteChartControlState) heatmap.Config {
 	}
 	cfg.Export.Filename = "shared-palette-heat-map"
 	return cfg
+}
+
+func paletteColorLabel(index int) string {
+	switch index {
+	case 0:
+		return "Color 1 · line / low"
+	case 1:
+		return "Color 2 · series / low-mid"
+	case 2:
+		return "Color 3 · sector / high-mid"
+	default:
+		return "Color 4 · sector / warm"
+	}
+}
+
+func paletteAppliedText(state paletteChartControlState) string {
+	if !state.Custom {
+		return state.PaletteValue + " palette"
+	}
+	return fmt.Sprintf("custom palette %s, %s, %s, %s", state.Colors[0], state.Colors[1], state.Colors[2], state.Colors[3])
 }
 
 const paletteChartControlSource = `package chartsdemo
@@ -180,6 +204,7 @@ func paletteStateFromRequest(r *http.Request) paletteState {
     state.Value, state.Custom = value, true
     for index := range state.Colors {
       name := fmt.Sprintf("palette_color_%d", index+1)
+      if !r.URL.Query().Has(name) { continue }
       color := strings.ToLower(strings.TrimSpace(r.URL.Query().Get(name)))
       if validHex(color) { state.Colors[index] = color } else {
         state.Errors = append(state.Errors, fmt.Sprintf("Color %d must use six-digit hexadecimal notation; %s was restored.", index+1, customDefaults[index]))

@@ -40,6 +40,9 @@ func TestChartControlGuideReportsInvalidRequestValuesAndRestoresDefaults(t *test
 	recorder := httptest.NewRecorder()
 	request := httptest.NewRequest(http.MethodGet, "/docs/chart-controls?static_present=1&static_mode=raw&static_stroke=99&interactive_present=1&interactive_orientation=raw&interactive_scale=125&palette_present=1&chart_palette=custom&palette_color_1=red&palette_color_2=%23abcdef&palette_color_3=bad&palette_color_4=", nil)
 	New().ServeHTTP(recorder, request)
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("status = %d", recorder.Code)
+	}
 	body := recorder.Body.String()
 	for _, want := range []string{
 		`role="alert"`, `data-chart-control-errors="static"`, `data-chart-control-errors="interactive"`, `data-chart-control-errors="palette-grid"`,

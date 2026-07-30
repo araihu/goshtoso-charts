@@ -240,11 +240,11 @@ type staticState struct {
 }
 
 func staticStateFromRequest(r *http.Request) staticState {
-  state := staticState{ModeValue: "enabled", Stroke: 3, Area: true}
+  state := staticState{Mode: chartcontrol.WrapperModeEnabled, ModeValue: "enabled", Stroke: 3, Area: true}
   if r.URL.Query().Get("static_present") != "1" { return state }
   state.Area = r.URL.Query().Has("static_area")
   switch r.URL.Query().Get("static_mode") {
-  case "enabled":
+  case "enabled": state.Mode = chartcontrol.WrapperModeEnabled
   case "disabled": state.Mode, state.ModeValue = chartcontrol.WrapperModeDisabled, "disabled"
   case "hidden": state.Mode, state.ModeValue = chartcontrol.WrapperModeHidden, "hidden"
   case "omitted": state.Mode, state.ModeValue = chartcontrol.WrapperModeOmitted, "omitted"

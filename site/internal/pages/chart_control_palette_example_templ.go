@@ -479,24 +479,4 @@ func paletteChartControlExample(state paletteChartControlState) templ.Component 
 	})
 }
 
-func paletteColorLabel(index int) string {
-	switch index {
-	case 0:
-		return "Color 1 · line / low"
-	case 1:
-		return "Color 2 · series / low-mid"
-	case 2:
-		return "Color 3 · sector / high-mid"
-	default:
-		return "Color 4 · sector / warm"
-	}
-}
-
-func paletteAppliedText(state paletteChartControlState) string {
-	if !state.Custom {
-		return state.PaletteValue + " palette"
-	}
-	return fmt.Sprintf("custom palette %s, %s, %s, %s", state.Colors[0], state.Colors[1], state.Colors[2], state.Colors[3])
-}
-
 var _ = templruntime.GeneratedTemplate

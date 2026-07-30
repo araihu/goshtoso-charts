@@ -3,6 +3,7 @@ package pages
 import (
 	"bytes"
 	"context"
+	"math"
 	"net/url"
 	"os"
 	"reflect"
@@ -93,13 +94,14 @@ func TestChartControlExamplesParseClosedValuesAndDriveTypedConfigs(t *testing.T)
 	if examples.interactive.Orientation != interactive.BarOrientationHorizontal || examples.interactive.Scale != 150 || examples.interactive.ShowLabels {
 		t.Fatalf("interactive parsed state = %#v", examples.interactive)
 	}
+	base := interactiveChartControlConfig(defaults.interactive).Series[0].Data[0].Value
 	interactiveConfig := interactiveChartControlConfig(examples.interactive)
 	if interactiveConfig.Orientation != interactive.BarOrientationHorizontal || *interactiveConfig.SeriesOptions.Label.Show {
 		t.Fatalf("interactive chart config = %#v", interactiveConfig)
 	}
-	base := interactiveChartControlConfig(defaults.interactive).Series[0].Data[0].Value
-	if got := interactiveConfig.Series[0].Data[0].Value; got != base*1.5 {
-		t.Fatalf("scaled value = %v, want %v", got, base*1.5)
+	want := math.Round(base*1.5*10) / 10
+	if got := interactiveConfig.Series[0].Data[0].Value; got != want {
+		t.Fatalf("scaled value = %v, want %v", got, want)
 	}
 	if !examples.palette.Custom || examples.palette.PaletteValue != "custom" || examples.palette.Colors != [4]string{"#123456", "#234567", "#345678", "#456789"} {
 		t.Fatalf("palette parsed state = %#v", examples.palette)
@@ -119,6 +121,20 @@ func TestChartControlExamplesParseClosedValuesAndDriveTypedConfigs(t *testing.T)
 	heatStops := paletteHeatMapConfig(examples.palette).Gradient.Stops
 	if got := []string{heatStops[0].Color, heatStops[1].Color, heatStops[2].Color, heatStops[3].Color}; !reflect.DeepEqual(got, lineConfig.Style.Colors) {
 		t.Fatalf("palette heat-map colors = %#v", got)
+	}
+}
+
+func TestChartControlExamplesAllowInitialCustomPaletteWithoutSubmittedColors(t *testing.T) {
+	t.Parallel()
+	examples := ParseChartControlExamples(url.Values{
+		"palette_present": {"1"},
+		"chart_palette":   {"custom"},
+	})
+	if !examples.palette.Custom || len(examples.palette.Errors) != 0 {
+		t.Fatalf("initial custom palette = %#v", examples.palette)
+	}
+	if examples.palette.Colors != defaultPaletteChartColors {
+		t.Fatalf("initial custom colors = %#v, want %#v", examples.palette.Colors, defaultPaletteChartColors)
 	}
 }
 
