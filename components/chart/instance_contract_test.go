@@ -14,6 +14,7 @@ import (
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
 	interactivecandlestick "github.com/araihu/goshtoso-charts/components/interactive/candlestick"
+	interactivefunnel "github.com/araihu/goshtoso-charts/components/interactive/funnel"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
@@ -157,6 +158,7 @@ func TestInstanceAliasesRetainCanonicalTypeIdentity(t *testing.T) {
 		"interactive/bar":         reflect.TypeOf(interactivebar.Instance{}),
 		"interactive/boxplot":     reflect.TypeOf(interactiveboxplot.Instance{}),
 		"interactive/candlestick": reflect.TypeOf(interactivecandlestick.Instance{}),
+		"interactive/funnel":      reflect.TypeOf(interactivefunnel.Instance{}),
 		"interactive/heatmap":     reflect.TypeOf(interactiveheatmap.Instance{}),
 		"interactive/line":        reflect.TypeOf(interactiveline.Instance{}),
 		"interactive/pie":         reflect.TypeOf(interactivepie.Instance{}),
@@ -182,6 +184,8 @@ var (
 	_ interactiveboxplot.Instance     = chart.Instance{}
 	_ chart.Instance                  = interactivecandlestick.Instance{}
 	_ interactivecandlestick.Instance = chart.Instance{}
+	_ chart.Instance                  = interactivefunnel.Instance{}
+	_ interactivefunnel.Instance      = chart.Instance{}
 	_ chart.Instance                  = interactiveheatmap.Instance{}
 	_ interactiveheatmap.Instance     = chart.Instance{}
 	_ chart.Instance                  = interactiveline.Instance{}
@@ -199,12 +203,14 @@ var (
 	_ func(interactive.LineConfig) chart.Instance        = interactive.Line
 	_ func(interactive.ScatterConfig) chart.Instance     = interactive.Scatter
 	_ func(interactive.CandlestickConfig) chart.Instance = interactive.Candlestick
+	_ func(interactive.FunnelConfig) chart.Instance      = interactive.Funnel
 	_ func(interactive.HeatMapConfig) chart.Instance     = interactive.HeatMap
 	_ func(interactive.PieConfig) chart.Instance         = interactive.Pie
 	_ func(interactive.RadarConfig) chart.Instance       = interactive.Radar
 	_ func(interactivebar.Config) chart.Instance         = interactivebar.Bar
 	_ func(interactiveboxplot.Config) chart.Instance     = interactiveboxplot.BoxPlot
 	_ func(interactivecandlestick.Config) chart.Instance = interactivecandlestick.Candlestick
+	_ func(interactivefunnel.Config) chart.Instance      = interactivefunnel.Funnel
 	_ func(interactiveheatmap.Config) chart.Instance     = interactiveheatmap.HeatMap
 	_ func(interactiveline.Config) chart.Instance        = interactiveline.Line
 	_ func(interactivepie.Config) chart.Instance         = interactivepie.Pie

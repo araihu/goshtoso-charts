@@ -17,6 +17,7 @@ import (
 	"github.com/araihu/goshtoso-charts/components/heatmap"
 	"github.com/araihu/goshtoso-charts/components/interactive"
 	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
+	interactivefunnel "github.com/araihu/goshtoso-charts/components/interactive/funnel"
 	interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
@@ -58,7 +59,7 @@ var wrapperConfigContracts = []wrapperConfigContract{
 	{components.KindInteractiveHeatMap, reflect.TypeOf(interactiveheatmap.Config{}), true},
 	{components.KindInteractiveBoxPlot, reflect.TypeOf(interactiveboxplot.Config{}), true},
 	{components.KindInteractiveGauge, reflect.TypeOf(interactivegauge.Config{}), true},
-	{components.KindInteractiveFunnel, reflect.TypeOf(interactive.FunnelConfig{}), true},
+	{components.KindInteractiveFunnel, reflect.TypeOf(interactivefunnel.Config{}), true},
 	{components.KindInteractiveGraph, reflect.TypeOf(interactive.GraphConfig{}), true},
 	{components.KindInteractiveSankey, reflect.TypeOf(interactive.SankeyConfig{}), true},
 	{components.KindInteractiveTree, reflect.TypeOf(interactive.TreeConfig{}), true},
@@ -137,6 +138,7 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/bar/bar.go", "Bar")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/boxplot/boxplot.go", "BoxPlot")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/candlestick/candlestick.go", "Candlestick")
+	assertConstructorPropagatesSharedWrapperFields(t, "interactive/funnel/funnel.go", "Funnel")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/gauge/gauge.go", "Gauge")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/heatmap/heatmap.go", "HeatMap")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/line/line.go", "Line")
@@ -172,7 +174,7 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 			if !ok || !strings.HasSuffix(parameter.Name, "Config") {
 				continue
 			}
-			if function.Name.Name == "Bar" || function.Name.Name == "BoxPlot" || function.Name.Name == "Candlestick" || function.Name.Name == "Gauge" || function.Name.Name == "HeatMap" || function.Name.Name == "Line" || function.Name.Name == "Pie" || function.Name.Name == "Radar" || function.Name.Name == "Scatter" {
+			if function.Name.Name == "Bar" || function.Name.Name == "BoxPlot" || function.Name.Name == "Candlestick" || function.Name.Name == "Funnel" || function.Name.Name == "Gauge" || function.Name.Name == "HeatMap" || function.Name.Name == "Line" || function.Name.Name == "Pie" || function.Name.Name == "Radar" || function.Name.Name == "Scatter" {
 				continue // Physical ownership is covered in the child implementations above.
 			}
 			if !containsSelectorPath(function.Body, "cfg", "Options", "Controls") || !containsSelectorPath(function.Body, "cfg", "Options", "Export") {

@@ -10,6 +10,7 @@ import (
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
 	interactivecandlestick "github.com/araihu/goshtoso-charts/components/interactive/candlestick"
+	interactivefunnel "github.com/araihu/goshtoso-charts/components/interactive/funnel"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
@@ -86,6 +87,14 @@ func oldFacadeRadarConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeFunnelConsumer() chart.Instance {
+	return interactive.Funnel(interactive.FunnelConfig{
+		Label:  "Deployment pipeline",
+		Order:  interactive.FunnelOrderData,
+		Series: []interactive.FunnelSeries{{Name: "Deployments", Data: []interactive.FunnelData{{Name: "Started", Value: 10}, {Name: "Completed", Value: 8}}}},
+	})
+}
+
 func canonicalChildConsumers() []chart.Instance {
 	return []chart.Instance{
 		interactivebar.Bar(interactivebar.Config{
@@ -112,6 +121,11 @@ func canonicalChildConsumers() []chart.Instance {
 			Label:      "Daily prices",
 			Categories: []string{"Mon"},
 			Series:     []interactivecandlestick.Series{{Name: "Price", Data: []interactivecandlestick.Candle{{Open: 10, Close: 11, Low: 9, High: 12}}}},
+		}),
+		interactivefunnel.Funnel(interactivefunnel.Config{
+			Label:  "Deployment pipeline",
+			Order:  interactivefunnel.OrderData,
+			Series: []interactivefunnel.Series{{Name: "Deployments", Data: []interactivefunnel.Data{{Name: "Started", Value: 10}, {Name: "Completed", Value: 8}}}},
 		}),
 		interactiveheatmap.HeatMap(interactiveheatmap.Config{
 			Label:      "Deployment activity",
@@ -151,6 +165,7 @@ var (
 	_ = oldFacadePieConsumer
 	_ = oldFacadeBoxPlotConsumer
 	_ = oldFacadeRadarConsumer
+	_ = oldFacadeFunnelConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer
 )

@@ -20,6 +20,7 @@ var publicBoundaryPackages = []string{
 	modulePath + "/components/interactive/bar",
 	modulePath + "/components/interactive/boxplot",
 	modulePath + "/components/interactive/candlestick",
+	modulePath + "/components/interactive/funnel",
 	modulePath + "/components/interactive/gauge",
 	modulePath + "/components/interactive/heatmap",
 	modulePath + "/components/interactive/line",
