@@ -27,6 +27,7 @@ import (
 	interactivesunburst "github.com/araihu/goshtoso-charts/components/interactive/sunburst"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 	interactivetree "github.com/araihu/goshtoso-charts/components/interactive/tree"
+	interactivewordcloud "github.com/araihu/goshtoso-charts/components/interactive/wordcloud"
 )
 
 const uninitializedRenderError = "interactive chart label is required"
@@ -178,6 +179,7 @@ func TestInstanceAliasesRetainCanonicalTypeIdentity(t *testing.T) {
 		"interactive/sunburst":    reflect.TypeOf(interactivesunburst.Instance{}),
 		"interactive/themeriver":  reflect.TypeOf(interactivethemeriver.Instance{}),
 		"interactive/tree":        reflect.TypeOf(interactivetree.Instance{}),
+		"interactive/wordcloud":   reflect.TypeOf(interactivewordcloud.Instance{}),
 	}
 	for name, instanceType := range types {
 		if got := instanceType.PkgPath(); got != wantPackage {
@@ -224,6 +226,8 @@ var (
 	_ interactivethemeriver.Instance  = chart.Instance{}
 	_ chart.Instance                  = interactivetree.Instance{}
 	_ interactivetree.Instance        = chart.Instance{}
+	_ chart.Instance                  = interactivewordcloud.Instance{}
+	_ interactivewordcloud.Instance   = chart.Instance{}
 
 	_ func(chartcomponents.Component) chart.Instance     = chart.NewInstance
 	_ func(interactive.BarConfig) chart.Instance         = interactive.Bar
@@ -242,6 +246,7 @@ var (
 	_ func(interactive.SunburstConfig) chart.Instance    = interactive.Sunburst
 	_ func(interactive.ThemeRiverConfig) chart.Instance  = interactive.ThemeRiver
 	_ func(interactive.TreeConfig) chart.Instance        = interactive.Tree
+	_ func(interactive.WordCloudConfig) chart.Instance   = interactive.WordCloud
 	_ func(interactivebar.Config) chart.Instance         = interactivebar.Bar
 	_ func(interactiveboxplot.Config) chart.Instance     = interactiveboxplot.BoxPlot
 	_ func(interactivecandlestick.Config) chart.Instance = interactivecandlestick.Candlestick
@@ -258,4 +263,5 @@ var (
 	_ func(interactivesunburst.Config) chart.Instance    = interactivesunburst.Sunburst
 	_ func(interactivethemeriver.Config) chart.Instance  = interactivethemeriver.ThemeRiver
 	_ func(interactivetree.Config) chart.Instance        = interactivetree.Tree
+	_ func(interactivewordcloud.Config) chart.Instance   = interactivewordcloud.WordCloud
 )

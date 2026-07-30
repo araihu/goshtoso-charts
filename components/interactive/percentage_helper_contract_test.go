@@ -4,72 +4,25 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"maps"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-
-	internalinteractive "github.com/araihu/goshtoso-charts/components/internal/interactive"
 )
 
-func TestParentPercentageHelperRemainsThinPrivateAdapterWrapper(t *testing.T) {
+func TestParentPercentageHelpersAreRemovedWithNoRemainingCallers(t *testing.T) {
 	t.Parallel()
 
-	for _, value := range []float64{0, 12.5, 100} {
-		if got, want := percentage(value), internalinteractive.Percentage(value); got != want {
-			t.Errorf("percentage(%g) = %q, want private adapter %q", value, got, want)
-		}
-	}
-
-	file, err := parser.ParseFile(token.NewFileSet(), "options.go", nil, 0)
+	options, err := parser.ParseFile(token.NewFileSet(), "options.go", nil, 0)
 	if err != nil {
 		t.Fatalf("parse compatibility helpers: %v", err)
 	}
-	seen := false
-	for _, declaration := range file.Decls {
+	for _, declaration := range options.Decls {
 		function, ok := declaration.(*ast.FuncDecl)
-		if !ok {
-			continue
-		}
-		if function.Name.Name == "validPercentage" {
-			t.Error("unused parent validPercentage helper remains after Sunburst migration")
-		}
-		if function.Name.Name != "percentage" {
-			continue
-		}
-		seen = true
-		if function.Body == nil || len(function.Body.List) != 1 {
-			t.Error("percentage is not a single-statement wrapper")
-			continue
-		}
-		statement, ok := function.Body.List[0].(*ast.ReturnStmt)
-		if !ok || len(statement.Results) != 1 {
-			t.Error("percentage does not directly return private adapter result")
-			continue
-		}
-		call, ok := statement.Results[0].(*ast.CallExpr)
-		if !ok {
-			t.Error("percentage does not directly call private adapter")
-			continue
-		}
-		selector, selectorOK := call.Fun.(*ast.SelectorExpr)
-		if !selectorOK {
-			t.Error("percentage does not directly select private adapter helper")
-			continue
-		}
-		packageName, packageOK := selector.X.(*ast.Ident)
-		if !packageOK || packageName.Name != "internalinteractive" || selector.Sel.Name != "Percentage" {
-			t.Error("percentage does not directly forward to internalinteractive.Percentage")
+		if ok && (function.Name.Name == "percentage" || function.Name.Name == "validPercentage") {
+			t.Errorf("obsolete parent helper %s remains after Word Cloud migration", function.Name.Name)
 		}
 	}
-	if !seen {
-		t.Error("compatibility percentage helper is missing")
-	}
-}
-
-func TestParentPercentageHelperOnlyServesUnmigratedWordCloud(t *testing.T) {
-	t.Parallel()
 
 	entries, err := os.ReadDir(".")
 	if err != nil {
@@ -77,7 +30,7 @@ func TestParentPercentageHelperOnlyServesUnmigratedWordCloud(t *testing.T) {
 	}
 	callers := make(map[string]struct{})
 	for _, entry := range entries {
-		if entry.IsDir() || filepath.Ext(entry.Name()) != ".go" || strings.HasSuffix(entry.Name(), "_test.go") || entry.Name() == "options.go" {
+		if entry.IsDir() || filepath.Ext(entry.Name()) != ".go" || strings.HasSuffix(entry.Name(), "_test.go") {
 			continue
 		}
 		file, err := parser.ParseFile(token.NewFileSet(), entry.Name(), nil, 0)
@@ -96,9 +49,8 @@ func TestParentPercentageHelperOnlyServesUnmigratedWordCloud(t *testing.T) {
 			return true
 		})
 	}
-	want := map[string]struct{}{"wordcloud.go:percentage": {}}
-	if !maps.Equal(callers, want) {
-		t.Fatalf("parent percentage helper callers = %v, want only unmigrated WordCloud %v", callers, want)
+	if len(callers) != 0 {
+		t.Fatalf("parent percentage helper callers remain: %v", callers)
 	}
 }
 
@@ -108,6 +60,7 @@ func TestMigratedPackagesUsePrivatePercentageHelpersDirectly(t *testing.T) {
 	for name, path := range map[string]string{
 		"Sunburst":   "sunburst/sunburst.go",
 		"ThemeRiver": "themeriver/themeriver.go",
+		"WordCloud":  "wordcloud/wordcloud.go",
 	} {
 		name, path := name, path
 		t.Run(name, func(t *testing.T) {

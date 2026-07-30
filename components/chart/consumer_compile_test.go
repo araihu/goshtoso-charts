@@ -24,6 +24,7 @@ import (
 	interactivesunburst "github.com/araihu/goshtoso-charts/components/interactive/sunburst"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 	interactivetree "github.com/araihu/goshtoso-charts/components/interactive/tree"
+	interactivewordcloud "github.com/araihu/goshtoso-charts/components/interactive/wordcloud"
 )
 
 // These snippets are compile contracts for old facade consumers, canonical
@@ -160,6 +161,13 @@ func oldFacadeTreeConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeWordCloudConsumer() chart.Instance {
+	return interactive.WordCloud(interactive.WordCloudConfig{
+		Label:  "Deployment terms",
+		Series: interactive.WordCloudSeries{Name: "Terms", Words: []interactive.Word{{Name: "Production", Value: 8}}},
+	})
+}
+
 func canonicalChildConsumers() []chart.Instance {
 	return []chart.Instance{
 		interactivebar.Bar(interactivebar.Config{
@@ -239,6 +247,10 @@ func canonicalChildConsumers() []chart.Instance {
 			Label: "Deployment hierarchy",
 			Roots: []*interactivetree.Node{{Name: "Production", Children: []*interactivetree.Node{{Name: "API"}}}},
 		}),
+		interactivewordcloud.WordCloud(interactivewordcloud.Config{
+			Label:  "Deployment terms",
+			Series: interactivewordcloud.Series{Name: "Terms", Words: []interactivewordcloud.Word{{Name: "Production", Value: 8}}},
+		}),
 		interactivethemeriver.ThemeRiver(interactivethemeriver.Config{
 			Label:   "Deployment activity",
 			Streams: []interactivethemeriver.Stream{{Name: "Production", Points: []interactivethemeriver.Point{{Time: time.Date(2026, time.July, 30, 0, 0, 0, 0, time.UTC), Value: 8}}}},
@@ -273,6 +285,7 @@ var (
 	_ = oldFacadeSankeyConsumer
 	_ = oldFacadeSunburstConsumer
 	_ = oldFacadeTreeConsumer
+	_ = oldFacadeWordCloudConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer
 )
