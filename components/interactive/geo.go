@@ -171,6 +171,9 @@ func Geo(cfg GeoConfig) Instance {
 		RootAttrs: cfg.RootAttrs, Details: geoExactValues(geoDetailRows(cfg.Series, maxGeoDetailRows)),
 		ExplicitVisualMapColors: geoVisualRangeHasColors(cfg.VisualRange),
 		GeoGeometryPaint:        string(geometryJSON), GeoSeriesPaints: string(seriesJSON),
+		ScriptReplacements: geographicLayoutReplacements(
+			rendererGeoName(cfg.Geometry), hasChartTitle(cfg.Options), cfg.VisualRange != nil,
+		),
 	})
 }
 
@@ -196,7 +199,10 @@ func rendererGeoGeometryItemStyle(paint GeoPaint) *opts.ItemStyle {
 }
 
 func rendererGeoVisualRange(value *GeoVisualRange) opts.VisualMap {
-	result := opts.VisualMap{Min: float32(value.Min), Max: float32(value.Max)}
+	result := opts.VisualMap{
+		Min: float32(value.Min), Max: float32(value.Max),
+		Orient: "horizontal", Left: "center", Bottom: "8",
+	}
 	if value.Calculable != nil {
 		result.Calculable = opts.Bool(*value.Calculable)
 	}

@@ -94,6 +94,41 @@ async function measure(wrapper) {
     const canvas = host.querySelector("canvas");
     const option = instance.getOption();
     const series = option.series[0];
+    const displayList = instance.getZr().storage.getDisplayList();
+    const regionRects = displayList
+      .filter((item) => item.type === "compound" && item.z === 0)
+      .map((item) => item.getBoundingRect());
+    const geoBounds = {
+      left: Math.min(...regionRects.map((rect) => rect.x)),
+      right: Math.max(...regionRects.map((rect) => rect.x + rect.width)),
+      top: Math.min(...regionRects.map((rect) => rect.y)),
+      bottom: Math.max(...regionRects.map((rect) => rect.y + rect.height)),
+    };
+    const transformedRect = (item) => {
+      const rect = item.getBoundingRect();
+      const matrix = item.transform || [1, 0, 0, 1, 0, 0];
+      const points = [
+        [rect.x, rect.y], [rect.x + rect.width, rect.y],
+        [rect.x + rect.width, rect.y + rect.height], [rect.x, rect.y + rect.height],
+      ].map(([x, y]) => [
+        matrix[0] * x + matrix[2] * y + matrix[4],
+        matrix[1] * x + matrix[3] * y + matrix[5],
+      ]);
+      return {
+        left: Math.min(...points.map((point) => point[0])),
+        right: Math.max(...points.map((point) => point[0])),
+        top: Math.min(...points.map((point) => point[1])),
+        bottom: Math.max(...points.map((point) => point[1])),
+      };
+    };
+    const scaleRects = displayList.filter((item) => item.z === 4).map(transformedRect);
+    const scaleBounds = scaleRects.length ? {
+      left: Math.min(...scaleRects.map((rect) => rect.left)),
+      right: Math.max(...scaleRects.map((rect) => rect.right)),
+      top: Math.min(...scaleRects.map((rect) => rect.top)),
+      bottom: Math.max(...scaleRects.map((rect) => rect.bottom)),
+    } : null;
+    const hasScale = Boolean(option.visualMap?.length);
     return {
       sameInstance: !element.__geoInstance || instance === element.__geoInstance,
       hostWidth: host.clientWidth,
@@ -112,8 +147,26 @@ async function measure(wrapper) {
 	  pointColors: series.data.map((point) => point.itemStyle?.color || ""),
       background: option.backgroundColor,
       text: option.textStyle?.color,
+      geoBounds,
+      geoAspect: (geoBounds.right - geoBounds.left) / (geoBounds.bottom - geoBounds.top),
+      geoCenterErrorX: Math.abs((geoBounds.left + geoBounds.right) / 2 - host.clientWidth / 2),
+      geoCenterErrorY: Math.abs((geoBounds.top + geoBounds.bottom) / 2 - host.clientHeight * (hasScale ? 0.46 : 0.54)),
+      geoUtilization: Math.max(geoBounds.right - geoBounds.left, geoBounds.bottom - geoBounds.top) / Math.min(host.clientWidth, host.clientHeight),
+      scaleBounds,
+      scaleOverlap: scaleBounds ? !(
+        geoBounds.right < scaleBounds.left || geoBounds.left > scaleBounds.right ||
+        geoBounds.bottom < scaleBounds.top || geoBounds.top > scaleBounds.bottom
+      ) : false,
     };
   });
+}
+
+function assertGeoLayout(state, width, label, minAspect, maxAspect, utilization) {
+  assert.ok(state.geoAspect >= minAspect && state.geoAspect <= maxAspect, `${label} aspect ${state.geoAspect} at ${width}`);
+  assert.ok(state.geoCenterErrorX <= 2, `${label} horizontal center error ${state.geoCenterErrorX} at ${width}`);
+  assert.ok(state.geoCenterErrorY <= 2, `${label} vertical plot center error ${state.geoCenterErrorY} at ${width}`);
+  assert.ok(state.geoUtilization >= utilization, `${label} canvas utilization ${state.geoUtilization} at ${width}`);
+  assert.equal(state.scaleOverlap, false, `${label} scale overlap at ${width}: ${JSON.stringify({ geo: state.geoBounds, scale: state.scaleBounds })}`);
 }
 
 function channels(color) {
@@ -181,20 +234,28 @@ test("both variants preserve exact coordinates, ripple, visual range, and reused
   }
 });
 
-test("320, 390, 768, and 1440 Goshtoso/AraiHu light/dark layouts stay centered, contained, responsive, and contrast-safe", async () => {
+test("390, 768, 1499, and 1440 Goshtoso/AraiHu light/dark layouts preserve both geometries and scale gutters", async () => {
   const themeStates = new Map();
-	  for (const width of [320, 390, 768, 1440]) {
+	  for (const width of [390, 768, 1499, 1440]) {
     for (const theme of ["goshtoso", "araihu"]) {
       for (const dark of [false, true]) {
         const page = await pageAt({ width, height: 900 });
         try {
+          const wrapper = wrapperFor(page, "effect-scatter");
+          const regionalWrapper = wrapperFor(page, "scatter");
+          await Promise.all([wrapper, regionalWrapper].map((chartWrapper) => chartWrapper.evaluate((element) => {
+            const host = element.querySelector("[_echarts_instance_]");
+            element.__geoInstance = window.echarts.getInstanceByDom(host);
+          })));
           await page.evaluate(({ theme, dark }) => {
             document.documentElement.dataset.theme = theme;
             document.documentElement.classList.toggle("dark", dark);
           }, { theme, dark });
           await page.waitForTimeout(450);
-          const wrapper = wrapperFor(page, "effect-scatter");
           const state = await measure(wrapper);
+          const regional = await measure(regionalWrapper);
+          assert.equal(state.sameInstance, true, `theme change replaced Brazil geo instance at ${width}`);
+          assert.equal(regional.sameInstance, true, `theme change replaced Sao Paulo geo instance at ${width}`);
           assert.deepEqual(
             { chartWidth: state.chartWidth, canvasWidth: state.canvasWidth, chartHeight: state.chartHeight, canvasHeight: state.canvasHeight },
             { chartWidth: state.hostWidth, canvasWidth: state.hostWidth, chartHeight: state.hostHeight, canvasHeight: state.hostHeight },
@@ -209,6 +270,8 @@ test("320, 390, 768, and 1440 Goshtoso/AraiHu light/dark layouts stay centered, 
             return Math.abs((host.left + host.right) / 2 - (content.left + content.right) / 2) < 2;
           });
           assert.equal(centered, true);
+          assertGeoLayout(state, width, "Brazil geo", 0.98, 1.03, 0.84);
+          assertGeoLayout(regional, width, "São Paulo geo", 1.58, 1.69, 0.78);
           assert.ok(contrast(state.text, state.background) >= 4.5, `${theme}/${dark} text contrast`);
           assert.ok(contrast(state.pointColor, state.background) >= 3, `${theme}/${dark} point contrast`);
           themeStates.set(`${theme}-${dark}`, `${state.areaColor}|${state.pointColor}`);
@@ -221,22 +284,29 @@ test("320, 390, 768, and 1440 Goshtoso/AraiHu light/dark layouts stay centered, 
   assert.equal(new Set(themeStates.values()).size, 4, JSON.stringify([...themeStates]));
 });
 
-test("320, 390, 768, and 1440 modals keep the same geo instance centered and contained", async () => {
-  for (const width of [320, 390, 768, 1440]) {
-    const page = await pageAt({ width, height: 900 });
-    try {
-      const wrapper = wrapperFor(page, "effect-scatter");
+test("390, 768, 1499, and 1440 modals keep the same corrected Brazil and São Paulo instances", async () => {
+  for (const width of [390, 768, 1499, 1440]) {
+    for (const variant of ["effect-scatter", "scatter"]) {
+      const page = await pageAt({ width, height: 900 });
+      try {
+        const wrapper = wrapperFor(page, variant);
       await wrapper.evaluate((element) => {
         const host = element.querySelector("[_echarts_instance_]");
         element.__geoInstance = window.echarts.getInstanceByDom(host);
       });
       await openExpand(wrapper);
-      const dialog = wrapper.getByRole("dialog", { name: "Brazil capitals" });
+        const label = variant === "effect-scatter" ? "Brazil capitals" : "São Paulo cities";
+	      const dialog = wrapper.getByRole("dialog", { name: label });
       await dialog.waitFor({ state: "visible" });
       await page.waitForTimeout(450);
       const state = await measure(wrapper);
       assert.equal(state.sameInstance, true, `same instance at ${width}`);
       assert.equal(state.chartWidth, state.hostWidth, `chart width at ${width}`);
+        if (variant === "effect-scatter") {
+          assertGeoLayout(state, width, "modal Brazil geo", 0.98, 1.03, 0.84);
+        } else {
+          assertGeoLayout(state, width, "modal São Paulo geo", 1.58, 1.69, 0.78);
+        }
       const panel = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((element) => {
         const rect = element.getBoundingClientRect();
         return {
@@ -245,8 +315,51 @@ test("320, 390, 768, and 1440 modals keep the same geo instance centered and con
         };
       });
       assert.deepEqual(panel, { centered: true, contained: true }, `modal at ${width}`);
-    } finally {
-      await page.close();
+      } finally {
+        await page.close();
+      }
+    }
+  }
+});
+
+test("390, 768, 1499, and 1440 fullscreen fallback resizes the same corrected Geo instances", async () => {
+  for (const width of [390, 768, 1499, 1440]) {
+    for (const variant of ["effect-scatter", "scatter"]) {
+      const page = await pageAt({ width, height: 900 });
+      try {
+        const wrapper = wrapperFor(page, variant);
+        await wrapper.evaluate((element) => {
+          const host = element.querySelector("[_echarts_instance_]");
+          element.__geoInstance = window.echarts.getInstanceByDom(host);
+          element.__geoHostWidth = host.clientWidth;
+          element.classList.add("goshtoso-charts-fullscreen-fallback");
+          document.body.appendChild(element.closest("[data-geo-variant]"));
+          element.dispatchEvent(new CustomEvent("goshtoso-charts:resize", { bubbles: true }));
+        });
+        await page.waitForFunction(() => {
+          const wrapper = document.querySelector(".goshtoso-charts-fullscreen-fallback");
+          const host = wrapper?.querySelector("[_echarts_instance_]");
+          const instance = host && window.echarts.getInstanceByDom(host);
+          if (!instance || host.clientWidth === wrapper.__geoHostWidth ||
+            instance.getWidth() !== host.clientWidth || instance.getHeight() !== host.clientHeight) return false;
+          const regions = instance.getZr().storage.getDisplayList().filter((item) => item.type === "compound" && item.z === 0);
+          const left = Math.min(...regions.map((item) => item.getBoundingRect().x));
+          const right = Math.max(...regions.map((item) => {
+            const rect = item.getBoundingRect();
+            return rect.x + rect.width;
+          }));
+          return Math.abs((left + right) / 2 - host.clientWidth / 2) <= 2;
+        });
+        const state = await measure(wrapper);
+        assert.equal(state.sameInstance, true, `fullscreen same instance at ${width}`);
+        if (variant === "effect-scatter") {
+          assertGeoLayout(state, width, "fullscreen Brazil geo", 0.98, 1.03, 0.84);
+        } else {
+          assertGeoLayout(state, width, "fullscreen São Paulo geo", 1.58, 1.69, 0.78);
+        }
+      } finally {
+        await page.close();
+      }
     }
   }
 });

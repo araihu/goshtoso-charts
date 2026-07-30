@@ -103,6 +103,40 @@ async function measure(wrapper) {
     const instance = window.echarts.getInstanceByDom(host);
     const canvas = host.querySelector("canvas");
     const option = instance.getOption();
+    const displayList = instance.getZr().storage.getDisplayList();
+    const regionRects = displayList
+      .filter((item) => item.type === "compound" && item.z === 2)
+      .map((item) => item.getBoundingRect());
+    const mapBounds = {
+      left: Math.min(...regionRects.map((rect) => rect.x)),
+      right: Math.max(...regionRects.map((rect) => rect.x + rect.width)),
+      top: Math.min(...regionRects.map((rect) => rect.y)),
+      bottom: Math.max(...regionRects.map((rect) => rect.y + rect.height)),
+    };
+    const transformedRect = (item) => {
+      const rect = item.getBoundingRect();
+      const matrix = item.transform || [1, 0, 0, 1, 0, 0];
+      const points = [
+        [rect.x, rect.y], [rect.x + rect.width, rect.y],
+        [rect.x + rect.width, rect.y + rect.height], [rect.x, rect.y + rect.height],
+      ].map(([x, y]) => [
+        matrix[0] * x + matrix[2] * y + matrix[4],
+        matrix[1] * x + matrix[3] * y + matrix[5],
+      ]);
+      return {
+        left: Math.min(...points.map((point) => point[0])),
+        right: Math.max(...points.map((point) => point[0])),
+        top: Math.min(...points.map((point) => point[1])),
+        bottom: Math.max(...points.map((point) => point[1])),
+      };
+    };
+    const scaleRects = displayList.filter((item) => item.z === 4).map(transformedRect);
+    const scaleBounds = scaleRects.length ? {
+      left: Math.min(...scaleRects.map((rect) => rect.left)),
+      right: Math.max(...scaleRects.map((rect) => rect.right)),
+      top: Math.min(...scaleRects.map((rect) => rect.top)),
+      bottom: Math.max(...scaleRects.map((rect) => rect.bottom)),
+    } : null;
     return {
       sameInstance: !element.__mapInstance || instance === element.__mapInstance,
       hostWidth: host.clientWidth,
@@ -119,6 +153,16 @@ async function measure(wrapper) {
       labelShow: option.series[0].label?.show || false,
       showLegendSymbol: option.series[0].showLegendSymbol,
       renderedTexts: instance.getZr().storage.getDisplayList().filter((item) => item.type === "tspan").map((item) => item.style?.text || ""),
+      mapBounds,
+      mapAspect: (mapBounds.right - mapBounds.left) / (mapBounds.bottom - mapBounds.top),
+      mapCenterErrorX: Math.abs((mapBounds.left + mapBounds.right) / 2 - host.clientWidth / 2),
+      mapCenterErrorY: Math.abs((mapBounds.top + mapBounds.bottom) / 2 - host.clientHeight * 0.46),
+      mapUtilization: Math.max(mapBounds.right - mapBounds.left, mapBounds.bottom - mapBounds.top) / Math.min(host.clientWidth, host.clientHeight),
+      scaleBounds,
+      scaleOverlap: scaleBounds ? !(
+        mapBounds.right < scaleBounds.left || mapBounds.left > scaleBounds.right ||
+        mapBounds.bottom < scaleBounds.top || mapBounds.top > scaleBounds.bottom
+      ) : false,
     };
   });
 }
@@ -226,25 +270,35 @@ test("flex and centered modal resize one observed map instance and PNG export st
   }
 });
 
-test("320, 390, 768, and 1440 layouts stay centered, contained, and theme-responsive", async () => {
+test("390, 768, 1499, and 1440 layouts preserve Brazil geometry, center the plot, reserve scale space, and respond to theme", async () => {
   const themed = new Map();
-	  for (const width of [320, 390, 768, 1440]) {
+	  for (const width of [390, 768, 1499, 1440]) {
     for (const theme of ["goshtoso", "araihu"]) {
       for (const dark of [false, true]) {
         const page = await pageAt({ width, height: 900 });
         try {
+          const wrapper = wrapperFor(page, "scale");
+          await wrapper.evaluate((element) => {
+            const host = element.querySelector("[_echarts_instance_]");
+            element.__mapInstance = window.echarts.getInstanceByDom(host);
+          });
           await page.evaluate(({ theme, dark }) => {
             document.documentElement.dataset.theme = theme;
             document.documentElement.classList.toggle("dark", dark);
           }, { theme, dark });
           await page.waitForTimeout(450);
-          const wrapper = wrapperFor(page, "scale");
           const state = await measure(wrapper);
+          assert.equal(state.sameInstance, true, `theme change replaced map instance at ${width}`);
           assert.ok(state.hostWidth > 0, `nonzero map width at ${width}`);
 	      assert.equal(state.scaleColors.length, 3);
 	      assert.notEqual(state.scaleColors[0], state.scaleColors[2]);
           assert.deepEqual({ chart: state.chartWidth, canvas: state.canvasWidth }, { chart: state.hostWidth, canvas: state.hostWidth });
           assert.deepEqual({ chart: state.chartHeight, canvas: state.canvasHeight }, { chart: state.hostHeight, canvas: state.hostHeight });
+          assert.ok(state.mapAspect >= 0.98 && state.mapAspect <= 1.03, `Brazil aspect ${state.mapAspect} at ${width}`);
+          assert.ok(state.mapCenterErrorX <= 2, `Brazil horizontal center error ${state.mapCenterErrorX} at ${width}`);
+          assert.ok(state.mapCenterErrorY <= 2, `Brazil vertical plot center error ${state.mapCenterErrorY} at ${width}`);
+          assert.ok(state.mapUtilization >= 0.78, `Brazil canvas utilization ${state.mapUtilization} at ${width}`);
+          assert.equal(state.scaleOverlap, false, `Brazil scale overlap at ${width}: ${JSON.stringify({ map: state.mapBounds, scale: state.scaleBounds })}`);
           assert.deepEqual(await page.evaluate(() => ({ client: document.documentElement.clientWidth, scroll: document.documentElement.scrollWidth })), { client: width, scroll: width });
           const centered = await wrapper.evaluate((element) => {
             const host = element.querySelector("[_echarts_instance_]").getBoundingClientRect();
@@ -262,14 +316,15 @@ test("320, 390, 768, and 1440 layouts stay centered, contained, and theme-respon
   assert.equal(new Set(themed.values()).size, 4, JSON.stringify([...themed]));
 });
 
-test("320, 390, 768, and 1440 modals keep the same map instance centered and contained", async () => {
-  for (const width of [320, 390, 768, 1440]) {
+test("390, 768, 1499, and 1440 modals keep the same corrected map instance centered and contained", async () => {
+  for (const width of [390, 768, 1499, 1440]) {
     const page = await pageAt({ width, height: 900 });
     try {
       const wrapper = wrapperFor(page);
       await wrapper.evaluate((element) => {
         const host = element.querySelector("[_echarts_instance_]");
         element.__mapInstance = window.echarts.getInstanceByDom(host);
+        element.__mapHostWidth = host.clientWidth;
       });
       await openExpand(wrapper);
       const dialog = wrapper.getByRole("dialog", { name: "Brazil states" });
@@ -279,6 +334,9 @@ test("320, 390, 768, and 1440 modals keep the same map instance centered and con
       assert.equal(state.sameInstance, true, `same instance at ${width}`);
       assert.ok(state.hostWidth > 0, `nonzero modal map width at ${width}`);
       assert.equal(state.chartWidth, state.hostWidth, `chart width at ${width}`);
+      assert.ok(state.mapAspect >= 0.98 && state.mapAspect <= 1.03, `modal Brazil aspect ${state.mapAspect} at ${width}`);
+      assert.ok(state.mapCenterErrorX <= 2, `modal Brazil center error ${state.mapCenterErrorX} at ${width}`);
+      assert.equal(state.scaleOverlap, false, `modal Brazil scale overlap at ${width}`);
       const panel = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((element) => {
         const rect = element.getBoundingClientRect();
         return {
@@ -287,6 +345,44 @@ test("320, 390, 768, and 1440 modals keep the same map instance centered and con
         };
       });
       assert.deepEqual(panel, { centered: true, contained: true }, `modal at ${width}`);
+    } finally {
+      await page.close();
+    }
+  }
+});
+
+test("390, 768, 1499, and 1440 fullscreen fallback resizes the same corrected map instance", async () => {
+  for (const width of [390, 768, 1499, 1440]) {
+    const page = await pageAt({ width, height: 900 });
+    try {
+      const wrapper = wrapperFor(page, "scale");
+      await wrapper.evaluate((element) => {
+        const host = element.querySelector("[_echarts_instance_]");
+        element.__mapInstance = window.echarts.getInstanceByDom(host);
+        element.__mapHostWidth = host.clientWidth;
+        element.classList.add("goshtoso-charts-fullscreen-fallback");
+        document.body.appendChild(element.closest("[data-map-variant]"));
+        element.dispatchEvent(new CustomEvent("goshtoso-charts:resize", { bubbles: true }));
+      });
+      await page.waitForFunction(() => {
+        const wrapper = document.querySelector(".goshtoso-charts-fullscreen-fallback");
+        const host = wrapper?.querySelector("[_echarts_instance_]");
+        const instance = host && window.echarts.getInstanceByDom(host);
+        if (!instance || host.clientWidth === wrapper.__mapHostWidth ||
+          instance.getWidth() !== host.clientWidth || instance.getHeight() !== host.clientHeight) return false;
+        const regions = instance.getZr().storage.getDisplayList().filter((item) => item.type === "compound" && item.z === 2);
+        const left = Math.min(...regions.map((item) => item.getBoundingRect().x));
+        const right = Math.max(...regions.map((item) => {
+          const rect = item.getBoundingRect();
+          return rect.x + rect.width;
+        }));
+        return Math.abs((left + right) / 2 - host.clientWidth / 2) <= 2;
+      });
+      const state = await measure(wrapper);
+      assert.equal(state.sameInstance, true, `fullscreen same instance at ${width}`);
+      assert.ok(state.mapAspect >= 0.98 && state.mapAspect <= 1.03, `fullscreen Brazil aspect ${state.mapAspect} at ${width}`);
+      assert.ok(state.mapCenterErrorX <= 2, `fullscreen Brazil center error ${state.mapCenterErrorX} at ${width}`);
+      assert.equal(state.scaleOverlap, false, `fullscreen Brazil scale overlap at ${width}`);
     } finally {
       await page.close();
     }

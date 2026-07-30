@@ -38,6 +38,7 @@ func TestGeoRendersTypedCoordinatesRippleThemeAndExactValues(t *testing.T) {
 		`class="goshtoso-charts-interactive goshtoso-charts-palette goshtoso-charts-palette-araihu goshtoso-charts-geo caller-class"`,
 		`role="img"`, `aria-label="basic geo example"`, `id="coordinate-values"`, `data-purpose="geography"`,
 		`style="width:100%;height:500px;"`, `"type":"effectScatter"`, `"coordinateSystem":"geo"`, `"map":"brazil"`,
+		`"aspectScale":1`, `"layoutCenter":["50%","54%"]`, `"layoutSize":"88%"`,
 		`"period":4`, `"scale":6`, `"brushType":"stroke"`, `"show":true`, `"symbolSize":18`,
 		`{"name":"Manaus","value":[-60.02,-3.12,81],"className":"capital-point"}`,
 		`data-goshtoso-charts-geo-geometry-paint="{&#34;class&#34;:&#34;land-area&#34;}"`,
@@ -76,6 +77,8 @@ func TestGeoRendersSaoPauloScatterWithThemeVisualRange(t *testing.T) {
 	markup := renderGeo(t, Geo(cfg))
 	for _, want := range []string{
 		`"type":"scatter"`, `"map":"brazil-sao-paulo"`, `"calculable":true`, `"max":100`,
+		`"aspectScale":1`, `"layoutCenter":["50%","46%"]`, `"layoutSize":"82%"`,
+		`"left":"center"`, `"bottom":"8"`, `"orient":"horizontal"`,
 		`"value":[-46.63,-23.55,12]`, `"value":[-47.06,-22.91,76]`, `"value":[-47.81,-21.18,41]`,
 		`"sourceColor":"#abcdef","itemStyle":{"color":"#abcdef"}`,
 		`data-goshtoso-charts-explicit-visual-map-colors="false"`,
