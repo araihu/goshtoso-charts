@@ -40,8 +40,6 @@ func finiteNumber(value float64) bool { return internalinteractive.FiniteNumber(
 
 func percentage(value float64) string { return internalinteractive.Percentage(value) }
 
-func validPercentage(value float64) bool { return internalinteractive.ValidPercentage(value) }
-
 func validateChartOptions(value ChartOptions) error {
 	return internalinteractive.ValidateChartOptions(value)
 }

@@ -31,6 +31,22 @@ source evidence live here and on the Attributions page.
   the site imports, snippets, and API links; the parent package remains an
   exact alias-and-forwarder compatibility facade.
 
+## Interactive Tree and Sunburst ownership
+
+- Source repository: `github.com/go-echarts/examples`
+- Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
+- Upstream sources: `examples/tree.go` and `examples/sunburst.go`
+- Canonical APIs: `components/interactive/tree.Tree` and
+  `components/interactive/sunburst.Sunburst`
+- Status: Tree preserves the upstream one-root, three-branch hierarchy,
+  left-to-right layered layout, fully expanded initial depth, visible node and
+  leaf labels, and collapsed third branch while correcting the repeated
+  `Chield` typo to `Child`. Sunburst preserves seven parent/child pairs and
+  fractional-value semantics with fixed values replacing ambient randomness.
+  The ownership migration changes only canonical Go ownership and site imports,
+  snippets, and API links; the parent package remains an exact
+  alias-and-forwarder compatibility facade.
+
 ## Static/vector Bar
 
 - Source repository: `github.com/go-analyze/charts`

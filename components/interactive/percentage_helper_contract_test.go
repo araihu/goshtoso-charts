@@ -4,26 +4,21 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"math"
+	"maps"
+	"os"
+	"path/filepath"
+	"strings"
 	"testing"
 
 	internalinteractive "github.com/araihu/goshtoso-charts/components/internal/interactive"
 )
 
-func TestPercentageHelpersRemainThinPrivateAdapterWrappers(t *testing.T) {
+func TestParentPercentageHelperRemainsThinPrivateAdapterWrapper(t *testing.T) {
 	t.Parallel()
 
 	for _, value := range []float64{0, 12.5, 100} {
 		if got, want := percentage(value), internalinteractive.Percentage(value); got != want {
 			t.Errorf("percentage(%g) = %q, want private adapter %q", value, got, want)
-		}
-		if got, want := validPercentage(value), internalinteractive.ValidPercentage(value); got != want {
-			t.Errorf("validPercentage(%g) = %t, want private adapter %t", value, got, want)
-		}
-	}
-	for _, value := range []float64{-1, 101, math.NaN(), math.Inf(1)} {
-		if validPercentage(value) || internalinteractive.ValidPercentage(value) {
-			t.Errorf("invalid percentage %g was accepted", value)
 		}
 	}
 
@@ -31,112 +26,123 @@ func TestPercentageHelpersRemainThinPrivateAdapterWrappers(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse compatibility helpers: %v", err)
 	}
-	wantTargets := map[string]string{
-		"percentage":      "Percentage",
-		"validPercentage": "ValidPercentage",
-	}
-	seen := make(map[string]bool, len(wantTargets))
+	seen := false
 	for _, declaration := range file.Decls {
 		function, ok := declaration.(*ast.FuncDecl)
-		if !ok || wantTargets[function.Name.Name] == "" {
+		if !ok {
 			continue
 		}
-		seen[function.Name.Name] = true
+		if function.Name.Name == "validPercentage" {
+			t.Error("unused parent validPercentage helper remains after Sunburst migration")
+		}
+		if function.Name.Name != "percentage" {
+			continue
+		}
+		seen = true
 		if function.Body == nil || len(function.Body.List) != 1 {
-			t.Errorf("%s is not a single-statement wrapper", function.Name.Name)
+			t.Error("percentage is not a single-statement wrapper")
 			continue
 		}
 		statement, ok := function.Body.List[0].(*ast.ReturnStmt)
 		if !ok || len(statement.Results) != 1 {
-			t.Errorf("%s does not directly return private adapter result", function.Name.Name)
+			t.Error("percentage does not directly return private adapter result")
 			continue
 		}
 		call, ok := statement.Results[0].(*ast.CallExpr)
 		if !ok {
-			t.Errorf("%s does not directly call private adapter", function.Name.Name)
+			t.Error("percentage does not directly call private adapter")
 			continue
 		}
 		selector, selectorOK := call.Fun.(*ast.SelectorExpr)
 		if !selectorOK {
-			t.Errorf("%s does not directly select private adapter helper", function.Name.Name)
+			t.Error("percentage does not directly select private adapter helper")
 			continue
 		}
 		packageName, packageOK := selector.X.(*ast.Ident)
-		if !packageOK || packageName.Name != "internalinteractive" || selector.Sel.Name != wantTargets[function.Name.Name] {
-			t.Errorf("%s does not directly forward to internalinteractive.%s", function.Name.Name, wantTargets[function.Name.Name])
+		if !packageOK || packageName.Name != "internalinteractive" || selector.Sel.Name != "Percentage" {
+			t.Error("percentage does not directly forward to internalinteractive.Percentage")
 		}
 	}
-	for name := range wantTargets {
-		if !seen[name] {
-			t.Errorf("compatibility helper %s is missing", name)
-		}
+	if !seen {
+		t.Error("compatibility percentage helper is missing")
 	}
 }
 
-func TestPercentageHelperDependentsRemainOnParentWrappers(t *testing.T) {
+func TestParentPercentageHelperOnlyServesUnmigratedWordCloud(t *testing.T) {
 	t.Parallel()
 
-	wants := map[string]map[string]bool{
-		"sunburst.go":  {"percentage": true, "validPercentage": true},
-		"wordcloud.go": {"percentage": true},
+	entries, err := os.ReadDir(".")
+	if err != nil {
+		t.Fatalf("read compatibility parent: %v", err)
 	}
-	for filename, required := range wants {
-		file, err := parser.ParseFile(token.NewFileSet(), filename, nil, 0)
-		if err != nil {
-			t.Fatalf("parse %s: %v", filename, err)
+	callers := make(map[string]struct{})
+	for _, entry := range entries {
+		if entry.IsDir() || filepath.Ext(entry.Name()) != ".go" || strings.HasSuffix(entry.Name(), "_test.go") || entry.Name() == "options.go" {
+			continue
 		}
-		seen := make(map[string]bool, len(required))
+		file, err := parser.ParseFile(token.NewFileSet(), entry.Name(), nil, 0)
+		if err != nil {
+			t.Fatalf("parse %s: %v", entry.Name(), err)
+		}
 		ast.Inspect(file, func(node ast.Node) bool {
 			call, ok := node.(*ast.CallExpr)
 			if !ok {
 				return true
 			}
 			identifier, ok := call.Fun.(*ast.Ident)
-			if ok && required[identifier.Name] {
-				seen[identifier.Name] = true
+			if ok && (identifier.Name == "percentage" || identifier.Name == "validPercentage") {
+				callers[entry.Name()+":"+identifier.Name] = struct{}{}
 			}
 			return true
 		})
-		for helper := range required {
-			if !seen[helper] {
-				t.Errorf("%s no longer uses compatibility helper %s", filename, helper)
-			}
-		}
+	}
+	want := map[string]struct{}{"wordcloud.go:percentage": {}}
+	if !maps.Equal(callers, want) {
+		t.Fatalf("parent percentage helper callers = %v, want only unmigrated WordCloud %v", callers, want)
 	}
 }
 
-func TestMigratedThemeRiverUsesPrivatePercentageHelpers(t *testing.T) {
+func TestMigratedPackagesUsePrivatePercentageHelpersDirectly(t *testing.T) {
 	t.Parallel()
 
-	file, err := parser.ParseFile(token.NewFileSet(), "themeriver/themeriver.go", nil, 0)
-	if err != nil {
-		t.Fatalf("parse canonical ThemeRiver: %v", err)
-	}
-	wants := map[string]bool{"Percentage": false, "ValidPercentage": false}
-	ast.Inspect(file, func(node ast.Node) bool {
-		call, ok := node.(*ast.CallExpr)
-		if !ok {
-			return true
-		}
-		if identifier, ok := call.Fun.(*ast.Ident); ok && (identifier.Name == "percentage" || identifier.Name == "validPercentage") {
-			t.Errorf("canonical ThemeRiver calls parent compatibility helper %s", identifier.Name)
-		}
-		selector, ok := call.Fun.(*ast.SelectorExpr)
-		if !ok {
-			return true
-		}
-		if _, wanted := wants[selector.Sel.Name]; !wanted {
-			return true
-		}
-		packageName, ok := selector.X.(*ast.Ident)
-		if ok && packageName.Name == "internalinteractive" {
-			wants[selector.Sel.Name] = true
-		}
-		return true
-	})
-	for helper, seen := range wants {
-		if !seen {
-			t.Errorf("canonical ThemeRiver does not call internalinteractive.%s", helper)
-		}
+	for name, path := range map[string]string{
+		"Sunburst":   "sunburst/sunburst.go",
+		"ThemeRiver": "themeriver/themeriver.go",
+	} {
+		name, path := name, path
+		t.Run(name, func(t *testing.T) {
+			t.Parallel()
+			file, err := parser.ParseFile(token.NewFileSet(), path, nil, 0)
+			if err != nil {
+				t.Fatalf("parse canonical %s: %v", name, err)
+			}
+			wants := map[string]bool{"Percentage": false, "ValidPercentage": false}
+			ast.Inspect(file, func(node ast.Node) bool {
+				call, ok := node.(*ast.CallExpr)
+				if !ok {
+					return true
+				}
+				if identifier, ok := call.Fun.(*ast.Ident); ok && (identifier.Name == "percentage" || identifier.Name == "validPercentage") {
+					t.Errorf("canonical %s calls parent compatibility helper %s", name, identifier.Name)
+				}
+				selector, ok := call.Fun.(*ast.SelectorExpr)
+				if !ok {
+					return true
+				}
+				if _, wanted := wants[selector.Sel.Name]; !wanted {
+					return true
+				}
+				packageName, ok := selector.X.(*ast.Ident)
+				if ok && packageName.Name == "internalinteractive" {
+					wants[selector.Sel.Name] = true
+				}
+				return true
+			})
+			for helper, seen := range wants {
+				if !seen {
+					t.Errorf("canonical %s does not call internalinteractive.%s", name, helper)
+				}
+			}
+		})
 	}
 }

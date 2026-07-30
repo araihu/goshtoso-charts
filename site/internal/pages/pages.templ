@@ -19,7 +19,9 @@ import (
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivesankey "github.com/araihu/goshtoso-charts/components/interactive/sankey"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
+	interactivesunburst "github.com/araihu/goshtoso-charts/components/interactive/sunburst"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
+	interactivetree "github.com/araihu/goshtoso-charts/components/interactive/tree"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/components/radar"
@@ -919,10 +921,10 @@ templ interactiveSunburstContent() {
 		Description: "Weighted parent-child hierarchy shown as concentric sectors and nested branches.",
 		Primary: componentpage.Example{
 			AbovePreview: visualizationGuidance("Explore a weighted hierarchy as concentric radial sectors.", "A compact overview of a shallow hierarchy and its branch proportions is useful.", "Deep hierarchies, close comparisons, or a clear reading order matter; use a tree or table.", "Use the adjacent path-and-value table to inspect the same hierarchy with keyboard navigation and without relying on the radial graphic."),
-			Preview:      sampleInteractiveSunburst(),
+			Preview:      interactivesunburst.Sunburst(sampleInteractiveSunburst()),
 			Code:         interactiveSunburstCode(),
 		},
-		After: interactiveDocumentation(demoNote("Explore the hierarchy", "Visual drill-down can focus a branch, but it is not the accessible navigation path. Use the keyboard-accessible adjacent table to inspect every parent-child path and value.")),
+		After: templ.Join(demoNote("Explore the hierarchy", "Visual drill-down can focus a branch, but it is not the accessible navigation path. Use the keyboard-accessible adjacent table to inspect every parent-child path and value."), goAPIReference("interactive/sunburst")),
 	})
 }
 
@@ -932,10 +934,10 @@ templ interactiveTreeContent() {
 		Description: "Parent-child relationships for following paths, ancestry, taxonomy, and progressive disclosure.",
 		Primary: componentpage.Example{
 			AbovePreview: visualizationGuidance("Explore ownership, taxonomy, ancestry, and other parent-child structures.", "Paths and progressive disclosure are more useful than size comparison.", "The hierarchy is very deep or exact values must be compared.", "Preserve node names, values, and parent-child paths in adjacent text or a table."),
-			Preview:      sampleInteractiveTree(),
+			Preview:      interactivetree.Tree(sampleInteractiveTree()),
 			Code:         interactiveTreeCode(),
 		},
-		After: interactiveDocumentation(demoNote("Reading the tree", "Layered and radial views change layout. Keep an adjacent nested list or table as the exact-data source.")),
+		After: templ.Join(demoNote("Reading the tree", "Layered and radial views change layout. Keep an adjacent nested list or table as the exact-data source."), goAPIReference("interactive/tree")),
 	})
 }
 

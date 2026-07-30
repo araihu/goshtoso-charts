@@ -21,7 +21,9 @@ import (
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivesankey "github.com/araihu/goshtoso-charts/components/interactive/sankey"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
+	interactivesunburst "github.com/araihu/goshtoso-charts/components/interactive/sunburst"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
+	interactivetree "github.com/araihu/goshtoso-charts/components/interactive/tree"
 )
 
 // These snippets are compile contracts for old facade consumers, canonical
@@ -144,6 +146,20 @@ func oldFacadeSankeyConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeSunburstConsumer() chart.Instance {
+	return interactive.Sunburst(interactive.SunburstConfig{
+		Label: "Deployment hierarchy",
+		Nodes: []*interactive.SunburstNode{{Name: "Production", Value: 8}},
+	})
+}
+
+func oldFacadeTreeConsumer() chart.Instance {
+	return interactive.Tree(interactive.TreeConfig{
+		Label: "Deployment hierarchy",
+		Roots: []*interactive.TreeNode{{Name: "Production", Children: []*interactive.TreeNode{{Name: "API"}}}},
+	})
+}
+
 func canonicalChildConsumers() []chart.Instance {
 	return []chart.Instance{
 		interactivebar.Bar(interactivebar.Config{
@@ -215,6 +231,14 @@ func canonicalChildConsumers() []chart.Instance {
 				Links: []interactivesankey.Link{{Source: "Queued", Target: "Released", Value: 8}},
 			}},
 		}),
+		interactivesunburst.Sunburst(interactivesunburst.Config{
+			Label: "Deployment hierarchy",
+			Nodes: []*interactivesunburst.Node{{Name: "Production", Value: 8}},
+		}),
+		interactivetree.Tree(interactivetree.Config{
+			Label: "Deployment hierarchy",
+			Roots: []*interactivetree.Node{{Name: "Production", Children: []*interactivetree.Node{{Name: "API"}}}},
+		}),
 		interactivethemeriver.ThemeRiver(interactivethemeriver.Config{
 			Label:   "Deployment activity",
 			Streams: []interactivethemeriver.Stream{{Name: "Production", Points: []interactivethemeriver.Point{{Time: time.Date(2026, time.July, 30, 0, 0, 0, 0, time.UTC), Value: 8}}}},
@@ -247,6 +271,8 @@ var (
 	_ = oldFacadeGaugeConsumer
 	_ = oldFacadeGraphConsumer
 	_ = oldFacadeSankeyConsumer
+	_ = oldFacadeSunburstConsumer
+	_ = oldFacadeTreeConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer
 )

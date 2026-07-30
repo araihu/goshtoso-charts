@@ -552,7 +552,7 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 		"examples/pie.go",
 		"examples/1-Painter/radar_chart-1-basic/main.go",
-		"examples/1-Painter/candlestick_chart-1-basic/main.go", "examples/1-Painter/funnel_chart-1-basic/main.go", "examples/1-Painter/heat_map-1-basic/main.go", "examples/graph.go", "examples/sankey.go", "examples/parallel.go",
+		"examples/1-Painter/candlestick_chart-1-basic/main.go", "examples/1-Painter/funnel_chart-1-basic/main.go", "examples/1-Painter/heat_map-1-basic/main.go", "examples/graph.go", "examples/sankey.go", "examples/tree.go", "examples/sunburst.go", "examples/parallel.go",
 		"examples/1-Painter/table-1/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2",
 		`href="https://github.com/araihu/goshtoso"`, `href="https://github.com/go-echarts/go-echarts"`,
 		`href="https://echarts.apache.org/"`, `href="https://github.com/apache/echarts/blob/5.6.0/LICENSE"`,
@@ -1347,6 +1347,8 @@ func TestMigratedPagesLinkCanonicalChildAPIs(t *testing.T) {
 		{path: "/components/interactive/funnel", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/funnel"},
 		{path: "/components/interactive/graph", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/graph"},
 		{path: "/components/interactive/sankey", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/sankey"},
+		{path: "/components/interactive/tree", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/tree"},
+		{path: "/components/interactive/sunburst", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/sunburst"},
 		{path: "/components/interactive/parallel", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/parallel"},
 		{path: "/components/interactive/theme-river", packageURL: "github.com/araihu/goshtoso-charts/components/interactive/themeriver"},
 	} {

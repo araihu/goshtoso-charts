@@ -1,4 +1,4 @@
-package interactive
+package sunburst
 
 import (
 	"bytes"
@@ -10,30 +10,31 @@ import (
 
 	"github.com/a-h/templ"
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chart"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
 )
 
 func TestSunburstRendersTypedHierarchyOptionsAndExactValues(t *testing.T) {
 	t.Parallel()
-	instance := Sunburst(SunburstConfig{
+	instance := Sunburst(Config{
 		Label: "Basic sunburst example", Caption: "Seven parent and child pairs.",
-		Nodes: []*SunburstNode{
+		Nodes: []*Node{
 			{
 				Name: "parent-0", Value: 0.81,
-				ItemStyle: &ItemStyle{Color: "#123456", BorderColor: "#ffffff", BorderWidth: 2},
-				Label:     &LabelOptions{Show: Bool(true), Position: "inside", Color: "#fedcba"},
-				Children:  []*SunburstNode{{Name: "child-0", Value: 0.34}},
+				ItemStyle: &chart.ItemStyle{Color: "#123456", BorderColor: "#ffffff", BorderWidth: 2},
+				Label:     &chart.LabelOptions{Show: chart.Bool(true), Position: "inside", Color: "#fedcba"},
+				Children:  []*Node{{Name: "child-0", Value: 0.34}},
 			},
-			{Name: "parent-1", Value: 0, Children: []*SunburstNode{{Name: "child-1", Value: 0.57}}},
+			{Name: "parent-1", Value: 0, Children: []*Node{{Name: "child-1", Value: 0.57}}},
 		},
-		Navigation:        SunburstNavigationDrillDown,
-		Sort:              SunburstSortAscending,
-		LabelOptions:      &LabelOptions{Show: Bool(true), Position: "inside", FontSize: 10},
-		ItemStyle:         &ItemStyle{BorderColor: "#eeeeee", BorderWidth: 1},
-		ShowLabelsForZero: Bool(true),
+		Navigation:        NavigationDrillDown,
+		Sort:              SortAscending,
+		LabelOptions:      &chart.LabelOptions{Show: chart.Bool(true), Position: "inside", FontSize: 10},
+		ItemStyle:         &chart.ItemStyle{BorderColor: "#eeeeee", BorderWidth: 1},
+		ShowLabelsForZero: chart.Bool(true),
 		InnerRadius:       16, OuterRadius: 88,
 		Width: "100%", Height: "32rem",
-		Options: ChartOptions{Title: &TitleOptions{Text: "Basic sunburst example"}, Animation: Bool(false)},
+		Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Basic sunburst example"}, Animation: chart.Bool(false)},
 		Style: charttheme.Style{
 			Palette: charttheme.PaletteAraiHu,
 			Colors:  []string{"#654321"},
@@ -70,9 +71,9 @@ func TestSunburstRendersTypedHierarchyOptionsAndExactValues(t *testing.T) {
 
 func TestSunburstKeepsNavigationAndOrderingVariantsOnOneKind(t *testing.T) {
 	t.Parallel()
-	instance := Sunburst(SunburstConfig{
-		Label: "Fixed hierarchy", Nodes: []*SunburstNode{{Name: "root", Value: 1}},
-		Navigation: SunburstNavigationDisabled, Sort: SunburstSortInput,
+	instance := Sunburst(Config{
+		Label: "Fixed hierarchy", Nodes: []*Node{{Name: "root", Value: 1}},
+		Navigation: NavigationDisabled, Sort: SortInput,
 	})
 	if instance.Kind() != chartcomponents.KindInteractiveSunburst {
 		t.Fatalf("Kind() = %q", instance.Kind())
@@ -87,8 +88,8 @@ func TestSunburstKeepsNavigationAndOrderingVariantsOnOneKind(t *testing.T) {
 
 func TestSunburstDefaultsToDrillDownAndDescendingOrder(t *testing.T) {
 	t.Parallel()
-	markup := renderSunburst(t, Sunburst(SunburstConfig{
-		Label: "Hierarchy", Nodes: []*SunburstNode{{Name: "root", Value: 1}},
+	markup := renderSunburst(t, Sunburst(Config{
+		Label: "Hierarchy", Nodes: []*Node{{Name: "root", Value: 1}},
 	}))
 	for _, want := range []string{`"nodeClick":"rootToNode"`, `"sort":"desc"`, `"radius":["0%","75%"]`} {
 		if !strings.Contains(markup, want) {
@@ -99,67 +100,67 @@ func TestSunburstDefaultsToDrillDownAndDescendingOrder(t *testing.T) {
 
 func TestSunburstRejectsInvalidDataContract(t *testing.T) {
 	t.Parallel()
-	valid := func() SunburstConfig {
-		return SunburstConfig{Label: "Hierarchy", Nodes: []*SunburstNode{{Name: "parent", Value: 1, Children: []*SunburstNode{{Name: "child", Value: 0.5}}}}}
+	valid := func() Config {
+		return Config{Label: "Hierarchy", Nodes: []*Node{{Name: "parent", Value: 1, Children: []*Node{{Name: "child", Value: 0.5}}}}}
 	}
-	cycle := &SunburstNode{Name: "cycle", Value: 1}
-	cycle.Children = []*SunburstNode{cycle}
-	shared := &SunburstNode{Name: "shared", Value: 1}
-	deep := &SunburstNode{Name: "depth-0", Value: 1}
+	cycle := &Node{Name: "cycle", Value: 1}
+	cycle.Children = []*Node{cycle}
+	shared := &Node{Name: "shared", Value: 1}
+	deep := &Node{Name: "depth-0", Value: 1}
 	cursor := deep
-	for depth := 1; depth <= maxSunburstDepth+1; depth++ {
-		cursor.Children = []*SunburstNode{{Name: "depth-" + strconv.Itoa(depth), Value: 1}}
+	for depth := 1; depth <= maxDepth+1; depth++ {
+		cursor.Children = []*Node{{Name: "depth-" + strconv.Itoa(depth), Value: 1}}
 		cursor = cursor.Children[0]
 	}
 	tests := map[string]struct {
-		mutate    func() SunburstConfig
+		mutate    func() Config
 		wantError string
 	}{
-		"missing label":   {func() SunburstConfig { cfg := valid(); cfg.Label = " "; return cfg }, "sunburst chart label is required"},
-		"missing nodes":   {func() SunburstConfig { cfg := valid(); cfg.Nodes = nil; return cfg }, "sunburst chart nodes are required"},
-		"nil root":        {func() SunburstConfig { cfg := valid(); cfg.Nodes[0] = nil; return cfg }, "sunburst chart root 0 is nil"},
-		"empty node":      {func() SunburstConfig { cfg := valid(); cfg.Nodes[0].Name = " "; return cfg }, "sunburst chart root 0 name is required"},
-		"negative value":  {func() SunburstConfig { cfg := valid(); cfg.Nodes[0].Value = -1; return cfg }, `sunburst chart node "parent" value must be nonnegative`},
-		"nonfinite value": {func() SunburstConfig { cfg := valid(); cfg.Nodes[0].Value = math.NaN(); return cfg }, `sunburst chart node "parent" value must be finite`},
-		"nil child":       {func() SunburstConfig { cfg := valid(); cfg.Nodes[0].Children[0] = nil; return cfg }, `sunburst chart node "parent" child 0 is nil`},
-		"cycle":           {func() SunburstConfig { cfg := valid(); cfg.Nodes = []*SunburstNode{cycle}; return cfg }, `sunburst chart node "cycle" child 0 contains a cycle`},
-		"shared node": {func() SunburstConfig {
+		"missing label":   {func() Config { cfg := valid(); cfg.Label = " "; return cfg }, "sunburst chart label is required"},
+		"missing nodes":   {func() Config { cfg := valid(); cfg.Nodes = nil; return cfg }, "sunburst chart nodes are required"},
+		"nil root":        {func() Config { cfg := valid(); cfg.Nodes[0] = nil; return cfg }, "sunburst chart root 0 is nil"},
+		"empty node":      {func() Config { cfg := valid(); cfg.Nodes[0].Name = " "; return cfg }, "sunburst chart root 0 name is required"},
+		"negative value":  {func() Config { cfg := valid(); cfg.Nodes[0].Value = -1; return cfg }, `sunburst chart node "parent" value must be nonnegative`},
+		"nonfinite value": {func() Config { cfg := valid(); cfg.Nodes[0].Value = math.NaN(); return cfg }, `sunburst chart node "parent" value must be finite`},
+		"nil child":       {func() Config { cfg := valid(); cfg.Nodes[0].Children[0] = nil; return cfg }, `sunburst chart node "parent" child 0 is nil`},
+		"cycle":           {func() Config { cfg := valid(); cfg.Nodes = []*Node{cycle}; return cfg }, `sunburst chart node "cycle" child 0 contains a cycle`},
+		"shared node": {func() Config {
 			cfg := valid()
-			cfg.Nodes = []*SunburstNode{{Name: "a", Value: 1, Children: []*SunburstNode{shared}}, {Name: "b", Value: 1, Children: []*SunburstNode{shared}}}
+			cfg.Nodes = []*Node{{Name: "a", Value: 1, Children: []*Node{shared}}, {Name: "b", Value: 1, Children: []*Node{shared}}}
 			return cfg
 		}, `sunburst chart node "b" child 0 reuses a node`},
-		"too deep":       {func() SunburstConfig { cfg := valid(); cfg.Nodes = []*SunburstNode{deep}; return cfg }, "exceeds maximum depth 256"},
-		"bad navigation": {func() SunburstConfig { cfg := valid(); cfg.Navigation = "zoom"; return cfg }, `sunburst chart navigation "zoom" is not supported`},
-		"bad sort":       {func() SunburstConfig { cfg := valid(); cfg.Sort = "alphabetical"; return cfg }, `sunburst chart sort "alphabetical" is not supported`},
-		"bad label size": {func() SunburstConfig { cfg := valid(); cfg.LabelOptions = &LabelOptions{FontSize: -1}; return cfg }, "sunburst chart label font size must be nonnegative"},
-		"bad node label": {func() SunburstConfig { cfg := valid(); cfg.Nodes[0].Label = &LabelOptions{FontSize: -1}; return cfg }, `sunburst chart node "parent" label font size must be nonnegative`},
-		"bad inner radius": {func() SunburstConfig {
+		"too deep":       {func() Config { cfg := valid(); cfg.Nodes = []*Node{deep}; return cfg }, "exceeds maximum depth 256"},
+		"bad navigation": {func() Config { cfg := valid(); cfg.Navigation = "zoom"; return cfg }, `sunburst chart navigation "zoom" is not supported`},
+		"bad sort":       {func() Config { cfg := valid(); cfg.Sort = "alphabetical"; return cfg }, `sunburst chart sort "alphabetical" is not supported`},
+		"bad label size": {func() Config { cfg := valid(); cfg.LabelOptions = &chart.LabelOptions{FontSize: -1}; return cfg }, "sunburst chart label font size must be nonnegative"},
+		"bad node label": {func() Config { cfg := valid(); cfg.Nodes[0].Label = &chart.LabelOptions{FontSize: -1}; return cfg }, `sunburst chart node "parent" label font size must be nonnegative`},
+		"bad inner radius": {func() Config {
 			cfg := valid()
 			cfg.InnerRadius = -1
 			return cfg
 		}, "sunburst chart inner radius must be between 0 and 100"},
-		"bad outer radius": {func() SunburstConfig {
+		"bad outer radius": {func() Config {
 			cfg := valid()
 			cfg.OuterRadius = 101
 			return cfg
 		}, "sunburst chart outer radius must be between 0 and 100"},
-		"inverted radii": {func() SunburstConfig {
+		"inverted radii": {func() Config {
 			cfg := valid()
 			cfg.InnerRadius = 80
 			cfg.OuterRadius = 70
 			return cfg
 		}, "sunburst chart inner radius must be less than outer radius"},
-		"reserved role": {func() SunburstConfig {
+		"reserved role": {func() Config {
 			cfg := valid()
 			cfg.RootAttrs = templ.Attributes{"role": "presentation"}
 			return cfg
 		}, `sunburst chart root attribute "role" is reserved`},
-		"reserved label": {func() SunburstConfig {
+		"reserved label": {func() Config {
 			cfg := valid()
 			cfg.RootAttrs = templ.Attributes{"Aria-Label": "override"}
 			return cfg
 		}, `sunburst chart root attribute "Aria-Label" is reserved`},
-		"reserved class": {func() SunburstConfig {
+		"reserved class": {func() Config {
 			cfg := valid()
 			cfg.RootAttrs = templ.Attributes{"class": "override"}
 			return cfg
