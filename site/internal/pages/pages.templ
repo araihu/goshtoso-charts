@@ -11,11 +11,13 @@ import (
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 	interactiveboxplot "github.com/araihu/goshtoso-charts/components/interactive/boxplot"
 	interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
+	interactivegraph "github.com/araihu/goshtoso-charts/components/interactive/graph"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
 	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
+	interactivesankey "github.com/araihu/goshtoso-charts/components/interactive/sankey"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 	"github.com/araihu/goshtoso-charts/components/line"
@@ -743,10 +745,10 @@ templ interactiveGraphContent() {
 		Description: "Connections, neighborhoods, clusters, and weighted links among named entities.",
 		Primary: componentpage.Example{
 			AbovePreview: visualizationGuidance("Explore relationships, neighborhoods, and topology among named entities.", "Connections and clusters matter more than a fixed ordered comparison.", "People need an exact path, complete adjacency, or deterministic positions.", "Pair the graph with a textual relationship summary or adjacency list."),
-			Preview:      sampleInteractiveGraph(),
+			Preview:      interactivegraph.Graph(sampleInteractiveGraph()),
 			Code:         interactiveGraphCode(),
 		},
-		After: interactiveDocumentation(demoNote("Layouts", "Choose a layout that makes the relationships readable; layout changes placement, not the underlying nodes and links.")),
+		After: templ.Join(demoNote("Layouts", "Choose a layout that makes the relationships readable; layout changes placement, not the underlying nodes and links."), goAPIReference("interactive/graph")),
 	})
 }
 
@@ -760,10 +762,10 @@ templ interactiveSankeyContent() {
 		Description: "Weighted movement, splitting, and convergence between named stages.",
 		Primary: componentpage.Example{
 			AbovePreview: visualizationGuidance("Show how quantities move, split, and converge across named stages.", "Flows between a small set of stages are the main story.", "Exact link comparison or many crossings make the layout hard to read.", "Preserve weighted links in adjacent text or a table."),
-			Preview:      sampleInteractiveSankey(),
+			Preview:      interactivesankey.Sankey(sampleInteractiveSankey()),
 			Code:         interactiveSankeyCode(),
 		},
-		After: interactiveDocumentation(demoNote("Flows", "Each link connects declared source and target stages. Use the adjacent values for precise flow comparison.")),
+		After: templ.Join(demoNote("Flows", "Each link connects declared source and target stages. Use the adjacent values for precise flow comparison."), goAPIReference("interactive/sankey")),
 	})
 }
 

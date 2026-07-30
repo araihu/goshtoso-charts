@@ -16,11 +16,13 @@ import (
 	interactivecandlestick "github.com/araihu/goshtoso-charts/components/interactive/candlestick"
 	interactivefunnel "github.com/araihu/goshtoso-charts/components/interactive/funnel"
 	interactivegauge "github.com/araihu/goshtoso-charts/components/interactive/gauge"
+	interactivegraph "github.com/araihu/goshtoso-charts/components/interactive/graph"
 	interactiveheatmap "github.com/araihu/goshtoso-charts/components/interactive/heatmap"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 	interactiveparallel "github.com/araihu/goshtoso-charts/components/interactive/parallel"
 	interactivepie "github.com/araihu/goshtoso-charts/components/interactive/pie"
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
+	interactivesankey "github.com/araihu/goshtoso-charts/components/interactive/sankey"
 	interactivescatter "github.com/araihu/goshtoso-charts/components/interactive/scatter"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
 )
@@ -163,11 +165,13 @@ func TestInstanceAliasesRetainCanonicalTypeIdentity(t *testing.T) {
 		"interactive/candlestick": reflect.TypeOf(interactivecandlestick.Instance{}),
 		"interactive/funnel":      reflect.TypeOf(interactivefunnel.Instance{}),
 		"interactive/gauge":       reflect.TypeOf(interactivegauge.Instance{}),
+		"interactive/graph":       reflect.TypeOf(interactivegraph.Instance{}),
 		"interactive/heatmap":     reflect.TypeOf(interactiveheatmap.Instance{}),
 		"interactive/line":        reflect.TypeOf(interactiveline.Instance{}),
 		"interactive/pie":         reflect.TypeOf(interactivepie.Instance{}),
 		"interactive/parallel":    reflect.TypeOf(interactiveparallel.Instance{}),
 		"interactive/radar":       reflect.TypeOf(interactiveradar.Instance{}),
+		"interactive/sankey":      reflect.TypeOf(interactivesankey.Instance{}),
 		"interactive/scatter":     reflect.TypeOf(interactivescatter.Instance{}),
 		"interactive/themeriver":  reflect.TypeOf(interactivethemeriver.Instance{}),
 	}
@@ -194,6 +198,8 @@ var (
 	_ interactivefunnel.Instance      = chart.Instance{}
 	_ chart.Instance                  = interactivegauge.Instance{}
 	_ interactivegauge.Instance       = chart.Instance{}
+	_ chart.Instance                  = interactivegraph.Instance{}
+	_ interactivegraph.Instance       = chart.Instance{}
 	_ chart.Instance                  = interactiveheatmap.Instance{}
 	_ interactiveheatmap.Instance     = chart.Instance{}
 	_ chart.Instance                  = interactiveline.Instance{}
@@ -204,6 +210,8 @@ var (
 	_ interactiveparallel.Instance    = chart.Instance{}
 	_ chart.Instance                  = interactiveradar.Instance{}
 	_ interactiveradar.Instance       = chart.Instance{}
+	_ chart.Instance                  = interactivesankey.Instance{}
+	_ interactivesankey.Instance      = chart.Instance{}
 	_ chart.Instance                  = interactivescatter.Instance{}
 	_ interactivescatter.Instance     = chart.Instance{}
 	_ chart.Instance                  = interactivethemeriver.Instance{}
@@ -217,21 +225,25 @@ var (
 	_ func(interactive.CandlestickConfig) chart.Instance = interactive.Candlestick
 	_ func(interactive.FunnelConfig) chart.Instance      = interactive.Funnel
 	_ func(interactive.GaugeConfig) chart.Instance       = interactive.Gauge
+	_ func(interactive.GraphConfig) chart.Instance       = interactive.Graph
 	_ func(interactive.HeatMapConfig) chart.Instance     = interactive.HeatMap
 	_ func(interactive.PieConfig) chart.Instance         = interactive.Pie
 	_ func(interactive.ParallelConfig) chart.Instance    = interactive.Parallel
 	_ func(interactive.RadarConfig) chart.Instance       = interactive.Radar
+	_ func(interactive.SankeyConfig) chart.Instance      = interactive.Sankey
 	_ func(interactive.ThemeRiverConfig) chart.Instance  = interactive.ThemeRiver
 	_ func(interactivebar.Config) chart.Instance         = interactivebar.Bar
 	_ func(interactiveboxplot.Config) chart.Instance     = interactiveboxplot.BoxPlot
 	_ func(interactivecandlestick.Config) chart.Instance = interactivecandlestick.Candlestick
 	_ func(interactivefunnel.Config) chart.Instance      = interactivefunnel.Funnel
 	_ func(interactivegauge.Config) chart.Instance       = interactivegauge.Gauge
+	_ func(interactivegraph.Config) chart.Instance       = interactivegraph.Graph
 	_ func(interactiveheatmap.Config) chart.Instance     = interactiveheatmap.HeatMap
 	_ func(interactiveline.Config) chart.Instance        = interactiveline.Line
 	_ func(interactivepie.Config) chart.Instance         = interactivepie.Pie
 	_ func(interactiveparallel.Config) chart.Instance    = interactiveparallel.Parallel
 	_ func(interactiveradar.Config) chart.Instance       = interactiveradar.Radar
+	_ func(interactivesankey.Config) chart.Instance      = interactivesankey.Sankey
 	_ func(interactivescatter.Config) chart.Instance     = interactivescatter.Scatter
 	_ func(interactivethemeriver.Config) chart.Instance  = interactivethemeriver.ThemeRiver
 )

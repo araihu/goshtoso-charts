@@ -44,7 +44,7 @@ required.
 ## Shared chart instance foundation
 
 `components/chart.Instance` is the canonical public identity for a renderable
-chart instance. `components/interactive.Instance` and all twelve migrated child
+chart instance. `components/interactive.Instance` and all fourteen migrated child
 packages' `Instance` names are exact aliases, so old and new values remain
 assignment-compatible and constructor function signatures remain
 interchangeable. Consumers can mix the facade and chart-specific package paths
@@ -324,6 +324,75 @@ component. Funnel-specific `Config`, `Order`, `Series`, and `Data` live in the
 child package; shared options remain in `components/chart`. The parent keeps
 exact aliases, order constants, and one forwarding constructor.
 
+## Graph
+
+Use `components/interactive/graph` for new interactive relationship graphs:
+
+```go
+import (
+	"github.com/araihu/goshtoso-charts/components/chart"
+	interactivegraph "github.com/araihu/goshtoso-charts/components/interactive/graph"
+)
+
+network := interactivegraph.Graph(interactivegraph.Config{
+	Label: "Service dependencies",
+	Nodes: []interactivegraph.Node{
+		{Name: "API", Category: "service"},
+		{Name: "Database", Category: "storage"},
+	},
+	Links: []interactivegraph.Link{{Source: "API", Target: "Database", Value: 10}},
+	Categories: []interactivegraph.Category{
+		{Name: "service"},
+		{Name: "storage"},
+	},
+	Layout: interactivegraph.LayoutForce,
+	Roam:   interactivegraph.RoamEnabled,
+	Options: chart.ChartOptions{
+		Animation: chart.Bool(false),
+	},
+})
+```
+
+Force, fixed-coordinate, and circular layout remain options on one `Graph`
+component. The child owns graph-specific `Config`, `Layout`, `Roam`, force,
+node, link, and category declarations plus validation and rendering. Shared
+chart, series, label, and paint options remain in `components/chart`. The
+parent keeps exact aliases, constants, and one forwarding constructor.
+
+## Sankey
+
+Use `components/interactive/sankey` for new interactive weighted-flow charts:
+
+```go
+import (
+	"github.com/araihu/goshtoso-charts/components/chart"
+	interactivesankey "github.com/araihu/goshtoso-charts/components/interactive/sankey"
+)
+
+flow := interactivesankey.Sankey(interactivesankey.Config{
+	Label: "Delivery flow",
+	Series: []interactivesankey.Series{{
+		Name: "Requests",
+		Nodes: []interactivesankey.Node{{Name: "Queued"}, {Name: "Delivered"}},
+		Links: []interactivesankey.Link{{Source: "Queued", Target: "Delivered", Value: 42}},
+	}},
+	Layout: interactivesankey.Layout{
+		Orientation: interactivesankey.OrientationHorizontal,
+		Alignment:   interactivesankey.AlignmentJustify,
+	},
+	Options: chart.ChartOptions{
+		Animation: chart.Bool(false),
+	},
+})
+```
+
+Horizontal and vertical orientation, terminal-node alignment, node geometry,
+and multiple weighted networks remain options on one `Sankey` component. The
+child owns Sankey-specific config, series, layout, node, and link declarations
+plus validation and rendering. Shared chart, series, and paint options remain
+in `components/chart`. The parent keeps exact aliases, constants, and one
+forwarding constructor.
+
 ## Parallel
 
 Use `components/interactive/parallel` for new interactive parallel-coordinate
@@ -386,8 +455,8 @@ one constructor forwarder.
 ## Current boundary
 
 Bar, Line, Scatter, Candlestick, HeatMap, Pie, Radar, BoxPlot, Gauge, Funnel,
-Parallel, and ThemeRiver physical ownership is complete. The supported parent
-facade delegates those twelve migrated charts. Remaining chart families
+Graph, Sankey, Parallel, and ThemeRiver physical ownership is complete. The
+supported parent facade delegates those fourteen migrated charts. Remaining chart families
 continue using their existing paths
 until their own bounded migrations land, and the final v1 policy for the parent
 compatibility facade remains open. Shared public and private foundation
