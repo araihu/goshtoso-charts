@@ -25,6 +25,7 @@ import (
 	interactiveradar "github.com/araihu/goshtoso-charts/components/interactive/radar"
 	interactivesankey "github.com/araihu/goshtoso-charts/components/interactive/sankey"
 	interactivethemeriver "github.com/araihu/goshtoso-charts/components/interactive/themeriver"
+	interactivetree "github.com/araihu/goshtoso-charts/components/interactive/tree"
 	"github.com/araihu/goshtoso-charts/components/line"
 	"github.com/araihu/goshtoso-charts/components/pie"
 	"github.com/araihu/goshtoso-charts/components/radar"
@@ -66,7 +67,7 @@ var wrapperConfigContracts = []wrapperConfigContract{
 	{components.KindInteractiveFunnel, reflect.TypeOf(interactivefunnel.Config{}), true},
 	{components.KindInteractiveGraph, reflect.TypeOf(interactivegraph.Config{}), true},
 	{components.KindInteractiveSankey, reflect.TypeOf(interactivesankey.Config{}), true},
-	{components.KindInteractiveTree, reflect.TypeOf(interactive.TreeConfig{}), true},
+	{components.KindInteractiveTree, reflect.TypeOf(interactivetree.Config{}), true},
 	{components.KindInteractiveSunburst, reflect.TypeOf(interactive.SunburstConfig{}), true},
 	{components.KindInteractiveTreemap, reflect.TypeOf(interactive.TreemapConfig{}), true},
 	{components.KindInteractiveParallel, reflect.TypeOf(interactiveparallel.Config{}), true},
@@ -80,7 +81,7 @@ var wrapperConfigContracts = []wrapperConfigContract{
 var migratedChildConstructors = map[string]bool{
 	"Bar": true, "BoxPlot": true, "Candlestick": true, "Funnel": true,
 	"Gauge": true, "Graph": true, "HeatMap": true, "Line": true, "Parallel": true,
-	"Pie": true, "Radar": true, "Sankey": true, "Scatter": true, "ThemeRiver": true,
+	"Pie": true, "Radar": true, "Sankey": true, "Scatter": true, "ThemeRiver": true, "Tree": true,
 }
 
 func TestEveryPublicChartConfigSharesOneWrapperContract(t *testing.T) {
@@ -159,6 +160,7 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/sankey/sankey.go", "Sankey")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/scatter/scatter.go", "Scatter")
 	assertConstructorPropagatesSharedWrapperFields(t, "interactive/themeriver/themeriver.go", "ThemeRiver")
+	assertConstructorPropagatesSharedWrapperFields(t, "interactive/tree/tree.go", "Tree")
 
 	loaded, err := packages.Load(&packages.Config{
 		Mode: packages.NeedName | packages.NeedFiles | packages.NeedCompiledGoFiles | packages.NeedSyntax,
