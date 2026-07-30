@@ -15,6 +15,7 @@ const modulePath = "github.com/araihu/goshtoso-charts"
 
 var publicBoundaryPackages = []string{
 	modulePath + "/components/chart",
+	modulePath + "/components/charttheme",
 	modulePath + "/components/interactive",
 	modulePath + "/components/interactive/bar",
 	modulePath + "/components/interactive/candlestick",

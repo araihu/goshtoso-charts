@@ -1216,7 +1216,7 @@ func TestV11GoshtosoBrandAssetsAndMetadataRender(t *testing.T) {
 	}{
 		{"/brand/goshtoso-logo-transparent.svg", "class=\"araihu-brand-v11\""},
 		{"/brand/goshtoso-icon-transparent.svg", "class=\"araihu-brand-v11\""},
-		{"/", `<link rel="icon" href="/brand/goshtoso-icon-transparent.svg">`},
+		{"/", `<link rel="icon" data-asset-brand="icon" href="/brand/goshtoso-icon-transparent.svg">`},
 		{"/", `<title>Getting Started · Goshtoso Charts</title>`},
 	} {
 		recorder := httptest.NewRecorder()

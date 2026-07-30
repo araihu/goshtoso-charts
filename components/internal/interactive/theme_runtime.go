@@ -242,6 +242,7 @@ const ThemeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
       var surfaceAlt = cssColor(figure, "--color-chart-surface-alt", surface);
       var outline = cssColor(figure, "--color-chart-outline", "#64748b");
       var grid = cssColor(figure, "--color-chart-grid", outline);
+      var axisColor = cssColor(figure, "--color-chart-axis", outline);
       var text = cssColor(figure, "--color-chart-text", "#1f2937");
       var strong = cssColor(figure, "--color-chart-text-strong", text);
       var muted = cssColor(figure, "--color-chart-text-muted", text);
@@ -249,8 +250,12 @@ const ThemeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
       var scaleMid = cssColor(figure, "--color-chart-scale-mid", "#3b82f6");
       var scaleHigh = cssColor(figure, "--color-chart-scale-high", "#1e3a8a");
       var seriesColors = [];
-      for (var colorIndex = 1; colorIndex <= 8; colorIndex += 1) {
+      for (var colorIndex = 1; colorIndex <= 12; colorIndex += 1) {
         seriesColors.push(cssColor(figure, "--color-chart-series-" + colorIndex, "#2563eb"));
+      }
+      var divergingColors = [];
+      for (var divergingIndex = 1; divergingIndex <= 5; divergingIndex += 1) {
+        divergingColors.push(cssColor(figure, "--color-chart-diverging-" + divergingIndex, [scaleLow, scaleLow, scaleMid, scaleHigh, scaleHigh][divergingIndex - 1]));
       }
       var current = chart.getOption();
       var explicitColors = figure.getAttribute("data-goshtoso-charts-explicit-colors") === "true";
@@ -294,14 +299,14 @@ const ThemeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			if (gaugeScale && gaugeScale.reverse) gaugeColors.reverse();
       var axis = {
         axisLabel: { color: muted },
-        axisLine: { lineStyle: { color: outline } },
-        axisTick: { lineStyle: { color: outline } },
+        axisLine: { lineStyle: { color: axisColor } },
+        axisTick: { lineStyle: { color: axisColor } },
         splitLine: { lineStyle: { color: grid } },
         nameTextStyle: { color: text }
       };
       var radar = {
         axisName: { color: text },
-        axisLine: { lineStyle: { color: outline } },
+        axisLine: { lineStyle: { color: axisColor } },
         splitLine: { lineStyle: { color: grid } },
         splitArea: { areaStyle: { color: [surface, surfaceAlt] } }
       };
@@ -506,8 +511,8 @@ const ThemeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 			if (series.type === "gauge") {
 				themedItem.axisLine = { lineStyle: { width: 20, color: gaugeScale ? gaugeScale.stops.map(function (stop, stopIndex) { return [stop.position, gaugeColors[stopIndex]]; }) : [[1, surfaceAlt]] } };
           themedItem.axisLabel = { color: muted };
-          themedItem.axisTick = { lineStyle: { color: outline } };
-          themedItem.splitLine = { lineStyle: { color: outline } };
+          themedItem.axisTick = { lineStyle: { color: axisColor } };
+          themedItem.splitLine = { lineStyle: { color: axisColor } };
           themedItem.detail = { color: strong };
           themedItem.title = { color: text };
           if (managesSeriesItem(index)) {
@@ -524,7 +529,7 @@ const ThemeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
           visualMap.inRange = { color: Array.from({ length: 10 }, function (_, index) {
             return cssColor(figure, "--color-chart-scatter3d-" + (index + 1), scatter3DColdToWarmFallbacks[index]);
           }) };
-        } else if (!explicitVisualMapColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] };
+        } else if (!explicitVisualMapColors) visualMap.inRange = { color: divergingColors };
         return visualMap;
       });
 			var themedGeo = (current.geo || []).map(function (geo) {
@@ -533,16 +538,16 @@ const ThemeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 					: (geoGeometryPaint && geoGeometryPaint.color
 						? rendererColor(geoGeometryPaint.color, surfaceAlt)
 						: surfaceAlt);
-				return { itemStyle: Object.assign({}, geo.itemStyle || {}, { areaColor: areaColor, borderColor: outline }) };
+				return { itemStyle: Object.assign({}, geo.itemStyle || {}, { areaColor: areaColor, borderColor: axisColor }) };
 			});
 			var themedCalendars = (current.calendar || []).map(function (calendar) {
 				var calendarItemStyle = calendar.itemStyle || {};
 				return {
 					itemStyle: Object.assign({}, calendarItemStyle, {
 						color: calendarItemStyle.color ? rendererColor(calendarItemStyle.color, surfaceAlt) : surfaceAlt,
-						borderColor: calendarItemStyle.borderColor ? rendererColor(calendarItemStyle.borderColor, outline) : outline
+						borderColor: calendarItemStyle.borderColor ? rendererColor(calendarItemStyle.borderColor, axisColor) : axisColor
 					}),
-					splitLine: { lineStyle: { color: outline } },
+					splitLine: { lineStyle: { color: axisColor } },
 					dayLabel: Object.assign({}, calendar.dayLabel || {}, { color: muted }),
 					monthLabel: Object.assign({}, calendar.monthLabel || {}, { color: muted }),
 					yearLabel: Object.assign({}, calendar.yearLabel || {}, { color: text })

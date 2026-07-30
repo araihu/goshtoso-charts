@@ -26,18 +26,33 @@ go get github.com/araihu/goshtoso-charts
 
 Every chart follows Goshtoso component shape: a typed `Config`, concrete `Instance`, stable `Kind()`, and `templ.Component` rendering. Extension-owned kinds live in `github.com/araihu/goshtoso-charts/components`; they deliberately do not modify Goshtoso's core kind registry.
 
-Chart surfaces use Goshtoso tokens. Categorical series use Tailwind-compatible
-chart tokens (`--color-chart-series-1` through `--color-chart-series-8`) so a
-theme's small semantic palette does not make unrelated series look equivalent.
-Surface, outline, grid, and text equivalents use the same `--color-chart-*`
-namespace. Tailwind arbitrary-variable utilities such as
-`text-(--color-chart-series-1)` and `bg-(--color-chart-surface)` can reuse them.
+Chart surfaces use Goshtoso tokens. Categorical series use twelve
+Tailwind-compatible chart tokens (`--color-chart-series-1` through
+`--color-chart-series-12`) so a theme's small semantic palette does not make
+unrelated series look equivalent. Each light and dark theme also defines:
+
+- surface, outline, grid, axis, and foreground tokens;
+- named `success`, `warning`, `danger`, and `info` tokens;
+- five-step `sequential-1` through `sequential-5` scales; and
+- five-step cold-to-warm `diverging-1` through `diverging-5` scales.
+
+All use the `--color-chart-*` namespace. Existing `text-*`, `scale-low`,
+`scale-mid`, `scale-high`, `increasing`, and `decreasing` spellings remain
+aliases. Tailwind arbitrary-variable utilities such as
+`text-(--color-chart-series-1)`, `bg-(--color-chart-surface)`,
+`text-(--color-chart-success)`, and `bg-(--color-chart-diverging-5)` can reuse
+the contract when those literal classes are present in application source.
 
 ## Chart palettes
 
-Default `charttheme.PaletteAuto` follows dedicated chart tokens for all 16
-built-in Goshtoso themes. Neutral, Pastel, Bold, Status, and Arai Hû palettes
-remain available when an application needs an explicit semantic treatment.
+Default `charttheme.PaletteAuto` follows dedicated chart tokens for the exact
+released catalog: Arai Hû plus Goshtoso v0.1.1's `goshtoso`, `arctic`,
+`high-contrast`, `minimal`, `modern`, `neo-brutalism`, `halloween`, `zombie`,
+`pastel`, `90s`, `christmas`, `prototype`, `news`, `industrial`, and `dracula`
+themes. Arai Hû retains its tailored light/dark categorical and scale colors;
+the other themes map semantic meaning by name instead of borrowing categorical
+slot order. Neutral, Pastel, Bold, Status, and Arai Hû palettes remain
+available when an application needs an explicit treatment.
 
 ```go
 import "github.com/araihu/goshtoso-charts/components/charttheme"
@@ -64,7 +79,10 @@ the built-in theme values are defaults, not a closed styling boundary.
 Interactive canvas
 charts resolve these CSS tokens through the private runtime bridge and refresh
 when Goshtoso theme or dark-mode state changes. Explicit `Style.Colors` remain
-authoritative.
+authoritative. A future or unknown `data-theme` uses the light/dark Bold chart
+fallback until it gains an explicit catalog mapping; an unknown typed
+`charttheme.Palette` also normalizes to Bold. Empty entries in `Style.Colors`
+continue to fall back to the matching chart token.
 
 ## Source policy
 

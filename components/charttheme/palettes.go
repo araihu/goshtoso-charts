@@ -5,8 +5,12 @@ import (
 	"strings"
 )
 
-// Theme identifiers follow the Goshtoso app-shell catalog. Keep order stable:
-// generated CSS and coverage tests use it as the canonical contract.
+const chartSeriesSlots = 12
+
+// Theme identifiers follow Goshtoso v0.1.1's exact 15-theme catalog in
+// all-themes.css plus the released Arai Hû organization theme from
+// goshtoso-app-shells v0.1.0. Keep order stable: generated CSS and coverage
+// tests use this as the canonical 16-theme chart contract.
 var themePalettes = []themePalette{
 	palette("araihu",
 		[8]string{"#4d7c0f", "#ff8a3d", "#ef476f", "#4cc9f0", "#9b5de5", "#ffd166", "#f15bb5", "#00b8a9"},
@@ -181,7 +185,10 @@ func resolvedThemeTokens(themeID string, dark bool, mode themePaletteMode) []the
 	tokens := []themeToken{
 		{"surface", surface}, {"surface-alt", surfaceAlt}, {"outline", outline},
 		{"grid", fmt.Sprintf("color-mix(in srgb, %s 65%%, %s 35%%)", outline, surface)},
-		{"text", text}, {"text-strong", strong}, {"text-muted", muted},
+		{"axis", fmt.Sprintf("color-mix(in srgb, %s 82%%, %s 18%%)", outline, text)},
+		{"foreground", text}, {"foreground-strong", strong}, {"foreground-muted", muted},
+		// text-* stays as a compatibility spelling for existing charts and callers.
+		{"text", "var(--color-chart-foreground)"}, {"text-strong", "var(--color-chart-foreground-strong)"}, {"text-muted", "var(--color-chart-foreground-muted)"},
 		{"pattern-text", "var(--color-chart-text-strong)"},
 		{"pattern-surface", fmt.Sprintf("color-mix(in srgb, var(--color-chart-surface) %s, var(--color-chart-outline) %s)", patternMix, patternOutlineMix)},
 		{"pattern-outline", "var(--color-chart-outline)"},
@@ -189,11 +196,58 @@ func resolvedThemeTokens(themeID string, dark bool, mode themePaletteMode) []the
 	for index, color := range mode.Series {
 		tokens = append(tokens, themeToken{fmt.Sprintf("series-%d", index+1), color})
 	}
+	tokens = append(tokens, derivedSeriesTokens()...)
 	tokens = append(tokens,
 		themeToken{"scale-low", mode.Scale[0]}, themeToken{"scale-mid", mode.Scale[1]}, themeToken{"scale-high", mode.Scale[2]},
-		themeToken{"increasing", fmt.Sprintf("color-mix(in srgb, var(--color-success, #16a34a) 78%%, %s 22%%)", stateStrong)},
-		themeToken{"decreasing", fmt.Sprintf("color-mix(in srgb, var(--color-danger, #dc2626) 78%%, %s 22%%)", stateStrong)},
+	)
+	tokens = append(tokens, semanticTokens(stateStrong)...)
+	tokens = append(tokens, sequentialTokens()...)
+	tokens = append(tokens, divergingTokens()...)
+	tokens = append(tokens,
+		themeToken{"increasing", "var(--color-chart-success)"},
+		themeToken{"decreasing", "var(--color-chart-danger)"},
 		themeToken{"bollinger-upper", mode.Series[0]}, themeToken{"bollinger-middle", mode.Series[3]}, themeToken{"bollinger-lower", mode.Series[4]},
 	)
 	return tokens
+}
+
+func derivedSeriesTokens() []themeToken {
+	return []themeToken{
+		{"series-9", "color-mix(in srgb, var(--color-chart-series-1) 72%, var(--color-chart-series-5) 28%)"},
+		{"series-10", "color-mix(in srgb, var(--color-chart-series-2) 70%, var(--color-chart-series-6) 30%)"},
+		{"series-11", "color-mix(in srgb, var(--color-chart-series-3) 68%, var(--color-chart-series-7) 32%)"},
+		{"series-12", "color-mix(in srgb, var(--color-chart-series-4) 66%, var(--color-chart-series-8) 34%)"},
+	}
+}
+
+func semanticTokens(strong string) []themeToken {
+	semantic := func(name string) themeToken {
+		return themeToken{name, fmt.Sprintf("color-mix(in srgb, var(--color-%s) 78%%, %s 22%%)", name, strong)}
+	}
+	return []themeToken{
+		semantic("success"),
+		semantic("warning"),
+		semantic("danger"),
+		semantic("info"),
+	}
+}
+
+func sequentialTokens() []themeToken {
+	return []themeToken{
+		{"sequential-1", "color-mix(in srgb, var(--color-chart-series-1) 20%, var(--color-chart-surface) 80%)"},
+		{"sequential-2", "color-mix(in srgb, var(--color-chart-series-1) 40%, var(--color-chart-surface) 60%)"},
+		{"sequential-3", "color-mix(in srgb, var(--color-chart-series-1) 60%, var(--color-chart-surface) 40%)"},
+		{"sequential-4", "color-mix(in srgb, var(--color-chart-series-1) 80%, var(--color-chart-surface) 20%)"},
+		{"sequential-5", "var(--color-chart-series-1)"},
+	}
+}
+
+func divergingTokens() []themeToken {
+	return []themeToken{
+		{"diverging-1", "var(--color-chart-scale-low)"},
+		{"diverging-2", "color-mix(in srgb, var(--color-chart-scale-low) 50%, var(--color-chart-scale-mid) 50%)"},
+		{"diverging-3", "var(--color-chart-scale-mid)"},
+		{"diverging-4", "color-mix(in srgb, var(--color-chart-scale-mid) 50%, var(--color-chart-scale-high) 50%)"},
+		{"diverging-5", "var(--color-chart-scale-high)"},
+	}
 }

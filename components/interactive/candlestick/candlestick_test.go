@@ -41,7 +41,7 @@ func TestCandlestickPreservesLegacyRenderContract(t *testing.T) {
 		t.Fatalf("canonical render differs from legacy render\ncanonical: %s\nlegacy: %s", canonicalMarkup, legacyMarkup)
 	}
 	digest := sha256.Sum256([]byte(canonicalMarkup))
-	if got, want := hex.EncodeToString(digest[:]), "1250d1e20c6804208076bf4296aabc9ffc3747695fa2afd1f79c178f86cca838"; got != want {
+	if got, want := hex.EncodeToString(digest[:]), "83cce5c8539173b3c5eb0e014648f260d65947acb1792389f63439920e2a5298"; got != want {
 		t.Fatalf("normalized render SHA-256 = %s, want %s", got, want)
 	}
 }

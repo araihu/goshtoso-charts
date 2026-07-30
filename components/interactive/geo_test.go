@@ -82,7 +82,7 @@ func TestGeoRendersSaoPauloScatterWithThemeVisualRange(t *testing.T) {
 		`"value":[-46.63,-23.55,12]`, `"value":[-47.06,-22.91,76]`, `"value":[-47.81,-21.18,41]`,
 		`"sourceColor":"#abcdef","itemStyle":{"color":"#abcdef"}`,
 		`data-goshtoso-charts-explicit-visual-map-colors="false"`,
-		`if (!explicitVisualMapColors) visualMap.inRange = { color: [scaleLow, scaleMid, scaleHigh] }`,
+		`if (!explicitVisualMapColors) visualMap.inRange = { color: divergingColors }`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
