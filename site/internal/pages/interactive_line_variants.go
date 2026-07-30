@@ -1,7 +1,7 @@
 package pages
 
 import (
-	interactive "github.com/araihu/goshtoso-charts/components/interactive"
+	"github.com/araihu/goshtoso-charts/components/chart"
 	interactiveline "github.com/araihu/goshtoso-charts/components/interactive/line"
 )
 
@@ -52,9 +52,9 @@ func fixedInteractiveLineData(values ...float64) []interactiveline.Data {
 	return data
 }
 
-func controlledInteractiveLineOptions(title, filename string) interactive.ChartOptions {
+func controlledInteractiveLineOptions(title, filename string) chart.ChartOptions {
 	options := controlledOptions(title, filename)
-	options.Legend = &interactive.LegendOptions{Bottom: "0"}
+	options.Legend = &chart.LegendOptions{Bottom: "0"}
 	return options
 }
 
@@ -72,7 +72,7 @@ func sampleInteractiveLineLabels() interactiveline.Config {
 		Label: "Visible point labels", Caption: "Every point exposes its value directly.",
 		XAxis:         interactiveLineCategories(),
 		Series:        []interactiveline.Series{{Name: "Category A", Data: fixedInteractiveLineData(150, 232, 201, 154, 190, 130)}},
-		SeriesOptions: interactive.SeriesOptions{ShowSymbol: interactive.Bool(true), Label: &interactive.LabelOptions{Show: interactive.Bool(true)}},
+		SeriesOptions: chart.SeriesOptions{ShowSymbol: chart.Bool(true), Label: &chart.LabelOptions{Show: chart.Bool(true)}},
 		Options:       controlledInteractiveLineOptions("title and label options", "visible-point-labels"),
 	}
 }
@@ -85,7 +85,7 @@ func sampleInteractiveLineSymbols() interactiveline.Config {
 			{Name: "Category A", Data: fixedInteractiveLineData(120, 182, 191, 234, 290, 330)},
 			{Name: "Category B", Data: fixedInteractiveLineData(220, 282, 291, 334, 390, 430)},
 		},
-		SeriesOptions: interactive.SeriesOptions{Smooth: interactive.Bool(true), ShowSymbol: interactive.Bool(true), Symbol: "diamond", SymbolSize: 15},
+		SeriesOptions: chart.SeriesOptions{Smooth: chart.Bool(true), ShowSymbol: chart.Bool(true), Symbol: "diamond", SymbolSize: 15},
 		Options:       controlledInteractiveLineOptions("symbol options", "diamond-symbols"),
 	}
 }
@@ -102,7 +102,7 @@ func sampleInteractiveLineMarkPoints() interactiveline.Config {
 					{Name: "Average", Statistic: interactiveline.StatisticAverage},
 					{Name: "Minimum", Statistic: interactiveline.StatisticMinimum},
 				},
-				ShowLabels: interactive.Bool(true),
+				ShowLabels: chart.Bool(true),
 			},
 		}},
 		Options: controlledInteractiveLineOptions("mark point options", "calculated-point-references"),
@@ -111,11 +111,11 @@ func sampleInteractiveLineMarkPoints() interactiveline.Config {
 
 func sampleInteractiveLineSplitLines() interactiveline.Config {
 	options := controlledInteractiveLineOptions("split line options", "split-line-options")
-	options.YAxis = &interactive.AxisOptions{ShowSplitLine: interactive.Bool(true)}
+	options.YAxis = &chart.AxisOptions{ShowSplitLine: chart.Bool(true)}
 	return interactiveline.Config{
 		Label: "Visible split lines", Caption: "Horizontal guides support scanning across labeled points.",
 		XAxis:   interactiveLineCategories(),
-		Series:  []interactiveline.Series{{Name: "Category A", Data: fixedInteractiveLineData(120, 132, 101, 134, 90, 230), Options: interactive.SeriesOptions{Label: &interactive.LabelOptions{Show: interactive.Bool(true)}}}},
+		Series:  []interactiveline.Series{{Name: "Category A", Data: fixedInteractiveLineData(120, 132, 101, 134, 90, 230), Options: chart.SeriesOptions{Label: &chart.LabelOptions{Show: chart.Bool(true)}}}},
 		Options: options,
 	}
 }
@@ -130,24 +130,24 @@ func sampleInteractiveLineNumerical() interactiveline.Config {
 		ValueAxis: &interactiveline.ValueAxis{Values: xValues},
 		Series: []interactiveline.Series{{
 			Name: "Category A", Data: deterministicLineTimeData(30),
-			Options: interactive.SeriesOptions{Symbol: "triangle", SymbolSize: 10, AreaStyle: &interactive.AreaStyle{}},
+			Options: chart.SeriesOptions{Symbol: "triangle", SymbolSize: 10, AreaStyle: &chart.AreaStyle{}},
 			References: interactiveline.References{
 				Areas: []interactiveline.RangeReference{{Name: "Danger zone", StartX: 20, EndX: 25}},
 				Lines: []interactiveline.GuideReference{
 					{Name: "Danger level", Start: &interactiveline.Coordinate{X: 20, Y: 10}, End: &interactiveline.Coordinate{X: 25, Y: 50}},
-					{Name: "Line of no return", X: interactive.Float(28)},
+					{Name: "Line of no return", X: chart.Float(28)},
 				},
-				ShowLabels: interactive.Bool(true), StartSymbol: "square", EndSymbol: "circle", SymbolSize: 10,
+				ShowLabels: chart.Bool(true), StartSymbol: "square", EndSymbol: "circle", SymbolSize: 10,
 			},
 		}},
 		VisualScale: &interactiveline.VisualScale{Dimension: interactiveline.VisualDimensionX, Pieces: []interactiveline.VisualPiece{
-			{GreaterThan: interactive.Float(1), LessThan: interactive.Float(7)},
-			{GreaterThan: interactive.Float(10), LessThan: interactive.Float(15)},
+			{GreaterThan: chart.Float(1), LessThan: chart.Float(7)},
+			{GreaterThan: chart.Float(10), LessThan: chart.Float(15)},
 		}},
-		Options: interactive.ChartOptions{
-			Title:    &interactive.TitleOptions{Text: "numerical X axis and accessories", Subtitle: "theme-aware ranges, guides, and scale pieces"},
-			Legend:   &interactive.LegendOptions{Bottom: "0"},
-			YAxis:    &interactive.AxisOptions{Max: interactive.Float(200)},
+		Options: chart.ChartOptions{
+			Title:    &chart.TitleOptions{Text: "numerical X axis and accessories", Subtitle: "theme-aware ranges, guides, and scale pieces"},
+			Legend:   &chart.LegendOptions{Bottom: "0"},
+			YAxis:    &chart.AxisOptions{Max: chart.Float(200)},
 			Controls: controlledInteractiveLineOptions("", "numerical-line").Controls,
 			Export:   controlledInteractiveLineOptions("", "numerical-line").Export,
 		},
@@ -165,7 +165,7 @@ func sampleInteractiveLineStep() interactiveline.Config {
 func sampleInteractiveLineSmooth() interactiveline.Config {
 	cfg := sampleInteractiveLineBase()
 	cfg.Label, cfg.Caption = "Smooth line", "A curved treatment emphasizes overall direction."
-	cfg.SeriesOptions.Smooth = interactive.Bool(true)
+	cfg.SeriesOptions.Smooth = chart.Bool(true)
 	cfg.Options = controlledInteractiveLineOptions("smooth style", "smooth-line")
 	return cfg
 }
@@ -173,9 +173,9 @@ func sampleInteractiveLineSmooth() interactiveline.Config {
 func sampleInteractiveLineArea() interactiveline.Config {
 	cfg := sampleInteractiveLineBase()
 	cfg.Label, cfg.Caption = "Area line", "A half-opacity area emphasizes magnitude; the marked interval identifies in-stock categories."
-	cfg.SeriesOptions.Label = &interactive.LabelOptions{Show: interactive.Bool(true)}
-	cfg.SeriesOptions.AreaStyle = &interactive.AreaStyle{Opacity: interactive.Float(0.5)}
-	cfg.Series[0].References = interactiveline.References{Areas: []interactiveline.RangeReference{{Name: "In stock", StartX: 2, EndX: 4}}, ShowLabels: interactive.Bool(true)}
+	cfg.SeriesOptions.Label = &chart.LabelOptions{Show: chart.Bool(true)}
+	cfg.SeriesOptions.AreaStyle = &chart.AreaStyle{Opacity: chart.Float(0.5)}
+	cfg.Series[0].References = interactiveline.References{Areas: []interactiveline.RangeReference{{Name: "In stock", StartX: 2, EndX: 4}}, ShowLabels: chart.Bool(true)}
 	cfg.Options = controlledInteractiveLineOptions("area options", "area-line")
 	return cfg
 }
@@ -183,9 +183,9 @@ func sampleInteractiveLineArea() interactiveline.Config {
 func sampleInteractiveLineSmoothArea() interactiveline.Config {
 	cfg := sampleInteractiveLineBase()
 	cfg.Label, cfg.Caption = "Smooth area", "A light area fill sits below the smoothed line."
-	cfg.SeriesOptions.Label = &interactive.LabelOptions{Show: interactive.Bool(true)}
-	cfg.SeriesOptions.AreaStyle = &interactive.AreaStyle{Opacity: interactive.Float(0.2)}
-	cfg.SeriesOptions.Smooth = interactive.Bool(true)
+	cfg.SeriesOptions.Label = &chart.LabelOptions{Show: chart.Bool(true)}
+	cfg.SeriesOptions.AreaStyle = &chart.AreaStyle{Opacity: chart.Float(0.2)}
+	cfg.SeriesOptions.Smooth = chart.Bool(true)
 	cfg.Options = controlledInteractiveLineOptions("smooth area", "smooth-area-line")
 	return cfg
 }
@@ -206,14 +206,14 @@ func sampleInteractiveLineMulti() interactiveline.Config {
 
 func sampleInteractiveLineDemo() interactiveline.Config {
 	options := controlledInteractiveLineOptions("Search Time: Hash table vs Binary search", "search-time-comparison")
-	options.XAxis = &interactive.AxisOptions{Name: "Elements"}
-	options.YAxis = &interactive.AxisOptions{Name: "Cost time (ns)", ShowSplitLine: interactive.Bool(true)}
+	options.XAxis = &chart.AxisOptions{Name: "Elements"}
+	options.YAxis = &chart.AxisOptions{Name: "Cost time (ns)", ShowSplitLine: chart.Bool(true)}
 	return interactiveline.Config{
 		Label: "Search time comparison", Caption: "Two labeled series compare cost across increasing element counts.",
 		XAxis: []string{"10e1", "10e2", "10e3", "10e4", "10e5", "10e6", "10e7"},
 		Series: []interactiveline.Series{
-			{Name: "map", Data: fixedInteractiveLineData(19, 31, 43, 57, 72, 118, 127), Options: interactive.SeriesOptions{Label: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "bottom"}, Smooth: interactive.Bool(true)}, References: interactiveline.References{Lines: []interactiveline.GuideReference{{Name: "Average", Statistic: interactiveline.StatisticAverage}}, ShowLabels: interactive.Bool(true)}},
-			{Name: "slice", Data: fixedInteractiveLineData(24.9, 34.9, 48.1, 58.3, 69.7, 123, 131), Options: interactive.SeriesOptions{Label: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "top"}, Smooth: interactive.Bool(true)}, References: interactiveline.References{Lines: []interactiveline.GuideReference{{Name: "Average", Statistic: interactiveline.StatisticAverage}}, ShowLabels: interactive.Bool(true)}},
+			{Name: "map", Data: fixedInteractiveLineData(19, 31, 43, 57, 72, 118, 127), Options: chart.SeriesOptions{Label: &chart.LabelOptions{Show: chart.Bool(true), Position: "bottom"}, Smooth: chart.Bool(true)}, References: interactiveline.References{Lines: []interactiveline.GuideReference{{Name: "Average", Statistic: interactiveline.StatisticAverage}}, ShowLabels: chart.Bool(true)}},
+			{Name: "slice", Data: fixedInteractiveLineData(24.9, 34.9, 48.1, 58.3, 69.7, 123, 131), Options: chart.SeriesOptions{Label: &chart.LabelOptions{Show: chart.Bool(true), Position: "top"}, Smooth: chart.Bool(true)}, References: interactiveline.References{Lines: []interactiveline.GuideReference{{Name: "Average", Statistic: interactiveline.StatisticAverage}}, ShowLabels: chart.Bool(true)}},
 		},
 		Options: options,
 	}
@@ -227,9 +227,9 @@ func interactiveLineLabelsCode() string {
     Name: "Category A",
     Data: []interactiveline.Data{{Value: 150}, {Value: 232}, {Value: 201}},
   }},
-  SeriesOptions: interactive.SeriesOptions{
-    Label: &interactive.LabelOptions{Show: interactive.Bool(true)},
-    ShowSymbol: interactive.Bool(true), Symbol: "diamond", SymbolSize: 15,
+  SeriesOptions: chart.SeriesOptions{
+    Label: &chart.LabelOptions{Show: chart.Bool(true)},
+    ShowSymbol: chart.Bool(true), Symbol: "diamond", SymbolSize: 15,
   },
 })`
 }
@@ -241,7 +241,7 @@ func interactiveLineReferencesCode() string {
     {Name: "Average", Statistic: interactiveline.StatisticAverage},
     {Name: "Minimum", Statistic: interactiveline.StatisticMinimum},
   },
-  ShowLabels: interactive.Bool(true),
+  ShowLabels: chart.Bool(true),
 }`
 }
 
@@ -258,16 +258,16 @@ func interactiveLineNumericalCode() string {
   }},
   VisualScale: &interactiveline.VisualScale{
     Dimension: interactiveline.VisualDimensionX,
-    Pieces: []interactiveline.VisualPiece{{GreaterThan: interactive.Float(0), LessThan: interactive.Float(2)}},
+    Pieces: []interactiveline.VisualPiece{{GreaterThan: chart.Float(0), LessThan: chart.Float(2)}},
   },
 })`
 }
 
 func interactiveLineShapesCode() string {
-	return `SeriesOptions: interactive.SeriesOptions{
+	return `SeriesOptions: chart.SeriesOptions{
   Step: "end",
-  Smooth: interactive.Bool(true),
-  AreaStyle: &interactive.AreaStyle{Opacity: interactive.Float(0.2)},
+  Smooth: chart.Bool(true),
+  AreaStyle: &chart.AreaStyle{Opacity: chart.Float(0.2)},
 }`
 }
 

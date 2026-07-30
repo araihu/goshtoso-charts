@@ -6,11 +6,11 @@
 
 ## Context
 
-`components/interactive` currently combines shared public values, renderer
+`components/interactive` historically combined shared public values, renderer
 conversion, browser runtime markup, chart-specific implementations, and legacy
-import paths. The first Bar and Line child packages are compatibility facades,
-so moving their implementations directly would create an import cycle: child
-implementations need shared options while the parent must re-export child APIs.
+import paths. The first Bar and Line child packages began as compatibility
+facades. Moving their implementations required an acyclic shared home because
+the parent must continue to re-export child APIs.
 
 Static chart packages use different rendering, sizing, export, and lifecycle
 semantics. A common `Instance` boundary does not make their option models or
@@ -36,8 +36,11 @@ behind this boundary.
 
 Parent `components/interactive` remains the compatibility surface. Its
 `Instance` and shared types are exact aliases to `components/chart`; functions
-remain forwarding wrappers with their existing signatures. Current chart-
-specific implementations stay in the parent during this foundation phase.
+retain their existing signatures. Bar and Line chart-specific types, validation,
+rendering, generated templates, and exact-value details now live in their
+canonical child packages. The parent exposes exact aliases and forwarding
+constructors for those migrated families while retaining the remaining chart
+implementations.
 
 The dependency direction is:
 
@@ -45,22 +48,23 @@ The dependency direction is:
 components
   <- components/chart
   <- components/internal/interactive
-  <- components/interactive (compatibility facade and current implementations)
+  <- components/interactive/bar and components/interactive/line
+  <- components/interactive (compatibility facade and remaining implementations)
 ```
 
-Existing Bar and Line child facades still depend on the parent until their
-bounded implementation migrations. Later chart children will depend on
-`components/chart` and `components/internal/interactive`; the parent will then
-alias or forward their public APIs. Neither shared package may import the parent
-or a chart child, and the parent must not import children before the matching
-ownership migration is designed to avoid cycles.
+Bar and Line children depend only on `components/chart`,
+`components/internal/interactive`, and other inward dependencies; they never
+import the parent. The parent may import exactly those migrated children and
+must alias or forward their public APIs. Later chart children follow the same
+bounded move. Neither shared package may import the parent or a chart child.
 
 ## Compatibility
 
 Existing constructors, field literals, assignments, and imports continue to
 compile. Exact aliases preserve type identity between parent shared names and
-`components/chart` names. Rendered markup, runtime bytes, local asset paths,
-validation behavior, and all 24 constructor signatures remain unchanged.
+`components/chart` names and between the parent Bar/Line names and their child
+declarations. Rendered markup, runtime bytes, local asset paths, validation
+behavior, and all 24 constructor signatures remain unchanged.
 
 One pre-v1 reflection limit is explicit: shared named types now report
 `github.com/araihu/goshtoso-charts/components/chart` as their `reflect.Type`
@@ -87,6 +91,8 @@ GSC-TD-004 remains open until that sequence completes.
 ## Consequences
 
 - Child migrations gain an acyclic shared home and one private renderer adapter.
+- Bar and Line now physically own their chart-specific implementations while
+  the parent facade remains supported.
 - External chart components can return the same concrete `chart.Instance`.
 - Parent imports remain valid while canonical ownership moves incrementally.
 - Static and interactive options are not forced into a false common model.

@@ -3,9 +3,9 @@ package pages
 import (
 	"math/rand"
 
+	"github.com/araihu/goshtoso-charts/components/chart"
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
 	"github.com/araihu/goshtoso-charts/components/charttheme"
-	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 )
 
@@ -83,11 +83,11 @@ func interactiveBarSeries(name string, seed int64) interactivebar.Series {
 	return interactivebar.Series{Name: name, Data: fixedInteractiveBarData(seed)}
 }
 
-func controlledInteractiveBarOptions(title, filename string) interactive.ChartOptions {
-	return interactive.ChartOptions{
-		Title:    &interactive.TitleOptions{Text: title},
-		Legend:   &interactive.LegendOptions{Bottom: "0"},
-		Tooltip:  &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "axis"},
+func controlledInteractiveBarOptions(title, filename string) chart.ChartOptions {
+	return chart.ChartOptions{
+		Title:    &chart.TitleOptions{Text: title},
+		Legend:   &chart.LegendOptions{Bottom: "0"},
+		Tooltip:  &chart.TooltipOptions{Show: chart.Bool(true), Trigger: "axis"},
 		Controls: chartcontrol.Options{Fullscreen: true},
 		Export:   &chartcontrol.ExportOptions{Filename: filename},
 	}
@@ -115,15 +115,15 @@ func sampleInteractiveBarLabels() interactivebar.Config {
 			interactiveBarSeries("Category A", 21),
 			interactiveBarSeries("Category B", 22),
 		},
-		SeriesOptions: interactive.SeriesOptions{Label: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "top"}},
+		SeriesOptions: chart.SeriesOptions{Label: &chart.LabelOptions{Show: chart.Bool(true), Position: "top"}},
 		Options:       controlledInteractiveBarOptions("label options", "visible-bar-labels"),
 	}
 }
 
 func sampleInteractiveBarAxes() interactivebar.Config {
 	options := controlledInteractiveBarOptions("axis names, units, and split lines", "bar-axis-options")
-	options.XAxis = &interactive.AxisOptions{Name: "XAxisName", LabelSuffix: " x-unit", ShowSplitLine: interactive.Bool(true)}
-	options.YAxis = &interactive.AxisOptions{Name: "YAxisName", LabelSuffix: " y-unit", ShowSplitLine: interactive.Bool(true)}
+	options.XAxis = &chart.AxisOptions{Name: "XAxisName", LabelSuffix: " x-unit", ShowSplitLine: chart.Bool(true)}
+	options.YAxis = &chart.AxisOptions{Name: "YAxisName", LabelSuffix: " y-unit", ShowSplitLine: chart.Bool(true)}
 	return interactivebar.Config{
 		Label: "Named axes with literal units", Caption: "Axis names, unit suffixes, and split lines clarify how categories and values are read.",
 		XAxis:   interactiveBarCategories(),
@@ -147,10 +147,10 @@ func sampleInteractiveBarWidthsAndGap() interactivebar.Config {
 		Label: "Bar widths and gap", Caption: "One absolute width, one percentage width, and a 150% inter-series gap preserve the upstream size treatments.",
 		XAxis: interactiveBarCategories(),
 		Series: []interactivebar.Series{
-			{Name: "Category A", Data: fixedInteractiveBarData(51), Options: interactive.SeriesOptions{BarWidth: "35"}},
-			{Name: "Category B", Data: fixedInteractiveBarData(52), Options: interactive.SeriesOptions{BarWidth: "15%"}},
+			{Name: "Category A", Data: fixedInteractiveBarData(51), Options: chart.SeriesOptions{BarWidth: "35"}},
+			{Name: "Category B", Data: fixedInteractiveBarData(52), Options: chart.SeriesOptions{BarWidth: "15%"}},
 		},
-		SeriesOptions: interactive.SeriesOptions{BarGap: "150%"},
+		SeriesOptions: chart.SeriesOptions{BarGap: "150%"},
 		Options:       controlledInteractiveBarOptions("bar width and gap", "bar-width-and-gap"),
 	}
 }
@@ -169,7 +169,7 @@ func sampleInteractiveBarStacked() interactivebar.Config {
 		Label: "Stacked bar series", Caption: "Both series share one stack so each category shows a combined total.",
 		XAxis:         interactiveBarCategories(),
 		Series:        []interactivebar.Series{interactiveBarSeries("Category A", 71), interactiveBarSeries("Category B", 72)},
-		SeriesOptions: interactive.SeriesOptions{Stack: "stackA"},
+		SeriesOptions: chart.SeriesOptions{Stack: "stackA"},
 		Options:       controlledInteractiveBarOptions("stack style", "stacked-bar"),
 	}
 }
@@ -199,8 +199,8 @@ func sampleInteractiveBarMarkPoints() interactivebar.Config {
 		Label: "Bar point references", Caption: "A named Monday point sits beside calculated minimum and maximum markers.",
 		XAxis: interactiveBarCategories(),
 		Series: []interactivebar.Series{
-			{Name: "Category A", Data: categoryA, References: interactivebar.References{Points: append([]interactivebar.PointReference{{Name: "special mark", Coordinate: &interactivebar.Coordinate{Category: "Mon", Value: 100}, Label: &interactive.LabelOptions{Show: interactive.Bool(true), Position: "inside"}}}, calculated...), ShowLabels: interactive.Bool(true)}},
-			{Name: "Category B", Data: fixedInteractiveBarData(92), References: interactivebar.References{Points: calculated, ShowLabels: interactive.Bool(true)}},
+			{Name: "Category A", Data: categoryA, References: interactivebar.References{Points: append([]interactivebar.PointReference{{Name: "special mark", Coordinate: &interactivebar.Coordinate{Category: "Mon", Value: 100}, Label: &chart.LabelOptions{Show: chart.Bool(true), Position: "inside"}}}, calculated...), ShowLabels: chart.Bool(true)}},
+			{Name: "Category B", Data: fixedInteractiveBarData(92), References: interactivebar.References{Points: calculated, ShowLabels: chart.Bool(true)}},
 		},
 		Options: controlledInteractiveBarOptions("mark point options", "bar-point-references"),
 	}
@@ -234,7 +234,7 @@ func sampleInteractiveBarLargeCanvas() interactivebar.Config {
 
 func interactiveChartBarCode() string {
 	return `import (
-  interactive "github.com/araihu/goshtoso-charts/components/interactive"
+  "github.com/araihu/goshtoso-charts/components/chart"
   interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 )
 
@@ -245,26 +245,26 @@ func interactiveChartBarCode() string {
     {Name: "Category A", Data: categoryA},
     {Name: "Category B", Data: categoryB},
   },
-  Options: interactive.ChartOptions{
-    Title: &interactive.TitleOptions{Text: "basic bar example", Subtitle: "This is the subtitle."},
-    Tooltip: &interactive.TooltipOptions{Show: interactive.Bool(true), Trigger: "axis"},
+  Options: chart.ChartOptions{
+    Title: &chart.TitleOptions{Text: "basic bar example", Subtitle: "This is the subtitle."},
+    Tooltip: &chart.TooltipOptions{Show: chart.Bool(true), Trigger: "axis"},
   },
 })`
 }
 
 func interactiveBarAxesCode() string {
-	return `Options: interactive.ChartOptions{
-  XAxis: &interactive.AxisOptions{Name: "XAxisName", LabelSuffix: " x-unit", ShowSplitLine: interactive.Bool(true)},
-  YAxis: &interactive.AxisOptions{Name: "YAxisName", LabelSuffix: " y-unit", ShowSplitLine: interactive.Bool(true)},
+	return `Options: chart.ChartOptions{
+  XAxis: &chart.AxisOptions{Name: "XAxisName", LabelSuffix: " x-unit", ShowSplitLine: chart.Bool(true)},
+  YAxis: &chart.AxisOptions{Name: "YAxisName", LabelSuffix: " y-unit", ShowSplitLine: chart.Bool(true)},
 }`
 }
 
 func interactiveBarLayoutCode() string {
 	return `Orientation: interactivebar.OrientationHorizontal,
-SeriesOptions: interactive.SeriesOptions{Stack: "stackA", BarGap: "150%"},
+SeriesOptions: chart.SeriesOptions{Stack: "stackA", BarGap: "150%"},
 Series: []interactivebar.Series{
-  {Name: "Category A", Data: categoryA, Options: interactive.SeriesOptions{BarWidth: "35"}},
-  {Name: "Category B", Data: categoryB, Options: interactive.SeriesOptions{BarWidth: "15%"}},
+  {Name: "Category A", Data: categoryA, Options: chart.SeriesOptions{BarWidth: "35"}},
+  {Name: "Category B", Data: categoryB, Options: chart.SeriesOptions{BarWidth: "15%"}},
 }`
 }
 
@@ -283,6 +283,6 @@ func interactiveBarReferencesCode() string {
     {Name: "special mark", Coordinate: &interactivebar.Coordinate{Category: "Mon", Value: 100}},
   },
   Lines: []interactivebar.GuideReference{{Name: "Average", Statistic: interactivebar.StatisticAverage}},
-  ShowLabels: interactive.Bool(true),
+  ShowLabels: chart.Bool(true),
 }`
 }

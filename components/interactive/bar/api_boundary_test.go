@@ -4,6 +4,7 @@ import (
 	"go/ast"
 	"go/token"
 	"go/types"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -41,6 +42,16 @@ func TestPublicAPIIsRendererNeutral(t *testing.T) {
 
 	for _, file := range loaded[0].Syntax {
 		ast.Inspect(file, func(node ast.Node) bool {
+			importSpec, ok := node.(*ast.ImportSpec)
+			if ok {
+				path, err := strconv.Unquote(importSpec.Path.Value)
+				if err != nil {
+					t.Fatalf("unquote import %s: %v", importSpec.Path.Value, err)
+				}
+				if path == "github.com/araihu/goshtoso-charts/components/interactive" {
+					t.Errorf("canonical Bar package imports parent compatibility facade")
+				}
+			}
 			declaration, ok := node.(*ast.GenDecl)
 			if ok && declaration.Doc != nil && strings.Contains(strings.ToLower(declaration.Doc.Text()), "echarts") {
 				t.Errorf("public package documentation exposes renderer implementation: %q", declaration.Doc.Text())

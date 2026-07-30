@@ -3,11 +3,19 @@ package bar_test
 import (
 	"bytes"
 	"context"
+	"crypto/sha256"
+	"encoding/hex"
+	"go/ast"
+	"go/parser"
+	"go/token"
+	"path/filepath"
+	"reflect"
 	"regexp"
 	"strings"
 	"testing"
 
 	chartcomponents "github.com/araihu/goshtoso-charts/components"
+	"github.com/araihu/goshtoso-charts/components/chart"
 	interactive "github.com/araihu/goshtoso-charts/components/interactive"
 	interactivebar "github.com/araihu/goshtoso-charts/components/interactive/bar"
 )
@@ -51,6 +59,10 @@ func TestBarPreservesLegacyRenderContract(t *testing.T) {
 	if canonicalMarkup != legacyMarkup {
 		t.Fatalf("canonical render differs from legacy render\ncanonical: %s\nlegacy: %s", canonicalMarkup, legacyMarkup)
 	}
+	digest := sha256.Sum256([]byte(canonicalMarkup))
+	if got, want := hex.EncodeToString(digest[:]), "f9270acadd88778afa13f78b99855026a90b07d069cb574583c1a67472c55d0e"; got != want {
+		t.Fatalf("normalized render SHA-256 = %s, want %s", got, want)
+	}
 }
 
 func TestBarPreservesLegacyValidation(t *testing.T) {
@@ -78,6 +90,95 @@ func TestBarExportsConciseChartSpecificConstants(t *testing.T) {
 	_ = []interactivebar.ZoomMode{interactivebar.ZoomInside, interactivebar.ZoomSlider}
 	_ = []interactivebar.Statistic{interactivebar.StatisticMinimum, interactivebar.StatisticMaximum, interactivebar.StatisticAverage}
 }
+
+func TestBarSpecificTypesHaveCanonicalChildIdentity(t *testing.T) {
+	t.Parallel()
+
+	wantPackage := "github.com/araihu/goshtoso-charts/components/interactive/bar"
+	barTypes := []reflect.Type{
+		reflect.TypeOf(interactivebar.Config{}),
+		reflect.TypeOf(interactivebar.Series{}),
+		reflect.TypeOf(interactivebar.Data{}),
+		reflect.TypeOf(interactivebar.Orientation("")),
+		reflect.TypeOf(interactivebar.ZoomMode("")),
+		reflect.TypeOf(interactivebar.Zoom{}),
+		reflect.TypeOf(interactivebar.Statistic("")),
+		reflect.TypeOf(interactivebar.Coordinate{}),
+		reflect.TypeOf(interactivebar.PointReference{}),
+		reflect.TypeOf(interactivebar.GuideReference{}),
+		reflect.TypeOf(interactivebar.References{}),
+	}
+	for _, barType := range barTypes {
+		if got := barType.PkgPath(); got != wantPackage {
+			t.Errorf("%s PkgPath() = %q, want %q", barType, got, wantPackage)
+		}
+	}
+
+	compatibilityTypes := []reflect.Type{
+		reflect.TypeOf(interactive.BarConfig{}),
+		reflect.TypeOf(interactive.BarSeries{}),
+		reflect.TypeOf(interactive.BarData{}),
+		reflect.TypeOf(interactive.BarOrientation("")),
+		reflect.TypeOf(interactive.BarZoomMode("")),
+		reflect.TypeOf(interactive.BarZoom{}),
+		reflect.TypeOf(interactive.BarStatistic("")),
+		reflect.TypeOf(interactive.BarCoordinate{}),
+		reflect.TypeOf(interactive.BarPointReference{}),
+		reflect.TypeOf(interactive.BarGuideReference{}),
+		reflect.TypeOf(interactive.BarReferences{}),
+	}
+	for index, compatibilityType := range compatibilityTypes {
+		if compatibilityType != barTypes[index] {
+			t.Errorf("compatibility type %s is not identical to canonical %s", compatibilityType, barTypes[index])
+		}
+	}
+}
+
+func TestCompatibilityParentContainsOnlyAliasesConstantsAndForwarder(t *testing.T) {
+	t.Parallel()
+	file, err := parser.ParseFile(token.NewFileSet(), filepath.Join("..", "bar.go"), nil, 0)
+	if err != nil {
+		t.Fatalf("parse parent facade: %v", err)
+	}
+	if len(file.Imports) != 1 || strings.Trim(file.Imports[0].Path.Value, `"`) != "github.com/araihu/goshtoso-charts/components/interactive/bar" {
+		t.Fatalf("parent imports = %v, want only canonical Bar package", file.Imports)
+	}
+
+	functions := 0
+	for _, declaration := range file.Decls {
+		switch declaration := declaration.(type) {
+		case *ast.FuncDecl:
+			functions++
+			if declaration.Name.Name != "Bar" || declaration.Body == nil || len(declaration.Body.List) != 1 {
+				t.Errorf("parent function %s is not the single Bar forwarder", declaration.Name.Name)
+			}
+		case *ast.GenDecl:
+			switch declaration.Tok {
+			case token.IMPORT, token.CONST:
+			case token.TYPE:
+				for _, spec := range declaration.Specs {
+					typeSpec := spec.(*ast.TypeSpec)
+					if !typeSpec.Assign.IsValid() {
+						t.Errorf("parent type %s is not an alias", typeSpec.Name.Name)
+					}
+				}
+			default:
+				t.Errorf("parent contains forbidden %s declaration", declaration.Tok)
+			}
+		default:
+			t.Errorf("parent contains unexpected declaration %T", declaration)
+		}
+	}
+	if functions != 1 {
+		t.Errorf("parent functions = %d, want only Bar", functions)
+	}
+}
+
+var (
+	_ func(interactivebar.Config) chart.Instance = interactivebar.Bar
+	_ func(interactivebar.Config) chart.Instance = interactive.Bar
+	_ func(interactive.BarConfig) chart.Instance = interactivebar.Bar
+)
 
 func render(t *testing.T, instance interactive.Instance) string {
 	t.Helper()

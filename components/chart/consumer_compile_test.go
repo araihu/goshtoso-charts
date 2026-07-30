@@ -23,6 +23,14 @@ func oldFacadeConsumer() chart.Instance {
 	})
 }
 
+func oldFacadeLineConsumer() chart.Instance {
+	return interactive.Line(interactive.LineConfig{
+		Label:  "Weekly latency",
+		XAxis:  []string{"Mon", "Tue"},
+		Series: []interactive.LineSeries{{Name: "p95 (ms)", Data: []interactive.LineData{{Value: 42}, {Value: 47}}}},
+	})
+}
+
 func canonicalChildConsumers() []chart.Instance {
 	return []chart.Instance{
 		interactivebar.Bar(interactivebar.Config{
@@ -50,6 +58,7 @@ func customExtensionConsumer() chart.Instance {
 
 var (
 	_ = oldFacadeConsumer
+	_ = oldFacadeLineConsumer
 	_ = canonicalChildConsumers
 	_ = customExtensionConsumer
 )

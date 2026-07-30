@@ -130,6 +130,8 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 		assertWrapperLiteral(t, filename, "static-svg")
 	}
 	assertWrapperLiteral(t, "internal/interactive/component.go", "interactive-raster")
+	assertConstructorPropagatesSharedWrapperFields(t, "interactive/bar/bar.go", "Bar")
+	assertConstructorPropagatesSharedWrapperFields(t, "interactive/line/line.go", "Line")
 
 	loaded, err := packages.Load(&packages.Config{
 		Mode: packages.NeedName | packages.NeedFiles | packages.NeedCompiledGoFiles | packages.NeedSyntax,
@@ -159,6 +161,9 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 			if !ok || !strings.HasSuffix(parameter.Name, "Config") {
 				continue
 			}
+			if function.Name.Name == "Bar" || function.Name.Name == "Line" {
+				continue // Physical ownership is covered in the child implementations above.
+			}
 			if !containsSelectorPath(function.Body, "cfg", "Options", "Controls") || !containsSelectorPath(function.Body, "cfg", "Options", "Export") {
 				missing = append(missing, function.Name.Name)
 			}
@@ -168,6 +173,25 @@ func TestEveryChartRenderPathPropagatesSharedWrapperFields(t *testing.T) {
 		sort.Strings(missing)
 		t.Fatalf("interactive constructors do not propagate ChartOptions Controls/Export: %v", missing)
 	}
+}
+
+func assertConstructorPropagatesSharedWrapperFields(t *testing.T, filename, name string) {
+	t.Helper()
+	file, err := parser.ParseFile(token.NewFileSet(), filename, nil, 0)
+	if err != nil {
+		t.Fatalf("parse %s: %v", filename, err)
+	}
+	for _, declaration := range file.Decls {
+		function, ok := declaration.(*ast.FuncDecl)
+		if !ok || function.Name.Name != name {
+			continue
+		}
+		if !containsSelectorPath(function.Body, "cfg", "Options", "Controls") || !containsSelectorPath(function.Body, "cfg", "Options", "Export") {
+			t.Fatalf("%s constructor %s does not propagate ChartOptions Controls/Export", filename, name)
+		}
+		return
+	}
+	t.Fatalf("%s constructor %s not found", filename, name)
 }
 
 func assertWrapperLiteral(t *testing.T, filename, capability string) {
