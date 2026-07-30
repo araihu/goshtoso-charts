@@ -565,14 +565,32 @@ templ InteractiveHeatMapPage(fragment bool) {
 templ interactiveChartHeatMapContent() {
 	@componentpage.Page(componentpage.Config{
 		Title:       "Interactive heatmap",
-		Description: "Intensity patterns across category grids or calendar dates.",
+		Description: "Intensity patterns across category grids or ordered calendar dates.",
 		Primary: componentpage.Example{
-			AbovePreview: visualizationGuidance("Reveal concentration, gaps, and patterns across two dimensions.", "Relative intensity across a manageable grid is the question.", "Exact cell comparison or color-independent interpretation is required.", "Provide a nearby table or text summary for exact cell values."),
+			AbovePreview: visualizationGuidance("Reveal concentration, gaps, and repeated time patterns across two categorical dimensions.", "Relative intensity across a manageable grid is the question.", "Exact cell comparison, sequence, or color-independent interpretation is primary; use a table instead.", "The disclosure below preserves every category pair, value, and explicit no-data cell."),
 			Preview:      interactive.HeatMap(sampleInteractiveHeatMap()),
 			Code:         interactiveChartHeatMapCode(),
 		},
-		After: interactiveDocumentation(demoNote("Coordinates", "Use Cartesian axes for category grids and calendar coordinates for date patterns. Keep date ranges explicit.")),
+		Sections: []componentpage.Example{
+			{
+				Title:       "Calendar coordinates",
+				Description: "A full deterministic year preserves the source date range, value domain, cell borders, and explicit no-data days while using responsive cell sizing.",
+				Preview:     interactive.HeatMap(sampleInteractiveCalendarHeatMap()),
+				Code:        interactiveCalendarHeatMapCode(),
+			},
+		},
+		After: interactiveDocumentation(interactiveHeatMapUsage()),
 	})
+}
+
+templ interactiveHeatMapUsage() {
+	<div class="space-y-4">
+		@demoNote("Use a category grid", "Choose Cartesian coordinates for two finite category sets such as weekday and hour. Split areas help readers track dense rows and columns.")
+		@demoNote("Use a calendar", "Choose calendar coordinates when adjacency and seasonal gaps matter. Keep the date range explicit and use responsive cell sizing inside flexible layouts.")
+		@demoNote("Cold to warm", "The default scale follows theme-aware low, middle, and high tokens. Explicit chart colors remain caller-owned when a specialized scale is required.")
+		@demoNote("Missing is not zero", "Mark absent observations with Missing. Zero remains a valid measured value; both states stay distinct in the chart data and exact-value table.")
+		@demoNote("Equivalent data", "Every example includes a bounded, scrollable exact-value table. Use that table alone when exact comparison matters more than spatial pattern.")
+	</div>
 }
 
 templ InteractiveBoxPlotPage(fragment bool) {
@@ -1141,13 +1159,13 @@ templ heatMapContent() {
 		},
 		Sections: []componentpage.Example{
 			{
-				Title:       "Custom semantic scale",
-				Description: "Ordered color stops clarify low-to-high values; reverse the scale only when it matches the expected reading direction.",
+				Title:       "Typed presentation options",
+				Description: "This caller-style override deliberately reuses the same pinned upstream matrix. It demonstrates finite title, axis, spacing, value-label, and cold-to-warm scale options; it is not counted as a second upstream example.",
 				Preview:     heatmap.HeatMap(sampleBasicHeatMapOverride()),
 				Code:        heatMapOverrideCode(),
 			},
 		},
-		After: chartDocumentation("Reading a matrix", "Read across and down for patterns, then use the adjacent values for exact cells. Reverse scale direction only when it improves the familiar interpretation of high and low values.", "heatmap"),
+		After: chartDocumentation("Static/vector behavior", "Heat map renders one inline 600 by 400 SVG from the pinned five-by-five matrix, follows Goshtoso chart tokens in light and dark mode, remains useful in print or without JavaScript, and exports resolved SVG plus opaque PNG through the shared wrapper. Read across and down for patterns, then use the adjacent values for exact cells; shared chart controls and chart modes guides document lifecycle and delivery choices.", "heatmap"),
 	})
 }
 

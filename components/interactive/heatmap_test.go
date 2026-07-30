@@ -17,10 +17,11 @@ func TestHeatMapRendersCartesianChart(t *testing.T) {
 	instance := HeatMap(HeatMapConfig{
 		Label: "Weekly traffic", Caption: "Requests by weekday and hour.",
 		XAxis: []string{"08:00", "09:00"}, YAxis: []string{"Mon", "Tue"},
-		ValueRange: HeatMapValueRange{Min: 0, Max: 20},
+		ValueRange: HeatMapValueRange{Min: 0, Max: 20, Calculable: Bool(true)},
+		SplitArea:  Bool(true),
 		Series: []HeatMapSeries{{
 			Name:    "Requests",
-			Data:    []HeatMapData{{X: 0, Y: 0, Value: 5}, {X: 1, Y: 1, Value: 18}},
+			Data:    []HeatMapData{{X: 0, Y: 0, Value: 25}, {X: 1, Y: 0, Value: 0}, {X: 1, Y: 1, Missing: true}},
 			Options: SeriesOptions{Label: &LabelOptions{Show: Bool(true)}},
 		}},
 		Width: "720px", Height: "360px",
@@ -36,13 +37,14 @@ func TestHeatMapRendersCartesianChart(t *testing.T) {
 	for _, want := range []string{
 		"Weekly traffic", "Requests by weekday and hour.", "width:720px;height:360px",
 		`"data":["08:00","09:00"]`, `"data":["Mon","Tue"]`,
-		`"name":"Requests"`, `"value":[0,0,5]`, `"value":[1,1,18]`,
+		`"name":"Requests"`, `"value":[0,0,25]`, `"value":[1,0,0]`, `"value":[1,1,"-"]`,
 		`"max":20`, `"color":["#123456","#ff8a3d"`,
 		`"left":"52","right":"0","bottom":"56","containLabel":true`,
-		`"left":"8","bottom":"24"`,
+		`"left":"8","bottom":"24"`, `"calculable":true`, `"splitArea":{"show":true}`,
 		`"show":true`, `"animation":false`, `"text":"Traffic density"`,
 		`data-goshtoso-charts-explicit-visual-map-colors="true"`,
-		"goshtoso-charts-palette-araihu min-h-80",
+		"goshtoso-charts-palette-araihu min-h-80", `data-heatmap-exact-values`,
+		`Weekly traffic exact heatmap values`, `data-heatmap-missing="true"`, `No data`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
@@ -58,7 +60,11 @@ func TestHeatMapRendersCalendarChart(t *testing.T) {
 		Label: "July activity", Coordinate: HeatMapCoordinateCalendar,
 		Calendar: &HeatMapCalendar{
 			Start: start, End: end,
-			Options: CalendarOptions{Top: "80", CellSize: "20"},
+			Options: CalendarOptions{
+				Top: "80", CellSize: "20", Orient: "horizontal",
+				CellStyle: &ItemStyle{Color: "#112233", BorderColor: "#445566", BorderWidth: 0.5},
+				DayLabel:  &CalendarLabelOptions{Margin: 4, Position: "left", FontSize: 9},
+			},
 		},
 		ValueRange: HeatMapValueRange{Min: 0, Max: 10},
 		Series: []HeatMapSeries{{
@@ -70,10 +76,11 @@ func TestHeatMapRendersCalendarChart(t *testing.T) {
 
 	markup := renderHeatMap(t, instance)
 	for _, want := range []string{
-		`"calendar"`, `"range":["2026-07-01","2026-07-31"]`, `"cellSize":"20"`,
+		`"calendar"`, `"range":["2026-07-01","2026-07-31"]`, `"cellSize":"20"`, `"orient":"horizontal"`,
+		`"itemStyle":{"color":"#112233","borderColor":"#445566","borderWidth":0.5`, `"dayLabel":{"margin":4,"position":"left","fontSize":9}`,
 		`"coordinateSystem":"calendar"`, `"value":["2026-07-01",3]`,
 		`"value":["2026-07-31",8]`, `"color":["#93c5fd","#fca5a5"`,
-		`"left":"8","bottom":"24"`,
+		`"right":"0","bottom":"24"`, `July activity exact heatmap values`, `tabindex="0" role="region"`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)
@@ -119,7 +126,12 @@ func TestHeatMapRejectsInvalidDataContract(t *testing.T) {
 			cfg.Calendar = &HeatMapCalendar{Start: start, End: end}
 			return cfg
 		}, "heatmap chart calendar is not allowed for Cartesian coordinates"},
-		"axes in calendar mode":  {func() HeatMapConfig { cfg := validCalendar(); cfg.XAxis = []string{"bad"}; return cfg }, "heatmap chart category axes are not allowed for calendar coordinates"},
+		"axes in calendar mode": {func() HeatMapConfig { cfg := validCalendar(); cfg.XAxis = []string{"bad"}; return cfg }, "heatmap chart category axes are not allowed for calendar coordinates"},
+		"split area in calendar mode": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.SplitArea = Bool(true)
+			return cfg
+		}, "heatmap chart split area is not allowed for calendar coordinates"},
 		"missing calendar":       {func() HeatMapConfig { cfg := validCalendar(); cfg.Calendar = nil; return cfg }, "heatmap chart calendar is required for calendar coordinates"},
 		"missing calendar dates": {func() HeatMapConfig { cfg := validCalendar(); cfg.Calendar.Start = time.Time{}; return cfg }, "heatmap chart calendar start and end dates are required"},
 		"reversed calendar": {func() HeatMapConfig {
@@ -131,7 +143,6 @@ func TestHeatMapRejectsInvalidDataContract(t *testing.T) {
 		"missing series name":          {func() HeatMapConfig { cfg := validCartesian(); cfg.Series[0].Name = ""; return cfg }, "heatmap chart series 0 name is required"},
 		"missing data":                 {func() HeatMapConfig { cfg := validCartesian(); cfg.Series[0].Data = nil; return cfg }, `heatmap chart series "Load" data is required`},
 		"nonfinite value":              {func() HeatMapConfig { cfg := validCartesian(); cfg.Series[0].Data[0].Value = math.NaN(); return cfg }, `heatmap chart series "Load" data point 0 value must be finite`},
-		"value outside range":          {func() HeatMapConfig { cfg := validCartesian(); cfg.Series[0].Data[0].Value = 11; return cfg }, `heatmap chart series "Load" data point 0 value is outside the configured range`},
 		"Cartesian index outside axes": {func() HeatMapConfig { cfg := validCartesian(); cfg.Series[0].Data[0].X = 1; return cfg }, `heatmap chart series "Load" data point 0 category indexes are outside the axes`},
 		"missing calendar data date":   {func() HeatMapConfig { cfg := validCalendar(); cfg.Series[0].Data[0].Date = time.Time{}; return cfg }, `heatmap chart series "Load" data point 0 date is required`},
 		"date outside calendar": {func() HeatMapConfig {
@@ -139,6 +150,48 @@ func TestHeatMapRejectsInvalidDataContract(t *testing.T) {
 			cfg.Series[0].Data[0].Date = end.AddDate(0, 0, 1)
 			return cfg
 		}, `heatmap chart series "Load" data point 0 date is outside the calendar range`},
+		"negative calendar cell border": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.Calendar.Options.CellStyle = &ItemStyle{BorderWidth: -0.5}
+			return cfg
+		}, "heatmap chart calendar cell border width must be finite and nonnegative"},
+		"nonfinite calendar cell border": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.Calendar.Options.CellStyle = &ItemStyle{BorderWidth: math.NaN()}
+			return cfg
+		}, "heatmap chart calendar cell border width must be finite and nonnegative"},
+		"calendar cell border renderer overflow": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.Calendar.Options.CellStyle = &ItemStyle{BorderWidth: math.MaxFloat64}
+			return cfg
+		}, "heatmap chart calendar cell border width exceeds renderer limits"},
+		"calendar cell opacity out of range": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.Calendar.Options.CellStyle = &ItemStyle{Opacity: Float(1.5)}
+			return cfg
+		}, "heatmap chart calendar cell opacity must be between 0 and 1"},
+		"negative calendar label margin": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.Calendar.Options.MonthLabel = &CalendarLabelOptions{Margin: -1}
+			return cfg
+		}, "heatmap chart calendar month label margin and font size must be finite and nonnegative"},
+		"nonfinite calendar label margin": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.Calendar.Options.MonthLabel = &CalendarLabelOptions{Margin: math.Inf(1)}
+			return cfg
+		}, "heatmap chart calendar month label margin and font size must be finite and nonnegative"},
+		"unsupported calendar label position": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.Calendar.Options.YearLabel = &CalendarLabelOptions{Position: "center"}
+			return cfg
+		}, `heatmap chart calendar year label position "center" is not supported`},
+		"deterministic calendar label order": {func() HeatMapConfig {
+			cfg := validCalendar()
+			cfg.Calendar.Options.DayLabel = &CalendarLabelOptions{Margin: -1}
+			cfg.Calendar.Options.MonthLabel = &CalendarLabelOptions{Margin: -1}
+			cfg.Calendar.Options.YearLabel = &CalendarLabelOptions{Margin: -1}
+			return cfg
+		}, "heatmap chart calendar day label margin and font size must be finite and nonnegative"},
 	}
 
 	for name, test := range tests {

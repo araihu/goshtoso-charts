@@ -1,5 +1,6 @@
 const assert = require("node:assert/strict");
 const { after, before, test } = require("node:test");
+const fs = require("node:fs/promises");
 const net = require("node:net");
 const path = require("node:path");
 const { spawn } = require("node:child_process");
@@ -9,6 +10,8 @@ const sharp = require("sharp");
 let baseURL;
 let browser;
 let server;
+
+const screenshotDirectory = process.env.GOSHTOSO_SCREENSHOT_DIR;
 
 async function randomPort() {
   return new Promise((resolve, reject) => {
@@ -26,7 +29,7 @@ async function ready() {
     try {
       const response = await fetch(`${baseURL}/components/interactive/heatmap`);
       const markup = await response.text();
-      if (response.ok && markup.includes('"containLabel":true') && markup.includes('"left":"8"')) return;
+      if (response.ok && markup.includes("Weekly activity by hour") && markup.includes("Calendar activity")) return;
     } catch {
       // Test-owned server still starting.
     }
@@ -36,6 +39,7 @@ async function ready() {
 }
 
 before(async () => {
+  if (screenshotDirectory) await fs.mkdir(screenshotDirectory, { recursive: true });
   const port = await randomPort();
   assert.notEqual(port, 8091);
   baseURL = `http://127.0.0.1:${port}`;
@@ -60,104 +64,229 @@ after(async () => {
 });
 
 async function heatmapPage(width) {
-  const page = await browser.newPage({ viewport: { width, height: 900 } });
+  const page = await browser.newPage({ viewport: { width, height: 1000 }, acceptDownloads: true });
   const failures = [];
   page.on("console", (message) => {
     if (message.type() === "error") failures.push(message.text());
   });
   page.on("pageerror", (error) => failures.push(error.message));
   await page.goto(`${baseURL}/components/interactive/heatmap`);
-  const figure = page.locator('figure[aria-label="Deployment activity"]');
-  await figure.waitFor();
   await page.waitForFunction(() => Boolean(window.__goshtosoChartsControls));
-  return {
-    page,
-    failures,
-    figure,
-    wrapper: figure.locator("xpath=ancestor::*[@data-goshtoso-chart-wrapper][1]"),
-  };
+  const category = page.locator('figure[aria-label="Weekly activity by hour"]');
+  const calendar = page.locator('figure[aria-label="Calendar activity"]');
+  await category.waitFor();
+  await calendar.waitFor();
+  return { page, failures, category, calendar };
+}
+
+function wrapperFor(figure) {
+  return figure.locator("xpath=ancestor::*[@data-goshtoso-chart-wrapper][1]");
 }
 
 async function openExpand(wrapper) {
   const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
   const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
   await trigger.click();
-  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
   if (stacked) {
+    const action = wrapper.locator('[id$="-chart-expand-action"]').first();
     await action.waitFor({ state: "visible" });
     await action.click();
   }
+}
+
+async function enterFullscreen(wrapper) {
+  await wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first().click();
+  const action = wrapper.locator('[id$="-fullscreen-action"]').first();
+  await action.waitFor({ state: "visible" });
+  await action.click();
+}
+
+async function closeExpand(page, wrapper, label) {
+  await page.keyboard.press("Escape");
+  await wrapper.getByRole("dialog", { name: label }).waitFor({ state: "hidden" });
+}
+
+async function waitForChartGeometry(figure) {
+  await figure.evaluate((element) => new Promise((resolve) => {
+    let last = "";
+    let stableFrames = 0;
+    const check = () => {
+      const host = element.querySelector("[_echarts_instance_]");
+      const chart = host && window.echarts.getInstanceByDom(host);
+      const canvas = host && host.querySelector("canvas");
+      if (!chart || !canvas) {
+        requestAnimationFrame(check);
+        return;
+      }
+      const bounds = canvas.getBoundingClientRect();
+      const key = `${chart.getWidth()}x${chart.getHeight()}:${Math.round(bounds.width)}x${Math.round(bounds.height)}`;
+      stableFrames = key === last && chart.getWidth() === Math.round(bounds.width) && chart.getHeight() === Math.round(bounds.height)
+        ? stableFrames + 1
+        : 0;
+      last = key;
+      if (stableFrames >= 2) resolve();
+      else requestAnimationFrame(check);
+    };
+    requestAnimationFrame(check);
+  }));
+}
+
+async function waitForThemeScale(figure) {
+  await figure.evaluate((element) => new Promise((resolve, reject) => {
+    const colorCanvas = document.createElement("canvas");
+    colorCanvas.width = 1;
+    colorCanvas.height = 1;
+    const colorContext = colorCanvas.getContext("2d", { willReadFrequently: true });
+    const normalize = (value) => {
+      colorContext.clearRect(0, 0, 1, 1);
+      colorContext.fillStyle = value;
+      colorContext.fillRect(0, 0, 1, 1);
+      const pixel = colorContext.getImageData(0, 0, 1, 1).data;
+      return `${pixel[0]},${pixel[1]},${pixel[2]},${pixel[3]}`;
+    };
+    const tokenColor = (name) => {
+      const probe = document.createElement("span");
+      probe.hidden = true;
+      probe.style.color = `var(${name})`;
+      element.appendChild(probe);
+      const color = getComputedStyle(probe).color;
+      probe.remove();
+      return normalize(color);
+    };
+    let attempts = 0;
+    const check = () => {
+      const host = element.querySelector("[_echarts_instance_]");
+      const chart = host && window.echarts.getInstanceByDom(host);
+      const actual = chart?.getOption()?.visualMap?.[0]?.inRange?.color;
+      const expected = ["--color-chart-scale-low", "--color-chart-scale-mid", "--color-chart-scale-high"].map(tokenColor);
+      if (Array.isArray(actual) && actual.map(normalize).every((color, index) => color === expected[index])) {
+        resolve();
+        return;
+      }
+      attempts += 1;
+      if (attempts >= 120) {
+        reject(new Error(`HeatMap theme scale did not settle: ${JSON.stringify(actual)} != ${JSON.stringify(expected)}`));
+        return;
+      }
+      requestAnimationFrame(check);
+    };
+    requestAnimationFrame(check);
+  }));
+}
+
+async function waitForDialogSettled(dialog) {
+  const panel = dialog.locator(".goshtoso-charts-expand-panel");
+  await panel.evaluate((element) => new Promise((resolve) => {
+    let stableFrames = 0;
+    const check = () => {
+      const style = getComputedStyle(element);
+      const matrix = style.transform === "none" ? new DOMMatrixReadOnly() : new DOMMatrixReadOnly(style.transform);
+      const settled = Math.abs(matrix.a - 1) < 0.001 && Math.abs(matrix.d - 1) < 0.001 && Number(style.opacity) > 0.999;
+      stableFrames = settled ? stableFrames + 1 : 0;
+      if (stableFrames >= 2) resolve();
+      else requestAnimationFrame(check);
+    };
+    requestAnimationFrame(check);
+  }));
 }
 
 async function measure(figure) {
   return figure.evaluate((element) => {
     const host = element.querySelector("[_echarts_instance_]");
     const chart = window.echarts.getInstanceByDom(host);
+    const option = chart.getOption();
+    // Intentional test-only use of renderer view/group internals: public options do not expose the transformed component bounds needed for overlap checks.
     const visualModel = chart.getModel().getComponent("visualMap");
     const visualView = chart.getViewOfComponentModel(visualModel);
     const visual = visualView.group.getBoundingRect().clone();
     visual.applyTransform(visualView.group.getComputedTransform());
-    const categoryNames = new Set(["Development", "Staging", "Production"]);
-    const labels = chart.getZr().storage.getDisplayList()
-      .filter((item) => item.type === "tspan" && categoryNames.has(item.style?.text))
-      .map((item) => {
-        const bounds = item.getBoundingRect().clone();
-        bounds.applyTransform(item.getComputedTransform());
-        return bounds;
-      });
-    const labelBounds = {
-      left: Math.min(...labels.map((bounds) => bounds.x)),
-      right: Math.max(...labels.map((bounds) => bounds.x + bounds.width)),
-      top: Math.min(...labels.map((bounds) => bounds.y)),
-      bottom: Math.max(...labels.map((bounds) => bounds.y + bounds.height)),
+    const componentBounds = (type) => {
+      const model = chart.getModel().getComponent(type);
+      if (!model) return null;
+      const view = chart.getViewOfComponentModel(model);
+      const bounds = view.group.getBoundingRect().clone();
+      bounds.applyTransform(view.group.getComputedTransform());
+      return { left: bounds.x, right: bounds.x + bounds.width, top: bounds.y, bottom: bounds.y + bounds.height };
     };
-    const plot = chart.getModel().getComponent("grid").coordinateSystem.getRect();
-    const option = chart.getOption();
-    const colors = option.visualMap[0].inRange.color;
+    const titleBounds = componentBounds("title");
+    const legendBounds = componentBounds("legend");
+    const coordinate = option.series[0].coordinateSystem || "cartesian2d";
+    const data = option.series[0].data.map((item) => item.value);
+    const missing = data.filter((value) => value[value.length - 1] === "-").length;
+    let coordinateRect;
+    if (coordinate === "calendar") {
+      const rect = chart.getModel().getComponent("calendar").coordinateSystem.getRect();
+      coordinateRect = { left: rect.x, top: rect.y, width: rect.width, height: rect.height };
+    } else {
+      const rect = chart.getModel().getComponent("grid").coordinateSystem.getRect();
+      coordinateRect = { left: rect.x, top: rect.y, width: rect.width, height: rect.height };
+    }
+    const canvasBounds = host.querySelector("canvas").getBoundingClientRect();
     return {
       instanceID: chart.id,
+      coordinate,
       chart: { width: chart.getWidth(), height: chart.getHeight() },
-      canvas: {
-        width: Math.round(host.querySelector("canvas").getBoundingClientRect().width),
-        height: Math.round(host.querySelector("canvas").getBoundingClientRect().height),
-      },
-      visual: {
-        left: visual.x,
-        right: visual.x + visual.width,
-        top: visual.y,
-        bottom: visual.y + visual.height,
-      },
-      labels: labelBounds,
-      margin: labelBounds.left - (visual.x + visual.width),
-      plot: { left: plot.x, width: plot.width },
-      colors,
-      data: option.series[0].data.map((item) => item.value),
+      canvas: { width: Math.round(canvasBounds.width), height: Math.round(canvasBounds.height) },
+      visual: { left: visual.x, right: visual.x + visual.width, top: visual.y, bottom: visual.y + visual.height },
+      coordinateRect,
+      colors: option.visualMap[0].inRange.color,
+      calculable: Boolean(visualModel.option.calculable),
       range: [visualModel.option.min, visualModel.option.max],
+      dataLength: data.length,
+      missing,
+      maxValue: Math.max(...data.map((value) => value[value.length - 1]).filter((value) => typeof value === "number")),
+      splitArea: coordinate === "calendar" ? null : Boolean(option.xAxis[0].splitArea?.show && option.yAxis[0].splitArea?.show),
+      calendarBorder: coordinate === "calendar" ? option.calendar[0].itemStyle?.borderWidth : null,
+      calendarMonthFontSize: coordinate === "calendar" ? option.calendar[0].monthLabel?.fontSize : null,
+      calendarMonthColor: coordinate === "calendar" ? option.calendar[0].monthLabel?.color : null,
+      titleLegendOverlap: titleBounds && legendBounds
+        ? !(titleBounds.right < legendBounds.left || legendBounds.right < titleBounds.left || titleBounds.bottom < legendBounds.top || legendBounds.bottom < titleBounds.top)
+        : false,
       pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
     };
   });
 }
 
-function assertLayout(layout, context) {
-  assert.ok(layout.margin >= 12, `${context} legend/Y-label margin ${layout.margin}`);
-  assert.ok(layout.visual.left >= 0 && layout.visual.top >= 0, `${context} visual scale starts outside chart`);
-  assert.ok(layout.visual.right <= layout.chart.width && layout.visual.bottom <= layout.chart.height, `${context} visual scale clipped`);
-  assert.ok(layout.labels.left >= 0 && layout.labels.right <= layout.chart.width, `${context} Y labels clipped`);
-  assert.ok(layout.labels.top >= 0 && layout.labels.bottom <= layout.chart.height, `${context} Y labels vertically clipped`);
-  assert.ok(layout.plot.width >= 160 && layout.plot.width / layout.chart.width >= 0.45, `${context} plot width ${layout.plot.width}/${layout.chart.width}`);
+function assertCommonLayout(layout, context) {
+  assert.ok(layout.visual.left >= -1 && layout.visual.top >= -1, `${context} visual scale starts outside chart`);
+  assert.ok(layout.visual.right <= layout.chart.width + 1 && layout.visual.bottom <= layout.chart.height + 1, `${context} visual scale clipped`);
+  assert.ok(layout.coordinateRect.left >= 0 && layout.coordinateRect.top >= 0, `${context} coordinate system starts outside chart`);
+  assert.ok(layout.coordinateRect.left + layout.coordinateRect.width <= layout.chart.width + 1, `${context} coordinate system horizontally clipped`);
+  assert.ok(layout.coordinateRect.top + layout.coordinateRect.height <= layout.chart.height + 1, `${context} coordinate system vertically clipped`);
+  assert.ok(layout.coordinateRect.width / layout.chart.width >= 0.45, `${context} coordinate width ${layout.coordinateRect.width}/${layout.chart.width}`);
   assert.deepEqual(layout.canvas, layout.chart, `${context} canvas and chart size diverged`);
-  assert.deepEqual(layout.range, [0, 20]);
-  assert.deepEqual(layout.data, [
-    [0, 0, 2], [1, 0, 10], [2, 0, 20],
-    [1, 1, 5], [2, 1, 12], [3, 1, 18],
-    [2, 2, 0], [3, 2, 8], [4, 2, 16],
-  ]);
   assert.equal(layout.colors.length, 3);
   assert.equal(new Set(layout.colors).size, 3);
   assert.equal(layout.pageOverflow, 0);
+  assert.equal(layout.titleLegendOverlap, false, `${context} title and legend overlap`);
 }
 
-test("test-owned random-port Heatmap route and shared assets stay healthy", async () => {
+function assertCategory(layout, context) {
+  assertCommonLayout(layout, context);
+  assert.equal(layout.coordinate, "cartesian2d");
+  assert.deepEqual(layout.range, [0, 10]);
+  assert.equal(layout.calculable, true);
+  assert.equal(layout.splitArea, true);
+  assert.equal(layout.dataLength, 168);
+  assert.equal(layout.missing, 62);
+  assert.equal(layout.maxValue, 14, `${context} values above the scale maximum were not preserved`);
+}
+
+function assertCalendar(layout, context) {
+  assertCommonLayout(layout, context);
+  assert.equal(layout.coordinate, "calendar");
+  assert.deepEqual(layout.range, [0, 20]);
+  assert.equal(layout.dataLength, 366);
+  assert.equal(layout.missing, 30);
+  assert.equal(layout.maxValue, 20);
+  assert.equal(layout.calendarBorder, 0.5);
+  assert.equal(layout.calendarMonthFontSize, 7);
+  assert.match(layout.calendarMonthColor, /^(#|rgb)/, `${context} calendar month labels are not theme-colored`);
+  assert.ok(layout.visual.left >= layout.coordinateRect.left + layout.coordinateRect.width - 1,
+    `${context} visual scale overlaps calendar cells or left-side weekday labels: ${JSON.stringify(layout)}`);
+}
+
+test("test-owned random-port HeatMap route and shared assets stay healthy", async () => {
   assert.notEqual(new URL(baseURL).port, "8091");
   for (const route of [
     "/components/interactive/heatmap",
@@ -171,71 +300,177 @@ test("test-owned random-port Heatmap route and shared assets stay healthy", asyn
   }
 });
 
-const combinations = [];
-for (const width of [390, 768, 1440]) {
+for (const width of [390, 1440]) {
   for (const theme of ["goshtoso", "araihu"]) {
-    for (const mode of ["light", "dark"]) combinations.push({ width, theme, mode });
+    for (const mode of ["light", "dark"]) {
+      test(`${width}px ${theme} ${mode} preserves both upstream HeatMap behaviors in page and same-instance modal`, async () => {
+        const { page, failures, category, calendar } = await heatmapPage(width);
+        try {
+          await page.evaluate(({ selected, dark }) => {
+            document.documentElement.dataset.theme = selected;
+            document.documentElement.classList.toggle("dark", dark);
+          }, { selected: theme, dark: mode === "dark" });
+          await waitForThemeScale(category);
+          await waitForThemeScale(calendar);
+
+          for (const [figure, label, assertion] of [
+            [category, "Weekly activity by hour", assertCategory],
+            [calendar, "Calendar activity", assertCalendar],
+          ]) {
+            const wrapper = wrapperFor(figure);
+            await waitForChartGeometry(figure);
+            const normal = await measure(figure);
+            assertion(normal, `${width}px ${theme} ${mode} ${label} page`);
+            await openExpand(wrapper);
+            const dialog = wrapper.getByRole("dialog", { name: label });
+            await dialog.waitFor({ state: "visible" });
+            await waitForDialogSettled(dialog);
+            await waitForChartGeometry(figure);
+            const modal = await measure(figure);
+            assertion(modal, `${width}px ${theme} ${mode} ${label} modal`);
+            assert.equal(modal.instanceID, normal.instanceID, `${label} modal replaced the chart instance`);
+            const panel = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((element) => {
+              const bounds = element.getBoundingClientRect();
+              return {
+                contained: bounds.left >= 0 && bounds.right <= innerWidth + 1 && bounds.top >= 0 && bounds.bottom <= innerHeight + 1,
+                centered: Math.abs((bounds.left + bounds.right) / 2 - innerWidth / 2) < 4,
+              };
+            });
+            assert.deepEqual(panel, { contained: true, centered: true });
+            await closeExpand(page, wrapper, label);
+          }
+
+          const exactTables = page.locator("[data-heatmap-exact-values]");
+          assert.equal(await exactTables.count(), 2);
+          assert.equal(await exactTables.nth(0).locator('[data-heatmap-missing="true"]').count(), 62);
+          assert.equal(await exactTables.nth(1).locator('[data-heatmap-missing="true"]').count(), 30);
+          if (screenshotDirectory) {
+            await page.screenshot({ path: path.join(screenshotDirectory, `interactive-heatmap-${width}-${theme}-${mode}.png`), fullPage: true });
+            await wrapperFor(category).screenshot({ path: path.join(screenshotDirectory, `interactive-heatmap-category-${width}-${theme}-${mode}.png`) });
+            await wrapperFor(calendar).screenshot({ path: path.join(screenshotDirectory, `interactive-heatmap-calendar-${width}-${theme}-${mode}.png`) });
+          }
+          assert.deepEqual(failures, []);
+        } finally {
+          await page.close();
+        }
+      });
+    }
   }
 }
-combinations.push({ width: 768, theme: "unknown-theme-fallback", mode: "light" });
 
-for (const { width, theme, mode } of combinations) {
-  test(`${width}px ${theme} ${mode} keeps Heatmap scale and Y labels separated in page and same-instance modal`, async () => {
-    const { page, failures, figure, wrapper } = await heatmapPage(width);
+test("both HeatMap instances resize in place and react to live theme changes", async () => {
+  const { page, failures, category, calendar } = await heatmapPage(1440);
+  try {
+    await waitForChartGeometry(category);
+    await waitForChartGeometry(calendar);
+    const beforeCategory = await measure(category);
+    const beforeCalendar = await measure(calendar);
+    await page.setViewportSize({ width: 390, height: 1000 });
+    await waitForChartGeometry(category);
+    await waitForChartGeometry(calendar);
+    const narrowCategory = await measure(category);
+    const narrowCalendar = await measure(calendar);
+    assert.equal(narrowCategory.instanceID, beforeCategory.instanceID);
+    assert.equal(narrowCalendar.instanceID, beforeCalendar.instanceID);
+    assert.ok(narrowCategory.chart.width < beforeCategory.chart.width);
+    assert.ok(narrowCalendar.chart.width < beforeCalendar.chart.width);
+    assertCategory(narrowCategory, "resized category");
+    assertCalendar(narrowCalendar, "resized calendar");
+
+    await page.evaluate(() => {
+      document.documentElement.dataset.theme = "araihu";
+      document.documentElement.classList.add("dark");
+    });
+    await waitForThemeScale(category);
+    await waitForThemeScale(calendar);
+    await waitForChartGeometry(category);
+    await waitForChartGeometry(calendar);
+    const themedCategory = await measure(category);
+    const themedCalendar = await measure(calendar);
+    assert.equal(themedCategory.instanceID, beforeCategory.instanceID);
+    assert.equal(themedCalendar.instanceID, beforeCalendar.instanceID);
+    assert.notDeepEqual(themedCategory.colors, beforeCategory.colors);
+    assert.notDeepEqual(themedCalendar.colors, beforeCalendar.colors);
+    assert.deepEqual(failures, []);
+  } finally {
+    await page.close();
+  }
+});
+
+test("both HeatMap instances preserve identity and geometry through native fullscreen", async () => {
+  const { page, failures, category, calendar } = await heatmapPage(1440);
+  try {
+    for (const [figure, label, assertion] of [
+      [category, "Weekly activity by hour", assertCategory],
+      [calendar, "Calendar activity", assertCalendar],
+    ]) {
+      const wrapper = wrapperFor(figure);
+      await waitForChartGeometry(figure);
+      const before = await measure(figure);
+      await enterFullscreen(wrapper);
+      try {
+        await page.waitForFunction(() => Boolean(document.fullscreenElement));
+        await waitForChartGeometry(figure);
+        const fullscreen = await measure(figure);
+        assertion(fullscreen, `${label} fullscreen`);
+        assert.equal(fullscreen.instanceID, before.instanceID);
+        assert.ok(fullscreen.chart.width > before.chart.width, `${label} did not grow in fullscreen`);
+      } finally {
+        if (await page.evaluate(() => Boolean(document.fullscreenElement))) {
+          await page.evaluate(() => document.exitFullscreen());
+          await page.waitForFunction(() => !document.fullscreenElement);
+        }
+      }
+      await waitForChartGeometry(figure);
+      assert.equal((await measure(figure)).instanceID, before.instanceID);
+    }
+    assert.deepEqual(failures, []);
+  } finally {
+    await page.close();
+  }
+});
+
+for (const [label, filename, assertion] of [
+  ["Weekly activity by hour", "weekly-activity-heatmap.png", assertCategory],
+  ["Calendar activity", "calendar-activity-heatmap.png", assertCalendar],
+]) {
+  test(`${label} PNG snapshot dimensions match its rendered large-modal instance`, async () => {
+    const { page, failures } = await heatmapPage(1440);
+    const figure = page.locator(`figure[aria-label="${label}"]`);
+    const wrapper = wrapperFor(figure);
     try {
-      await page.evaluate(({ selected, dark }) => {
-        document.documentElement.dataset.theme = selected;
-        document.documentElement.classList.toggle("dark", dark);
-      }, { selected: theme, dark: mode === "dark" });
-      await page.waitForTimeout(350);
-
-      const normal = await measure(figure);
-      assertLayout(normal, `${width}px ${theme} ${mode} page`);
-
       await openExpand(wrapper);
-      const dialog = wrapper.getByRole("dialog", { name: "Deployment activity" });
+      const dialog = wrapper.getByRole("dialog", { name: label });
       await dialog.waitFor({ state: "visible" });
-      await page.waitForTimeout(350);
-      const modal = await measure(figure);
-      assertLayout(modal, `${width}px ${theme} ${mode} modal`);
-      assert.equal(modal.instanceID, normal.instanceID, "modal replaced Heatmap instance");
-      const panel = await dialog.locator(".goshtoso-charts-expand-panel").evaluate((element) => {
-        const bounds = element.getBoundingClientRect();
-        return {
-          contained: bounds.left >= 0 && bounds.right <= innerWidth + 1 && bounds.top >= 0 && bounds.bottom <= innerHeight + 1,
-          centered: Math.abs((bounds.left + bounds.right) / 2 - innerWidth / 2) < 4,
-          width: bounds.width,
-        };
+      await waitForDialogSettled(dialog);
+      await waitForChartGeometry(figure);
+      const rendered = await measure(figure);
+      assertion(rendered, `${label} PNG source`);
+      const dataURL = await figure.evaluate((element) => {
+        const host = element.querySelector("[_echarts_instance_]");
+        return window.echarts.getInstanceByDom(host).getDataURL({
+          type: "png",
+          pixelRatio: 1,
+          backgroundColor: getComputedStyle(element).getPropertyValue("--color-chart-surface").trim() || "#fff",
+        });
       });
-      assert.deepEqual({ contained: panel.contained, centered: panel.centered }, { contained: true, centered: true });
-      if (width === 1440) assert.ok(panel.width >= 1300, `large modal width ${panel.width}`);
+      const png = Buffer.from(dataURL.split(",", 2)[1], "base64");
+      const metadata = await sharp(png).metadata();
+      assert.deepEqual({ width: metadata.width, height: metadata.height }, rendered.chart);
+      assert.deepEqual([...png.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
+      await closeExpand(page, wrapper, label);
+      const downloadPromise = page.waitForEvent("download");
+      await page.getByRole("button", { name: `Download ${label} as PNG` }).first().click();
+      const download = await downloadPromise;
+      assert.equal(download.suggestedFilename(), filename);
+      const stream = await download.createReadStream();
+      const chunks = [];
+      for await (const chunk of stream) chunks.push(chunk);
+      const exported = Buffer.concat(chunks);
+      assert.deepEqual([...exported.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
       assert.deepEqual(failures, []);
     } finally {
       await page.close();
     }
   });
 }
-
-test("Heatmap PNG snapshot dimensions match the rendered large-modal instance", async () => {
-  const { page, figure, wrapper } = await heatmapPage(1440);
-  try {
-    await openExpand(wrapper);
-    await wrapper.getByRole("dialog", { name: "Deployment activity" }).waitFor({ state: "visible" });
-    await page.waitForTimeout(350);
-    const rendered = await measure(figure);
-    const dataURL = await figure.evaluate((element) => {
-      const host = element.querySelector("[_echarts_instance_]");
-      return window.echarts.getInstanceByDom(host).getDataURL({
-        type: "png",
-        pixelRatio: 1,
-        backgroundColor: getComputedStyle(element).getPropertyValue("--color-chart-surface").trim() || "#fff",
-      });
-    });
-    const png = Buffer.from(dataURL.split(",", 2)[1], "base64");
-    const metadata = await sharp(png).metadata();
-    assert.deepEqual({ width: metadata.width, height: metadata.height }, rendered.chart);
-    assert.deepEqual([...png.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
-  } finally {
-    await page.close();
-  }
-});

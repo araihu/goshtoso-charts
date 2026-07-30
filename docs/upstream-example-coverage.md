@@ -231,6 +231,56 @@ private. Theme tokens, caller stage colors or classes, shared lifecycle
 controls, adjacent exact-value evidence, and SVG or PNG export provide the
 supported equivalents.
 
+## Static/vector Heat map
+
+- Source repository: `github.com/go-analyze/charts`
+- Revision: `1fe31b06b8a82e00df877ff4417a75858547c1c2`
+- Status: exactly one dedicated HeatMap-family file exists at this revision.
+  Its one distinct upstream treatment is covered by the renderer-neutral
+  `heatmap.HeatMap` component: the exact five-by-five matrix, centered title,
+  named axes, sequential value scale, and 600x400 presentation.
+
+| Upstream example | SHA-256 | Goshtoso coverage | Adaptation note |
+| --- | --- | --- | --- |
+| `examples/1-Painter/heat_map-1-basic/main.go` | `c39a3d85a0df126da5d099a60e1491ae424d0768260ee738b7932288f1bf687f` | Basic five-by-five matrix | Preserves all twenty-five values, row order, column order, title, X/Y titles, and 600x400 geometry. Theme-aware cold-to-warm tokens replace the fixed single-hue rendering while retaining the upstream sequential-scale intent. |
+
+Every function, helper, and chart-relevant subspan in the pinned file is
+inventoried below. Hashes cover exact source bytes at the pinned revision.
+The filesystem helper is recorded but does not count as chart behavior.
+
+| Source span | Lines | SHA-256 | Role |
+| --- | --- | --- | --- |
+| `writeFile` | 14-22 | `4582ad5f11c031d2b70604df82f08d30ff21d977b6affb87bf0ade5eb7ae88ce` | Filesystem output helper; no chart behavior. |
+| `main` | 24-51 | `227e252486af0ec1e89a2c6920253c42bc26ff2f0366907409ca9af320319fd9` | Five-by-five data, centered title, named axes, and 600x400 presentation. |
+| Matrix literal | 25-31 | `85c0b5b518e8d8d8689b6579e1377224dba3f87f844e69a685203740d59e4705` | Exact twenty-five-value matrix. |
+| Chart options | 33-37 | `44f2aeb070244f692526b134d79f35d364f4cf588dc30cb044d2d8f10f635182` | Data binding, centered title, and X/Y axis titles. |
+| Painter and output | 39-50 | `a593149de21fcd6622c896759f082626f4557d2c3fb7d158a350d8bd15b4bea7` | 600x400 PNG rendering and filesystem delivery. |
+
+The second documentation preview deliberately reuses the same pinned matrix as
+a caller-style override of title, axis, padding, value-label, and gradient
+options. It is not counted as a second upstream example or behavior.
+
+Relevant HeatMap-specific finite presentation API evidence at the same revision
+is pinned separately:
+
+| Upstream API source | SHA-256 | Renderer-neutral coverage |
+| --- | --- | --- |
+| `heat_map.go` | `dd9b80660b9e0c0b11e5ec9ef00f5f10005a7edc1061da08f928cea15324b23c` | Complete matrices, sequential scale bounds, theme-aware gradient, padding, title, categorical axes, and value-label options. |
+| `series_label.go` | `d7b176bea3679542e878c4c5703db3711d1e258b64efb7d19614a16fc5722611` | Visible labels, safe exact, integer, and humanized value formats, font size, distance, and offset. |
+| `title.go` | `e85f6a0fe2e8fd7c253ac226d780164beb0cc7214e94979241d1e9fbce824b26` | Visibility, subtext, logical placement, font sizes, and border width. |
+| `axis.go` | `72d8ed4c1253122a3ac49e76fbf00ff905a75aff26bcc9e4b6aea48325372a07` | Title and label font sizes, degree-based rotation, label count, and count adjustment. |
+| `chart_option.go` | `0b298fcd45fab6bbe476514d90e5107d65d32bd8ba985f2411e79ec88fd2b858` | Generic option-function construction remains private because no dedicated HeatMap option-function example exists. |
+| `painter.go` | `f4ac102e9b21623765e2fdfe4c0910a03265bc751b9f5d019ae41e80611be959` | SVG rendering, dimensions, PNG encoding, and filesystem delivery remain private implementation details. |
+
+Unsupported dedicated HeatMap-family behaviors: none. Every behavior in the
+one dedicated file maps to typed renderer-neutral configuration. Ragged and
+empty matrices are not dedicated example behaviors and remain outside the
+component contract because its adjacent exact-value table requires a complete
+matrix. Arbitrary label callbacks, raw theme, painter, output-encoder, and
+generic option-function types remain private. Safe built-in formats, chart
+tokens, caller gradient stops, shared lifecycle controls, exact tables, and SVG
+or PNG export provide supported equivalents.
+
 ## Static/vector Line
 
 - Source repository: `github.com/go-analyze/charts`
@@ -523,3 +573,49 @@ caller or value ordering, title, labels and left placement, responsive sizing,
 theme colors, exact-value disclosure, controls, PNG export, resize, and wrapper
 lifecycle are typed and renderer-neutral. The upstream page renderer remains
 outside the public chart API because consumers own page layout.
+
+## Interactive HeatMap
+
+- Source repository: `github.com/go-echarts/examples`
+- Source file: `examples/heatmap.go`
+- Revision: `bda428480a82d6d77ebb9fa939cf8d52528453dd`
+- Source SHA-256: `c08b194eafa5e02e941ad91f7ff8402448bc77b407cc97903b19063d06dd6f14`
+- Status: both dedicated behavior functions are covered by the one
+  renderer-neutral `interactive.HeatMap` component.
+- Deterministic adaptation: the Cartesian grid preserves all 168 source cells,
+  seven weekday labels, twenty-four hour labels, ordering, and explicit missing
+  cells. Calendar generation uses a local seed-1 sequence over the same 366-day
+  span and `[0,21)` value domain; zero outcomes remain explicit missing cells.
+  Fixed source colors become theme-aware cold, middle, and warm scale tokens.
+- Responsive adaptation: the source's fixed 20-pixel calendar cells become
+  automatic cells in the documentation example so the complete year remains
+  contained at narrow and wide consumer widths. The public calendar option
+  retains typed fixed cell sizing when a consumer provides enough space.
+
+| Upstream behavior function | Coverage | Goshtoso Charts treatment |
+| --- | --- | --- |
+| `heatMapBase` | Example | Exact 24-by-7 category grid, split areas, calculable 0–10 scale, and explicit no-data cells |
+| `heatMapCalendar` | Example | Deterministic 366-day calendar, horizontal layout, positioned bounds, cell borders, 0–20 scale, and explicit no-data days |
+
+Every declared data source, helper, function, type, and method in the pinned file
+is inventoried below. Span hashes cover exact source text at the pinned revision.
+
+| Exact source span | Lines | SHA-256 | Role and coverage |
+| --- | --- | --- | --- |
+| `hmData` | 15–44 | `4e16c58885e24812b235c9adb709b6357b4dfa62765a448b306b94f1b50f6774` | Exact 168-cell Cartesian dataset; zero source values preserve the source helper's explicit no-data treatment. |
+| `weekDays` | 46 | `f2105456e595925b61ad3e74deea94a9ca7532f0f70a6bf6a9ff72360e3620c3` | Exact seven labels and order. |
+| `dayHrs` | 48–51 | `abe6227a0d8c6fd7abb77b023bdd385d6ca46f8ea0a0c4623bbfff9db4895f8d` | Exact twenty-four labels and order. |
+| `genHeatMapData` | 54–64 | `c2e58d4394f9f3e352048d7f6e8863b71419ef26b97ac8dfc223d75328219bcb` | Cartesian coordinate swap and zero-to-missing transformation. |
+| `heatMapBase` | 66–93 | `56319619a561ed145f00ae74b66c0d9ad7403f5f5d508c4c1def0742f97f9218` | Basic category-grid example. |
+| `genHeatMapCalendarData` | 95–107 | `9f4cb439c4297c6cb550fa7680e6497390a024b47d8e8404dac75d1bf3ed96a8` | Ambient random calendar helper adapted to a fixed local seed. |
+| `heatMapCalendar` | 109–142 | `9ee96ab15abff25ed188f25eb885a215bcba6ac69a074c5e21a0280ef32db596` | Calendar-coordinate example. |
+| `HeatmapExamples` | 144 | `bdb7c3f6f5387d8c8ec512b899e7853b7572ff96c04d9ddcbe640d42b2c7b702` | Page-group marker only. |
+| `HeatmapExamples.Examples` | 146–158 | `aebfa38bdcaaeb0b9e27457f83e925c7b42d65e3fd6352f99fe318e1cae7d286` | Page composition only; preserves the two-example order without entering the component API. |
+
+Unsupported dedicated HeatMap behaviors: none. Category and calendar
+coordinates, missing observations distinct from zero, split areas, calculable
+continuous scales, theme-aware cold-to-warm colors, calendar placement,
+orientation, cell size and borders, responsive sizing, exact-value disclosure,
+controls, PNG export, resize, and wrapper lifecycle are typed and
+renderer-neutral. The upstream page renderer remains outside the public chart
+API because consumers own page layout.

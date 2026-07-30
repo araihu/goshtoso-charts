@@ -232,6 +232,43 @@ func TestInteractiveFunnelCoverageUsesCanonicalLedgerWithoutLostEntries(t *testi
 	}
 }
 
+func TestInteractiveHeatMapCoverageUsesCanonicalLedgerWithoutLostEntries(t *testing.T) {
+	t.Parallel()
+	data, err := os.ReadFile("../../../docs/upstream-example-coverage.md")
+	if err != nil {
+		t.Fatalf("read canonical upstream coverage ledger: %v", err)
+	}
+	section := canonicalLedgerSection(t, string(data), "## Interactive HeatMap")
+	for _, want := range []string{
+		interactiveHeatMapUpstreamPath, interactiveHeatMapUpstreamRevision, interactiveHeatMapUpstreamSHA256,
+		"both dedicated behavior functions", "all 168 source cells", "366-day", "local seed-1 sequence",
+		"Unsupported dedicated HeatMap behaviors: none",
+	} {
+		if !strings.Contains(section, want) {
+			t.Errorf("canonical ledger missing interactive HeatMap evidence %q", want)
+		}
+	}
+	for _, span := range interactiveHeatMapUpstreamInventory {
+		if count := strings.Count(section, "`"+span.SHA256+"`"); count != 1 {
+			t.Errorf("interactive HeatMap source hash %q occurs %d times, want 1", span.SHA256, count)
+		}
+		var nameFound, pairFound bool
+		for _, row := range strings.Split(section, "\n") {
+			if strings.Contains(row, "| `"+span.Name+"` |") {
+				nameFound = true
+				if strings.Contains(row, "`"+span.SHA256+"`") {
+					pairFound = true
+				}
+			}
+		}
+		if !nameFound {
+			t.Errorf("interactive HeatMap source name %q missing", span.Name)
+		} else if !pairFound {
+			t.Errorf("interactive HeatMap source %q has no row containing hash %q", span.Name, span.SHA256)
+		}
+	}
+}
+
 func canonicalLedgerSection(t *testing.T, document, heading string) string {
 	t.Helper()
 	start := strings.Index(document, heading)

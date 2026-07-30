@@ -175,6 +175,19 @@ type CalendarOptions struct {
 	Height   string
 	CellSize string
 	Orient   string
+	// CellStyle controls calendar-cell borders and fill without exposing renderer types.
+	CellStyle  *ItemStyle
+	DayLabel   *CalendarLabelOptions
+	MonthLabel *CalendarLabelOptions
+	YearLabel  *CalendarLabelOptions
+}
+
+// CalendarLabelOptions configures day, month, or year labels around a calendar.
+type CalendarLabelOptions struct {
+	Show     *bool
+	Margin   float64
+	Position string
+	FontSize int
 }
 
 // Bool returns a pointer for renderer-neutral tri-state boolean options.
@@ -470,8 +483,27 @@ func rendererYAxis(value *AxisOptions) opts.YAxis {
 }
 
 func rendererCalendar(value CalendarOptions) opts.Calendar {
-	return opts.Calendar{
+	result := opts.Calendar{
 		Left: value.Left, Right: value.Right, Top: value.Top, Bottom: value.Bottom,
 		Width: value.Width, Height: value.Height, CellSize: value.CellSize, Orient: value.Orient,
 	}
+	if value.CellStyle != nil {
+		style := rendererItemStyle(value.CellStyle)
+		result.ItemStyle = &style
+	}
+	result.DayLabel = rendererCalendarLabel(value.DayLabel)
+	result.MonthLabel = rendererCalendarLabel(value.MonthLabel)
+	result.YearLabel = rendererCalendarLabel(value.YearLabel)
+	return result
+}
+
+func rendererCalendarLabel(value *CalendarLabelOptions) *opts.CalendarLabel {
+	if value == nil {
+		return nil
+	}
+	result := &opts.CalendarLabel{Margin: value.Margin, Position: value.Position, FontSize: value.FontSize}
+	if value.Show != nil {
+		result.Show = opts.Bool(*value.Show)
+	}
+	return result
 }

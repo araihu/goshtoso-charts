@@ -535,6 +535,19 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 						: surfaceAlt);
 				return { itemStyle: Object.assign({}, geo.itemStyle || {}, { areaColor: areaColor, borderColor: outline }) };
 			});
+			var themedCalendars = (current.calendar || []).map(function (calendar) {
+				var calendarItemStyle = calendar.itemStyle || {};
+				return {
+					itemStyle: Object.assign({}, calendarItemStyle, {
+						color: calendarItemStyle.color ? rendererColor(calendarItemStyle.color, surfaceAlt) : surfaceAlt,
+						borderColor: calendarItemStyle.borderColor ? rendererColor(calendarItemStyle.borderColor, outline) : outline
+					}),
+					splitLine: { lineStyle: { color: outline } },
+					dayLabel: Object.assign({}, calendar.dayLabel || {}, { color: muted }),
+					monthLabel: Object.assign({}, calendar.monthLabel || {}, { color: muted }),
+					yearLabel: Object.assign({}, calendar.yearLabel || {}, { color: text })
+				};
+			});
 			var themed = {
         backgroundColor: surface,
         textStyle: { color: text },
@@ -551,6 +564,7 @@ const themeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 		parallelAxis: repeat(current.parallelAxis, axis),
         radar: repeat(current.radar, radar),
         geo: themedGeo,
+				calendar: themedCalendars,
         visualMap: themedVisualMaps,
         tooltip: repeat(current.tooltip, {
           backgroundColor: surfaceAlt,
