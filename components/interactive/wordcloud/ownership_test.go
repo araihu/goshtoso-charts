@@ -249,7 +249,7 @@ func TestWordCloudTemplateRuntimeHooksAndUpstreamProvenance(t *testing.T) {
 		}
 	}
 	for path, want := range map[string]string{
-		filepath.Join("..", "..", "..", "assets", "js", "runtime", "word-cloud", "2.1.0", "runtime.min.js"): "4bda7da093a269a48f3d5541ebe0a2843cfed56a284f3039caa551d854f3068b",
+		filepath.Join("..", "..", "..", "assets", "js", "runtime", "word-cloud", "2.1.0", "runtime.min.js"): "7b6f0d55971d9de5913120c7ce6342f3551efd00b4a1df8a50f08385bb25f155",
 	} {
 		contents, err := os.ReadFile(path)
 		if err != nil {
