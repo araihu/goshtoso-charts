@@ -518,6 +518,7 @@ lock and regenerate them explicitly:
 
 ```bash
 go tool muamba lock --strict
+go tool muamba sync --strict
 go tool muamba generate-go --strict --dir assets --output muamba_gen.go
 ```
 
