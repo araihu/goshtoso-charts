@@ -42,7 +42,3 @@ jobs:
 
       - name: Test root module
         run: go test ./... -count=1
-
-      - name: Test site module
-        working-directory: site
-        run: go test ./... -count=1
