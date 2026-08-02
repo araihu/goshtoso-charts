@@ -1,5 +1,9 @@
 # Interactive runtime notice
 
+All third-party runtime and legal files listed below are acquired from the
+pinned HTTPS sources in `muamba.yaml`, locked with SHA-384, and embedded by the
+generated `assets/muamba_gen.go` inventory.
+
 Goshtoso Charts embeds Apache ECharts 5.6.0 for interactive charts. The local
 file is the official npm `echarts@5.6.0` distribution and is licensed under
 Apache-2.0.
@@ -28,13 +32,12 @@ declares the ISC license; its bundled `wordcloud2.js` code carries an MIT
 license notice.
 
 - Local path: `js/runtime/word-cloud/2.1.0/runtime.min.js`
-- Local SHA-256: `4bda7da093a269a48f3d5541ebe0a2843cfed56a284f3039caa551d854f3068b`
-- Local SHA-384 SRI: `sha384-LlxaHZfP53fZT+lrIPNI4Mpi7tiscM7orbp47yM6l26/RQMcaB9HbAkoldIpQ6Ws`
-- CDN SHA-256: `7b6f0d55971d9de5913120c7ce6342f3551efd00b4a1df8a50f08385bb25f155`
-- CDN SHA-384 SRI: `sha384-U1KEY0DDCF4Dq6Yx1J+EZ5Hnj8X5bMn52OAcJB8C4OiAWeU4iJhJ/Tv5KhTqu8zZ`
+- Bundled MIT notice: `js/runtime/word-cloud/2.1.0/LICENSE.txt`
+- Local/CDN SHA-256: `7b6f0d55971d9de5913120c7ce6342f3551efd00b4a1df8a50f08385bb25f155`
+- Local/CDN SHA-384 SRI: `sha384-U1KEY0DDCF4Dq6Yx1J+EZ5Hnj8X5bMn52OAcJB8C4OiAWeU4iJhJ/Tv5KhTqu8zZ`
 - Release source: `https://github.com/ecomfe/echarts-wordcloud/tree/2.1.0`
 - Published package: `https://www.npmjs.com/package/echarts-wordcloud/v/2.1.0`
-- Bundled MIT notice: `https://github.com/ecomfe/echarts-wordcloud/blob/2.1.0/dist/echarts-wordcloud.min.js.LICENSE.txt`
+- MIT notice source: `https://github.com/ecomfe/echarts-wordcloud/blob/2.1.0/dist/echarts-wordcloud.min.js.LICENSE.txt`
 
 ## Liquid-gauge extension
 

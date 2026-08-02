@@ -3,6 +3,8 @@ package assets
 
 import (
 	"embed"
+	"errors"
+	"io/fs"
 	"net/http"
 )
 
@@ -23,6 +25,8 @@ const (
 	RuntimeCDNIntegrity = "sha384-pPi0zxBAoDu6+JXW/C68UZLvBUUtU+7zonhif43rqj7pxsGyqyqzcian2Rj37Rss"
 	// WordCloudRuntimeURL is the versioned local word-cloud extension path.
 	WordCloudRuntimeURL = Prefix + "js/runtime/word-cloud/2.1.0/runtime.min.js"
+	// WordCloudLicenseURL is the bundled MIT license notice for the word-cloud extension.
+	WordCloudLicenseURL = Prefix + "js/runtime/word-cloud/2.1.0/LICENSE.txt"
 	// WordCloudRuntimeCDNURL is the pinned opt-in CDN source for the word-cloud extension.
 	WordCloudRuntimeCDNURL = "https://cdn.jsdelivr.net/npm/echarts-wordcloud@2.1.0/dist/echarts-wordcloud.min.js"
 	// WordCloudRuntimeCDNIntegrity authenticates bytes served by WordCloudRuntimeCDNURL.
@@ -53,11 +57,27 @@ const (
 	ControlRuntimeURL = Prefix + "js/controls/5/controls.js"
 )
 
-//go:embed js/runtime/echarts/5.6.0/* js/runtime/word-cloud/2.1.0/runtime.min.js js/runtime/liquid/3.1.0/runtime.min.js js/runtime/liquid/3.1.0/LICENSE.md js/runtime/three-d/2.0.9/runtime.min.js js/runtime/three-d/2.0.9/LICENSE js/maps/ibge-mmd-2025/* js/controls/1/controls.js js/controls/2/controls.js js/controls/3/controls.js js/controls/4/controls.js js/controls/5/controls.js
-var files embed.FS
+//go:embed js/maps/ibge-mmd-2025/* js/controls/1/controls.js js/controls/2/controls.js js/controls/3/controls.js js/controls/4/controls.js js/controls/5/controls.js
+var localFiles embed.FS
+
+type layeredFS []fs.FS
+
+func (layers layeredFS) Open(name string) (fs.File, error) {
+	for _, layer := range layers {
+		file, err := layer.Open(name)
+		if err == nil {
+			return file, nil
+		}
+		if !errors.Is(err, fs.ErrNotExist) {
+			return nil, err
+		}
+	}
+	return nil, fs.ErrNotExist
+}
 
 // Handler serves embedded assets at Prefix. Mount it directly at Prefix; the
 // handler removes that prefix itself.
 func Handler() http.Handler {
+	files := layeredFS{localFiles, muambaFiles}
 	return http.StripPrefix(Prefix, http.FileServer(http.FS(files)))
 }

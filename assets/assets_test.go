@@ -38,6 +38,45 @@ func TestHandlerServesVersionedRuntimeAtDefaultMount(t *testing.T) {
 	}
 }
 
+func TestVendoredRuntimeAcquisitionInventory(t *testing.T) {
+	t.Parallel()
+
+	wantDownloads := map[string][]string{
+		"echarts":            {"runtime", "license", "notice", "d3-license"},
+		"echarts-wordcloud":  {"runtime", "license-notice"},
+		"echarts-liquidfill": {"runtime", "license"},
+		"echarts-gl":         {"runtime", "license"},
+	}
+	resources := assets.MuambaResources()
+	if len(resources) != len(wantDownloads) {
+		t.Fatalf("MuambaResources() count = %d, want %d", len(resources), len(wantDownloads))
+	}
+	for resource, downloads := range wantDownloads {
+		locked, ok := assets.MuambaResourceByName(resource)
+		if !ok {
+			t.Errorf("MuambaResourceByName(%q) was not found", resource)
+			continue
+		}
+		if len(locked.Downloads) != len(downloads) {
+			t.Errorf("resource %q download count = %d, want %d", resource, len(locked.Downloads), len(downloads))
+		}
+		for _, download := range downloads {
+			hash, ok := assets.MuambaHash(resource, download)
+			if !ok || !strings.HasPrefix(hash, "sha384:") {
+				t.Errorf("MuambaHash(%q, %q) = %q, %t; want locked SHA-384", resource, download, hash, ok)
+			}
+			file, err := assets.MuambaOpen(resource, download)
+			if err != nil {
+				t.Errorf("MuambaOpen(%q, %q): %v", resource, download, err)
+				continue
+			}
+			if err := file.Close(); err != nil {
+				t.Errorf("close Muamba download %q/%q: %v", resource, download, err)
+			}
+		}
+	}
+}
+
 func TestHandlerServesPinnedRuntimeLegalFiles(t *testing.T) {
 	t.Parallel()
 
@@ -45,7 +84,7 @@ func TestHandlerServesPinnedRuntimeLegalFiles(t *testing.T) {
 		url, contains, sha256 string
 	}{
 		{assets.RuntimeLicenseURL, "Apache License", "634293835b43a6dd2094fa39182a3d9a6b9ca43b7fdb9ac354e8037af2a3093a"},
-		{assets.RuntimeNoticeURL, "Apache ECharts", "4dd56fd5a0ac348fb8cf5dc46d8ce0a7090fb1856ce39c5baa90e13f9ae356c1"},
+		{assets.RuntimeNoticeURL, "Apache ECharts", "fa99ac3af859d0e13166906dc53a73ad34a08898da7e8ae83407275496e9e30c"},
 		{assets.RuntimeD3LicenseURL, "Copyright 2010-2016 Mike Bostock", "e1211892da0b0e0585b7aebe8f98c1274fba15bafe47fa1f4ee8a7a502c06304"},
 	} {
 		recorder := httptest.NewRecorder()
@@ -148,6 +187,16 @@ func TestHandlerServesVersionedWordCloudRuntime(t *testing.T) {
 		if !strings.Contains(recorder.Body.String(), want) {
 			t.Errorf("word-cloud runtime missing %q", want)
 		}
+	}
+	const wantSHA256 = "7b6f0d55971d9de5913120c7ce6342f3551efd00b4a1df8a50f08385bb25f155"
+	if got := fmt.Sprintf("%x", sha256.Sum256(recorder.Body.Bytes())); got != wantSHA256 {
+		t.Fatalf("GET %s SHA-256 = %s, want %s", assets.WordCloudRuntimeURL, got, wantSHA256)
+	}
+
+	license := httptest.NewRecorder()
+	assets.Handler().ServeHTTP(license, httptest.NewRequest(http.MethodGet, assets.WordCloudLicenseURL, nil))
+	if license.Code != http.StatusOK || !strings.Contains(license.Body.String(), "Released under the MIT license") {
+		t.Fatalf("word-cloud license status/content = %d/%q", license.Code, license.Body.String())
 	}
 }
 

@@ -1,4 +1,5 @@
 /coverage.out
+/.cache/
 /dist/
 /site/node_modules/
 .DS_Store

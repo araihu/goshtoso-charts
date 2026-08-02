@@ -512,7 +512,20 @@ Delivery trade-offs and deferred broad checks live in the actionable
 [technical-debt ledger](docs/technical-debt.md). Review it after every two
 merged delivery lanes and before a release.
 
+Third-party browser runtimes and their legal files are declared once in
+`muamba.yaml`. To refresh the checked-in files after changing a version or URL,
+lock and regenerate them explicitly:
+
 ```bash
+go tool muamba lock --strict
+go tool muamba generate-go --strict --dir assets --output muamba_gen.go
+```
+
+Normal verification is offline and does not rewrite the lock:
+
+```bash
+go tool muamba verify --strict
+go tool muamba generate-go --strict --check --dir assets --output muamba_gen.go
 templ generate
 go test ./...
 git diff --exit-code
