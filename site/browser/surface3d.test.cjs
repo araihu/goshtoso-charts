@@ -241,7 +241,7 @@ test("closed heart mesh is solid, connected, accessible, and backed by WebGL", a
     assert.ok(cleft[2] - bottom[2] > 15);
     const xs = heart.values.map((point) => point[0]);
     const zs = heart.values.map((point) => point[2]);
-    assert.ok(Math.min(...xs) < -14.9 && Math.max(...xs) > 14.9);
+    assert.ok(Math.abs(Math.min(...xs) + 13.5) < 1e-10 && Math.abs(Math.max(...xs) - 13.5) < 1e-10);
     assert.ok(Math.min(...zs) < -15 && Math.max(...zs) > 10);
 
     const pending = page.waitForEvent("download");

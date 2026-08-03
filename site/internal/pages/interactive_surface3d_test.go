@@ -45,7 +45,7 @@ func TestInteractiveSurface3DSourcePinAndExactData(t *testing.T) {
 	if got := interactiveSurface3DDataHash(interactiveSurface3DRosePoints); got != wantRoseHash {
 		t.Fatalf("rose data hash = %s, want %s", got, wantRoseHash)
 	}
-	const wantHeartHash = "54bdc4db1027b9b8abd55867a6981458b9a857bbe074021f1f761af33245784b"
+	const wantHeartHash = "2d77e94a90650cb960391cc5f61322c8b344a6bd5c859042924b498f173b5fff"
 	if got := interactiveSurface3DDataHash(interactiveSurface3DHeartPoints); got != wantHeartHash {
 		t.Fatalf("heart data hash = %s, want %s", got, wantHeartHash)
 	}
@@ -97,5 +97,17 @@ func TestInteractiveSurface3DHeartHasRecognizableFrontSilhouette(t *testing.T) {
 	}
 	if cleft.Z-bottom.Z < 15 {
 		t.Fatalf("heart does not taper to a lower point: cleft=%#v bottom=%#v", cleft, bottom)
+	}
+}
+
+func TestInteractiveSurface3DHeartOuterWidthIsReducedTenPercent(t *testing.T) {
+	t.Parallel()
+	frontOutline := interactiveSurface3DHeartColumns / 2
+	right := interactiveSurface3DHeartPoints[(interactiveSurface3DHeartRows/4)*interactiveSurface3DHeartColumns+frontOutline]
+	left := interactiveSurface3DHeartPoints[(3*interactiveSurface3DHeartRows/4)*interactiveSurface3DHeartColumns+frontOutline]
+
+	const wantHalfWidth = 13.5
+	if math.Abs(right.X-wantHalfWidth) > 1e-10 || math.Abs(left.X+wantHalfWidth) > 1e-10 {
+		t.Fatalf("heart outer width = [%f, %f], want [%f, %f]", left.X, right.X, -wantHalfWidth, wantHalfWidth)
 	}
 }
