@@ -45,7 +45,7 @@ func TestInteractiveSurface3DSourcePinAndExactData(t *testing.T) {
 	if got := interactiveSurface3DDataHash(interactiveSurface3DRosePoints); got != wantRoseHash {
 		t.Fatalf("rose data hash = %s, want %s", got, wantRoseHash)
 	}
-	const wantHeartHash = "b10f5e63d9a28bf851af53037a2ff15ace35bb6f37a1652c1acc4fad2cfdc76d"
+	const wantHeartHash = "54bdc4db1027b9b8abd55867a6981458b9a857bbe074021f1f761af33245784b"
 	if got := interactiveSurface3DDataHash(interactiveSurface3DHeartPoints); got != wantHeartHash {
 		t.Fatalf("heart data hash = %s, want %s", got, wantHeartHash)
 	}
@@ -91,8 +91,9 @@ func TestInteractiveSurface3DHeartHasRecognizableFrontSilhouette(t *testing.T) {
 	if math.Abs(rightLobe.X+leftLobe.X) > 1e-10 || math.Abs(rightLobe.Z-leftLobe.Z) > 1e-10 {
 		t.Fatalf("heart upper lobes are not bilaterally symmetric: right=%#v left=%#v", rightLobe, leftLobe)
 	}
-	if rightLobe.Z-cleft.Z < 5 {
-		t.Fatalf("heart central cleft is not distinct: cleft=%#v lobe=%#v", cleft, rightLobe)
+	const wantCleftDepth = 4.678937306500523
+	if got := rightLobe.Z - cleft.Z; math.Abs(got-wantCleftDepth) > 0.01 {
+		t.Fatalf("heart central cleft depth = %f, want %f", got, wantCleftDepth)
 	}
 	if cleft.Z-bottom.Z < 15 {
 		t.Fatalf("heart does not taper to a lower point: cleft=%#v bottom=%#v", cleft, bottom)

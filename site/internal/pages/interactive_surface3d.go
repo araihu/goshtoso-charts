@@ -17,7 +17,7 @@ const (
 
 	interactiveSurface3DBaseFormula  = "y = i / 60, x = j / 60, z = sin(x × π) × sin(y × π), with i and j from -60 through 59"
 	interactiveSurface3DRoseFormula  = "y = i / 10, x = j / 10, z = sin(x² + y²) × x / π, with i and j from -30 through 29"
-	interactiveSurface3DHeartFormula = "θ ∈ [0, 2π], φ ∈ [0, π]; hx = 15 × sin³(θ); hz = 0.92 × (13cos(θ) − 5cos(2θ) − 2cos(3θ) − cos(4θ)); s = sin(φ); x = s × hx; y = 5.2 × cos(φ); z = −1.5 + s × (hz + 1.5)"
+	interactiveSurface3DHeartFormula = "θ ∈ [0, 2π], φ ∈ [0, π]; hx = 15 × sin³(θ); c = 0.56 × ((1 + cos(θ)) / 2)²⁴; hz = 0.92 × (13cos(θ) − 5cos(2θ) − 2cos(3θ) − cos(4θ)) + c; s = sin(φ); x = s × hx; y = 5.2 × cos(φ); z = −1.5 + s × (hz + 1.5)"
 	interactiveSurface3DHeartRows    = 49
 	interactiveSurface3DHeartColumns = 65
 )
@@ -65,7 +65,8 @@ func generateInteractiveSurface3DHeartPoints() []interactive.Point3D {
 	for row := 0; row < interactiveSurface3DHeartRows; row++ {
 		theta := 2 * math.Pi * float64(row) / float64(interactiveSurface3DHeartRows-1)
 		outlineX := 15 * math.Pow(math.Sin(theta), 3)
-		outlineZ := 0.92 * (13*math.Cos(theta) - 5*math.Cos(2*theta) - 2*math.Cos(3*theta) - math.Cos(4*theta))
+		cleftLift := 0.56 * math.Pow((1+math.Cos(theta))/2, 24)
+		outlineZ := 0.92*(13*math.Cos(theta)-5*math.Cos(2*theta)-2*math.Cos(3*theta)-math.Cos(4*theta)) + cleftLift
 		for column := 0; column < interactiveSurface3DHeartColumns; column++ {
 			phi := math.Pi * float64(column) / float64(interactiveSurface3DHeartColumns-1)
 			scale := math.Sin(phi)
