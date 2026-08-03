@@ -38,9 +38,36 @@ func TestSurface3DRendersTypedSurfaceAndDenseDataAccess(t *testing.T) {
 	if strings.Contains(markup, "<tbody") || strings.Count(markup, "<tr") != 0 {
 		t.Error("surface dense data injected table rows into initial DOM")
 	}
+	if strings.Contains(markup, `"dataShape"`) {
+		t.Error("legacy height-field series unexpectedly emitted mesh topology")
+	}
 	for _, unwanted := range []string{"go-echarts", "Apache ECharts", "echarts-gl", "echarts.dispose"} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("rendered markup contains %q", unwanted)
+		}
+	}
+}
+
+func TestSurface3DRendersOrderedMeshTopologyAndSolidSurface(t *testing.T) {
+	t.Parallel()
+	cfg := validSurface3DConfig()
+	cfg.VisualRange = nil
+	cfg.Series[0] = Surface3DSeries{
+		Name: "closed mesh",
+		Points: []Point3D{
+			{X: 0, Y: 0, Z: 1}, {X: 1, Y: 0, Z: 0}, {X: 0, Y: 0, Z: 1},
+			{X: 0, Y: 0, Z: -1}, {X: 1, Y: 0, Z: 0}, {X: 0, Y: 0, Z: -1},
+		},
+		Mesh:  &Surface3DMesh{Rows: 2, Columns: 3},
+		Style: Surface3DSeriesStyle{Shading: Surface3DShadingLambert, Wireframe: Bool(false), Color: "#db2777"},
+	}
+	markup := renderSurface3D(t, Surface3D(cfg))
+	for _, want := range []string{
+		`"type":"surface"`, `"dataShape":[2,3]`, `"wireframe":{"show":false}`,
+		`"shading":"lambert"`, `{"value":[0,0,1]}`, `{"value":[0,0,-1]}`,
+	} {
+		if !strings.Contains(markup, want) {
+			t.Errorf("rendered mesh markup missing %q", want)
 		}
 	}
 }
@@ -82,6 +109,15 @@ func TestSurface3DRejectsInvalidDataAndConflicts(t *testing.T) {
 		"duplicate": {func(cfg *Surface3DConfig) {
 			cfg.Series[0].Points[1].X, cfg.Series[0].Points[1].Y = -1, -1
 		}, `surface 3D chart series "surface3d" coordinate [-1,-1] is duplicated`},
+		"mesh rows": {func(cfg *Surface3DConfig) {
+			cfg.Series[0].Mesh = &Surface3DMesh{Rows: 0, Columns: 2}
+		}, `surface 3D chart series "surface3d" mesh rows must be positive`},
+		"mesh columns": {func(cfg *Surface3DConfig) {
+			cfg.Series[0].Mesh = &Surface3DMesh{Rows: 2, Columns: 0}
+		}, `surface 3D chart series "surface3d" mesh columns must be positive`},
+		"mesh count": {func(cfg *Surface3DConfig) {
+			cfg.Series[0].Mesh = &Surface3DMesh{Rows: 2, Columns: 2}
+		}, `surface 3D chart series "surface3d" mesh point count 2 must equal rows times columns (2 times 2)`},
 		"value": {func(cfg *Surface3DConfig) {
 			value := 1.0
 			cfg.Series[0].Points[0].Value = &value

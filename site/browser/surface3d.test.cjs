@@ -53,8 +53,9 @@ after(async () => {
   }
 });
 
-async function pageAt(viewport) {
+async function pageAt(viewport, reducedMotion = "no-preference") {
   const page = await browser.newPage({ viewport, acceptDownloads: true });
+  await page.emulateMedia({ reducedMotion });
   await page.addInitScript(() => {
     const createObjectURL = URL.createObjectURL.bind(URL);
     globalThis.__chartBlobTypes = [];
@@ -67,7 +68,7 @@ async function pageAt(viewport) {
   await page.locator("[data-surface3d-variant]").first().waitFor();
   await page.waitForFunction(() => {
     const hosts = [...document.querySelectorAll("[data-surface3d-variant] [_echarts_instance_]")];
-    return hosts.length === 2 && hosts.every((host) => Boolean(window.echarts.getInstanceByDom(host)));
+    return hosts.length === 3 && hosts.every((host) => Boolean(window.echarts.getInstanceByDom(host)));
   });
   await page.waitForFunction(() => Boolean(document.documentElement._x_dataStack));
   return page;
@@ -93,9 +94,15 @@ async function measure(wrapper) {
     const host = element.querySelector("[_echarts_instance_]");
     const instance = window.echarts.getInstanceByDom(host);
     const option = instance.getOption();
-    const values = option.series[0].data.map((point) => point.value.slice(0, 3));
+    const series = option.series[0];
+    const values = series.data.map((point) => point.value.slice(0, 3));
     const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(values)));
     const summary = element.parentElement.querySelector("[data-surface3d-exact-data]");
+    const seriesModel = instance.getModel().getSeriesByIndex(0);
+    const geometry = instance.getViewOfSeriesModel(seriesModel)._surfaceMesh.geometry;
+    const canvas = host.querySelector("canvas");
+    const gl = canvas && (canvas.getContext("webgl") || canvas.getContext("experimental-webgl"));
+    const visualMap = option.visualMap && option.visualMap[0];
     return {
       sameInstance: !element.__surface3DInstance || instance === element.__surface3DInstance,
       hostWidth: host.clientWidth,
@@ -103,18 +110,28 @@ async function measure(wrapper) {
       chartWidth: instance.getWidth(),
       chartHeight: instance.getHeight(),
       canvasCount: host.querySelectorAll("canvas").length,
-      seriesType: option.series[0].type,
+      seriesType: series.type,
       count: values.length,
       hash: [...new Uint8Array(bytes)].map((value) => value.toString(16).padStart(2, "0")).join(""),
       values,
-      range: [option.visualMap[0].min, option.visualMap[0].max],
-      calculable: option.visualMap[0].calculable,
-      scaleColors: option.visualMap[0].inRange.color,
+      range: visualMap ? [visualMap.min, visualMap.max] : null,
+      calculable: visualMap ? visualMap.calculable : null,
+      scaleColors: visualMap ? visualMap.inRange.color : [],
+      dataShape: series.dataShape || null,
+      boxSize: [option.grid3D[0].boxWidth, option.grid3D[0].boxHeight, option.grid3D[0].boxDepth],
+      wireframe: series.wireframe ? series.wireframe.show : true,
+      shading: series.shading,
+      autoRotate: option.grid3D[0].viewControl.autoRotate,
+      triangleIndexCount: geometry.indices.length,
+      webGL: Boolean(gl && !gl.isContextLost()),
+      role: element.querySelector("figure[role=img]")?.getAttribute("role") || element.getAttribute("role"),
+      ariaLabel: element.querySelector("figure[role=img]")?.getAttribute("aria-label") || element.getAttribute("aria-label"),
       background: option.backgroundColor,
       axisText: option.xAxis3D[0].axisLabel.color,
       grid: option.xAxis3D[0].splitLine.lineStyle.color,
       formula: summary.querySelector("[data-surface3d-formula]").textContent,
       summary: summary.querySelector("[data-surface3d-summary]").textContent.replace(/\s+/g, " ").trim(),
+      motion: summary.querySelector("[data-surface3d-motion]").textContent.replace(/\s+/g, " ").trim(),
       tableRows: summary.querySelectorAll("tr").length,
     };
   });
@@ -178,6 +195,78 @@ test("both exact surfaces, local runtime order, route/search, palette, and CSV a
     for (const asset of ["/charts/assets/js/controls/5/controls.js", "/charts/assets/js/runtime/three-d/2.0.9/runtime.min.js", "/charts/assets/js/runtime/echarts/5.6.0/echarts.min.js"]) {
       assert.equal((await page.request.get(`${baseURL}${asset}`)).status(), 200);
     }
+  } finally {
+    await page.close();
+  }
+});
+
+test("closed heart mesh is solid, connected, accessible, and backed by WebGL", async () => {
+  const page = await pageAt({ width: 1440, height: 900 });
+  try {
+    const heart = await measure(wrapperFor(page, "heart"));
+    assert.equal(heart.seriesType, "surface");
+    assert.equal(heart.count, 49 * 65);
+    assert.deepEqual(heart.dataShape, [49, 65]);
+    assert.ok(heart.boxSize[2] < heart.boxSize[0] * 0.4, `heart depth ${heart.boxSize[2]} is too close to width ${heart.boxSize[0]}`);
+    assert.equal(heart.wireframe, false);
+    assert.equal(heart.shading, "lambert");
+    assert.equal(heart.autoRotate, true);
+    assert.equal(heart.triangleIndexCount, (49 - 1) * (65 - 1) * 6);
+    assert.equal(heart.webGL, true);
+    assert.equal(heart.role, "img");
+    assert.equal(heart.ariaLabel, "Rotating parametric heart");
+    assert.match(heart.formula, /θ ∈ \[0, 2π\].*φ ∈ \[0, π\].*sin³/);
+    assert.match(heart.summary, /3185 ordered points/);
+    assert.match(heart.motion, /rotates automatically.*Reduced-motion/);
+    assert.equal(heart.tableRows, 0);
+
+    const close = (left, right) => Math.abs(left - right) < 1e-10;
+    for (let column = 0; column < 65; column += 1) {
+      const first = heart.values[column];
+      const last = heart.values[48 * 65 + column];
+      assert.ok(first.every((value, index) => close(value, last[index])), `open outline seam at column ${column}`);
+    }
+    const frontPole = heart.values[0];
+    const backPole = heart.values[64];
+    for (let row = 1; row < 49; row += 1) {
+      assert.ok(frontPole.every((value, index) => close(value, heart.values[row * 65][index])), `open front pole at row ${row}`);
+      assert.ok(backPole.every((value, index) => close(value, heart.values[(row + 1) * 65 - 1][index])), `open back pole at row ${row}`);
+    }
+    const cleft = heart.values[32];
+    const rightLobe = heart.values[5 * 65 + 32];
+    const bottom = heart.values[24 * 65 + 32];
+    const leftLobe = heart.values[43 * 65 + 32];
+    assert.ok(rightLobe[0] > 3 && leftLobe[0] < -3);
+    assert.ok(Math.abs((rightLobe[2] - cleft[2]) - 4.678937306500523) < 0.01);
+    assert.ok(cleft[2] - bottom[2] > 15);
+    const xs = heart.values.map((point) => point[0]);
+    const zs = heart.values.map((point) => point[2]);
+    assert.ok(Math.abs(Math.min(...xs) + 13.5) < 1e-10 && Math.abs(Math.max(...xs) - 13.5) < 1e-10);
+    assert.ok(Math.min(...zs) < -15 && Math.max(...zs) > 10);
+
+    const pending = page.waitForEvent("download");
+    await wrapperFor(page, "heart").locator("xpath=..").getByRole("link", { name: "Download all exact points as CSV" }).click();
+    const artifact = await pending;
+    const csv = await fs.readFile(await artifact.path(), "utf8");
+    assert.equal(csv.trimEnd().split("\n").length - 1, 49 * 65);
+  } finally {
+    await page.close();
+  }
+});
+
+test("heart auto-rotation obeys reduced motion and resumes", async () => {
+  const page = await pageAt({ width: 1440, height: 900 }, "reduce");
+  try {
+    const heart = await measure(wrapperFor(page, "heart"));
+    assert.equal(heart.autoRotate, false);
+    assert.match(heart.motion, /Reduced-motion preference disables animation and keeps the same surface stationary/);
+    await page.emulateMedia({ reducedMotion: "no-preference" });
+    await page.waitForFunction(() => {
+      const wrapper = document.querySelector('[data-surface3d-variant="heart"] [data-goshtoso-chart-wrapper]');
+      const host = wrapper.querySelector("[_echarts_instance_]");
+      return window.echarts.getInstanceByDom(host).getOption().grid3D[0].viewControl.autoRotate === true;
+    });
+    assert.equal((await measure(wrapperFor(page, "heart"))).autoRotate, true);
   } finally {
     await page.close();
   }

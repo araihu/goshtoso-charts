@@ -784,11 +784,11 @@ func TestSurface3DDocumentationPreservesOfficialVariantsWithoutEngineBranding(t 
 	}
 	body := recorder.Body.String()
 	for _, want := range []string{
-		"Interactive surface 3D", "Explore a sampled surface over two inputs and one output.", "Interactive / 3D",
-		"basic surface3D example", "Rose style", "14400 ordered points", "3600 ordered points",
+		"Interactive surface 3D", "Explore a sampled height field or closed parametric mesh.", "Interactive / 3D",
+		"basic surface3D example", "Rose style", "Rotating parametric heart", "14400 ordered points", "3600 ordered points", "3185 ordered points",
 		"y = i / 60", "x = j / 60", "y = i / 10", "x = j / 10",
-		"Download all exact points as CSV", "Surface3DPaletteColdToWarm",
-		`data-surface3d-variant="base"`, `data-surface3d-variant="rose"`,
+		"Download all exact points as CSV", "Surface3DMesh", "Wireframe", "Surface3DShadingLambert",
+		`data-surface3d-variant="base"`, `data-surface3d-variant="rose"`, `data-surface3d-variant="heart"`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("surface-3d documentation missing %q", want)
