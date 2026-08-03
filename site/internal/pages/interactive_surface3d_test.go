@@ -3,6 +3,8 @@ package pages
 import (
 	"math"
 	"testing"
+
+	"github.com/araihu/goshtoso-charts/components/interactive"
 )
 
 func TestInteractiveSurface3DSourcePinAndExactData(t *testing.T) {
@@ -43,21 +45,56 @@ func TestInteractiveSurface3DSourcePinAndExactData(t *testing.T) {
 	if got := interactiveSurface3DDataHash(interactiveSurface3DRosePoints); got != wantRoseHash {
 		t.Fatalf("rose data hash = %s, want %s", got, wantRoseHash)
 	}
-	const wantHeartHash = "07978bdcb8ecf4aef9ea60181591a6445c6ad946205989305f0b62f6d45ea31e"
+	const wantHeartHash = "b10f5e63d9a28bf851af53037a2ff15ace35bb6f37a1652c1acc4fad2cfdc76d"
 	if got := interactiveSurface3DDataHash(interactiveSurface3DHeartPoints); got != wantHeartHash {
 		t.Fatalf("heart data hash = %s, want %s", got, wantHeartHash)
 	}
-	for row := 0; row < interactiveSurface3DHeartRows; row++ {
-		first := interactiveSurface3DHeartPoints[row*interactiveSurface3DHeartColumns]
-		last := interactiveSurface3DHeartPoints[(row+1)*interactiveSurface3DHeartColumns-1]
+	for column := 0; column < interactiveSurface3DHeartColumns; column++ {
+		first := interactiveSurface3DHeartPoints[column]
+		last := interactiveSurface3DHeartPoints[(interactiveSurface3DHeartRows-1)*interactiveSurface3DHeartColumns+column]
 		if math.Abs(first.X-last.X) > 1e-12 || math.Abs(first.Y-last.Y) > 1e-12 || math.Abs(first.Z-last.Z) > 1e-12 {
-			t.Fatalf("heart row %d seam is open: first=%#v last=%#v", row, first, last)
+			t.Fatalf("heart column %d outline seam is open: first=%#v last=%#v", column, first, last)
 		}
 	}
-	heart := interactiveSurface3DHeartPoints
-	for _, pole := range []int{0, len(heart) - 1} {
-		if math.Abs(heart[pole].X) > 1e-40 || math.Abs(heart[pole].Y) > 1e-40 {
-			t.Fatalf("heart pole is not closed: %#v", heart[pole])
+	front := interactiveSurface3DHeartPoints[0]
+	back := interactiveSurface3DHeartPoints[interactiveSurface3DHeartColumns-1]
+	for row := 1; row < interactiveSurface3DHeartRows; row++ {
+		rowFront := interactiveSurface3DHeartPoints[row*interactiveSurface3DHeartColumns]
+		rowBack := interactiveSurface3DHeartPoints[(row+1)*interactiveSurface3DHeartColumns-1]
+		if math.Abs(front.X-rowFront.X) > 1e-12 || math.Abs(front.Y-rowFront.Y) > 1e-12 || math.Abs(front.Z-rowFront.Z) > 1e-12 {
+			t.Fatalf("heart front pole is open at row %d: first=%#v row=%#v", row, front, rowFront)
 		}
+		if math.Abs(back.X-rowBack.X) > 1e-12 || math.Abs(back.Y-rowBack.Y) > 1e-12 || math.Abs(back.Z-rowBack.Z) > 1e-12 {
+			t.Fatalf("heart back pole is open at row %d: first=%#v row=%#v", row, back, rowBack)
+		}
+	}
+}
+
+func TestInteractiveSurface3DHeartHasRecognizableFrontSilhouette(t *testing.T) {
+	t.Parallel()
+	point := func(row, column int) interactive.Point3D {
+		return interactiveSurface3DHeartPoints[row*interactiveSurface3DHeartColumns+column]
+	}
+
+	frontOutline := interactiveSurface3DHeartColumns / 2
+	cleft := point(0, frontOutline)
+	rightLobe := point(5, frontOutline)
+	bottom := point(interactiveSurface3DHeartRows/2, frontOutline)
+	leftLobe := point(interactiveSurface3DHeartRows-1-5, frontOutline)
+
+	if math.Abs(cleft.X) > 1e-10 || math.Abs(bottom.X) > 1e-10 {
+		t.Fatalf("heart center landmarks are not centered: cleft=%#v bottom=%#v", cleft, bottom)
+	}
+	if rightLobe.X < 3 || leftLobe.X > -3 {
+		t.Fatalf("heart lacks separated upper lobes: right=%#v left=%#v", rightLobe, leftLobe)
+	}
+	if math.Abs(rightLobe.X+leftLobe.X) > 1e-10 || math.Abs(rightLobe.Z-leftLobe.Z) > 1e-10 {
+		t.Fatalf("heart upper lobes are not bilaterally symmetric: right=%#v left=%#v", rightLobe, leftLobe)
+	}
+	if rightLobe.Z-cleft.Z < 5 {
+		t.Fatalf("heart central cleft is not distinct: cleft=%#v lobe=%#v", cleft, rightLobe)
+	}
+	if cleft.Z-bottom.Z < 15 {
+		t.Fatalf("heart does not taper to a lower point: cleft=%#v bottom=%#v", cleft, bottom)
 	}
 }

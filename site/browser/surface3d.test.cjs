@@ -118,6 +118,7 @@ async function measure(wrapper) {
       calculable: visualMap ? visualMap.calculable : null,
       scaleColors: visualMap ? visualMap.inRange.color : [],
       dataShape: series.dataShape || null,
+      boxSize: [option.grid3D[0].boxWidth, option.grid3D[0].boxHeight, option.grid3D[0].boxDepth],
       wireframe: series.wireframe ? series.wireframe.show : true,
       shading: series.shading,
       autoRotate: option.grid3D[0].viewControl.autoRotate,
@@ -206,6 +207,7 @@ test("closed heart mesh is solid, connected, accessible, and backed by WebGL", a
     assert.equal(heart.seriesType, "surface");
     assert.equal(heart.count, 49 * 65);
     assert.deepEqual(heart.dataShape, [49, 65]);
+    assert.ok(heart.boxSize[2] < heart.boxSize[0] * 0.4, `heart depth ${heart.boxSize[2]} is too close to width ${heart.boxSize[0]}`);
     assert.equal(heart.wireframe, false);
     assert.equal(heart.shading, "lambert");
     assert.equal(heart.autoRotate, true);
@@ -213,20 +215,33 @@ test("closed heart mesh is solid, connected, accessible, and backed by WebGL", a
     assert.equal(heart.webGL, true);
     assert.equal(heart.role, "img");
     assert.equal(heart.ariaLabel, "Rotating parametric heart");
-    assert.match(heart.formula, /u ∈ \[0, π\].*v ∈ \[0, 2π\].*sin³/);
+    assert.match(heart.formula, /θ ∈ \[0, 2π\].*φ ∈ \[0, π\].*sin³/);
     assert.match(heart.summary, /3185 ordered points/);
     assert.match(heart.motion, /rotates automatically.*Reduced-motion/);
     assert.equal(heart.tableRows, 0);
 
     const close = (left, right) => Math.abs(left - right) < 1e-10;
-    for (let row = 0; row < 49; row += 1) {
-      const first = heart.values[row * 65];
-      const last = heart.values[(row + 1) * 65 - 1];
-      assert.ok(first.every((value, index) => close(value, last[index])), `open seam at row ${row}`);
+    for (let column = 0; column < 65; column += 1) {
+      const first = heart.values[column];
+      const last = heart.values[48 * 65 + column];
+      assert.ok(first.every((value, index) => close(value, last[index])), `open outline seam at column ${column}`);
     }
+    const frontPole = heart.values[0];
+    const backPole = heart.values[64];
+    for (let row = 1; row < 49; row += 1) {
+      assert.ok(frontPole.every((value, index) => close(value, heart.values[row * 65][index])), `open front pole at row ${row}`);
+      assert.ok(backPole.every((value, index) => close(value, heart.values[(row + 1) * 65 - 1][index])), `open back pole at row ${row}`);
+    }
+    const cleft = heart.values[32];
+    const rightLobe = heart.values[5 * 65 + 32];
+    const bottom = heart.values[24 * 65 + 32];
+    const leftLobe = heart.values[43 * 65 + 32];
+    assert.ok(rightLobe[0] > 3 && leftLobe[0] < -3);
+    assert.ok(rightLobe[2] - cleft[2] > 5);
+    assert.ok(cleft[2] - bottom[2] > 15);
     const xs = heart.values.map((point) => point[0]);
     const zs = heart.values.map((point) => point[2]);
-    assert.ok(Math.min(...xs) < -15 && Math.max(...xs) > 15);
+    assert.ok(Math.min(...xs) < -14.9 && Math.max(...xs) > 14.9);
     assert.ok(Math.min(...zs) < -15 && Math.max(...zs) > 10);
 
     const pending = page.waitForEvent("download");

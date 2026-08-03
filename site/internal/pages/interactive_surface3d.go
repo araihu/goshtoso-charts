@@ -17,7 +17,7 @@ const (
 
 	interactiveSurface3DBaseFormula  = "y = i / 60, x = j / 60, z = sin(x × π) × sin(y × π), with i and j from -60 through 59"
 	interactiveSurface3DRoseFormula  = "y = i / 10, x = j / 10, z = sin(x² + y²) × x / π, with i and j from -30 through 29"
-	interactiveSurface3DHeartFormula = "u ∈ [0, π], v ∈ [0, 2π]; r = 15.5 × sin³(u); x = r × cos(v); y = 0.82 × r × sin(v); z = 0.92 × (13cos(u) − 5cos(2u) − 2cos(3u) − cos(4u))"
+	interactiveSurface3DHeartFormula = "θ ∈ [0, 2π], φ ∈ [0, π]; hx = 15 × sin³(θ); hz = 0.92 × (13cos(θ) − 5cos(2θ) − 2cos(3θ) − cos(4θ)); s = sin(φ); x = s × hx; y = 5.2 × cos(φ); z = −1.5 + s × (hz + 1.5)"
 	interactiveSurface3DHeartRows    = 49
 	interactiveSurface3DHeartColumns = 65
 )
@@ -63,14 +63,16 @@ func generateInteractiveSurface3DRosePoints() []interactive.Point3D {
 func generateInteractiveSurface3DHeartPoints() []interactive.Point3D {
 	points := make([]interactive.Point3D, 0, interactiveSurface3DHeartRows*interactiveSurface3DHeartColumns)
 	for row := 0; row < interactiveSurface3DHeartRows; row++ {
-		u := math.Pi * float64(row) / float64(interactiveSurface3DHeartRows-1)
-		radius := 15.5 * math.Pow(math.Sin(u), 3)
+		theta := 2 * math.Pi * float64(row) / float64(interactiveSurface3DHeartRows-1)
+		outlineX := 15 * math.Pow(math.Sin(theta), 3)
+		outlineZ := 0.92 * (13*math.Cos(theta) - 5*math.Cos(2*theta) - 2*math.Cos(3*theta) - math.Cos(4*theta))
 		for column := 0; column < interactiveSurface3DHeartColumns; column++ {
-			v := 2 * math.Pi * float64(column) / float64(interactiveSurface3DHeartColumns-1)
+			phi := math.Pi * float64(column) / float64(interactiveSurface3DHeartColumns-1)
+			scale := math.Sin(phi)
 			points = append(points, interactive.Point3D{
-				X: radius * math.Cos(v),
-				Y: 0.82 * radius * math.Sin(v),
-				Z: 0.92 * (13*math.Cos(u) - 5*math.Cos(2*u) - 2*math.Cos(3*u) - math.Cos(4*u)),
+				X: scale * outlineX,
+				Y: 5.2 * math.Cos(phi),
+				Z: -1.5 + scale*(outlineZ+1.5),
 			})
 		}
 	}
@@ -126,7 +128,7 @@ func sampleInteractiveSurface3DHeart() interactive.Instance {
 			Z: interactive.Surface3DAxis{Name: "Z", Show: interactive.Bool(false)},
 		},
 		Grid: interactive.Surface3DGrid{
-			Width: 110, Height: 100, Depth: 80,
+			Width: 110, Height: 100, Depth: 36,
 			View: &interactive.Surface3DView{AutoRotate: interactive.Bool(true), AutoRotateSpeed: 12},
 		},
 		DataSummary: interactive.Surface3DDataSummary{Formula: interactiveSurface3DHeartFormula},
