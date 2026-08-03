@@ -56,17 +56,27 @@ type Surface3DAxes struct {
 	Z Surface3DAxis
 }
 
-// Surface3DSeriesStyle configures renderer-neutral surface shading and paint.
+// Surface3DSeriesStyle configures renderer-neutral shading, wireframe visibility, and paint.
 type Surface3DSeriesStyle struct {
-	Shading Surface3DShading
-	Color   string
-	Class   string
+	Shading   Surface3DShading
+	Wireframe *bool
+	Color     string
+	Class     string
 }
 
-// Surface3DSeries contains one named ordered surface grid.
+// Surface3DMesh describes row-major topology for an ordered parametric mesh.
+// Rows multiplied by Columns must equal the number of series points.
+type Surface3DMesh struct {
+	Rows    int
+	Columns int
+}
+
+// Surface3DSeries contains one named ordered surface. Mesh may be omitted for
+// backward-compatible height fields whose X/Y coordinate pairs are unique.
 type Surface3DSeries struct {
 	Name   string
 	Points []Point3D
+	Mesh   *Surface3DMesh
 	Style  Surface3DSeriesStyle
 }
 
@@ -126,6 +136,36 @@ type surface3DPaint struct {
 	Class string `json:"class,omitempty"`
 }
 
+type rendererSurface3DWireframe struct {
+	Show bool `json:"show"`
+}
+
+type rendererSurface3DSeries struct {
+	charts.SingleSeries
+	DataShape []int                       `json:"dataShape,omitempty"`
+	Wireframe *rendererSurface3DWireframe `json:"wireframe,omitempty"`
+}
+
+type surface3DConfigurationVisitor struct {
+	charts.BaseConfigurationVisitor
+	series []Surface3DSeries
+}
+
+func (visitor surface3DConfigurationVisitor) VisitSeriesOpt(series charts.MultiSeries) interface{} {
+	rendered := make([]rendererSurface3DSeries, len(series))
+	for index, item := range series {
+		item.Type = types.ChartSurface3D
+		rendered[index].SingleSeries = item
+		if mesh := visitor.series[index].Mesh; mesh != nil {
+			rendered[index].DataShape = []int{mesh.Rows, mesh.Columns}
+		}
+		if wireframe := visitor.series[index].Style.Wireframe; wireframe != nil {
+			rendered[index].Wireframe = &rendererSurface3DWireframe{Show: *wireframe}
+		}
+	}
+	return rendered
+}
+
 // Surface3D builds a reusable renderer-neutral three-dimensional surface component.
 func Surface3D(cfg Surface3DConfig) Instance {
 	if err := validateSurface3DConfig(cfg); err != nil {
@@ -178,9 +218,6 @@ func Surface3D(cfg Surface3DConfig) Instance {
 			options = append(options, charts.WithItemStyleOpts(opts.ItemStyle{Color: series.Style.Color}))
 		}
 		chart.AddSeries(series.Name, data, options...)
-		// go-echarts v2.7.2 serializes Surface3D series as scatter3D. Keep this
-		// renderer repair private so no backing-engine type crosses the API.
-		chart.MultiSeries[seriesIndex].Type = types.ChartSurface3D
 		rendered := make([]rendererSurface3DPoint, len(series.Points))
 		for pointIndex, point := range series.Points {
 			rendered[pointIndex] = rendererSurface3DPoint{
@@ -193,14 +230,21 @@ func Surface3D(cfg Surface3DConfig) Instance {
 		chart.MultiSeries[seriesIndex].Data = rendered
 		paints[seriesIndex] = surface3DPaint{Color: series.Style.Color, Class: series.Style.Class}
 	}
+	// go-echarts v2.7.2 lacks ordered-surface topology and serializes Surface3D
+	// series as scatter3D. Repair both only at the private renderer boundary.
+	chart.Accept(surface3DConfigurationVisitor{series: cfg.Series})
 	paintJSON, _ := json.Marshal(paints)
+	autoRotate := cfg.Grid.View != nil && cfg.Grid.View.AutoRotate != nil && *cfg.Grid.View.AutoRotate
 
 	return newInstance(chartcomponents.KindInteractiveSurface3D, renderConfig{
 		Label: cfg.Label, Caption: cfg.Caption, Chart: chart, Style: style,
 		Animation: cfg.Options.Animation, Controls: cfg.Options.Controls, Export: cfg.Options.Export,
-		ResponsiveWidth: responsiveWidth(cfg.Width), RootAttrs: cfg.RootAttrs, Details: surface3DExactData(cfg.Label, cfg.Series, cfg.DataSummary),
+		ResponsiveWidth: responsiveWidth(cfg.Width), RootAttrs: cfg.RootAttrs, Details: surface3DExactData(cfg.Label, cfg.Series, cfg.DataSummary, autoRotate),
 		ExplicitVisualMapColors: cfg.VisualRange != nil && cfg.VisualRange.Palette != Surface3DPaletteColdToWarm,
-		Surface3DPaints:         string(paintJSON), Surface3DColdToWarm: cfg.VisualRange != nil && cfg.VisualRange.Palette == Surface3DPaletteColdToWarm,
+		Surface3DPaints:         string(paintJSON),
+		Surface3DColdToWarm:     cfg.VisualRange != nil && cfg.VisualRange.Palette == Surface3DPaletteColdToWarm,
+		// Shared private 3D motion flag predates Surface3D automatic rotation.
+		Line3DAutoRotate: autoRotate,
 	})
 }
 
@@ -323,6 +367,17 @@ func validateSurface3DConfig(cfg Surface3DConfig) error {
 		if len(series.Points) == 0 {
 			return fmt.Errorf("surface 3D chart series %q points are required", name)
 		}
+		if mesh := series.Mesh; mesh != nil {
+			if mesh.Rows <= 0 {
+				return fmt.Errorf("surface 3D chart series %q mesh rows must be positive", name)
+			}
+			if mesh.Columns <= 0 {
+				return fmt.Errorf("surface 3D chart series %q mesh columns must be positive", name)
+			}
+			if len(series.Points)%mesh.Columns != 0 || len(series.Points)/mesh.Columns != mesh.Rows {
+				return fmt.Errorf("surface 3D chart series %q mesh point count %d must equal rows times columns (%d times %d)", name, len(series.Points), mesh.Rows, mesh.Columns)
+			}
+		}
 		if err := validateSurface3DPaint("series "+strconv.Quote(name), series.Style.Color, series.Style.Class); err != nil {
 			return err
 		}
@@ -336,11 +391,13 @@ func validateSurface3DConfig(cfg Surface3DConfig) error {
 			if !finiteNumber(point.X) || !finiteNumber(point.Y) || !finiteNumber(point.Z) {
 				return fmt.Errorf("surface 3D chart series %q point %d coordinates must be finite", name, pointIndex)
 			}
-			key := [2]uint64{math.Float64bits(point.X), math.Float64bits(point.Y)}
-			if coordinates[key] {
-				return fmt.Errorf("surface 3D chart series %q coordinate [%g,%g] is duplicated", name, point.X, point.Y)
+			if series.Mesh == nil {
+				key := [2]uint64{math.Float64bits(point.X), math.Float64bits(point.Y)}
+				if coordinates[key] {
+					return fmt.Errorf("surface 3D chart series %q coordinate [%g,%g] is duplicated", name, point.X, point.Y)
+				}
+				coordinates[key] = true
 			}
-			coordinates[key] = true
 			if point.Value != nil {
 				return fmt.Errorf("surface 3D chart series %q point %d separate visual value is not supported", name, pointIndex)
 			}

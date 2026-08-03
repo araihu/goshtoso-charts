@@ -383,3 +383,14 @@ goshtoso-app-shells v0.1.0. Goshtoso Charts therefore owns one explicit 16-ID
 catalog boundary instead of inferring names from either dependency at runtime.
 Both upstream stylesheets already rely on `color-mix`, so derived chart scales
 share that modern-browser baseline rather than adding a second color system.
+
+## 2026-08-03: Surface3D ordered meshes need private topology serialization
+
+go-echarts v2.7.2 does not expose the renderer's `dataShape` series option.
+Without it, a supplied closed parametric mesh is guessed as a height field and
+its duplicated seam and pole coordinates cannot reliably form connected quads.
+Surface3D now accepts renderer-neutral row and column counts, validates their
+exact row-major point count, and privately serializes the topology alongside
+the existing private series-type repair. Mesh mode permits coordinate reuse;
+legacy height fields retain duplicate-X/Y rejection. Wireframe visibility uses
+the same private adapter because that surface option is also absent upstream.

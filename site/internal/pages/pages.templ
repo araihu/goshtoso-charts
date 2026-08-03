@@ -423,13 +423,13 @@ templ interactiveLine3DVariants() {
 templ interactiveSurface3DContent() {
 	@componentpage.Page(componentpage.Config{
 		Title:       "Interactive surface 3D",
-		Description: "Sampled mathematical surfaces for seeing peaks, valleys, and overall shape across two inputs.",
+		Description: "Sampled mathematical surfaces and closed parametric meshes for seeing overall three-dimensional shape.",
 		Primary: componentpage.Example{
-			AbovePreview: visualizationGuidance("Explore a sampled surface over two inputs and one output.", "Overall shape, peaks, and valleys matter more than a single exact sample.", "Users need to compare individual values or cannot use a three-dimensional view.", "Formula, domains, sample count, and downloadable CSV expose the full dataset."),
+			AbovePreview: visualizationGuidance("Explore a sampled height field or closed parametric mesh.", "Overall shape, peaks, valleys, or connected volume matter more than a single exact sample.", "Users need to compare individual values or cannot use a three-dimensional view.", "Formula, topology, domains, sample count, and downloadable CSV expose the full dataset."),
 			Preview:      interactiveSurface3DVariants(),
 			Code:         interactiveSurface3DCode(),
 		},
-		After: interactiveDocumentation(demoNote("Surface variants", "Compare the examples as distinct sampled surfaces. Their formulas and domains identify what changes.")),
+		After: interactiveDocumentation(demoNote("Surface variants", "Height fields keep unique X/Y samples. Closed meshes add explicit row-major topology and may repeat seam or pole coordinates.")),
 	})
 }
 
@@ -440,6 +440,9 @@ templ interactiveSurface3DVariants() {
 		</div>
 		<div data-surface3d-variant="rose">
 			@sampleInteractiveSurface3D("Rose style", interactiveSurface3DRoseFormula, "rose-style", interactiveSurface3DRosePoints)
+		</div>
+		<div data-surface3d-variant="heart">
+			@sampleInteractiveSurface3DHeart()
 		</div>
 	</div>
 }
