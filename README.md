@@ -1,5 +1,9 @@
 # Goshtoso Charts
 
+<p align="center">
+  <img src="assets/images/goshtoso-charts-art.png" alt="Goshtoso Charts mascot on an illustrated stock-exchange trading floor" width="320" />
+</p>
+
 Chart components for Go/templ applications using
 [Goshtoso](https://github.com/araihu/goshtoso). Render static SVG charts on the
 server or opt into interactive charts when browser exploration is necessary.
