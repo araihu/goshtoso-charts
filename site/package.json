@@ -3,8 +3,8 @@
   "private": true,
   "type": "module",
   "devDependencies": {
-    "playwright": "1.61.1",
-    "sharp": "0.35.0"
+    "playwright": "1.62.1",
+    "sharp": "0.35.3"
   },
   "scripts": {
     "test:app-shell-release": "node --test browser/app_shell_release_contract.test.cjs",
