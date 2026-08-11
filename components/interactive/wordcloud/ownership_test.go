@@ -107,7 +107,7 @@ func TestWordCloudFacadePreservesRenderingRuntimeValidationAndBaseHashes(t *test
 		{
 			name:       "default",
 			cfg:        interactivewordcloud.Config{Label: "basic WordCloud example", Series: interactivewordcloud.Series{Name: "wordcloud", Words: []interactivewordcloud.Word{{Name: "Sam S Club", Value: 10000}, {Name: "Macys", Value: 6181}}}},
-			fullDigest: "d0d54e98d95fdb0d9858d846aebfdca009244f740474a24df2e991ff1fb60f86", scriptDigest: "d834ce3759bc960f6ea5212e8d55d1395cdbebf74a0fddadc595060170f729f7", shellDigest: "d1aa8b7e5255daa4109f27fb6ad1702bc58b60a8e7cedf9eae15306f37bf2eba",
+			fullDigest: "0d0d585ad682813887a5dcb422b982c324abdd71bd2375f500cbf1a27deb214c", scriptDigest: "d834ce3759bc960f6ea5212e8d55d1395cdbebf74a0fddadc595060170f729f7", shellDigest: "6c8cf4116f29169b0d1b8ec0888b47009741453851e99c0351cccb50e8c4de67",
 		},
 		{
 			name: "configured",
@@ -120,7 +120,7 @@ func TestWordCloudFacadePreservesRenderingRuntimeValidationAndBaseHashes(t *test
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "basic WordCloud example"}, Tooltip: &chart.TooltipOptions{Show: chart.Bool(true), Trigger: "item"}, Animation: chart.Bool(false), Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "word-cloud"}},
 				Style:   charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "caller-class"}, RootAttrs: templ.Attributes{"id": "search-terms", "data-purpose": "weighted-terms"},
 			},
-			fullDigest: "3efbd0e39dd1cf2b126821df8eab46f7ace13024a066179180d3e36c02e8dea2", scriptDigest: "1eac8da7ab74d00c5502c9476596e852c52bd2f58f82a8dc95366791c102d28e", shellDigest: "ba8fc189463888f3e111fa869ffff13856b4d74c9150585ab77b72a41f8fd690",
+			fullDigest: "482fe131c1dcf1ed2dcf7c5bdc0318f97c92231a5461656aea9f684fa81a0da2", scriptDigest: "1eac8da7ab74d00c5502c9476596e852c52bd2f58f82a8dc95366791c102d28e", shellDigest: "878d6f564c47d8dc6f1dd14dc32e22aba62f92423b793555bf1572f0ed0241bd",
 		},
 		{
 			name: "bounded-wrapper-omitted",

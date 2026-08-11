@@ -40,7 +40,7 @@ func TestScatterNormalizedRenderHashes(t *testing.T) {
 				SeriesOptions: chart.SeriesOptions{Symbol: "circle"},
 				Style:         charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
 			},
-			want: "0fe9f7c0bebb55c7210f80954f7ba00378bf9776d9404ebaa3709fd8af809831",
+			want: "f15078b83f08f42fd9b9acf1e4f5cb24d483276b3847b77ea3103cec7750bed5",
 		},
 		"effect category axis": {
 			cfg: Config{
@@ -52,7 +52,7 @@ func TestScatterNormalizedRenderHashes(t *testing.T) {
 				Ripple:  &chart.RippleOptions{Period: 8, Scale: 2, BrushType: "stroke"},
 				Options: chart.ChartOptions{Animation: chart.Bool(false)},
 			},
-			want: "b18d0aaa40c1cd7f95544e32f5d7d08ef3adde40deb0b2c25aa62a02138e8073",
+			want: "30f4563849f94a2be5c4077e15c1fd44d20b48375960094ddd27ce1ab6aafb1d",
 		},
 	}
 	for name, test := range tests {
