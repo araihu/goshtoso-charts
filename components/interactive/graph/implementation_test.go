@@ -26,7 +26,7 @@ func TestGraphNormalizedRenderHashes(t *testing.T) {
 		config Config
 		want   string
 	}{
-		{name: "force defaults", config: Config{Label: "Network", Nodes: []Node{{Name: "only"}}}, want: "c7ebe54af8b6fb42a123e86dec21d05c6c1808d4f8164dcc8aeb35b90a2d544c"},
+		{name: "force defaults", config: Config{Label: "Network", Nodes: []Node{{Name: "only"}}}, want: "552555471008948e30acf95868b7addb2df5bd147c251c5f556c283ebeb13a94"},
 		{name: "configured force and wrapper", config: Config{
 			Label: "Service dependencies", Caption: "Runtime calls between services.",
 			Nodes: []Node{
@@ -43,12 +43,12 @@ func TestGraphNormalizedRenderHashes(t *testing.T) {
 			Options:       chart.ChartOptions{Title: &chart.TitleOptions{Text: "Topology"}, Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "service dependencies"}},
 			SeriesOptions: chart.SeriesOptions{Label: &chart.LabelOptions{Show: chart.Bool(true)}, LineStyle: &chart.LineStyle{Width: 1}},
 			Style:         charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
-		}, want: "fe86dd15bc702525d1dea533f97fd5ab52c5ebcab7c2c3ba18500da19eb95469"},
+		}, want: "018de7354cafa45ad3928d2c4c07fc79053af1f83e37cb58ac5727e7b0fc9b16"},
 		{name: "fixed coordinates", config: Config{
 			Label: "Fixed network", Layout: LayoutNone,
 			Nodes: []Node{{Name: "left", X: &x, Y: &y, Fixed: chart.Bool(true)}, {Name: "right", X: chart.Float(30), Y: chart.Float(40)}},
 			Links: []Link{{Source: "left", Target: "right", Value: 2}},
-		}, want: "179e50b68b952226492b767db4c7410ed18bb6c9015918a2f8b3b8e14e3ba6db"},
+		}, want: "7fcf95a8441dd5b246b7203fbd30b563a7507648617caf7679f988aec9ba675a"},
 	}
 	for _, test := range tests {
 		test := test

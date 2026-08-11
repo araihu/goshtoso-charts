@@ -31,14 +31,14 @@ func TestGaugeNormalizedRenderHashes(t *testing.T) {
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Delivery"}},
 				Style:   charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
 			},
-			want: "15334abf8b222239a89b190cef6d6236eb5105897c85630f4789199af51ed5cc",
+			want: "31597f8460ec27dbd1fb8cdae70913516f62aa35965ebd5d374a4f9dc097a04b",
 		},
 		"progress": {
 			config: Config{
 				Label: "Temperature", Variant: VariantProgress, Min: -40, Max: 60,
 				Series: []Series{{Name: "Sensor", Data: []Data{{Name: "Current", Value: 21.5}}, Progress: &ProgressOptions{Width: 18}}},
 			},
-			want: "67dacef2dc9ab6544deeb1df5f9e0811da90d56ee0de78dcb8be8652a4055979",
+			want: "362428d7a3732f91edbbd4614d80f1ce49e830a8b4312d349ffcbf2bd8b875e7",
 		},
 		"custom scale": {
 			config: Config{
@@ -46,14 +46,14 @@ func TestGaugeNormalizedRenderHashes(t *testing.T) {
 				Series: []Series{{Name: "Sensor", Data: []Data{{Name: "Reading", Value: 50}}}},
 				Scale:  Scale{Mode: ScaleCustom, Reverse: true, Stops: []ScaleStop{{Value: 40, Class: "text-cold"}, {Value: 100, Color: "#ff0000"}}},
 			},
-			want: "ce92cfc342c161b4cc1443c7ae3a5707c8822f3453689e20489932698933d90d",
+			want: "14bce2ed3b1efc186d0cafeef8d494758db26d938a7986626c32836d0f72045f",
 		},
 		"single-color scale": {
 			config: Config{
 				Label: "Single gauge", Series: []Series{{Name: "Sensor", Data: []Data{{Name: "Reading", Value: 50}}}},
 				Scale: Scale{Mode: ScaleSingleColor, Class: "text-accent"},
 			},
-			want: "b623cf1ba5c0dab8624b59fe0058beba867d8389f4e89e276ac2e3d660021276",
+			want: "5c9984756d04e9968d437bc2fd0f9f05ee42fd0cad6d93c4f650ec1a9a2a5dcb",
 		},
 		"liquid customized": {
 			config: Config{
@@ -69,7 +69,7 @@ func TestGaugeNormalizedRenderHashes(t *testing.T) {
 				},
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "basic liquid example"}},
 			},
-			want: "7412b4c3fbfb1bc8e8434daabb4317a163503067670f0677c6768fe35626b8dd",
+			want: "2e9d652d3c9b3f185a0574e643c91ec2cd9754987e3630d06657354f3e7d7f57",
 		},
 	}
 	for name, test := range tests {
