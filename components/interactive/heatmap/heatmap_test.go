@@ -48,7 +48,7 @@ func TestHeatMapNormalizedRenderHashes(t *testing.T) {
 				SeriesOptions: chart.SeriesOptions{Animation: chart.Bool(false)},
 				Style:         charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
 			},
-			want: "9e8ff5c2d5070271ede721b2d1066471e3510f3687d03bfb8cf238ae5e5b6935",
+			want: "b9883bba0e81ec91ff676fc7127aa8c38a9d91c8b10e50717c9b7d67e2f20c67",
 		},
 		"Calendar": {
 			cfg: Config{

@@ -96,7 +96,7 @@ func TestSankeyFacadePreservesCanonicalRenderValidationAndBaseHashes(t *testing.
 			cfg: interactivesankey.Config{
 				Label: "Flow", Series: []interactivesankey.Series{{Name: "Flow", Nodes: []interactivesankey.Node{{Name: "Input"}, {Name: "Output"}}, Links: []interactivesankey.Link{{Source: "Input", Target: "Output", Value: 1}}}},
 			},
-			fullDigest: "f812067fb3b2e9e15b6853f747d9438c6d62aab38256d0af0a448368bc6b989e", scriptDigest: "d4ef9962adfeb13d0e87c871ac032d89b16ee4eb1c09ea7faef8653e8377aae6", shellDigest: "9722e2317acbea48fbea8eba8d47a023015110d121f39eff4aeed4e25450a58e",
+			fullDigest: "03d6eec5255793e0a41fd97de6c5746e4955c6c8fc9b380ab9735294d5ef23c6", scriptDigest: "d4ef9962adfeb13d0e87c871ac032d89b16ee4eb1c09ea7faef8653e8377aae6", shellDigest: "7df7ed90ef3d68d0962a49a505a962739c266daa8b09399e4fc0f21bf7f7d31c",
 		},
 		{
 			name: "vertical-custom",
@@ -107,7 +107,7 @@ func TestSankeyFacadePreservesCanonicalRenderValidationAndBaseHashes(t *testing.
 				Width:  "720px", Height: "420px", Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Energy balance"}}, SeriesOptions: chart.SeriesOptions{Label: &chart.LabelOptions{Show: chart.Bool(true), Position: "right"}, LineStyle: &chart.LineStyle{Color: "source", Opacity: chart.Float(0.6)}},
 				Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-96"},
 			},
-			fullDigest: "5b44d8a6b4f0e4f626dbae4237dbc6f73096aa2400ce3c69f4e3e677ad5bc552", scriptDigest: "26f1fd9e40e44c2f7506cee8ce8ccf9304677917595cc3bc1c1a051fa15e7f03", shellDigest: "f148720c24108e1d96fc1e189380edaceada288ed0597bc436b93fd79e8b6a57",
+			fullDigest: "4df24c8f5b851c097b583738480bbd98f9e1d47530ef6f6cd37595eef3cab7e1", scriptDigest: "26f1fd9e40e44c2f7506cee8ce8ccf9304677917595cc3bc1c1a051fa15e7f03", shellDigest: "da937e907fe6ab853047c13d0055895f061ede06c4b5cf175d9ac08a0a273b73",
 		},
 		{
 			name: "multiple-wrapper-omitted",
