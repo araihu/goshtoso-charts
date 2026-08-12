@@ -2,4 +2,6 @@
 /.cache/
 /dist/
 /site/node_modules/
+/.dagger/node_modules/
+/.dagger-inputs/
 .DS_Store

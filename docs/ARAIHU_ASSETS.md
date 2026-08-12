@@ -53,6 +53,27 @@ Focused verification:
 go test ./internal/araihuassets ./cmd/araihu-assets-update -count=1
 ```
 
+Dagger 0.21.8 can perform the complete immutable download, provenance check,
+idempotency proof, focused tests, and allowlisted export locally. Supply a
+read-only GitHub token through Dagger's secret provider:
+
+```bash
+export ASSETS_REPOSITORY=araihu/assets
+export ASSETS_REVISION=0123456789abcdef0123456789abcdef01234567
+export RELEASE=v1.2.3
+export RELEASE_URL=https://github.com/araihu/assets/releases/download/v1.2.3/araihu-assets-v1.2.3.tar.gz
+export RELEASE_SHA256=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
+export RELEASE_JSON_SHA256=abcdef0123456789abcdef0123456789abcdef0123456789abcdef0123456789
+export GITHUB_REPOSITORY=araihu/goshtoso-charts
+./scripts/materialize-dagger-input.sh assets .dagger-inputs/assets.json
+dagger call update-araihu-assets \
+  --source=. \
+  --payload=.dagger-inputs/assets.json \
+  --github-token=env://GITHUB_TOKEN \
+  --trust-domain=local --run-nonce=1-1 \
+  export --path=.
+```
+
 ## Automation
 
 `.github/workflows/araihu-assets.yml` accepts `repository_dispatch` event
