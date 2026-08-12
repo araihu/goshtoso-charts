@@ -71,6 +71,22 @@ func TestDaggerProvidesPinnedJQForPayloadRegressions(t *testing.T) {
 	}
 }
 
+func TestPullRequestsCannotMountPersistentCaches(t *testing.T) {
+	data, err := os.ReadFile(".dagger/src/index.ts")
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := string(data)
+	guard := `if (partition === "fork" || partition === "internal") {
+      return project
+    }`
+	guardIndex := strings.Index(source, guard)
+	cacheIndex := strings.Index(source, ".withMountedCache(")
+	if guardIndex < 0 || cacheIndex < 0 || guardIndex > cacheIndex {
+		t.Fatal("pull-request cache guard must return before every persistent cache mount")
+	}
+}
+
 func readDaggerJSON(t *testing.T, path string, target any) {
 	t.Helper()
 	contents, err := os.ReadFile(path)

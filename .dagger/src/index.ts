@@ -228,9 +228,18 @@ export class GoshtosoCharts {
   private goProject(source: Directory, trustDomain: string, runNonce: string): Container {
     const partition = this.validateTrustDomain(trustDomain)
     this.validateRunNonce(runNonce)
-    return this.base(source, partition, runNonce)
+    const project = this.base(source, partition, runNonce)
       .withEnvVariable("GOMODCACHE", "/go/pkg/mod")
       .withEnvVariable("GOCACHE", "/root/.cache/go-build")
+
+    // A pull request controls both this module and its workflow arguments. It
+    // must not be able to select a persistent cache namespace used by trusted
+    // main/release executions on a shared Engine.
+    if (partition === "fork" || partition === "internal") {
+      return project
+    }
+
+    return project
       .withMountedCache(
         "/go/pkg/mod",
         dag.cacheVolume(`goshtoso-charts-${partition}-go-mod-v1`),
