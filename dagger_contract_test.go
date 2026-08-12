@@ -71,19 +71,27 @@ func TestDaggerProvidesPinnedJQForPayloadRegressions(t *testing.T) {
 	}
 }
 
-func TestPullRequestsCannotMountPersistentCaches(t *testing.T) {
+func TestPullRequestsUseHostIsolatedPersistentCaches(t *testing.T) {
 	data, err := os.ReadFile(".dagger/src/index.ts")
 	if err != nil {
 		t.Fatal(err)
 	}
 	source := string(data)
-	guard := `if (partition === "fork" || partition === "internal") {
-      return project
-    }`
-	guardIndex := strings.Index(source, guard)
-	cacheIndex := strings.Index(source, ".withMountedCache(")
-	if guardIndex < 0 || cacheIndex < 0 || guardIndex > cacheIndex {
-		t.Fatal("pull-request cache guard must return before every persistent cache mount")
+	for _, want := range []string{
+		`const cacheNamespace = partition === "fork" || partition === "internal" ? "pr" : partition`,
+		`goshtoso-charts-${cacheNamespace}-go-mod-v1`,
+		`.withMountedCache(`,
+	} {
+		if !strings.Contains(source, want) {
+			t.Errorf("host-isolated PR cache misses %q", want)
+		}
+	}
+	workflow, err := os.ReadFile(".github/workflows/ci.yml")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(string(workflow), `"hostinger-vps-pr"`) || strings.Contains(string(workflow), `"hostinger-vps"`) {
+		t.Fatal("CI must select the exact host-owned PR runner label without the legacy label")
 	}
 }
 

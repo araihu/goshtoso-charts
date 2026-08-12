@@ -227,30 +227,27 @@ export class GoshtosoCharts {
 
   private goProject(source: Directory, trustDomain: string, runNonce: string): Container {
     const partition = this.validateTrustDomain(trustDomain)
+    // hostinger-vps-pr and GitHub-hosted PRs execute on Engines separated from
+    // trusted lanes. Workflow input cannot select that boundary: both PR
+    // domains collapse to the constant cache namespace "pr" here.
+    const cacheNamespace = partition === "fork" || partition === "internal" ? "pr" : partition
     this.validateRunNonce(runNonce)
     const project = this.base(source, partition, runNonce)
       .withEnvVariable("GOMODCACHE", "/go/pkg/mod")
       .withEnvVariable("GOCACHE", "/root/.cache/go-build")
 
-    // A pull request controls both this module and its workflow arguments. It
-    // must not be able to select a persistent cache namespace used by trusted
-    // main/release executions on a shared Engine.
-    if (partition === "fork" || partition === "internal") {
-      return project
-    }
-
     return project
       .withMountedCache(
         "/go/pkg/mod",
-        dag.cacheVolume(`goshtoso-charts-${partition}-go-mod-v1`),
+        dag.cacheVolume(`goshtoso-charts-${cacheNamespace}-go-mod-v1`),
       )
       .withMountedCache(
         "/root/.cache/go-build",
-        dag.cacheVolume(`goshtoso-charts-${partition}-go-build-v1`),
+        dag.cacheVolume(`goshtoso-charts-${cacheNamespace}-go-build-v1`),
       )
       .withMountedCache(
         "/work/.cache/muamba",
-        dag.cacheVolume(`goshtoso-charts-${partition}-muamba-v1`),
+        dag.cacheVolume(`goshtoso-charts-${cacheNamespace}-muamba-v1`),
       )
   }
 
