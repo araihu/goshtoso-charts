@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 )
 
@@ -50,6 +51,23 @@ func TestDaggerTypeScriptRuntimePackageContract(t *testing.T) {
 	lockedSDK := lock.Packages["node_modules/@dagger.io/dagger"]
 	if !lockedSDK.Link || lockedSDK.Resolved != "sdk" {
 		t.Fatalf("locked Dagger SDK is not the generated local link: %+v", lockedSDK)
+	}
+}
+
+func TestDaggerProvidesPinnedJQForPayloadRegressions(t *testing.T) {
+	data, err := os.ReadFile(".dagger/src/index.ts")
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := string(data)
+	for _, required := range []string{
+		"ghcr.io/jqlang/jq:1.8.2@sha256:b9c68867e5766576263a222e91db3de422d802069c7af70440e667a95344e486",
+		`.file("/jq")`,
+		`.withFile("/usr/local/bin/jq", jq, { permissions: 0o755 })`,
+	} {
+		if !strings.Contains(source, required) {
+			t.Fatalf("Dagger module misses pinned jq runtime contract %q", required)
+		}
 	}
 }
 

@@ -11,6 +11,8 @@ import {
 
 const GO_IMAGE =
   "golang:1.26.5-bookworm@sha256:53eeac89074db483fdf0ab3be1df32bf6e47562263d2d0d6baa7f26acb4957dd"
+const JQ_IMAGE =
+  "ghcr.io/jqlang/jq:1.8.2@sha256:b9c68867e5766576263a222e91db3de422d802069c7af70440e667a95344e486"
 
 const SOURCE_EXCLUDES = [
   ".cache",
@@ -246,8 +248,10 @@ export class GoshtosoCharts {
   private base(source: Directory, trustDomain: string, runNonce: string): Container {
     const partition = this.validateTrustDomain(trustDomain)
     this.validateRunNonce(runNonce)
+    const jq = dag.container().from(JQ_IMAGE).file("/jq")
     return dag.container()
       .from(GO_IMAGE)
+      .withFile("/usr/local/bin/jq", jq, { permissions: 0o755 })
       .withDirectory("/work", source)
       .withWorkdir("/work")
       .withEnvVariable("GOSHTOSO_CHARTS_TRUST_DOMAIN", partition)
