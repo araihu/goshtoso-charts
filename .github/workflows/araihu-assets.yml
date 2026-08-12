@@ -34,6 +34,10 @@ on:
 permissions:
   contents: read
 
+env:
+  DAGGER_VERSION: '0.21.8'
+  RUN_NONCE: ${{ github.run_id }}-${{ github.run_attempt }}
+
 concurrency:
   group: araihu-assets-${{ github.event.client_payload.release || inputs.release }}
   cancel-in-progress: false
@@ -49,35 +53,6 @@ jobs:
       RELEASE_SHA256: ${{ github.event.client_payload.release_sha256 || inputs.release_sha256 }}
       RELEASE_JSON_SHA256: ${{ github.event.client_payload.release_json_sha256 || inputs.release_json_sha256 }}
     steps:
-      - name: Validate immutable release identity
-        shell: bash
-        run: |
-          set -euo pipefail
-          test "$ASSETS_REPOSITORY" = "araihu/assets"
-          [[ "$ASSETS_REVISION" =~ ^[0-9a-f]{40}$ ]]
-          [[ "$RELEASE" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]
-          [[ "$RELEASE_SHA256" =~ ^[0-9a-f]{64}$ ]]
-          [[ "$RELEASE_JSON_SHA256" =~ ^[0-9a-f]{64}$ ]]
-          expected_url="https://github.com/araihu/assets/releases/download/${RELEASE}/araihu-assets-${RELEASE}.tar.gz"
-          test "$RELEASE_URL" = "$expected_url"
-
-      - name: Verify tag resolves to dispatched revision
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          object=$(gh api "repos/araihu/assets/git/ref/tags/${RELEASE}" \
-            --jq '.object.type + " " + .object.sha')
-          read -r object_type object_sha <<< "$object"
-          if test "$object_type" = tag; then
-            object=$(gh api "repos/araihu/assets/git/tags/${object_sha}" \
-              --jq '.object.type + " " + .object.sha')
-            read -r object_type object_sha <<< "$object"
-          fi
-          test "$object_type" = commit
-          test "$object_sha" = "$ASSETS_REVISION"
-
       - name: Create selected-repository App token
         id: app-token
         uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
@@ -96,60 +71,25 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           persist-credentials: false
 
-      - name: Test archive link rejection
-        run: ./scripts/reject-archive-links_test.sh
+      - name: Materialize validated Dagger input
+        shell: bash
+        run: ./scripts/materialize-dagger-input.sh assets .dagger-inputs/assets.json
 
-      - name: Set up Go
-        uses: actions/setup-go@b7ad1dad31e06c5925ef5d2fc7ad053ef454303e # v7.0.0
+      - name: Validate and update fallback assets
+        uses: dagger/dagger-for-github@456fc3af63a2ba6f9789af9c55045b459115541b # v8.3.0
         with:
-          go-version: '1.26.5'
-          cache: true
-
-      - name: Download and verify release once
-        id: archive
-        shell: bash
-        run: |
-          set -euo pipefail
-          archive="$RUNNER_TEMP/araihu-assets-${RELEASE}.tar.gz"
-          extracted="$RUNNER_TEMP/araihu-assets-${RELEASE}"
-          curl --fail --location --silent --show-error --retry 3 \
-            --output "$archive" "$RELEASE_URL"
-          printf '%s  %s\n' "$RELEASE_SHA256" "$archive" \
-            | sha256sum --check --strict
-          while IFS= read -r member; do
-            case "$member" in
-              /*|../*|*/../*|*/..) echo "unsafe archive member: $member" >&2; exit 1 ;;
-            esac
-          done < <(tar --list --gzip --file "$archive")
-          ./scripts/reject-archive-links.sh "$archive"
-          mkdir "$extracted"
-          tar --extract --gzip --file "$archive" --directory "$extracted" \
-            --no-same-owner --no-same-permissions
-          echo "release-dir=$extracted" >> "$GITHUB_OUTPUT"
-
-      - name: Update allowlisted fallback assets
-        shell: bash
-        run: |
-          set -euo pipefail
-          args=(
-            -release-dir "${{ steps.archive.outputs.release-dir }}"
-            -assets-repository "$ASSETS_REPOSITORY"
-            -assets-revision "$ASSETS_REVISION"
-            -release "$RELEASE"
-            -release-url "$RELEASE_URL"
-            -release-sha256 "$RELEASE_SHA256"
-            -release-json-sha256 "$RELEASE_JSON_SHA256"
-          )
-          go run ./cmd/araihu-assets-update "${args[@]}"
-          first_diff="$RUNNER_TEMP/first.diff"
-          second_diff="$RUNNER_TEMP/second.diff"
-          git diff --binary > "$first_diff"
-          go run ./cmd/araihu-assets-update "${args[@]}"
-          git diff --binary > "$second_diff"
-          cmp "$first_diff" "$second_diff"
-
-      - name: Run focused updater tests
-        run: go test ./internal/araihuassets ./cmd/araihu-assets-update -count=1
+          version: ${{ env.DAGGER_VERSION }}
+          verb: call
+          args: >-
+            update-araihu-assets
+            --source=.
+            --payload=.dagger-inputs/assets.json
+            --github-token=env://GITHUB_TOKEN
+            --trust-domain=assets
+            --run-nonce=${{ env.RUN_NONCE }}
+            export --path=.
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
 
       - name: Select existing labels only
         id: labels
