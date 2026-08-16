@@ -4,14 +4,14 @@ go 1.26.5
 
 require (
 	github.com/a-h/templ v0.3.1020
-	github.com/araihu/goshtoso v0.1.7
+	github.com/araihu/goshtoso v0.1.14
 	github.com/go-analyze/charts v0.6.0
 	github.com/go-echarts/go-echarts/v2 v2.7.2
 	golang.org/x/tools v0.48.0
 )
 
 require (
-	github.com/araihu/muamba v0.0.2 // indirect
+	github.com/araihu/muamba v0.0.5 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/go-analyze/bulk v0.1.4 // indirect
 	github.com/gofrs/flock v0.13.0 // indirect
