@@ -53,7 +53,7 @@ func TestHeatMapRendersUpstreamGeometryAccessibleDataAndWrapper(t *testing.T) {
 		"var(--color-chart-surface)", "var(--color-chart-text)", "var(--font-paragraph), sans-serif",
 		"goshtoso-charts-heatmap__viewport", "min-width: 36rem", "goshtoso-charts-palette-araihu mx-auto",
 		"goshtoso-charts-expanded .goshtoso-charts-heatmap__viewport", "aspect-ratio: 3 / 2",
-		`data-goshtoso-chart-expand`, `-chart-expand-export"`, `>SVG</button>`, `>PNG</button>`,
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`, `<span class="block">Download SVG</span>`, `<span class="block">Download PNG</span>`,
 		`-fullscreen-action`,
 	} {
 		if !strings.Contains(markup, want) {

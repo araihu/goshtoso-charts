@@ -58,7 +58,7 @@ func TestSunburstRendersTypedHierarchyOptionsAndExactValues(t *testing.T) {
 		`"label":{"show":true,"fontSize":10,"position":"inside"}`, `"itemStyle":{"color":"#123456","borderColor":"#ffffff","borderWidth":2}`,
 		`"text":"Basic sunburst example"`, `"animation":false`, `"color":["#654321","#ff8a3d"`,
 		`data-goshtoso-charts-theme-runtime`, `Seven parent and child pairs.`,
-		`data-goshtoso-chart-expand`, `exportFromMenu($el, &#34;png&#34;)`, `>Export</span>`,
+		`data-goshtoso-chart-expand`, `copyFromMenu($el)`, `>Copy</span>`,
 		`<details class="mt-3 max-w-full`, `>Exact hierarchy and values</summary>`,
 		`scope="col">Path</th>`, `scope="col">Parent</th>`, `scope="col">Value</th>`,
 		`parent-0 / child-0`, `>parent-0</td>`, `>0.34</td>`, `>0</td>`,

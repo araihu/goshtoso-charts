@@ -54,7 +54,7 @@ func TestFunnelRendersAccessibleUpstreamShapeAndSharedControls(t *testing.T) {
 		"100", "80", "60", "40", "20", "10", "2", "Seven ordered stages from Show to Cancel.",
 		"Exact stage values", "Share of first stage", `aria-label="Basic funnel exact stage values"`, "stage-show", "#365314",
 		"var(--color-chart-series-2)", "var(--color-chart-text-strong)", "var(--font-paragraph), sans-serif",
-		`data-goshtoso-chart-expand`, `-chart-expand-export"`, `>SVG</button>`, `>PNG</button>`,
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`, `<span class="block">Download SVG</span>`, `<span class="block">Download PNG</span>`,
 		`-fullscreen-action`,
 	} {
 		if !strings.Contains(markup, want) {

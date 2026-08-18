@@ -195,7 +195,8 @@ test("interactive Radar exports PNG, resizes in place, and responds to wrapper l
     }
 
     const pending = page.waitForEvent("download", { timeout: 10000 });
-    await wrapper.getByRole("button", { name: "Download Daily Beijing air quality as PNG", exact: true }).click();
+    await wrapper.getByRole("button", { name: "Export Daily Beijing air quality" }).click();
+    await wrapper.locator('[id$="-export-png-action"]:visible').first().click();
     const download = await pending;
     assert.equal(download.suggestedFilename(), "daily-beijing-air-quality.png");
   } finally {

@@ -32,7 +32,7 @@ func TestScatterSupportsSharedControlsAndExport(t *testing.T) {
 	for _, want := range []string{
 		`-fullscreen-action`,
 		`data-goshtoso-chart-expand`, `-chart-expand-export"`,
-		`>SVG</button>`, `>PNG</button>`,
+		`<span class="block">Download SVG</span>`, `<span class="block">Download PNG</span>`,
 	} {
 		if !strings.Contains(output.String(), want) {
 			t.Errorf("markup missing %q", want)

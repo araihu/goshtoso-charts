@@ -116,7 +116,7 @@ for (const [name, viewport, theme, dark] of [
       assert.deepEqual(effectStyles.series[1].data.map(({ value }) => value), [59, 53, 57, 21, 89, 99]);
 
       assert.ok((await page.locator('script[src="/charts/assets/js/runtime/echarts/5.6.0/echarts.min.js"]').count()) >= 1);
-      assert.ok((await page.locator('script[src="/charts/assets/js/controls/5/controls.js"]').count()) >= 1);
+      assert.ok((await page.locator('script[src="/charts/assets/js/controls/6/controls.js"]').count()) >= 1);
       for (const [variantName, rows] of [["base", 12], ["labels", 12], ["split-lines", 12], ["effect-base", 6], ["effect-styles", 12]]) {
         const current = variant(page, variantName);
         const details = current.locator("details[data-scatter-exact-values]");
@@ -124,7 +124,7 @@ for (const [name, viewport, theme, dark] of [
         await details.locator("summary").click();
         assert.equal(await details.locator("tbody tr").count(), rows);
         const wrapper = current.locator("[data-goshtoso-chart-wrapper]");
-        assert.equal(await wrapper.locator("button:visible").count(), 2);
+        assert.equal(await wrapper.locator("button:visible").count(), 4);
         const geometry = await wrapper.evaluate((element) => {
           const host = element.querySelector("[_echarts_instance_]");
           const chart = globalThis.echarts.getInstanceByDom(host);
@@ -157,7 +157,8 @@ test("interactive Scatter exports PNG, resizes in place, and keeps wrapper lifec
     const figure = current.locator("figure");
     const wrapper = current.locator("[data-goshtoso-chart-wrapper]");
     const pending = page.waitForEvent("download", { timeout: 10000 });
-    await wrapper.getByRole("button", { name: "Download Basic sports scatter as PNG", exact: true }).click();
+    await wrapper.getByRole("button", { name: "Export Basic sports scatter" }).click();
+    await wrapper.locator('[id$="-export-png-action"]:visible').first().click();
     const download = await pending;
     assert.equal(download.suggestedFilename(), "basic-sports-scatter.png");
     const bytes = await fs.readFile(await download.path());

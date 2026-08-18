@@ -13,13 +13,23 @@ templ Styles() {
 			margin-inline: auto;
 		}
 		.goshtoso-charts-controls {
+			display: flex;
+			width: 100%;
+			flex-wrap: wrap;
+			align-items: center;
+			justify-content: flex-end;
+			gap: 0.5rem;
 			min-width: 0;
 			--goshtoso-chart-control-height: 2.75rem;
 			--goshtoso-chart-control-width: 7.5rem;
 		}
-		.goshtoso-charts-controls > [data-action-group-primary] > button,
-		.goshtoso-charts-controls > [data-action-group-secondary] > button,
-		.goshtoso-charts-controls > [data-action-group-secondary] > div > button {
+		.goshtoso-charts-controls > [data-split-button],
+		.goshtoso-charts-controls > .goshtoso-charts-control-button {
+			min-width: 0;
+			max-width: 100%;
+		}
+		.goshtoso-charts-controls > [data-split-button] > button:first-child,
+		.goshtoso-charts-controls > .goshtoso-charts-control-button {
 			box-sizing: border-box;
 			width: var(--goshtoso-chart-control-width);
 			min-width: var(--goshtoso-chart-control-width);
@@ -28,7 +38,7 @@ templ Styles() {
 			justify-content: center;
 			font-size: 0.75rem;
 		}
-		.goshtoso-charts-controls > [data-action-group-overflow] > div > button {
+		.goshtoso-charts-controls > [data-split-button] > [data-popover-root] > [data-popover-trigger] > button {
 			box-sizing: border-box;
 			width: var(--goshtoso-chart-control-height);
 			min-width: var(--goshtoso-chart-control-height);
@@ -40,27 +50,21 @@ templ Styles() {
 			width: 100%;
 			min-height: var(--goshtoso-chart-control-height);
 		}
-		.goshtoso-charts-controls-neutral > [data-action-group-primary] > button {
+		.goshtoso-charts-controls-neutral > [data-split-button] > button,
+		.goshtoso-charts-controls-neutral > [data-split-button] > [data-popover-root] > [data-popover-trigger] > button,
+		.goshtoso-charts-controls-neutral > .goshtoso-charts-control-button {
 			border-color: var(--color-surface-alt);
 			background-color: var(--color-surface-alt);
 			color: var(--color-on-surface-strong);
 			outline-color: var(--color-on-surface-strong);
 		}
-		.dark .goshtoso-charts-controls-neutral > [data-action-group-primary] > button {
+		.dark .goshtoso-charts-controls-neutral > [data-split-button] > button,
+		.dark .goshtoso-charts-controls-neutral > [data-split-button] > [data-popover-root] > [data-popover-trigger] > button,
+		.dark .goshtoso-charts-controls-neutral > .goshtoso-charts-control-button {
 			border-color: var(--color-surface-dark-alt);
 			background-color: var(--color-surface-dark-alt);
 			color: var(--color-on-surface-dark-strong);
 			outline-color: var(--color-on-surface-dark-strong);
-		}
-		.goshtoso-charts-stacked-primary > [data-action-group-primary] {
-			position: absolute;
-			visibility: hidden;
-			pointer-events: none;
-		}
-		.goshtoso-charts-stacked-primary:has(> [data-action-group-secondary]:nth-child(2)[hidden]) > [data-action-group-primary] {
-			position: static;
-			visibility: visible;
-			pointer-events: auto;
 		}
 		.goshtoso-charts-hidden-expand-modal {
 			position: absolute;
@@ -93,6 +97,9 @@ templ Styles() {
 			padding: 0.75rem;
 		}
 		.goshtoso-charts-expand-panel > div:nth-child(2) > p:empty {
+			display: none;
+		}
+		.goshtoso-charts-expand-panel > div:nth-child(3) {
 			display: none;
 		}
 		.goshtoso-charts-expanded .goshtoso-charts-control-content {

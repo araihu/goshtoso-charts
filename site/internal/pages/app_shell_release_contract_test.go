@@ -27,7 +27,7 @@ func TestReleasedAppShellDependenciesArePinnedWithoutOverrides(t *testing.T) {
 		path    string
 		version string
 	}{
-		{path: "github.com/araihu/goshtoso", version: "v0.1.1"},
+		{path: "github.com/araihu/goshtoso", version: "v0.2.0"},
 		{path: "github.com/araihu/goshtoso-app-shells", version: "v0.1.1"},
 	} {
 		if !moduleRequiresVersion(module, dependency.path, dependency.version) {

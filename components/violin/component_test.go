@@ -45,7 +45,7 @@ func TestRenderIsDeterministicAccessibleAndThemeAware(t *testing.T) {
 		"25% = 45.00", "75% = 54.00", "distribution-normal", "#365314",
 		`preserveAspectRatio="xMidYMid meet"`,
 		"var(--color-chart-surface)", "var(--color-chart-text)", "var(--font-paragraph)",
-		`data-goshtoso-chart-expand`, `-chart-expand-export"`, ">SVG</button>", ">PNG</button>",
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`, `<span class="block">Download SVG</span>`, `<span class="block">Download PNG</span>`,
 	} {
 		if !strings.Contains(first, want) {
 			t.Errorf("rendered markup missing %q", want)

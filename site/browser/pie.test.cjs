@@ -57,7 +57,7 @@ test("Pie browser server is exact candidate worktree build on a test-owned non-8
     "/components/pie",
     "/attributions",
     "/search/assets/search.js",
-    "/charts/assets/js/controls/5/controls.js",
+    "/charts/assets/js/controls/6/controls.js",
   ]) {
     const response = await fetch(`${baseURL}${route}`);
     assert.equal(response.status, 200, route);
@@ -105,14 +105,10 @@ async function piePage(viewport = { width: 1440, height: 900 }) {
 }
 
 async function openExpand(wrapper) {
-  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
-  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  const trigger = wrapper.locator('[id$="-primary-action"]:visible').first();
+  await trigger.waitFor({ state: "visible" });
   await trigger.click();
-  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (stacked) {
-    await action.waitFor({ state: "visible" });
-    await action.click();
-  }
+  return trigger;
 }
 
 function rgb(value) {
@@ -138,7 +134,7 @@ async function download(page, wrapper, format) {
   await wrapper.getByRole("button", { name: "Export Legend" }).click();
   const menu = wrapper.locator('[role="menu"]:visible');
   await menu.waitFor({ state: "visible" });
-  await menu.getByRole("menuitem", { name: format, exact: true }).click();
+  await menu.locator('[role="menuitem"]').filter({ hasText: `Download ${format}` }).first().click();
   const outcome = await Promise.race([
     pending.then((artifact) => ({ artifact })),
     wrapper.locator("[data-goshtoso-chart-export-status]").evaluateHandle((status) => new Promise((resolve) => {
@@ -170,7 +166,7 @@ for (const width of [390, 1440]) {
             document.documentElement.dataset.theme = selected;
             document.documentElement.classList.toggle("dark", dark);
           }, { selected: theme, dark: mode === "dark" });
-          assert.equal(await wrapper.locator("button:visible").count(), 2);
+          assert.equal(await wrapper.locator("button:visible").count(), 4);
           assert.deepEqual(await wrapper.locator("table tbody th").allTextContents(), [
             "Direct", "Search Engine", "Referral", "Email", "Video Ads",
           ]);

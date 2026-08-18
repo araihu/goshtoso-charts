@@ -53,7 +53,7 @@ func TestTableRendersUpstreamShapeAccessibleFallbackAndSharedControls(t *testing
 		"Jim Green", "42", "London No. 1 Lake Park", "wow", "Joe Black", "Sidney No. 1 Lake Park", "cool, teacher",
 		"Three contacts and available actions.", "Accessible data table", `aria-label="People directory data"`,
 		"var(--color-chart-surface", "var(--color-chart-surface-alt", "var(--color-chart-text",
-		`data-goshtoso-chart-expand`, `-chart-expand-export"`, `>SVG</button>`, `>PNG</button>`,
+		`data-goshtoso-chart-expand`, `-chart-expand-export"`, `<span class="block">Download SVG</span>`, `<span class="block">Download PNG</span>`,
 		`-fullscreen-action`,
 	} {
 		if !strings.Contains(markup, want) {

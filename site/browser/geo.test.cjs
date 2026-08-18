@@ -77,14 +77,10 @@ function wrapperFor(page, variant) {
 }
 
 async function openExpand(wrapper) {
-  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
-  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  const trigger = wrapper.locator('[id$="-primary-action"]:visible').first();
+  await trigger.waitFor({ state: "visible" });
   await trigger.click();
-  if (stacked) {
-    const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-    await action.waitFor({ state: "visible" });
-    await action.click();
-  }
+  return trigger;
 }
 
 async function measure(wrapper) {
@@ -224,7 +220,7 @@ test("both variants preserve exact coordinates, ripple, visual range, and reused
       { min: regional.visualRange.min, max: regional.visualRange.max, calculable: regional.visualRange.calculable },
       { min: 0, max: 100, calculable: true },
     );
-    assert.equal(regional.visualRange.inRange.color.length, 3);
+	    assert.equal(regional.visualRange.inRange.color.length, 5);
 	assert.deepEqual(channels(regional.areaColor), [226, 232, 240]);
 	assert.notDeepEqual(channels(regional.pointColor), [124, 58, 237]);
 	assert.deepEqual(channels(regional.pointColors[1]), [37, 99, 235]);
@@ -399,7 +395,8 @@ test("Goshtoso modal resizes same observed instance and direct PNG is fully opaq
     await dialog.waitFor({ state: "hidden" });
 
     const pending = page.waitForEvent("download");
-	    await wrapper.getByRole("button", { name: "Download Brazil capitals as PNG" }).click();
+	    await wrapper.getByRole("button", { name: "Export Brazil capitals" }).click();
+	    await wrapper.locator('[id$="-export-png-action"]:visible').first().click();
     const artifact = await pending;
     const bytes = await fs.readFile(await artifact.path());
 	    assert.equal(artifact.suggestedFilename(), "brazil-capitals.png");

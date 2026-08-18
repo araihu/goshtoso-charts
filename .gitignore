@@ -4,4 +4,7 @@
 /site/node_modules/
 /.dagger/node_modules/
 /.dagger-inputs/
+.iconpack-cache/
+.iconpack/
+assets/.charticons.goshtoso-iconpack.lock
 .DS_Store

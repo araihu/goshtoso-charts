@@ -144,7 +144,7 @@ func TestLineSupportsSharedControlsAndExport(t *testing.T) {
 	for _, want := range []string{
 		`-fullscreen-action`,
 		`data-goshtoso-chart-expand`, `-chart-expand-export"`,
-		`>SVG</button>`, `>PNG</button>`,
+		`<span class="block">Download SVG</span>`, `<span class="block">Download PNG</span>`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("markup missing %q", want)
@@ -274,7 +274,7 @@ func TestLineDualAxisRendersThemeMatchedAxesAndExactMapping(t *testing.T) {
 		`aria-label="Dual Axis Line exact series values and Y axis mapping"`,
 		"Exact series values", "Two scales.",
 		`data-goshtoso-chart-expand`, `-chart-expand-export"`,
-		`>SVG</button>`, `>PNG</button>`,
+		`<span class="block">Download SVG</span>`, `<span class="block">Download PNG</span>`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

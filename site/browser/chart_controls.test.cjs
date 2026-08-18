@@ -81,9 +81,9 @@ async function download(page, label) {
     const match = label.match(/^Download (.+) as (SVG|PNG)$/);
     assert.ok(match, `no direct export button and unsupported label ${label}`);
 		const trigger = page.getByRole("button", { name: `Export ${match[1]}` }).first();
-		const menu = trigger.locator("..").getByRole("menu");
+		const menu = popoverMenu(trigger);
 		if (!(await menu.isVisible())) await trigger.click();
-		await menu.getByRole("menuitem", { name: match[2], exact: true }).first().click();
+		await menu.locator('[role="menuitem"]').filter({ hasText: `Download ${match[2]}` }).first().click();
   }
   const artifact = await pending;
 	const artifactPath = await artifact.path();
@@ -101,100 +101,75 @@ async function download(page, label) {
 }
 
 async function openExpand(wrapper) {
-  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
-  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  const trigger = wrapper.locator('[id$="-primary-action"]:visible').first();
+  await trigger.waitFor({ state: "visible" });
   await trigger.click();
-  if (stacked) {
-    const menuItem = wrapper.locator('[id$="-chart-expand-action"]').first();
-    await menuItem.waitFor({ state: "visible" });
-    await menuItem.click();
-  }
   return trigger;
 }
 
-async function enterFullscreen(wrapper) {
-  const direct = wrapper.locator('[id$="-fullscreen-action"]:visible').first();
-  if (await direct.count()) {
-    await direct.click();
-    return { action: direct, trigger: direct };
-  }
-  let trigger = wrapper.locator('[id$="-stacked"] > button:visible').first();
-  if (!(await trigger.count())) trigger = wrapper.getByRole("button", { name: /More .* chart actions/ }).filter({ visible: true }).first();
-  await trigger.click();
-  const action = wrapper.locator('[id*="-fullscreen-action"]:visible').first();
-  await action.click();
-  return { action, trigger };
+function popoverMenu(trigger) {
+  return trigger.locator('xpath=ancestor::*[@data-popover-root][1]').getByRole("menu");
 }
 
-test("responsive controls keep one primary Expand and flatten overflow at 320, 390, 768, and 1440", async () => {
+async function enterFullscreen(wrapper) {
+  const trigger = wrapper.locator('[id$="-stacked"] > [data-popover-root] > [data-popover-trigger] > button:visible').first();
+  await trigger.click();
+  const action = wrapper.locator('[id$="-fullscreen-action"]:visible').first();
+  await action.click();
+  return { action: wrapper.locator('[id$="-fullscreen-action"]').first(), trigger };
+}
+
+test("Split Buttons keep Expand and Export actions usable at every viewport width", async () => {
   const page = await pageAt("/components/line", { width: 320, height: 800 });
   try {
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
     for (const width of [320, 390, 768, 1440]) {
       await page.setViewportSize({ width, height: 900 });
-      const expectedSecondary = width <= 390 ? 0 : width === 768 ? 1 : 2;
-      const expectedOverflow = width <= 768;
-      await page.waitForFunction(({ secondaryCount, overflowVisible }) => {
-        const root = document.querySelector("[data-goshtoso-chart-wrapper] [data-goshtoso-action-group]");
-        if (!root) return false;
-        const secondaries = [...root.querySelectorAll(":scope > [data-action-group-secondary]")]
-          .filter((secondary) => secondary.getBoundingClientRect().width > 0).length;
-        const overflow = root.querySelector(":scope > [data-action-group-overflow]");
-        return secondaries === secondaryCount && Boolean(overflow && overflow.getBoundingClientRect().width) === overflowVisible;
-      }, { secondaryCount: expectedSecondary, overflowVisible: expectedOverflow });
       const state = await wrapper.evaluate((element) => {
-        const root = element.querySelector("[data-goshtoso-action-group]");
-        const expand = Array.from(root.querySelectorAll('[id$="-stacked"] > button, [data-action-group-primary] button'))
-          .find((button) => button.getBoundingClientRect().width > 0 && getComputedStyle(button).visibility !== "hidden");
-        const secondaries = Array.from(root.querySelectorAll(":scope > [data-action-group-secondary]"));
-        const overflow = root.querySelector(":scope > [data-action-group-overflow]");
+        const group = element.querySelector("[data-goshtoso-chart-actions]");
+        const visible = (candidate) => candidate && candidate.getBoundingClientRect().width > 0 && getComputedStyle(candidate).visibility !== "hidden";
+        const splitButtons = [...group.querySelectorAll("[data-split-button]")];
         return {
-          wrapperWidth: element.clientWidth,
           pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
-          primaryVisible: Boolean(expand),
-          primaryText: expand && expand.textContent.trim(),
-          secondaryVisible: secondaries.filter((secondary) => secondary.getBoundingClientRect().width > 0).length,
-          overflowVisible: Boolean(overflow && overflow.getBoundingClientRect().width),
-          collapseCount: Array.from(element.querySelectorAll("button")).filter((button) => /collapse/i.test(button.textContent)).length,
+          tone: group.dataset.goshtosoChartControlTone,
+          splitButtons: splitButtons.map((split) => {
+            const primary = split.querySelector("button[id$='-primary-action'], button[id$='-copy-action']");
+            const trigger = split.querySelector("[data-popover-trigger] > button");
+            return {
+              primaryText: primary?.textContent.trim(),
+              primaryWidth: Math.round(primary?.getBoundingClientRect().width || 0),
+              primaryHeight: Math.round(primary?.getBoundingClientRect().height || 0),
+              triggerWidth: Math.round(trigger?.getBoundingClientRect().width || 0),
+              triggerHeight: Math.round(trigger?.getBoundingClientRect().height || 0),
+              visible: visible(primary) && visible(trigger),
+            };
+          }),
+          collapseCount: [...group.querySelectorAll("button")].filter((button) => /collapse/i.test(button.textContent) && visible(button)).length,
         };
       });
       assert.equal(state.pageOverflow, 0, `${width}px page overflow`);
-      assert.equal(state.primaryVisible, true, `${width}px primary Expand hidden`);
-      assert.match(state.primaryText, /^Expand/);
+      assert.equal(state.tone, "neutral");
+      assert.deepEqual(state.splitButtons.map(({ primaryText }) => primaryText), ["Expand", "Copy"]);
+      assert.ok(state.splitButtons.every(({ visible }) => visible));
+      assert.ok(state.splitButtons.every(({ primaryWidth, primaryHeight, triggerWidth, triggerHeight }) =>
+        primaryWidth === 120 && primaryHeight === 44 && triggerWidth === 44 && triggerHeight === 44));
       assert.equal(state.collapseCount, 0);
-      assert.equal(state.secondaryVisible, expectedSecondary, `${width}px secondary count at ${state.wrapperWidth}px wrapper`);
-      assert.equal(state.overflowVisible, expectedOverflow, `${width}px overflow visibility at ${state.wrapperWidth}px wrapper`);
 
-      const primary = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
-      await primary.focus();
-      assert.equal(await primary.evaluate((button) => button === document.activeElement), true);
-      if (expectedSecondary > 0) {
-        await primary.press("Enter");
-        const primaryMenu = wrapper.locator('[id$="-stacked"] [role=menu]');
-        await primaryMenu.waitFor({ state: "visible" });
-        assert.deepEqual(
-          (await primaryMenu.getByRole("menuitem").allTextContents()).map((text) => text.trim()),
-          ["Expand", "Fullscreen"],
-        );
-        await page.keyboard.press("Escape");
-        await primaryMenu.waitFor({ state: "hidden" });
-      }
+      const expandTrigger = wrapper.locator('[id$="-stacked"] > [data-popover-root] > [data-popover-trigger] > button:visible').first();
+      const expandMenu = popoverMenu(expandTrigger);
+      await expandTrigger.click();
+      await expandMenu.waitFor({ state: "visible" });
+      assert.deepEqual((await expandMenu.getByRole("menuitem").allTextContents()).map((text) => text.trim()), ["Fullscreen"]);
+      await page.keyboard.press("Escape");
+      await expandMenu.waitFor({ state: "hidden" });
 
-      if (state.overflowVisible) {
-        const overflow = wrapper.getByRole("button", { name: /More .* chart actions/ });
-        await overflow.click();
-        const menu = wrapper.locator("[data-action-group-overflow] [role=menu]");
-        await menu.waitFor({ state: "visible" });
-        const expected = expectedSecondary === 0
-          ? ["Expand", "Expand", "Fullscreen", "Export", "SVG", "PNG"]
-          : ["Export", "SVG", "PNG"];
-        assert.deepEqual(
-          (await menu.getByRole("menuitem").filter({ visible: true }).allTextContents()).map((text) => text.trim()),
-          expected,
-        );
-        await page.mouse.click(1, 1);
-        await menu.waitFor({ state: "hidden" });
-      }
+      const exportTrigger = wrapper.locator('[id$="-export"] > [data-popover-root] > [data-popover-trigger] > button:visible').first();
+      const exportMenu = popoverMenu(exportTrigger);
+      await exportTrigger.click();
+      await exportMenu.waitFor({ state: "visible" });
+      assert.deepEqual((await exportMenu.getByRole("menuitem").allTextContents()).map((text) => text.trim()), ["Download SVG", "Download PNG"]);
+      await page.keyboard.press("Escape");
+      await exportMenu.waitFor({ state: "hidden" });
     }
   } finally {
     await page.close();
@@ -208,7 +183,6 @@ test("static, interactive, 3D, and funnel controls share neutral dimensions acro
     ["/components/interactive/scatter-3d", "scatter-3d"],
     ["/components/funnel", "funnel"],
   ];
-  const exportTriggerSizes = new Map();
   for (const width of [390, 768, 1440]) {
     for (const mode of ["light", "dark"]) {
       for (const [route, slug] of routes) {
@@ -216,79 +190,31 @@ test("static, interactive, 3D, and funnel controls share neutral dimensions acro
         try {
           await page.evaluate((dark) => document.documentElement.classList.toggle("dark", dark), mode === "dark");
           const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
-          await page.waitForFunction(() => document.querySelector("[data-goshtoso-action-group]")?.dataset.actionGroupInitialized === "true");
           const controls = await wrapper.evaluate((element) => {
-            const root = element.querySelector("[data-goshtoso-action-group]");
+            const root = element.querySelector("[data-goshtoso-chart-actions]");
             const visible = (candidate) => candidate && candidate.getBoundingClientRect().width > 0 && getComputedStyle(candidate).visibility !== "hidden";
-            const primary = root.querySelector(":scope > [data-action-group-primary] > button");
-            const namedButtons = [primary, ...[...root.querySelectorAll(":scope > [data-action-group-secondary]")]
-              .map((slot) => slot.querySelector(":scope > button, :scope > div > button"))].filter(visible);
-            const overflow = root.querySelector(":scope > [data-action-group-overflow] > div > button");
-            const probe = document.createElement("span");
-            probe.className = "fixed invisible bg-primary dark:bg-primary-dark";
-            document.body.append(probe);
-            const accent = getComputedStyle(probe).backgroundColor;
-            probe.remove();
-            const primaryStyle = getComputedStyle(primary);
+            const splitButtons = [...root.querySelectorAll("[data-split-button]")];
             return {
               tone: root.dataset.goshtosoChartControlTone,
-              accent,
-              primaryColor: primaryStyle.backgroundColor,
-              primaryClasses: primary.className,
-              named: namedButtons.map((button) => ({
-                text: button.textContent.trim(),
-                width: Math.round(button.getBoundingClientRect().width),
-                height: Math.round(button.getBoundingClientRect().height),
-                expanded: button.getAttribute("aria-expanded"),
-              })),
-              overflow: visible(overflow) ? { width: Math.round(overflow.getBoundingClientRect().width), height: Math.round(overflow.getBoundingClientRect().height) } : null,
+              aria: root.getAttribute("aria-label"),
+              actions: splitButtons.map((split) => {
+                const primary = split.querySelector("button[id$='-primary-action'], button[id$='-copy-action']");
+                const trigger = split.querySelector("[data-popover-trigger] > button");
+                return {
+                  text: primary?.textContent.trim(),
+                  primary: visible(primary) ? [Math.round(primary.getBoundingClientRect().width), Math.round(primary.getBoundingClientRect().height)] : null,
+                  trigger: visible(trigger) ? [Math.round(trigger.getBoundingClientRect().width), Math.round(trigger.getBoundingClientRect().height)] : null,
+                };
+              }),
               pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
             };
           });
           assert.equal(controls.tone, "neutral", `${slug} tone`);
-          assert.notEqual(controls.primaryColor, controls.accent, `${slug} retained primary accent`);
-          assert.ok(controls.named.length >= 1, `${slug} missing named chart action`);
-          assert.deepEqual(new Set(controls.named.map(({ height }) => height)), new Set([44]), `${slug} control heights`);
-          assert.ok(Math.max(...controls.named.map(({ width: value }) => value)) - Math.min(...controls.named.map(({ width: value }) => value)) <= 1, `${slug} control widths ${JSON.stringify(controls.named)}`);
-          assert.ok(controls.named.every(({ width: value }) => value === 120), `${slug} expected 120px named controls`);
-          if (controls.overflow) assert.deepEqual(controls.overflow, { width: 44, height: 44 });
+          assert.match(controls.aria, / chart controls$/, `${slug} group label`);
+          assert.ok(controls.actions.some(({ text }) => text === "Copy"), `${slug} missing Copy primary`);
+          assert.ok(controls.actions.every(({ text }) => ["Expand", "Copy"].includes(text)));
+          assert.ok(controls.actions.every(({ primary, trigger }) => primary?.[0] === 120 && primary?.[1] === 44 && trigger?.[0] === 44 && trigger?.[1] === 44), `${slug} control dimensions ${JSON.stringify(controls.actions)}`);
           assert.equal(controls.pageOverflow, 0, `${width}px ${mode} ${slug} overflow`);
-
-          if (width === 1440) {
-            const exportButton = wrapper.locator("[data-goshtoso-chart-actions] > [data-action-group-secondary] button:visible").filter({ hasText: "Export" }).first();
-            await exportButton.waitFor({ state: "visible" });
-            const key = (await exportButton.getAttribute("aria-haspopup")) === "true" ? "dropdown" : "direct";
-            exportTriggerSizes.set(key, await exportButton.evaluate((button) => ({ width: Math.round(button.getBoundingClientRect().width), height: Math.round(button.getBoundingClientRect().height) })));
-          }
-
-          const stacked = wrapper.locator('[id$="-stacked"] > button:visible').first();
-          if (await stacked.count()) {
-            await stacked.focus();
-            await stacked.press("Enter");
-            const menu = stacked.locator("..").getByRole("menu");
-            await menu.waitFor({ state: "visible" });
-            await page.waitForFunction((openMenu) => {
-              const items = [...openMenu.querySelectorAll("[role='menuitem']")];
-              return items.length >= 2 && items.every((item) => Math.round(item.getBoundingClientRect().height) === 44);
-            }, await menu.elementHandle());
-            const itemHeights = await menu.getByRole("menuitem").evaluateAll((items) => items.map((item) => Math.round(item.getBoundingClientRect().height)));
-            assert.ok(itemHeights.length >= 2);
-            assert.ok(itemHeights.every((height) => height === 44), `${slug} stacked item heights ${itemHeights}`);
-            await page.keyboard.press("Escape");
-            await menu.waitFor({ state: "hidden" });
-            assert.equal(await stacked.evaluate((button) => button === document.activeElement), true);
-          }
-
-          const overflow = wrapper.getByRole("button", { name: /More .* chart actions/ }).filter({ visible: true }).first();
-          if (await overflow.count()) {
-            await overflow.focus();
-            await overflow.press("Enter");
-            const menu = overflow.locator("..").getByRole("menu");
-            await menu.waitFor({ state: "visible" });
-            await page.keyboard.press("Escape");
-            await menu.waitFor({ state: "hidden" });
-            assert.equal(await overflow.isVisible(), true);
-          }
 
           if (screenshotDirectory) {
             await wrapper.scrollIntoViewIfNeeded();
@@ -300,8 +226,6 @@ test("static, interactive, 3D, and funnel controls share neutral dimensions acro
       }
     }
   }
-  assert.deepEqual(exportTriggerSizes.get("direct"), { width: 120, height: 44 });
-  assert.deepEqual(exportTriggerSizes.get("dropdown"), { width: 120, height: 44 });
 });
 
 test("Word Cloud, Line, Gauge, Pie, Map, and Tree controls stay usable across the full width and theme matrix", async () => {
@@ -324,31 +248,36 @@ test("Word Cloud, Line, Gauge, Pie, Map, and Tree controls stay usable across th
             const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
             await wrapper.waitFor();
             await page.waitForFunction(() => Boolean(window.__goshtosoChartsControls));
-            await page.waitForFunction(() => document.querySelector('[data-goshtoso-action-group][data-action-group-initialized="true"]'));
+            await page.waitForFunction(() => document.querySelector('[data-goshtoso-chart-actions] [data-split-button]'));
             await page.evaluate(({ selected, dark }) => {
               document.documentElement.dataset.theme = selected;
               document.documentElement.classList.toggle("dark", dark);
             }, { selected: theme, dark: mode === "dark" });
             await page.waitForTimeout(75);
             const state = await wrapper.evaluate((element) => {
-              const group = element.querySelector("[data-goshtoso-action-group]");
-              const visibleExpand = Array.from(group.querySelectorAll("button")).filter((button) =>
+              const group = element.querySelector("[data-goshtoso-chart-actions]");
+              const visibleExpand = Array.from(group.querySelectorAll('[id$="-primary-action"]')).filter((button) =>
                 button.textContent.trim() === "Expand" &&
                 button.getBoundingClientRect().width > 0 &&
                 getComputedStyle(button).visibility !== "hidden");
+              const visibleCopy = Array.from(group.querySelectorAll('[id$="-copy-action"]')).filter((button) =>
+                button.getBoundingClientRect().width > 0 && getComputedStyle(button).visibility !== "hidden");
               return {
-                initialized: group.dataset.actionGroupInitialized === "true",
+                initialized: Boolean(group),
                 aria: group.getAttribute("aria-label"),
-                collapse: Array.from(group.querySelectorAll("button")).filter((button) => /collapse/i.test(button.textContent)).length,
+                collapse: Array.from(group.querySelectorAll("button")).filter((button) => /collapse/i.test(button.textContent) &&
+                  button.getBoundingClientRect().width > 0 && getComputedStyle(button).visibility !== "hidden").length,
                 expandCount: visibleExpand.length,
+                copyCount: visibleCopy.length,
                 small: getComputedStyle(visibleExpand[0]).fontSize === "12px",
                 pageOverflow: document.documentElement.scrollWidth - document.documentElement.clientWidth,
               };
             });
-            assert.equal(state.initialized, true, `${width}px ${theme} ${mode} ${slug} ActionGroup not initialized`);
+            assert.equal(state.initialized, true, `${width}px ${theme} ${mode} ${slug} controls not initialized`);
             assert.match(state.aria, / chart controls$/, `${width}px ${theme} ${mode} ${slug} group label`);
             assert.equal(state.collapse, 0, `${width}px ${theme} ${mode} ${slug} leaked Collapse`);
             assert.equal(state.expandCount, 1, `${width}px ${theme} ${mode} ${slug} primary Expand count`);
+            assert.equal(state.copyCount, 1, `${width}px ${theme} ${mode} ${slug} primary Copy count`);
             assert.equal(state.small, true, `${width}px ${theme} ${mode} ${slug} Expand is not small`);
             assert.equal(state.pageOverflow, 0, `${width}px ${theme} ${mode} ${slug} page overflow`);
             if (screenshotDirectory && (width === 320 || width === 1440)) {
@@ -719,7 +648,7 @@ test("Expand uses Goshtoso Modal, scales static Scatter, and restores focus", as
     await page.waitForTimeout(350);
     assert.deepEqual(await wrapper.evaluate((element) => ({
       sameContent: element.__expandedContent === element.querySelector("[data-goshtoso-chart-content]"),
-      focusReturned: document.activeElement === element.querySelector('[id$="-stacked"] > button'),
+      focusReturned: document.activeElement === element.querySelector('[id$="-primary-action"]'),
     })), { sameContent: true, focusReturned: true });
   } finally {
     await page.close();
@@ -795,7 +724,7 @@ test("Expand scales interactive Tree and preserves renderer, hierarchy state, an
     await page.waitForTimeout(350);
     assert.deepEqual(await wrapper.evaluate((element) => ({
       sameInstance: window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]")) === element.__modalTreeInstance,
-      focusReturned: document.activeElement === element.querySelector('[id$="-stacked"] > button'),
+      focusReturned: document.activeElement === element.querySelector('[id$="-primary-action"]'),
     })), { sameInstance: true, focusReturned: true });
   } finally {
     await page.close();
@@ -814,10 +743,14 @@ test("native fullscreen enters and exits, preserves instance, resizes, and retur
       element.addEventListener("goshtoso-charts:resize", () => { element.__resizeEvents += 1; });
       return { width: instance.getWidth(), height: instance.getHeight() };
     });
-    const { action: button } = await enterFullscreen(wrapper);
+    const { action } = await enterFullscreen(wrapper);
     await page.waitForFunction(() => Boolean(document.fullscreenElement));
     await page.waitForTimeout(350);
-    assert.equal(await button.getAttribute("aria-pressed"), "true");
+    assert.equal(await action.getAttribute("aria-pressed"), "true");
+    const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]:visible').first();
+    await collapse.waitFor({ state: "visible" });
+    assert.equal(await collapse.getAttribute("aria-label"), "Collapse Basic line example");
+    assert.equal(await wrapper.locator('[id$="-stacked"]:visible').count(), 0);
     const full = await wrapper.evaluate((element) => {
       const host = element.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);
@@ -844,7 +777,7 @@ test("native fullscreen enters and exits, preserves instance, resizes, and retur
       });
       document.exitFullscreen = () => Promise.reject(new Error("expected fullscreen exit rejection"));
     });
-    await button.click();
+    await collapse.click();
     await page.waitForTimeout(100);
     assert.deepEqual(await page.evaluate(() => globalThis.__fullscreenExitRejections), []);
     await page.evaluate(() => {
@@ -856,7 +789,7 @@ test("native fullscreen enters and exits, preserves instance, resizes, and retur
     const restored = await wrapper.evaluate((element) => ({
       sameInstance: element.__instanceIdentity === window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]")),
       resizeEvents: element.__resizeEvents,
-      focusReturned: document.activeElement === element.querySelector('[id$="-stacked"] > button'),
+      focusReturned: document.activeElement === element.querySelector('[id$="-stacked"] > [data-popover-root] > [data-popover-trigger] > button'),
     }));
     assert.equal(restored.sameInstance, true);
     assert.equal(restored.focusReturned, true);
@@ -877,10 +810,13 @@ test("Escape exits the safe fullscreen fallback and returns focus", async () => 
       return { width: instance.getWidth(), height: instance.getHeight() };
     });
     await wrapper.evaluate((element) => { element.requestFullscreen = undefined; });
-    const { action: button } = await enterFullscreen(wrapper);
+    const { action } = await enterFullscreen(wrapper);
     await page.waitForTimeout(350);
     assert.equal(await wrapper.evaluate((element) => element.classList.contains("goshtoso-charts-fullscreen-fallback")), true);
-    assert.equal(await button.getAttribute("aria-pressed"), "true");
+    assert.equal(await action.getAttribute("aria-pressed"), "true");
+    const collapse = wrapper.locator('[data-goshtoso-chart-control="collapse"]:visible').first();
+    await collapse.waitFor({ state: "visible" });
+    assert.equal(await collapse.getAttribute("aria-label"), "Collapse Basic bar example");
     const full = await wrapper.evaluate((element) => {
       const host = element.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);
@@ -893,9 +829,29 @@ test("Escape exits the safe fullscreen fallback and returns focus", async () => 
     await page.waitForTimeout(350);
     assert.deepEqual(await wrapper.evaluate((element) => ({
       active: element.classList.contains("goshtoso-charts-fullscreen-fallback"),
-      focusReturned: document.activeElement === element.querySelector('[id$="-stacked"] > button'),
+      focusReturned: document.activeElement === element.querySelector('[id$="-stacked"] > [data-popover-root] > [data-popover-trigger] > button'),
       sameInstance: element.__fallbackInstance === window.echarts.getInstanceByDom(element.querySelector("[_echarts_instance_]")),
     })), { active: false, focusReturned: true, sameInstance: true });
+  } finally {
+    await page.close();
+  }
+});
+
+test("Escape collapses native fullscreen and restores the Expand Split Button", async () => {
+  const page = await pageAt("/components/interactive/line");
+  try {
+    const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    await enterFullscreen(wrapper);
+    await page.waitForFunction(() => Boolean(document.fullscreenElement));
+    await wrapper.locator('[data-goshtoso-chart-control="collapse"]:visible').waitFor({ state: "visible" });
+    await page.keyboard.press("Escape");
+    await page.waitForFunction(() => !document.fullscreenElement);
+    await page.waitForTimeout(350);
+    assert.deepEqual(await wrapper.evaluate((element) => ({
+      collapseVisible: getComputedStyle(element.querySelector('[data-goshtoso-chart-control="collapse"]')).display !== "none" &&
+        !element.querySelector('[data-goshtoso-chart-control="collapse"]').hidden,
+      expandVisible: !element.querySelector('[id$="-stacked"]').hidden,
+    })), { collapseVisible: false, expandVisible: true });
   } finally {
     await page.close();
   }
@@ -2064,7 +2020,7 @@ test("static Export dropdown uses Goshtoso keyboard and Escape semantics", async
     await trigger.press("Enter");
     const menu = page.getByRole("menu");
     await menu.waitFor({ state: "visible" });
-    assert.deepEqual(await menu.getByRole("menuitem").allTextContents(), ["SVG", "PNG"]);
+    assert.deepEqual((await menu.getByRole("menuitem").allTextContents()).map((text) => text.trim()), ["Download SVG", "Download PNG"]);
 		await page.keyboard.press("Tab");
     assert.equal(await menu.evaluate((element) => element.contains(document.activeElement)), true);
     await page.keyboard.press("Escape");
@@ -2096,6 +2052,31 @@ test("static transparent exports retain transparent pixels", async () => {
   }
 });
 
+test("Export Split Button primary action copies the chart as a PNG", async () => {
+  const page = await pageAt("/components/line");
+  try {
+    await page.evaluate(() => {
+      globalThis.__clipboardWrites = [];
+      window.ClipboardItem = class {
+        constructor(data) { this.data = data; }
+      };
+      Object.defineProperty(navigator, "clipboard", {
+        configurable: true,
+        value: { write: async (items) => { globalThis.__clipboardWrites.push(items); } },
+      });
+    });
+    const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    await wrapper.locator('[id$="-export-copy-action"]:visible').click();
+    await page.waitForFunction(() => document.querySelector("[data-goshtoso-chart-export-status]")?.textContent === "PNG copied to clipboard");
+    assert.deepEqual(await page.evaluate(() => ({
+      writes: globalThis.__clipboardWrites.length,
+      types: Object.keys(globalThis.__clipboardWrites[0][0].data),
+    })), { writes: 1, types: ["image/png"] });
+  } finally {
+    await page.close();
+  }
+});
+
 for (const width of [390, 1440]) {
   for (const theme of ["goshtoso", "araihu"]) {
     for (const mode of ["light", "dark"]) {
@@ -2111,7 +2092,7 @@ for (const width of [390, 1440]) {
           }, { selected: theme, dark: mode === "dark" });
           const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
           assert.equal(await wrapper.getByRole("group", { name: /chart controls/ }).count(), 1);
-          assert.equal(await wrapper.locator("button:visible").count(), 2);
+          assert.equal(await wrapper.locator("button:visible").count(), 4);
           const dimensions = await page.evaluate(() => ({
             client: document.documentElement.clientWidth,
             scroll: document.documentElement.scrollWidth,
@@ -2123,9 +2104,7 @@ for (const width of [390, 1440]) {
               contained: element.scrollWidth >= element.clientWidth,
             })), { localOverflow: "auto", contained: true });
           }
-          const focusTarget = width === 390
-            ? wrapper.getByRole("button", { name: /More .* chart actions/ })
-            : wrapper.locator('[id$="-stacked"] > button');
+          const focusTarget = wrapper.locator('[id$="-primary-action"]:visible').first();
           await focusTarget.focus();
           assert.equal(await focusTarget.evaluate((element) => element === document.activeElement), true);
           assert.equal(await wrapper.getByRole("button", { name: /^Collapse / }).count(), 0);

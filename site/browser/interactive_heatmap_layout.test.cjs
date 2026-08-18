@@ -84,19 +84,15 @@ function wrapperFor(figure) {
 }
 
 async function openExpand(wrapper) {
-  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
-  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  const trigger = wrapper.locator('[id$="-primary-action"]:visible').first();
+  await trigger.waitFor({ state: "visible" });
   await trigger.click();
-  if (stacked) {
-    const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-    await action.waitFor({ state: "visible" });
-    await action.click();
-  }
+  return trigger;
 }
 
 async function enterFullscreen(wrapper) {
-  await wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first().click();
-  const action = wrapper.locator('[id$="-fullscreen-action"]').first();
+  await wrapper.locator('[id$="-stacked"] > [data-popover-root] > [data-popover-trigger] > button:visible').first().click();
+  const action = wrapper.locator('[id$="-fullscreen-action"]:visible').first();
   await action.waitFor({ state: "visible" });
   await action.click();
 }
@@ -292,7 +288,7 @@ test("test-owned random-port HeatMap route and shared assets stay healthy", asyn
     "/components/interactive/heatmap",
     "/attributions",
     "/search/assets/search.js",
-    "/charts/assets/js/controls/5/controls.js",
+    "/charts/assets/js/controls/6/controls.js",
     "/assets/styles.css",
   ]) {
     const response = await fetch(`${baseURL}${route}`);
@@ -460,7 +456,8 @@ for (const [label, filename, assertion] of [
       assert.deepEqual([...png.subarray(0, 8)], [137, 80, 78, 71, 13, 10, 26, 10]);
       await closeExpand(page, wrapper, label);
       const downloadPromise = page.waitForEvent("download");
-      await page.getByRole("button", { name: `Download ${label} as PNG` }).first().click();
+      await page.getByRole("button", { name: `Export ${label}` }).first().click();
+      await page.locator('[id$="-export-png-action"]:visible').first().click();
       const download = await downloadPromise;
       assert.equal(download.suggestedFilename(), filename);
       const stream = await download.createReadStream();

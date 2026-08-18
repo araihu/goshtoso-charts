@@ -38,6 +38,26 @@ func TestHandlerServesVersionedRuntimeAtDefaultMount(t *testing.T) {
 	}
 }
 
+func TestHandlerServesGoshtosoChartIconpackSprite(t *testing.T) {
+	t.Parallel()
+	recorder := httptest.NewRecorder()
+	assets.Handler().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, assets.ChartIconsSpriteURL, nil))
+	if recorder.Code != http.StatusOK {
+		t.Fatalf("GET %s status = %d, want %d", assets.ChartIconsSpriteURL, recorder.Code, http.StatusOK)
+	}
+	body := recorder.Body.String()
+	for _, symbol := range []string{
+		`id="heroicons-optimized-24-outline-arrow-down-tray"`,
+		`id="heroicons-optimized-24-outline-arrows-pointing-in"`,
+		`id="heroicons-optimized-24-outline-arrows-pointing-out"`,
+		`id="heroicons-optimized-24-outline-document-duplicate"`,
+	} {
+		if !strings.Contains(body, symbol) {
+			t.Errorf("iconpack sprite missing %s", symbol)
+		}
+	}
+}
+
 func TestVendoredRuntimeAcquisitionInventory(t *testing.T) {
 	t.Parallel()
 
@@ -123,12 +143,12 @@ func TestHandlerServesVersionedChartControlRuntime(t *testing.T) {
 	if recorder.Code != http.StatusOK {
 		t.Fatalf("GET %s status = %d, want %d", assets.ControlRuntimeURL, recorder.Code, http.StatusOK)
 	}
-	const wantSHA256 = "18b87e685e16788b30fb879dd73e084262e0dd94495e884884435e185237d0a0"
+	const wantSHA256 = "afe49663732621cfc1bf84a9382986b02307f6c94a6c3cf5f668f8c19f036bde"
 	if got := fmt.Sprintf("%x", sha256.Sum256(recorder.Body.Bytes())); got != wantSHA256 {
-		t.Fatalf("GET %s SHA-256 = %s, want immutable v5 %s", assets.ControlRuntimeURL, got, wantSHA256)
+		t.Fatalf("GET %s SHA-256 = %s, want immutable v6 %s", assets.ControlRuntimeURL, got, wantSHA256)
 	}
 	for _, want := range []string{
-		"requestFullscreen", "goshtoso-charts:resize", "goshtoso-charts:export-request", "expandFromMenu", "toggleFullscreen",
+		"requestFullscreen", "goshtoso-charts:resize", "goshtoso-charts:export-request", "expandFromMenu", "toggleFullscreen", "collapseFullscreen", "copyFromMenu",
 		"goshtoso-charts:set-wrapper-mode", "goshtoso-charts:wrapper-mode-change",
 		"MutationObserver", "htmx:load", "htmx:afterSwap", "goshtosoChartWrapperMode", "normalizeWrapperMode",
 	} {

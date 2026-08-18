@@ -80,24 +80,15 @@ function liquidWrapper(page, variant = "basic") {
 }
 
 async function openExpand(wrapper) {
-  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
-  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  const trigger = wrapper.locator('[id$="-primary-action"]:visible').first();
+  await trigger.waitFor({ state: "visible" });
   await trigger.click();
-  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (stacked) {
-    await action.waitFor({ state: "visible" });
-    await action.click();
-  }
+  return trigger;
 }
 
 async function clickPNG(wrapper, label) {
-  const direct = wrapper.getByRole("button", { name: `Download ${label} as PNG` });
-  if (await direct.count() && await direct.isVisible()) {
-    await direct.click();
-    return;
-  }
-  await wrapper.getByRole("button", { name: /More .* chart actions/ }).click();
-  await wrapper.locator('[id$="-export-png-action"]').first().click();
+  await wrapper.getByRole("button", { name: `Export ${label}` }).click();
+  await wrapper.locator('[id$="-export-png-action"]:visible').first().click();
 }
 
 async function liquidState(wrapper) {

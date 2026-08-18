@@ -42,8 +42,8 @@ func TestInteractiveSupportsSharedControlsAndPNGExport(t *testing.T) {
 	if strings.Contains(markup, `data-goshtoso-chart-export="svg"`) {
 		t.Fatal("canvas interactive chart exposed unsupported SVG export")
 	}
-	if strings.Contains(markup, `-chart-expand-export"`) {
-		t.Fatal("single interactive PNG capability rendered a dropdown")
+	if !strings.Contains(markup, `-chart-expand-export"`) || !strings.Contains(markup, `>Copy</span>`) {
+		t.Fatal("single interactive PNG capability omitted the Copy SplitButton")
 	}
 }
 

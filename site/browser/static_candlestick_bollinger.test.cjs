@@ -84,14 +84,10 @@ async function chartPage(viewport = { width: 1440, height: 900 }) {
 }
 
 async function openExpand(wrapper) {
-  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
-  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  const trigger = wrapper.locator('[id$="-primary-action"]:visible').first();
+  await trigger.waitFor({ state: "visible" });
   await trigger.click();
-  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (stacked) {
-    await action.waitFor({ state: "visible" });
-    await action.click();
-  }
+  return trigger;
 }
 
 function rgb(value) {
@@ -116,7 +112,7 @@ async function download(page, wrapper, format) {
   await wrapper.getByRole("button", { name: "Export Candlestick Chart with Bollinger Bands" }).click();
   const menu = wrapper.locator('[role="menu"]:visible');
   await menu.waitFor();
-  await menu.getByRole("menuitem", { name: format, exact: true }).click();
+  await menu.locator('[role="menuitem"]').filter({ hasText: `Download ${format}` }).first().click();
   const outcome = await Promise.race([
     pending.then((artifact) => ({ artifact })),
     wrapper.locator("[data-goshtoso-chart-export-status]").evaluateHandle((status) => new Promise((resolve) => {
@@ -144,7 +140,7 @@ test("test-owned candidate route, search, and assets are exact and healthy", asy
     "/components/candlestick",
     "/attributions",
     "/search/assets/search.js",
-    "/charts/assets/js/controls/5/controls.js",
+    "/charts/assets/js/controls/6/controls.js",
     "/assets/styles.css",
   ]) {
     const response = await fetch(`${baseURL}${route}`);

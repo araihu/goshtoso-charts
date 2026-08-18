@@ -186,7 +186,7 @@ test("actionless wrapper still accepts plain-JS lifecycle changes", async () => 
     await page.setContent(`<!doctype html><html><head><base href="${baseURL}/"></head><body>${rendered}</body></html>`, { waitUntil: "load" });
     await page.waitForFunction(() => Boolean(window.__goshtosoChartsControls));
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]");
-    assert.equal(await wrapper.locator('script[src="/charts/assets/js/controls/5/controls.js"]').count(), 1);
+    assert.equal(await wrapper.locator('script[src="/charts/assets/js/controls/6/controls.js"]').count(), 1);
     assert.equal(await wrapper.locator("[data-goshtoso-chart-actions-fieldset]").count(), 0);
     assert.equal(await wrapper.evaluate((element) => window.__goshtosoChartsControls.setWrapperMode(element, "hidden")), true);
     assert.deepEqual(await wrapper.evaluate((element) => ({
@@ -244,7 +244,7 @@ test("actionless wrapper state runtime works under strict CSP and normalizes the
     await page.waitForFunction(() => Boolean(window.__goshtosoChartsControls));
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]");
     await page.waitForFunction(() => document.querySelector("[data-goshtoso-chart-wrapper]")?.dataset.goshtosoChartWrapperInitialized === "true");
-    assert.equal(await wrapper.locator('script[src="/charts/assets/js/controls/5/controls.js"]').count(), 1);
+    assert.equal(await wrapper.locator('script[src="/charts/assets/js/controls/6/controls.js"]').count(), 1);
 
     await page.evaluate(() => {
       document.dispatchEvent(new MouseEvent("click", { bubbles: true }));

@@ -1,0 +1,54 @@
+{
+  "schemaVersion": 1,
+  "tool": "goshtoso-iconpack",
+  "release": "iconpack-276254ceaaff",
+  "catalogSha256": "276254ceaaff6033c475bc8819ab4b86b6fb58468bc838d6a758c04fdc969da0",
+  "sourceKind": "muamba-snapshot",
+  "archiveSha256": "",
+  "sourceConfigSha256": "276254ceaaff6033c475bc8819ab4b86b6fb58468bc838d6a758c04fdc969da0",
+  "sourceLockSha256": "5e11e8fd713feef4511984ec0262376bcc00942032a9e49be102dd9e4b52e21a",
+  "sources": [
+    {
+      "namespace": "custom",
+      "product": "heroicons",
+      "spritePath": "",
+      "spriteSha256": "",
+      "manifestPath": ".iconpack.yaml",
+      "manifestSha256": "276254ceaaff6033c475bc8819ab4b86b6fb58468bc838d6a758c04fdc969da0",
+      "provenancePath": "",
+      "provenanceSha256": "",
+      "licensePath": "heroicons/LICENSE",
+      "licenseSha256": "60e0b68c0f35c078eef3a5d29419d0b03ff84ec1df9c3f9d6e39a519a5ae7985"
+    }
+  ],
+  "assets": [
+    {
+      "canonicalName": "heroicons-optimized-24-outline-arrow-down-tray",
+      "source": "https://github.com/tailwindlabs/heroicons/archive/0435d4ca364a608cc75e2f8683d374e55abbae26.tar.gz:optimized/24/outline/arrow-down-tray.svg",
+      "license": "MIT",
+      "path": "heroicons/optimized/24/outline/arrow-down-tray.svg",
+      "sha256": "03f6611b7a55dfc2f4fe9ab62da600ddab28e5aa418a168adfb066a76c23e44a"
+    },
+    {
+      "canonicalName": "heroicons-optimized-24-outline-arrows-pointing-in",
+      "source": "https://github.com/tailwindlabs/heroicons/archive/0435d4ca364a608cc75e2f8683d374e55abbae26.tar.gz:optimized/24/outline/arrows-pointing-in.svg",
+      "license": "MIT",
+      "path": "heroicons/optimized/24/outline/arrows-pointing-in.svg",
+      "sha256": "d0490257683a31c840bb2cdbf4f0a004457cf3bcf76d99f4815fd3260b030f25"
+    },
+    {
+      "canonicalName": "heroicons-optimized-24-outline-arrows-pointing-out",
+      "source": "https://github.com/tailwindlabs/heroicons/archive/0435d4ca364a608cc75e2f8683d374e55abbae26.tar.gz:optimized/24/outline/arrows-pointing-out.svg",
+      "license": "MIT",
+      "path": "heroicons/optimized/24/outline/arrows-pointing-out.svg",
+      "sha256": "c56d582414b52df330e6c3633a7604440a3743da8dbd5598818497ba3dcbc3f7"
+    },
+    {
+      "canonicalName": "heroicons-optimized-24-outline-document-duplicate",
+      "source": "https://github.com/tailwindlabs/heroicons/archive/0435d4ca364a608cc75e2f8683d374e55abbae26.tar.gz:optimized/24/outline/document-duplicate.svg",
+      "license": "MIT",
+      "path": "heroicons/optimized/24/outline/document-duplicate.svg",
+      "sha256": "33f61fb51ee237ffcba5d5c8a6993e205dc8bea0bff8e765efc2409b46c4f5d7"
+    }
+  ]
+}
