@@ -119,7 +119,7 @@ func TestCandlestickRendersAccessibleSSRAndExactValues(t *testing.T) {
 		"Seven daily OHLC observations.", "Exact OHLC values", "Increase means close", "Day 4", "Decrease", "115", "120", "104", "108",
 		"var(--color-chart-increasing)", "var(--color-chart-decreasing)", "min-width: 37.5rem",
 		`data-goshtoso-chart-expand`, `-chart-expand-export"`,
-		`>SVG</button>`, `>PNG</button>`,
+		`<span class="block">Download SVG</span>`, `<span class="block">Download PNG</span>`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("rendered markup missing %q", want)

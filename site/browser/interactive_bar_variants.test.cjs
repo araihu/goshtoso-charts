@@ -182,7 +182,8 @@ test("Bar resizes in place and exports a PNG snapshot", async () => {
     const figure = page.locator('figure[aria-label="Basic bar example"]');
     const wrapper = figure.locator("xpath=ancestor::*[@data-goshtoso-chart-wrapper][1]");
     const pending = page.waitForEvent("download", { timeout: 10000 });
-    await wrapper.getByRole("button", { name: "Download Basic bar example as PNG", exact: true }).click();
+    await wrapper.getByRole("button", { name: "Export Basic bar example" }).click();
+    await wrapper.locator('[id$="-export-png-action"]:visible').first().click();
     const download = await pending;
     assert.equal(download.suggestedFilename(), "basic-bar-example.png");
     const artifactPath = await download.path();

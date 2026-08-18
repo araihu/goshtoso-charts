@@ -54,10 +54,12 @@ const (
 	// BrazilMapLicenseURL is the bundled CC-BY-4.0 source-data reuse notice.
 	BrazilMapLicenseURL = Prefix + "js/maps/ibge-mmd-2025/LICENSE.md"
 	// ControlRuntimeURL is the versioned shared chart-controls runtime.
-	ControlRuntimeURL = Prefix + "js/controls/5/controls.js"
+	ControlRuntimeURL = Prefix + "js/controls/6/controls.js"
+	// ChartIconsSpriteURL is the consumer-local Goshtoso iconpack sprite.
+	ChartIconsSpriteURL = Prefix + "charticons/sprite.svg"
 )
 
-//go:embed js/maps/ibge-mmd-2025/* js/controls/1/controls.js js/controls/2/controls.js js/controls/3/controls.js js/controls/4/controls.js js/controls/5/controls.js
+//go:embed js/maps/ibge-mmd-2025/* js/controls/1/controls.js js/controls/2/controls.js js/controls/3/controls.js js/controls/4/controls.js js/controls/5/controls.js js/controls/6/controls.js charticons/sprite.svg
 var localFiles embed.FS
 
 type layeredFS []fs.FS

@@ -1,0 +1,104 @@
+{
+  "schemaVersion": 1,
+  "tool": "goshtoso-iconpack",
+  "release": "iconpack-276254ceaaff",
+  "identityRevision": 1,
+  "catalogSchemaVersion": 1,
+  "catalogSha256": "276254ceaaff6033c475bc8819ab4b86b6fb58468bc838d6a758c04fdc969da0",
+  "releaseJsonSha256": "",
+  "checksumsSha256": "",
+  "sourceKind": "muamba-snapshot",
+  "archiveSha256": "",
+  "sourceConfigSha256": "276254ceaaff6033c475bc8819ab4b86b6fb58468bc838d6a758c04fdc969da0",
+  "sourceLockSha256": "5e11e8fd713feef4511984ec0262376bcc00942032a9e49be102dd9e4b52e21a",
+  "package": "charticons",
+  "constPrefix": "Icon",
+  "spriteUrl": "/charts/assets/charticons/sprite.svg",
+  "iconifyPrefix": "charticons",
+  "assets": [
+    {
+      "canonicalName": "heroicons-optimized-24-outline-arrow-down-tray",
+      "namespace": "custom",
+      "product": "heroicons",
+      "path": "heroicons/optimized/24/outline/arrow-down-tray.svg",
+      "spriteSymbol": "heroicons-optimized-24-outline-arrow-down-tray",
+      "colorBehavior": "currentColor",
+      "sha256": "03f6611b7a55dfc2f4fe9ab62da600ddab28e5aa418a168adfb066a76c23e44a",
+      "goIdentifier": "IconHeroiconsOptimized24OutlineArrowDownTray"
+    },
+    {
+      "canonicalName": "heroicons-optimized-24-outline-arrows-pointing-in",
+      "namespace": "custom",
+      "product": "heroicons",
+      "path": "heroicons/optimized/24/outline/arrows-pointing-in.svg",
+      "spriteSymbol": "heroicons-optimized-24-outline-arrows-pointing-in",
+      "colorBehavior": "currentColor",
+      "sha256": "d0490257683a31c840bb2cdbf4f0a004457cf3bcf76d99f4815fd3260b030f25",
+      "goIdentifier": "IconHeroiconsOptimized24OutlineArrowsPointingIn"
+    },
+    {
+      "canonicalName": "heroicons-optimized-24-outline-arrows-pointing-out",
+      "namespace": "custom",
+      "product": "heroicons",
+      "path": "heroicons/optimized/24/outline/arrows-pointing-out.svg",
+      "spriteSymbol": "heroicons-optimized-24-outline-arrows-pointing-out",
+      "colorBehavior": "currentColor",
+      "sha256": "c56d582414b52df330e6c3633a7604440a3743da8dbd5598818497ba3dcbc3f7",
+      "goIdentifier": "IconHeroiconsOptimized24OutlineArrowsPointingOut"
+    },
+    {
+      "canonicalName": "heroicons-optimized-24-outline-document-duplicate",
+      "namespace": "custom",
+      "product": "heroicons",
+      "path": "heroicons/optimized/24/outline/document-duplicate.svg",
+      "spriteSymbol": "heroicons-optimized-24-outline-document-duplicate",
+      "colorBehavior": "currentColor",
+      "sha256": "33f61fb51ee237ffcba5d5c8a6993e205dc8bea0bff8e765efc2409b46c4f5d7",
+      "goIdentifier": "IconHeroiconsOptimized24OutlineDocumentDuplicate"
+    }
+  ],
+  "files": [
+    {
+      "path": "LICENSES/heroicons-LICENSE.txt",
+      "mode": "0644",
+      "bytes": 1071,
+      "sha256": "60e0b68c0f35c078eef3a5d29419d0b03ff84ec1df9c3f9d6e39a519a5ae7985"
+    },
+    {
+      "path": "NOTICE",
+      "mode": "0644",
+      "bytes": 130,
+      "sha256": "bc93c5f05c0d7775b52fc759b74151a2be90e2a30fc01cbfe71c9004108b607b"
+    },
+    {
+      "path": "PROVENANCE/.iconpack.yaml",
+      "mode": "0644",
+      "bytes": 475,
+      "sha256": "276254ceaaff6033c475bc8819ab4b86b6fb58468bc838d6a758c04fdc969da0"
+    },
+    {
+      "path": "icons.json",
+      "mode": "0644",
+      "bytes": 1847,
+      "sha256": "577b246f16bce3fb9cb8a86947c04db98d78bde155e0fc5271091d4e354f7df1"
+    },
+    {
+      "path": "icons_gen.go",
+      "mode": "0644",
+      "bytes": 2942,
+      "sha256": "3fc65d94b90132bf3da28bca979bfa5a2a51f8aee3c4f17cee4b78bd383b5d5f"
+    },
+    {
+      "path": "provenance.json",
+      "mode": "0644",
+      "bytes": 2608,
+      "sha256": "cbd9c636f355c87ae3ce051ebbae2268fb8eb9ae4c2309d4d5d5dd033803d1d6"
+    },
+    {
+      "path": "sprite.svg",
+      "mode": "0644",
+      "bytes": 1905,
+      "sha256": "73d641e63f7ccd99632b1839e3d9880429cc95f95f1d92f1d32882dc89bfb450"
+    }
+  ]
+}

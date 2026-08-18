@@ -1,9 +1,12 @@
 package chartcontrol
 
 import (
-	"github.com/araihu/goshtoso/components/actiongroup"
+	"github.com/araihu/goshtoso/components/button"
+	"github.com/araihu/goshtoso/components/icon"
 	"github.com/araihu/goshtoso/components/modal"
+	"github.com/araihu/goshtoso/components/splitbutton"
 	"github.com/araihu/goshtoso-charts/assets"
+	"github.com/araihu/goshtoso-charts/assets/charticons"
 )
 
 templ wrapperTemplate(cfg WrapperConfig, formats []ExportFormat, chart templ.Component) {
@@ -31,7 +34,7 @@ templ wrapperTemplate(cfg WrapperConfig, formats []ExportFormat, chart templ.Com
 					aria-disabled="true"
 				}
 			>
-				@actiongroup.ActionGroup(chartActions(cfg, formats))
+				@chartActionControls(cfg, formats)
 			</fieldset>
 		}
 		if expandEnabled(cfg.Controls) {
@@ -40,7 +43,7 @@ templ wrapperTemplate(cfg WrapperConfig, formats []ExportFormat, chart templ.Com
 					ID: expandID(cfg),
 					Title: cfg.Label,
 					TriggerLabel: "Expand",
-					PrimaryLabel: "Close",
+					PrimaryLabel: "",
 					PanelClass: "goshtoso-charts-expand-panel relative z-[2147483001]",
 				})
 			</div>
@@ -55,21 +58,124 @@ templ wrapperTemplate(cfg WrapperConfig, formats []ExportFormat, chart templ.Com
 	</div>
 }
 
+templ chartActionControls(cfg WrapperConfig, formats []ExportFormat) {
+	<div
+		class="goshtoso-charts-controls goshtoso-charts-controls-neutral mb-2"
+		data-goshtoso-chart-actions
+		data-goshtoso-chart-control-tone="neutral"
+		role="group"
+		aria-label={ cfg.Label + " chart controls" }
+	>
+		if expandEnabled(cfg.Controls) {
+			if cfg.Controls.Fullscreen {
+				@splitbutton.SplitButton(expandSplitButton(cfg))
+			} else {
+				@expandControl(cfg)
+			}
+		} else if cfg.Controls.Fullscreen {
+			@fullscreenControl(cfg)
+		}
+		if cfg.Controls.Fullscreen {
+			@collapseControl(cfg)
+		}
+		if len(formats) > 0 {
+			@splitbutton.SplitButton(exportSplitButton(cfg, formats))
+		}
+	</div>
+}
+
+templ expandControl(cfg WrapperConfig) {
+	@button.Button(
+		button.WithID(expandID(cfg) + "-primary-action"),
+		button.WithTone(button.ToneAlternate),
+		button.WithSize(button.SizeMedium),
+		button.WithRootClass("goshtoso-charts-control-button"),
+		button.WithAttrs(templ.Attributes{
+			"aria-label":  "Expand " + cfg.Label,
+			"x-on:click": `window.__goshtosoChartsControls.expandFromMenu($el)`,
+		}),
+	) {
+		@expandIcon()
+		<span>Expand</span>
+	}
+}
+
+templ fullscreenControl(cfg WrapperConfig) {
+	@button.Button(
+		button.WithID(fullscreenID(cfg)),
+		button.WithTone(button.ToneAlternate),
+		button.WithSize(button.SizeMedium),
+		button.WithRootClass("goshtoso-charts-control-button"),
+		button.WithAttrs(templ.Attributes{
+			"aria-label":  "Enter fullscreen for " + cfg.Label,
+			"aria-pressed": "false",
+			"x-on:click":  `window.__goshtosoChartsControls.toggleFullscreen($el)`,
+		}),
+	) {
+		@fullscreenIcon()
+		<span>Fullscreen</span>
+	}
+}
+
+templ collapseControl(cfg WrapperConfig) {
+	@button.Button(
+		button.WithID(expandID(cfg) + "-collapse-action"),
+		button.WithTone(button.ToneAlternate),
+		button.WithSize(button.SizeMedium),
+		button.WithRootClass("goshtoso-charts-control-button"),
+		button.WithAttrs(templ.Attributes{
+			"aria-label":                 "Collapse " + cfg.Label,
+			"data-goshtoso-chart-control": "collapse",
+			"x-on:click":                 `window.__goshtosoChartsControls.collapseFullscreen($el)`,
+			"hidden":                     true,
+		}),
+	) {
+		@collapseIcon()
+		<span>Collapse</span>
+	}
+}
+
 templ fullscreenIcon() {
-	<svg class="size-4 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-		<path d="M7 3H3v4M13 3h4v4M7 17H3v-4M13 17h4v-4"></path>
-	</svg>
+	@charticons.Icon(charticons.Config{
+		Symbol:     charticons.IconHeroiconsOptimized24OutlineArrowsPointingOut,
+		Size:       icon.SizeSM,
+		Decorative: true,
+		RootClass:  "shrink-0",
+	})
 }
 
 templ expandIcon() {
-	<svg class="size-4 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-		<path d="M7 4H4v3M13 4h3v3M7 16H4v-3M13 16h3v-3"></path>
-		<path d="M4 7l4-4M16 7l-4-4M4 13l4 4M16 13l-4 4"></path>
-	</svg>
+	@charticons.Icon(charticons.Config{
+		Symbol:     charticons.IconHeroiconsOptimized24OutlineArrowsPointingOut,
+		Size:       icon.SizeSM,
+		Decorative: true,
+		RootClass:  "shrink-0",
+	})
+}
+
+templ collapseIcon() {
+	@charticons.Icon(charticons.Config{
+		Symbol:     charticons.IconHeroiconsOptimized24OutlineArrowsPointingIn,
+		Size:       icon.SizeSM,
+		Decorative: true,
+		RootClass:  "shrink-0",
+	})
 }
 
 templ downloadIcon() {
-	<svg class="size-4 shrink-0" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
-		<path d="M10 3v9m0 0 3-3m-3 3L7 9M4 16h12"></path>
-	</svg>
+	@charticons.Icon(charticons.Config{
+		Symbol:     charticons.IconHeroiconsOptimized24OutlineArrowDownTray,
+		Size:       icon.SizeSM,
+		Decorative: true,
+		RootClass:  "shrink-0",
+	})
+}
+
+templ copyIcon() {
+	@charticons.Icon(charticons.Config{
+		Symbol:     charticons.IconHeroiconsOptimized24OutlineDocumentDuplicate,
+		Size:       icon.SizeSM,
+		Decorative: true,
+		RootClass:  "shrink-0",
+	})
 }

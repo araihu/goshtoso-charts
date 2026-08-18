@@ -187,7 +187,7 @@ func TestPiePageIncludesDoughnutVariantAndCentralizedPinnedAttribution(t *testin
 		"Search Engine", "1048", "Direct", "735", "Email", "580",
 		"Union Ads", "484", "Video Ads", "300",
 		`aria-label="Doughnut Chart exact slice values"`,
-		`-chart-expand-export"`, ">SVG<", ">PNG<",
+		`-chart-expand-export"`, ">Download SVG<", ">Download PNG<",
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("Pie page missing %q", want)
@@ -547,14 +547,15 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 	body := attributions.Body.String()
 	for _, want := range []string{
 		"Foundation dependencies", "Chart and rendering libraries", "Bundled runtime and assets",
-		"Goshtoso", "v0.1.1", "Goshtoso App Shells", "v0.1.1-0.20260730145401-4f5174eeb1a9", "templ", "v0.3.1020",
+		"Goshtoso", "v0.2.0", "Goshtoso App Shells", "v0.1.1-0.20260730145401-4f5174eeb1a9", "templ", "v0.3.1020", "Heroicons", "v2.2.0",
 		"go-analyze/charts", "v0.6.0", "go-echarts", "v2.7.2", "Apache ECharts", "v5.6.0",
 		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 		"examples/pie.go",
 		"examples/1-Painter/radar_chart-1-basic/main.go",
 		"examples/1-Painter/candlestick_chart-1-basic/main.go", "examples/1-Painter/funnel_chart-1-basic/main.go", "examples/1-Painter/heat_map-1-basic/main.go", "examples/graph.go", "examples/sankey.go", "examples/tree.go", "examples/sunburst.go", "examples/parallel.go",
 		"examples/1-Painter/table-1/main.go", "1fe31b06b8a82e00df877ff4417a75858547c1c2",
-		`href="https://github.com/araihu/goshtoso"`, `href="https://github.com/go-echarts/go-echarts"`,
+		`href="https://github.com/araihu/goshtoso"`, `href="https://github.com/go-echarts/go-echarts"`, `href="https://github.com/tailwindlabs/heroicons"`,
+		`href="https://github.com/tailwindlabs/heroicons/blob/v2.2.0/LICENSE"`, "Goshtoso iconpack sprite",
 		`href="https://echarts.apache.org/"`, `href="https://github.com/apache/echarts/blob/5.6.0/LICENSE"`,
 		`bg-primary/10`, "MIT", "Apache-2.0",
 		"SHA-256 987554a0014ad7be585eccc91c4329d050b40c2c0ebd2e8ec84adca82c0eb843", "assets/NOTICE.md",
@@ -1283,19 +1284,19 @@ func TestEveryCurrentChartPageUsesSharedControlsAndCapabilityGating(t *testing.T
 		{path: "/components/pie", wantDropdown: true},
 		{path: "/components/scatter", wantDropdown: true},
 		{path: "/components/heatmap", wantDropdown: true},
-		{path: "/components/interactive/bar"},
-		{path: "/components/interactive/line"},
-		{path: "/components/interactive/scatter"},
-		{path: "/components/interactive/heatmap"},
-		{path: "/components/interactive/pie"},
-		{path: "/components/interactive/radar"},
-		{path: "/components/interactive/boxplot"},
-		{path: "/components/interactive/candlestick"},
-		{path: "/components/interactive/gauge"},
-		{path: "/components/interactive/funnel"},
-		{path: "/components/interactive/graph"},
-		{path: "/components/interactive/sankey"},
-		{path: "/components/interactive/tree"},
+		{path: "/components/interactive/bar", wantDropdown: true},
+		{path: "/components/interactive/line", wantDropdown: true},
+		{path: "/components/interactive/scatter", wantDropdown: true},
+		{path: "/components/interactive/heatmap", wantDropdown: true},
+		{path: "/components/interactive/pie", wantDropdown: true},
+		{path: "/components/interactive/radar", wantDropdown: true},
+		{path: "/components/interactive/boxplot", wantDropdown: true},
+		{path: "/components/interactive/candlestick", wantDropdown: true},
+		{path: "/components/interactive/gauge", wantDropdown: true},
+		{path: "/components/interactive/funnel", wantDropdown: true},
+		{path: "/components/interactive/graph", wantDropdown: true},
+		{path: "/components/interactive/sankey", wantDropdown: true},
+		{path: "/components/interactive/tree", wantDropdown: true},
 	}
 	for _, test := range tests {
 		t.Run(test.path, func(t *testing.T) {
@@ -1307,8 +1308,8 @@ func TestEveryCurrentChartPageUsesSharedControlsAndCapabilityGating(t *testing.T
 			body := recorder.Body.String()
 			for _, want := range []string{
 				`-fullscreen-action`,
-				`data-action-group-primary`,
-				`data-action-group-overflow`,
+				`data-goshtoso-chart-actions`,
+				`data-split-button`,
 				`data-goshtoso-chart-expand`, `role="dialog"`,
 				`src="` + chartassets.ControlRuntimeURL + `"`,
 				goshtosoassets.FirstPartyBundleURL,
@@ -1321,16 +1322,19 @@ func TestEveryCurrentChartPageUsesSharedControlsAndCapabilityGating(t *testing.T
 				t.Errorf("GET %s export dropdown presence = %t, want %t", test.path, got, test.wantDropdown)
 			}
 			if test.wantDropdown {
-				for _, want := range []string{`>SVG</button>`, `>PNG</button>`} {
+				for _, want := range []string{`<span class="block">Download PNG</span>`} {
 					if !strings.Contains(body, want) {
 						t.Errorf("GET %s dropdown missing %q", test.path, want)
 					}
 				}
-				if strings.Contains(body, `data-goshtoso-chart-export="`) {
-					t.Errorf("GET %s rendered direct export button for multi-format capability", test.path)
+				if strings.Contains(test.path, "/components/") && !strings.Contains(test.path, "/interactive/") {
+					if !strings.Contains(body, `<span class="block">Download SVG</span>`) {
+						t.Errorf("GET %s dropdown missing SVG download", test.path)
+					}
 				}
-			} else if !strings.Contains(body, `exportFromMenu($el, &#34;png&#34;)`) {
-				t.Errorf("GET %s missing direct PNG export", test.path)
+				if !strings.Contains(body, `copyFromMenu($el)`) {
+					t.Errorf("GET %s missing Copy primary action", test.path)
+				}
 			}
 		})
 	}
@@ -1380,7 +1384,7 @@ func TestFirstPartyRuntimeBundleIsServedByBaseGoshtosoAssets(t *testing.T) {
 	t.Parallel()
 	recorder := httptest.NewRecorder()
 	New().ServeHTTP(recorder, httptest.NewRequest(http.MethodGet, goshtosoassets.FirstPartyBundleURL, nil))
-	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), "data-goshtoso-action-group") {
+	if recorder.Code != http.StatusOK || !strings.Contains(recorder.Body.String(), "goshtosoPopover") {
 		t.Fatalf("GET first-party runtime status/body = %d/%q", recorder.Code, recorder.Body.String())
 	}
 }

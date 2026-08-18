@@ -194,58 +194,15 @@ for (const [name, viewport, theme, dark] of [
 }
 
 async function openExpand(wrapper) {
-  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
-  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
-  if (stacked) {
-    await trigger.evaluate((button) => new Promise((resolve, reject) => {
-      const deadline = performance.now() + 5000;
-      const ready = () => {
-        if (button.hasAttribute("aria-expanded")) return resolve();
-        if (performance.now() >= deadline) return reject(new Error("stacked Expand control did not initialize"));
-        requestAnimationFrame(ready);
-      };
-      ready();
-    }));
-  }
+  const trigger = wrapper.locator('[id$="-primary-action"]:visible').first();
+  await trigger.waitFor({ state: "visible" });
   await trigger.click();
-  if (stacked) {
-    await trigger.evaluate((button) => new Promise((resolve, reject) => {
-      const deadline = performance.now() + 5000;
-      const open = () => {
-        if (button.getAttribute("aria-expanded") === "true") return resolve();
-        if (performance.now() >= deadline) return reject(new Error("stacked Expand control did not open"));
-        requestAnimationFrame(open);
-      };
-      open();
-    }));
-    const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-    await action.waitFor({ state: "visible" });
-    await action.click();
-  }
 }
 
 async function enterFullscreen(wrapper) {
-  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
-  await trigger.evaluate((button) => new Promise((resolve, reject) => {
-    const deadline = performance.now() + 5000;
-    const ready = () => {
-      if (button.hasAttribute("aria-expanded")) return resolve();
-      if (performance.now() >= deadline) return reject(new Error("stacked fullscreen control did not initialize"));
-      requestAnimationFrame(ready);
-    };
-    ready();
-  }));
+  const trigger = wrapper.locator('[id$="-stacked"] > [data-popover-root] > [data-popover-trigger] > button:visible').first();
   await trigger.click();
-  await trigger.evaluate((button) => new Promise((resolve, reject) => {
-    const deadline = performance.now() + 5000;
-    const open = () => {
-      if (button.getAttribute("aria-expanded") === "true") return resolve();
-      if (performance.now() >= deadline) return reject(new Error("stacked fullscreen control did not open"));
-      requestAnimationFrame(open);
-    };
-    open();
-  }));
-  await wrapper.locator('[id$="-fullscreen-action"]').first().click();
+  await wrapper.locator('[id$="-fullscreen-action"]:visible').first().click();
 }
 
 test("interactive Funnel preserves one instance through resize, lifecycle, modal, theme, fullscreen, and PNG export", async () => {
@@ -339,7 +296,8 @@ test("interactive Funnel preserves one instance through resize, lifecycle, modal
     }
 
     const pending = page.waitForEvent("download", { timeout: 10000 });
-    await wrapper.getByRole("button", { name: "Download Basic five-stage funnel as PNG", exact: true }).click();
+    await wrapper.getByRole("button", { name: "Export Basic five-stage funnel" }).click();
+    await wrapper.locator('[id$="-export-png-action"]:visible').first().click();
     const download = await pending;
     assert.equal(download.suggestedFilename(), "basic-five-stage-funnel.png");
     const artifactPath = await download.path();

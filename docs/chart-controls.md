@@ -14,7 +14,7 @@ Do not add a second prose version of the public behavior here.
 
 - `components/chartcontrol` defines the renderer-neutral wrapper, lifecycle,
   action, and export types.
-- `assets/js/controls/5/controls.js` owns wrapper transitions, modal and
+- `assets/js/controls/6/controls.js` owns wrapper transitions, modal and
   fullscreen behavior, export requests, resize settlement, and idempotent DOM
   preparation. Immutable v1 through v4 asset paths remain compatibility
   outputs.

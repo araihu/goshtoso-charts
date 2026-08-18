@@ -66,19 +66,15 @@ async function candlestickPage(viewport = { width: 1440, height: 900 }) {
 }
 
 async function openExpand(wrapper) {
-  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
-  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  const trigger = wrapper.locator('[id$="-primary-action"]:visible').first();
+  await trigger.waitFor({ state: "visible" });
   await trigger.click();
-  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (stacked) {
-    await action.waitFor({ state: "visible" });
-    await action.click();
-  }
+  return trigger;
 }
 
 async function enterFullscreen(wrapper) {
-  await wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first().click();
-  await wrapper.locator('[id$="-fullscreen-action"]').first().click();
+  await wrapper.locator('[id$="-stacked"] > [data-popover-root] > [data-popover-trigger] > button:visible').first().click();
+  await wrapper.locator('[id$="-fullscreen-action"]:visible').first().click();
 }
 
 async function selectTheme(page, theme, dark) {
@@ -355,7 +351,8 @@ test("direct export downloads a valid opaque PNG from current instance", async (
   try {
     const expected = await chartState(page);
     const pending = page.waitForEvent("download");
-    await page.getByRole("button", { name: "Download Candlestick example as PNG" }).first().click();
+    await page.getByRole("button", { name: "Export Candlestick example" }).first().click();
+    await page.locator('[id$="-export-png-action"]:visible').first().click();
     const artifact = await pending;
     assert.equal(artifact.suggestedFilename(), "candlestick-example.png");
     const artifactPath = await artifact.path();

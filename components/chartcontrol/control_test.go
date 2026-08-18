@@ -41,21 +41,59 @@ func TestDefaultWrapperEnablesExpandAndCapabilityDerivedExport(t *testing.T) {
 	for _, want := range []string{
 		`class="goshtoso-charts-control-wrapper"`, `data-goshtoso-chart-expand`,
 		`data-goshtoso-chart-wrapper-mode="enabled"`, `data-goshtoso-chart-actions-fieldset`,
-		`data-goshtoso-action-group`, `data-action-group-primary`,
+		`data-goshtoso-chart-actions`, `data-split-button`,
 		`goshtoso-charts-controls-neutral`, `data-goshtoso-chart-control-tone="neutral"`,
 		`role="dialog"`, `aria-modal="true"`, `x-trap.inert.noscroll`,
-		`id="latency-chart-expand-export"`, `data-action-group-overflow`,
-		`More Latency chart actions`, `Export`, `>SVG</button>`, `>PNG</button>`,
-		`data-action-group-overflow-counts="3"`,
+		`id="latency-chart-expand-export"`,
+		`Expand`, `Copy`, `<span class="block">Download SVG</span>`, `<span class="block">Download PNG</span>`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("default wrapper missing %q", want)
 		}
 	}
-	for _, unwanted := range []string{`Collapse`, `data-goshtoso-chart-secondary-actions`, `data-goshtoso-chart-overflow`} {
+	for _, unwanted := range []string{`Collapse`, `>Close</button>`, `data-goshtoso-chart-secondary-actions`, `data-goshtoso-chart-overflow`} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("default wrapper unexpectedly contains %q", unwanted)
 		}
+	}
+}
+
+func TestControlIconsUseGoshtosoIconpack(t *testing.T) {
+	t.Parallel()
+	markup := render(t, chartcontrol.WrapperConfig{
+		Label:      "Latency",
+		Controls:   chartcontrol.Options{Fullscreen: true},
+		Capability: chartcontrol.ExportCapabilityStaticSVG,
+	})
+	const expandSymbol = `<use href="/charts/assets/charticons/sprite.svg#heroicons-optimized-24-outline-arrows-pointing-out"></use>`
+	const collapseSymbol = `<use href="/charts/assets/charticons/sprite.svg#heroicons-optimized-24-outline-arrows-pointing-in"></use>`
+	for _, id := range []string{
+		"latency-chart-expand-primary-action",
+		"latency-chart-expand-fullscreen-action",
+	} {
+		start := strings.Index(markup, `id="`+id+`"`)
+		if start < 0 {
+			t.Fatalf("chart controls missing action %q", id)
+		}
+		end := strings.Index(markup[start:], `</button>`)
+		if end < 0 {
+			t.Fatalf("chart controls action %q is missing its closing button", id)
+		}
+		if !strings.Contains(markup[start:start+end], expandSymbol) {
+			t.Errorf("chart control %q does not use arrows-pointing-out", id)
+		}
+	}
+	collapseStart := strings.Index(markup, `id="latency-chart-expand-collapse-action"`)
+	if collapseStart < 0 {
+		t.Fatal("chart controls missing collapse action")
+	}
+	collapseEnd := strings.Index(markup[collapseStart:], `</button>`)
+	if collapseEnd < 0 || !strings.Contains(markup[collapseStart:collapseStart+collapseEnd], collapseSymbol) {
+		t.Error("collapse control does not use arrows-pointing-in")
+	}
+	downloadAction := `id="latency-chart-expand-export-svg-action"`
+	if start := strings.Index(markup, downloadAction); start < 0 || !strings.Contains(markup[start:], `heroicons-optimized-24-outline-arrow-down-tray`) {
+		t.Error("chart export action does not use arrow-down-tray")
 	}
 }
 
@@ -69,9 +107,11 @@ func TestDefaultControlsShareNeutralToneAndStableDimensions(t *testing.T) {
 	for _, want := range []string{
 		`--goshtoso-chart-control-height: 2.75rem`,
 		`--goshtoso-chart-control-width: 7.5rem`,
-		`.goshtoso-charts-controls-neutral > [data-action-group-primary] > button`,
+		`.goshtoso-charts-controls-neutral > [data-split-button] > button`,
 		`background-color: var(--color-surface-alt)`,
 		`.dark .goshtoso-charts-controls-neutral`,
+		`.goshtoso-charts-expand-panel > div:nth-child(3)`,
+		`display: none`,
 		`[role="menuitem"]`,
 	} {
 		if !strings.Contains(markup, want) {
@@ -118,7 +158,7 @@ func TestDisabledWrapperKeepsChartVisibleAndActionsNativelyInert(t *testing.T) {
 		`data-goshtoso-chart-wrapper-mode="disabled"`,
 		`data-goshtoso-chart-actions-fieldset disabled aria-disabled="true"`,
 		`<figure><svg width="320" height="160"></svg></figure>`,
-		`src="/charts/assets/js/controls/5/controls.js"`,
+		`src="/charts/assets/js/controls/6/controls.js"`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("disabled wrapper missing %q", want)
@@ -139,7 +179,7 @@ func TestHiddenWrapperRetainsDOMRuntimeAndInertAccessibilityState(t *testing.T) 
 	for _, want := range []string{
 		`data-goshtoso-chart-wrapper-mode="hidden"`, ` hidden inert aria-hidden="true"`,
 		`<figure><svg width="320" height="160"></svg></figure>`,
-		`src="/charts/assets/js/controls/5/controls.js"`,
+		`src="/charts/assets/js/controls/6/controls.js"`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("hidden wrapper missing %q", want)
@@ -200,7 +240,7 @@ func TestNonOmittedModesStillValidateExportDeterministically(t *testing.T) {
 	}
 }
 
-func TestExpandAndFullscreenShareOnePrimaryDropdown(t *testing.T) {
+func TestExpandSplitButtonOwnsFullscreenMenu(t *testing.T) {
 	t.Parallel()
 	markup := render(t, chartcontrol.WrapperConfig{
 		Label:      "Latency",
@@ -208,24 +248,25 @@ func TestExpandAndFullscreenShareOnePrimaryDropdown(t *testing.T) {
 		Capability: chartcontrol.ExportCapabilityInteractiveRaster,
 	})
 	for _, want := range []string{
-		`goshtoso-charts-stacked-primary`,
+		`data-split-button`,
 		`id="latency-chart-expand-stacked"`,
-		`id="latency-chart-expand-action"`,
+		`id="latency-chart-expand-primary-action"`,
 		`id="latency-chart-expand-fullscreen-action"`,
 		`class="goshtoso-charts-expand-control goshtoso-charts-hidden-expand-modal"`,
 		`window.__goshtosoChartsControls.expandFromMenu($el)`,
 		`window.__goshtosoChartsControls.toggleFullscreen($el)`,
+		`window.__goshtosoChartsControls.collapseFullscreen($el)`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("combined primary action missing %q", want)
 		}
 	}
-	if strings.Contains(markup, `Collapse`) {
-		t.Fatal("combined Expand menu rendered an adjacent fullscreen peer")
+	if !strings.Contains(markup, `id="latency-chart-expand-collapse-action"`) || !strings.Contains(markup, `hidden`) {
+		t.Fatal("combined Expand control did not render a hidden Collapse action")
 	}
 }
 
-func TestFullscreenWorksWithoutExpandAndCollapseIsAbsentFromPublicMarkup(t *testing.T) {
+func TestFullscreenWorksWithoutExpandAndRendersHiddenCollapseControl(t *testing.T) {
 	t.Parallel()
 	markup := render(t, chartcontrol.WrapperConfig{
 		Label:      "Latency",
@@ -236,18 +277,18 @@ func TestFullscreenWorksWithoutExpandAndCollapseIsAbsentFromPublicMarkup(t *test
 	for _, want := range []string{
 		`id="latency-chart-expand-fullscreen-action"`,
 		`window.__goshtosoChartsControls.toggleFullscreen($el)`,
-		`data-action-group-primary`,
+		`goshtoso-charts-control-button`,
+		`id="latency-chart-expand-collapse-action"`,
+		`data-goshtoso-chart-control="collapse"`,
+		`window.__goshtosoChartsControls.collapseFullscreen($el)`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("fullscreen markup missing %q", want)
 		}
 	}
-	if strings.Contains(markup, "Collapse") {
-		t.Fatal("removed Collapse control leaked into markup")
-	}
 }
 
-func TestActionGroupFlattensStackedActionsAndExportFormats(t *testing.T) {
+func TestSplitButtonsKeepExpandAndExportActionsConnected(t *testing.T) {
 	t.Parallel()
 	markup := render(t, chartcontrol.WrapperConfig{
 		Label:      "Latency",
@@ -255,22 +296,21 @@ func TestActionGroupFlattensStackedActionsAndExportFormats(t *testing.T) {
 		Capability: chartcontrol.ExportCapabilityStaticSVG,
 	})
 	for _, want := range []string{
-		`data-goshtoso-action-group`,
-		`data-action-group-secondary`,
-		`data-action-group-overflow`,
-		`data-action-group-overflow-counts="3,3"`,
-		`id="latency-chart-expand-action-overflow"`,
-		`id="latency-chart-expand-fullscreen-action-overflow"`,
-		`id="latency-chart-expand-export-svg-action-overflow"`,
-		`id="latency-chart-expand-export-png-action-overflow"`,
-		`aria-label="More Latency chart actions"`,
+		`id="latency-chart-expand-stacked"`,
+		`id="latency-chart-expand-primary-action"`,
+		`id="latency-chart-expand-fullscreen-action"`,
+		`id="latency-chart-expand-export"`,
+		`id="latency-chart-expand-export-copy-action"`,
+		`id="latency-chart-expand-export-svg-action"`,
+		`id="latency-chart-expand-export-png-action"`,
+		`Download SVG`, `Download PNG`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("responsive overflow missing %q", want)
 		}
 	}
-	if strings.Contains(markup, "Collapse") {
-		t.Fatal("ActionGroup contains removed Collapse action")
+	if !strings.Contains(markup, `id="latency-chart-expand-collapse-action"`) {
+		t.Fatal("SplitButton wrapper is missing its hidden Collapse action")
 	}
 }
 
@@ -282,8 +322,8 @@ func TestExportFormatsAreCapabilityGated(t *testing.T) {
 		Export:     &chartcontrol.ExportOptions{Filename: "Availability / Latency"},
 	})
 	for _, want := range []string{
-		`id="latency-chart-expand-export"`, `Export`,
-		`>SVG</button>`, `>PNG</button>`,
+		`id="latency-chart-expand-export"`, `Copy`,
+		`<span class="block">Download SVG</span>`, `<span class="block">Download PNG</span>`,
 		`data-goshtoso-chart-export-filename="availability-latency"`,
 	} {
 		if !strings.Contains(staticMarkup, want) {
@@ -296,11 +336,16 @@ func TestExportFormatsAreCapabilityGated(t *testing.T) {
 		Capability: chartcontrol.ExportCapabilityInteractiveRaster,
 		Export:     &chartcontrol.ExportOptions{Filename: "Latency"},
 	})
-	if strings.Contains(interactiveMarkup, `id="latency-chart-expand-export"`) {
-		t.Fatal("single interactive format rendered a dropdown")
+	for _, want := range []string{
+		`id="latency-chart-expand-export"`, `Copy`, `<span class="block">Download PNG</span>`,
+		`window.__goshtosoChartsControls.copyFromMenu($el)`,
+	} {
+		if !strings.Contains(interactiveMarkup, want) {
+			t.Errorf("interactive raster capability missing %q", want)
+		}
 	}
-	if !strings.Contains(interactiveMarkup, `window.__goshtosoChartsControls.exportFromMenu($el, &#34;png&#34;)`) {
-		t.Fatal("interactive raster capability omitted PNG export")
+	if strings.Contains(interactiveMarkup, "Download SVG") {
+		t.Fatal("interactive raster capability rendered unsupported SVG download")
 	}
 }
 
@@ -310,12 +355,12 @@ func TestActionlessWrapperKeepsLifecycleRuntimeWithoutRenderingActions(t *testin
 		Label: "Latency", Controls: chartcontrol.Options{Expand: chartcontrol.Bool(false)},
 		Export: &chartcontrol.ExportOptions{Disabled: true}, Capability: chartcontrol.ExportCapabilityStaticSVG,
 	})
-	for _, unwanted := range []string{"data-goshtoso-chart-expand", "data-goshtoso-action-group", "data-goshtoso-chart-actions-fieldset"} {
+	for _, unwanted := range []string{"data-goshtoso-chart-expand", "data-goshtoso-chart-actions", "data-goshtoso-chart-actions-fieldset"} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("opted-out wrapper contains %q", unwanted)
 		}
 	}
-	const runtime = `src="/charts/assets/js/controls/5/controls.js"`
+	const runtime = `src="/charts/assets/js/controls/6/controls.js"`
 	if got := strings.Count(markup, runtime); got != 1 {
 		t.Fatalf("actionless wrapper lifecycle runtime count = %d, want exactly one", got)
 	}

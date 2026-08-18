@@ -171,7 +171,7 @@ for (const [name, viewport, theme, dark] of [
         await details.locator("summary").click();
         assert.equal(await details.locator("tbody tr").count(), rows);
         const wrapper = current.locator("[data-goshtoso-chart-wrapper]");
-        assert.equal(await wrapper.locator("button:visible").count(), 2);
+        assert.equal(await wrapper.locator("button:visible").count(), 4);
         const layout = await wrapper.evaluate((element) => {
           const content = element.querySelector("[data-goshtoso-chart-content]");
           const host = element.querySelector("[_echarts_instance_]");
@@ -255,7 +255,8 @@ test("interactive Pie exports PNG, resizes in place, and keeps wrapper lifecycle
 	const wrapper = current.locator("[data-goshtoso-chart-wrapper]");
 	await page.waitForFunction(() => Boolean(globalThis.echarts?.getInstanceByDom(document.querySelector('[data-pie-variant="selected"] [_echarts_instance_]'))));
 	const pending = page.waitForEvent("download", { timeout: 10000 });
-	await wrapper.getByRole("button", { name: "Download Selectable seasonal donut as PNG", exact: true }).click();
+	await wrapper.getByRole("button", { name: "Export Selectable seasonal donut" }).click();
+	await wrapper.locator('[id$="-export-png-action"]:visible').first().click();
 	const download = await pending;
 	assert.equal(download.suggestedFilename(), "selected-seasonal-sector.png");
 	const bytes = await fs.readFile(await download.path());

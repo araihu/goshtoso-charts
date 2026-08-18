@@ -93,7 +93,7 @@ func TestCandlestickDefaultsToSemanticThemeAndSharedWrapper(t *testing.T) {
 		`aspect-ratio: 9 / 5`, `"top":"24%"`, `"right":"4%"`, `"bottom":"15%"`, `"left":"4%"`, `"containLabel":true`,
 		`--color-chart-increasing`, `--color-chart-decreasing`,
 		`series.type === "candlestick"`, `data-goshtoso-chart-expand`,
-		`exportFromMenu($el, &#34;png&#34;)`, `>rise</td>`, `>fall</td>`,
+		`copyFromMenu($el)`, `>Copy</span>`, `>rise</td>`, `>fall</td>`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("default markup missing %q", want)
@@ -101,7 +101,7 @@ func TestCandlestickDefaultsToSemanticThemeAndSharedWrapper(t *testing.T) {
 	}
 	for _, unwanted := range []string{
 		`-fullscreen-action"`,
-		`echarts.dispose`, `-chart-expand-export"`,
+		`echarts.dispose`,
 	} {
 		if strings.Contains(markup, unwanted) {
 			t.Errorf("default markup contains %q", unwanted)

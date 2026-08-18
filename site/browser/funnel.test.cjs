@@ -71,14 +71,10 @@ async function funnelPage(viewport = { width: 1440, height: 900 }) {
 }
 
 async function openExpand(wrapper) {
-  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
-  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  const trigger = wrapper.locator('[id$="-primary-action"]:visible').first();
+  await trigger.waitFor({ state: "visible" });
   await trigger.click();
-  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (stacked) {
-    await action.waitFor({ state: "visible" });
-    await action.click();
-  }
+  return trigger;
 }
 
 async function download(page, label) {
@@ -91,7 +87,7 @@ async function download(page, label) {
   await trigger.click();
   const menu = wrapper.locator('[role="menu"]:visible');
   await menu.waitFor({ state: "visible" });
-  await menu.getByRole("menuitem", { name: match[2], exact: true }).click();
+  await menu.locator('[role="menuitem"]').filter({ hasText: `Download ${match[2]}` }).first().click();
   const outcome = await Promise.race([
     pending.then((artifact) => ({ artifact })),
     wrapper.locator("[data-goshtoso-chart-export-status]").evaluateHandle((status) => new Promise((resolve) => {
@@ -133,8 +129,8 @@ for (const width of [390, 1440]) {
           assert.equal(await wrappers.count(), 2);
           const wrapper = wrappers.filter({ has: page.locator('figure[aria-label="Basic funnel"]') }).first();
           const compact = wrappers.filter({ has: page.locator('figure[aria-label="Compact five-stage funnel"]') }).first();
-          assert.equal(await wrapper.getByRole("button").count(), 2);
-          assert.equal(await compact.getByRole("button").count(), 2);
+          assert.equal(await wrapper.getByRole("button").count(), 4);
+          assert.equal(await compact.getByRole("button").count(), 4);
           assert.equal(await wrapper.locator("figure").getAttribute("aria-label"), "Basic funnel");
           assert.equal(await wrapper.locator("table").getAttribute("aria-label"), "Basic funnel exact stage values");
           assert.deepEqual(await wrapper.locator("table tbody th").allTextContents(), ["Show", "Click", "Visit", "Inquiry", "Order", "Pay", "Cancel"]);

@@ -9,7 +9,9 @@ import (
 	"strings"
 
 	"github.com/a-h/templ"
-	"github.com/araihu/goshtoso/components/actiongroup"
+	"github.com/araihu/goshtoso/components/button"
+	"github.com/araihu/goshtoso/components/dropdown"
+	"github.com/araihu/goshtoso/components/splitbutton"
 )
 
 // WrapperMode controls server-rendered wrapper lifecycle and its initial client state.
@@ -253,64 +255,23 @@ func exportFormatLabel(format ExportFormat) string {
 	return strings.ToUpper(string(format))
 }
 
-func chartActions(cfg WrapperConfig, formats []ExportFormat) actiongroup.Config {
-	primary, stacked := primaryAction(cfg, formats)
-	secondary := make([]actiongroup.Action, 0, 2)
-	if stacked != nil {
-		secondary = append(secondary, *stacked)
-	}
-	if expandEnabled(cfg.Controls) || cfg.Controls.Fullscreen {
-		if action, ok := exportAction(cfg, formats); ok {
-			secondary = append(secondary, action)
-		}
-	}
-
-	rootClass := "goshtoso-charts-controls goshtoso-charts-controls-neutral mb-2"
-	if stacked != nil {
-		rootClass += " goshtoso-charts-stacked-primary"
-	}
-	return actiongroup.Config{
-		Label:         cfg.Label + " chart controls",
-		Primary:       primary,
-		Secondary:     secondary,
-		OverflowLabel: "More " + cfg.Label + " chart actions",
-		RootClass:     rootClass,
-		RootAttrs: templ.Attributes{
-			"data-goshtoso-chart-actions":      true,
-			"data-goshtoso-chart-control-tone": "neutral",
-		},
+func expandSplitButton(cfg WrapperConfig) splitbutton.Config {
+	return splitbutton.Config{
+		ID:        expandID(cfg) + "-stacked",
+		Primary:   expandAction(expandID(cfg) + "-primary-action"),
+		MenuLabel: "Expand " + cfg.Label,
+		Sections: []dropdown.Section{{Items: []dropdown.Item{
+			fullscreenItem(cfg),
+		}}},
+		MenuAlign: dropdown.AlignEnd,
+		Tone:      button.ToneAlternate,
+		Size:      button.SizeMedium,
+		RootClass: "goshtoso-charts-control-split",
 	}
 }
 
-func primaryAction(cfg WrapperConfig, formats []ExportFormat) (actiongroup.Action, *actiongroup.Action) {
-	if expandEnabled(cfg.Controls) {
-		primary := expandAction(expandID(cfg) + "-primary-action")
-		if cfg.Controls.Fullscreen {
-			stacked := actiongroup.Action{
-				ID:    expandID(cfg) + "-stacked",
-				Label: "Expand",
-				Items: []actiongroup.Action{
-					expandAction(expandID(cfg) + "-action"),
-					fullscreenAction(cfg),
-				},
-			}
-			return primary, &stacked
-		}
-		return primary, nil
-	}
-	if cfg.Controls.Fullscreen {
-		return fullscreenAction(cfg), nil
-	}
-	if len(formats) == 1 {
-		return directExportAction(cfg, formats[0]), nil
-	}
-	stacked, _ := exportAction(cfg, formats)
-	primary := directExportAction(cfg, formats[0])
-	return primary, &stacked
-}
-
-func expandAction(id string) actiongroup.Action {
-	return actiongroup.Action{
+func expandAction(id string) splitbutton.Action {
+	return splitbutton.Action{
 		ID:      id,
 		Label:   "Expand",
 		Icon:    expandIcon(),
@@ -318,50 +279,50 @@ func expandAction(id string) actiongroup.Action {
 	}
 }
 
-func fullscreenAction(cfg WrapperConfig) actiongroup.Action {
-	return actiongroup.Action{
-		ID:      expandID(cfg) + "-fullscreen-action",
+func fullscreenID(cfg WrapperConfig) string {
+	return expandID(cfg) + "-fullscreen-action"
+}
+
+func fullscreenItem(cfg WrapperConfig) dropdown.Item {
+	return dropdown.Item{
+		ID:      fullscreenID(cfg),
 		Label:   "Fullscreen",
 		Icon:    fullscreenIcon(),
 		OnClick: `window.__goshtosoChartsControls.toggleFullscreen($el)`,
 	}
 }
 
-func exportAction(cfg WrapperConfig, formats []ExportFormat) (actiongroup.Action, bool) {
-	switch len(formats) {
-	case 0:
-		return actiongroup.Action{}, false
-	case 1:
-		return directExportAction(cfg, formats[0]), true
-	default:
-		return actiongroup.Action{
-			ID:    expandID(cfg) + "-export",
-			Label: "Export",
-			Items: exportItems(cfg, formats),
-		}, true
+func exportSplitButton(cfg WrapperConfig, formats []ExportFormat) splitbutton.Config {
+	return splitbutton.Config{
+		ID:        expandID(cfg) + "-export",
+		Primary:   copyAction(cfg),
+		MenuLabel: "Export " + cfg.Label,
+		Sections:  []dropdown.Section{{Items: exportItems(cfg, formats)}},
+		MenuAlign: dropdown.AlignEnd,
+		Tone:      button.ToneAlternate,
+		Size:      button.SizeMedium,
+		RootClass: "goshtoso-charts-control-split",
 	}
 }
 
-func directExportAction(cfg WrapperConfig, format ExportFormat) actiongroup.Action {
-	return actiongroup.Action{
-		ID:      expandID(cfg) + "-export-" + string(format) + "-action",
-		Label:   "Export",
-		Icon:    downloadIcon(),
-		Tooltip: "Download " + cfg.Label + " as " + exportFormatLabel(format),
-		OnClick: fmt.Sprintf(
-			`window.__goshtosoChartsControls.exportFromMenu($el, %q)`,
-			format,
-		),
+func copyAction(cfg WrapperConfig) splitbutton.Action {
+	return splitbutton.Action{
+		ID:      expandID(cfg) + "-export-copy-action",
+		Label:   "Copy",
+		Icon:    copyIcon(),
+		Tooltip: "Copy " + cfg.Label + " as PNG",
+		OnClick: `window.__goshtosoChartsControls.copyFromMenu($el)`,
 	}
 }
 
-func exportItems(cfg WrapperConfig, formats []ExportFormat) []actiongroup.Action {
-	items := make([]actiongroup.Action, len(formats))
+func exportItems(cfg WrapperConfig, formats []ExportFormat) []dropdown.Item {
+	items := make([]dropdown.Item, len(formats))
 	for index, format := range formats {
-		items[index] = actiongroup.Action{
-			ID:    expandID(cfg) + "-export-" + string(format) + "-action",
-			Label: exportFormatLabel(format),
-			Icon:  downloadIcon(),
+		items[index] = dropdown.Item{
+			ID:      expandID(cfg) + "-export-" + string(format) + "-action",
+			Label:   "Download " + exportFormatLabel(format),
+			Icon:    downloadIcon(),
+			Tooltip: "Download " + cfg.Label + " as " + exportFormatLabel(format),
 			OnClick: fmt.Sprintf(
 				`window.__goshtosoChartsControls.exportFromMenu($el, %q); isOpen = false; openedWithKeyboard = false`,
 				format,

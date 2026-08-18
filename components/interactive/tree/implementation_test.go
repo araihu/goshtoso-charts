@@ -34,7 +34,7 @@ func TestTreeNormalizedRenderHashes(t *testing.T) {
 		{
 			name:       "default layered",
 			config:     Config{Label: "Hierarchy", Roots: []*Node{{Name: "Root", Children: []*Node{{Name: "Leaf"}}}}},
-			fullDigest: "403dbe7e3d7106d44bd5833c61fc7fe988ddde73da4c342240aba82bf74f9256", scriptDigest: "6fcc14e0fb1fbcd2ac7d20125025e7c4dc7fac988c43be739c51b72e55cdc682", shellDigest: "809e612cd9258dae94bc93a3a115ab61556ff81601090de44389c991002900cc",
+		fullDigest: "86bef443c712624070bd1267c9ff33de5ef463becbfd84f37f431f551b52c636", scriptDigest: "9083a4fa2285e8cda342ed6cda68305c3968f9412abc7ef506bf5af24c23a4de", shellDigest: "ba169728f970b9227f1097963db77df109961a4dcc7a08e414d5ab5ec6be2ec7",
 		},
 		{
 			name: "collapsed navigation and wrapper",
@@ -53,7 +53,7 @@ func TestTreeNormalizedRenderHashes(t *testing.T) {
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Ownership"}, Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "ownership"}},
 				Style:   charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "overflow-x-auto"},
 			},
-			fullDigest: "c8a75a692f26d2f1202dbfbe18e10bccff6a8a896a646bc6535e08923dc63deb", scriptDigest: "e695797b8eb7c6f6ef55bb290e57290f58962874f3505b3190735dd80fea07e9", shellDigest: "51d881d1db82b61a4a0b6fb0240ceb29dc61bfe299935de161759d36db652f3f",
+		fullDigest: "980d005e528b6860b96d025ef20fa76280ae292747819f28dcb834ae09ce033c", scriptDigest: "b1c6c14900803fb19b7121701eeefd41feb3660efbc439a5fd773a6b772976a0", shellDigest: "4156e859f24055e3059c455bd722ee77e04d3824d6cda900a939e30890a6e1b1",
 		},
 		{
 			name: "radial expanded wrapper omitted",
@@ -158,8 +158,8 @@ func TestTreeRendersConfiguredHierarchy(t *testing.T) {
 	if strings.Contains(markup, `data-goshtoso-chart-export="svg"`) {
 		t.Fatal("interactive tree exposed unsupported SVG export")
 	}
-	if strings.Contains(markup, `-chart-expand-export"`) {
-		t.Fatal("interactive tree rendered dropdown for one format")
+	if !strings.Contains(markup, `-chart-expand-export"`) || !strings.Contains(markup, `>Copy</span>`) {
+		t.Fatal("interactive tree omitted the Copy SplitButton")
 	}
 }
 

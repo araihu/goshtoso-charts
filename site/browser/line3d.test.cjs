@@ -79,14 +79,10 @@ function wrapperFor(page, variant = "base") {
 }
 
 async function openExpand(wrapper) {
-  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
-  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  const trigger = wrapper.locator('[id$="-primary-action"]:visible').first();
+  await trigger.waitFor({ state: "visible" });
   await trigger.click();
-  if (stacked) {
-    const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-    await action.waitFor({ state: "visible" });
-    await action.click();
-  }
+  return trigger;
 }
 
 async function measure(wrapper) {
@@ -183,7 +179,7 @@ test("both treatments preserve exact plotted order, CSV, local assets, route, an
     for (const route of ["/components/interactive/scatter-3d", "/components/interactive/bar-3d", "/components/interactive/surface-3d"]) {
       assert.equal((await page.request.get(`${baseURL}${route}`)).status(), 200);
     }
-    for (const asset of ["/charts/assets/js/controls/5/controls.js", "/charts/assets/js/runtime/three-d/2.0.9/runtime.min.js", "/charts/assets/js/runtime/echarts/5.6.0/echarts.min.js"]) {
+    for (const asset of ["/charts/assets/js/controls/6/controls.js", "/charts/assets/js/runtime/three-d/2.0.9/runtime.min.js", "/charts/assets/js/runtime/echarts/5.6.0/echarts.min.js"]) {
       assert.equal((await page.request.get(`${baseURL}${asset}`)).status(), 200);
     }
   } finally {
@@ -304,7 +300,8 @@ test("large centered modal preserves instance and exports opaque PNG", async () 
     await dialog.waitFor({ state: "hidden" });
 
     const pending = page.waitForEvent("download");
-    await wrapper.getByRole("button", { name: "Download basic line3d example as PNG" }).click();
+    await wrapper.getByRole("button", { name: "Export basic line3d example" }).click();
+    await wrapper.locator('[id$="-export-png-action"]:visible').first().click();
     const artifact = await pending;
     const bytes = await fs.readFile(await artifact.path());
     assert.equal(artifact.suggestedFilename(), "basic-line3d-example.png");

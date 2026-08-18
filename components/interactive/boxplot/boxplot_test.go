@@ -34,7 +34,7 @@ func TestBoxPlotVariantsPreserveLegacyRenderContracts(t *testing.T) {
 				Label: "Distribution", Categories: []string{"A"},
 				Series: []interactiveboxplot.Series{{Name: "Samples", Data: []interactiveboxplot.Data{{Min: 1, Q1: 2, Median: 3, Q3: 4, Max: 5}}}},
 			},
-			hash: "923c72edba64a212344ad1b5a2fc81b328eaad9bda15e04950c8ef3707d8d148",
+			hash: "c3d65fde1d7b858cfdd8ced48a4d170c1272495cdcc964a1a03844218f339442",
 		},
 		"multiple-custom": {
 			cfg: interactiveboxplot.Config{
@@ -55,7 +55,7 @@ func TestBoxPlotVariantsPreserveLegacyRenderContracts(t *testing.T) {
 				SeriesOptions: chart.SeriesOptions{ItemStyle: &chart.ItemStyle{BorderWidth: 2}},
 				Style:         charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
 			},
-			hash: "1798d1c6d187df577c82b429d1c04f630691c6d684c8fe3370522e3385dededb",
+			hash: "e9b68ff40f5c1cba4a1b92f7240b36e238b878dd44a8a31141cfb023b9b1e5b8",
 		},
 		"point-overrides": {
 			cfg: interactiveboxplot.Config{
@@ -67,7 +67,7 @@ func TestBoxPlotVariantsPreserveLegacyRenderContracts(t *testing.T) {
 				Options: chart.ChartOptions{Animation: chart.Bool(false), XAxis: &chart.AxisOptions{Name: "Period", LabelInterval: chart.Int(1)}},
 				Style:   charttheme.Style{Palette: charttheme.PalettePastel, Class: "caller-boxplot"},
 			},
-			hash: "ffa0e1fc45d24be82ee26562573c45b724161feacfa86215d1deec10f5f5d3ef",
+			hash: "8a7b687f38215a133a6880cf690dc235095d5952ee5b9aa46f9ea1ca05015d48",
 		},
 	}
 	for name, test := range tests {

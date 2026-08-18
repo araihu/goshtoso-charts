@@ -71,19 +71,15 @@ async function tablePage(viewport = { width: 1440, height: 900 }) {
 }
 
 async function openExpand(wrapper) {
-  const trigger = wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first();
-  const stacked = await trigger.evaluate((button) => Boolean(button.closest('[id$="-stacked"]')));
+  const trigger = wrapper.locator('[id$="-primary-action"]:visible').first();
+  await trigger.waitFor({ state: "visible" });
   await trigger.click();
-  const action = wrapper.locator('[id$="-chart-expand-action"]').first();
-  if (stacked) {
-    await action.waitFor({ state: "visible" });
-    await action.click();
-  }
+  return trigger;
 }
 
 async function enterFullscreen(wrapper) {
-  await wrapper.locator('[id$="-stacked"] > button:visible, [data-action-group-primary] button:visible').first().click();
-  await wrapper.locator('[id$="-fullscreen-action"]').first().click();
+  await wrapper.locator('[id$="-stacked"] > [data-popover-root] > [data-popover-trigger] > button:visible').first().click();
+  await wrapper.locator('[id$="-fullscreen-action"]:visible').first().click();
 }
 
 async function download(page, label) {
@@ -96,7 +92,7 @@ async function download(page, label) {
   await trigger.click();
   const menu = wrapper.locator('[role="menu"]:visible');
   await menu.waitFor({ state: "visible" });
-  await menu.getByRole("menuitem", { name: match[2], exact: true }).click();
+  await menu.locator('[role="menuitem"]').filter({ hasText: `Download ${match[2]}` }).first().click();
   const outcome = await Promise.race([
     pending.then((artifact) => ({ artifact })),
     wrapper.locator("[data-goshtoso-chart-export-status]").evaluateHandle((status) => new Promise((resolve) => {
@@ -146,7 +142,7 @@ for (const width of [390, 1440]) {
             document.documentElement.classList.toggle("dark", dark);
           }, { selected: theme, dark: mode === "dark" });
           const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
-          assert.equal(await wrapper.getByRole("button").count(), 2);
+          assert.equal(await wrapper.getByRole("button").count(), 4);
           assert.equal(await wrapper.locator("table").getAttribute("aria-label"), "People directory data");
           assert.deepEqual(await wrapper.locator("table thead th").allTextContents(), ["Name", "Age", "Address", "Tag", "Action"]);
           assert.equal(await wrapper.locator("table tbody tr").count(), 3);

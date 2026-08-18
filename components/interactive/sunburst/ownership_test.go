@@ -91,7 +91,7 @@ func TestSunburstFacadePreservesNavigationSortRenderingValidationAndBaseHashes(t
 			cfg: interactivesunburst.Config{
 				Label: "Hierarchy", Nodes: []*interactivesunburst.Node{{Name: "root", Value: 1}},
 			},
-			fullDigest: "36dce23b7e459b8705015c0dc785f2fb7b6840ea198a87bb78cfd7b626a81bbc", scriptDigest: "9ecd51fc5549c9f222d30112aac121917615f2f836e760e4f8a5c7d471c62244", shellDigest: "8846518dc669f89e95f805831539fd569039fc77073802efadf8d89f55d8ffba",
+		fullDigest: "d8a42cc4ce0b2fefdcd351b4ece0b3fabc0240066c5596b56bc1ba8ae6567a21", scriptDigest: "aab685fb06c9122f7ddd1e53530b36c2c385c75be1b25e7c8dd803760fe88d97", shellDigest: "d8bb4529b752ea5adef688feb3556b326c42d96b9f1f538686814d253141baed",
 		},
 		{
 			name: "configured-hierarchy",
@@ -107,7 +107,7 @@ func TestSunburstFacadePreservesNavigationSortRenderingValidationAndBaseHashes(t
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Basic sunburst example"}, Animation: chart.Bool(false)}, Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "rounded-radius max-w-full"},
 				RootAttrs: templ.Attributes{"id": "basic-sunburst", "data-chart-purpose": "hierarchy"},
 			},
-			fullDigest: "273be37898fcdd3401c1212a412ae693839bd6b96414ed0c53dff1fd37b2a240", scriptDigest: "3eb4a4c40ef4d8e1776002b793c059d55fcbac15b6e82a35a13acec0eb3da7e9", shellDigest: "9870dd798c7d4160d3f642bf223808b9046f09e6a4059586db2759ab412917a8",
+		fullDigest: "484b2ce767d5535b142b3dffad6ec6192f63118fd36d8d139c22b25de4904122", scriptDigest: "b22667986b58ee9c42bf10f641c3dc57ce646fb837f932f9d5cb049373b30eea", shellDigest: "a5fa9af7c54daf859c2c93652e4a14438e6d7856c6cd6a207b6eeb1ac4fdcfa7",
 		},
 		{
 			name: "fixed-input-wrapper-omitted",

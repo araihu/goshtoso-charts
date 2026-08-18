@@ -132,7 +132,7 @@ func TestHorizontalBarPreservesPinnedUpstreamDataGeometryAndAccessibleSummary(t 
 		"Population comparison for 2011 and 2012.", "goshtoso-charts-bar__viewport",
 		`aria-label="World population by reporting series exact category values"`,
 		`data-goshtoso-chart-expand`, `-chart-expand-export"`,
-		`>SVG</button>`, `>PNG</button>`, `-fullscreen-action`,
+		`<span class="block">Download SVG</span>`, `<span class="block">Download PNG</span>`, `-fullscreen-action`,
 	} {
 		if !strings.Contains(markup, want) {
 			t.Errorf("horizontal markup missing %q", want)

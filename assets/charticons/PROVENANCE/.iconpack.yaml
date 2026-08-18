@@ -1,0 +1,14 @@
+schemaVersion: 1
+sources:
+  - id: heroicons
+    kind: archive
+    url: https://github.com/tailwindlabs/heroicons/archive/0435d4ca364a608cc75e2f8683d374e55abbae26.tar.gz
+    packName: heroicons
+    stripComponents: 1
+    paths:
+      - optimized/24/outline/arrows-pointing-out.svg
+      - optimized/24/outline/arrows-pointing-in.svg
+      - optimized/24/outline/arrow-down-tray.svg
+      - optimized/24/outline/document-duplicate.svg
+    license: MIT
+    licensePath: LICENSE
