@@ -24,7 +24,7 @@ App Shell assets, and presentation runtime remain dependency-owned.
 
 ## Install
 
-Requires Go 1.26.5+ and a Goshtoso-integrated templ application. Set up
+Requires Go 1.27.0+ and a Goshtoso-integrated templ application. Set up
 Goshtoso's `/assets/` handler and `head.Dependencies()` first; see the
 [consumer integration guide](https://github.com/araihu/goshtoso/blob/main/docs/USAGE.md).
 
