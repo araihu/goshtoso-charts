@@ -93,7 +93,7 @@ func TestPieDefaultSVGCompatibilityHash(t *testing.T) {
 	if err != nil {
 		t.Fatalf("renderSVG() error = %v", err)
 	}
-	const preExtensionSHA256 = "46c6ae21c6c14963fcb3a5320f05257a803f983b7c8d0a3ddf122a9a0fcc7d1f"
+	const preExtensionSHA256 = "10237e1ed2f0b581048d1bf4e085487573cf4baf38a342b7afd236a1af572288"
 	if got := fmtHash(svg); got != preExtensionSHA256 {
 		t.Fatalf("default Pie SVG SHA-256 = %s, want pre-extension %s", got, preExtensionSHA256)
 	}

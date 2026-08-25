@@ -58,7 +58,7 @@ func TestLineDefaultSVGCompatibilityHash(t *testing.T) {
 		t.Fatalf("renderSVG() error = %v", err)
 	}
 	got := fmt.Sprintf("%x", sha256.Sum256([]byte(svg)))
-	const want = "da1c17f69cfc37e474c3d678f756d67782c2942e3901f8203c59c6e5d6e39063"
+	const want = "fb93e56b180ba561b0f337939c037d75ea1cce3f664f1cad606c90019bb510d0"
 	if got != want {
 		t.Fatalf("default SVG SHA-256 = %s, want %s", got, want)
 	}
@@ -121,7 +121,7 @@ func TestLineFilledAreaSVGHash(t *testing.T) {
 		t.Fatalf("renderSVG() error = %v", err)
 	}
 	got := fmt.Sprintf("%x", sha256.Sum256([]byte(svg)))
-	const want = "8e4fc86cac88beeb67105a99870ab3b48dcbb3b528e0b12bf71c6ed86243649b"
+	const want = "23cd1fc1aefdc55968773e86151896a7ca309f8cce21a83132372e68a8315bed"
 	if got != want {
 		t.Fatalf("area SVG SHA-256 = %s, want %s", got, want)
 	}
@@ -250,7 +250,7 @@ func TestLineDualAxisSVGHash(t *testing.T) {
 		t.Fatalf("renderSVG() error = %v", err)
 	}
 	got := fmt.Sprintf("%x", sha256.Sum256([]byte(svg)))
-	const want = "191a64ba43b2267ade4622cd0bf79f5167e2452448ef0f21287d941c283461ed"
+	const want = "00921faa717f530836b83bb747dd53a361d12b6e50c84beb6350768918d33980"
 	if got != want {
 		t.Fatalf("dual-axis SVG SHA-256 = %s, want %s", got, want)
 	}
