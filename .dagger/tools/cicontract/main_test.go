@@ -70,7 +70,7 @@ func TestExternalValuesNeverEnterActionArgs(t *testing.T) {
 
 func TestHostingerUsesOnlyEmbeddedExactDagger(t *testing.T) {
 	contents := workflow(t, "ci.yml")
-	action := "dagger/dagger-for-github@456fc3af63a2ba6f9789af9c55045b459115541b"
+	action := "dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77"
 	for _, required := range []string{
 		"if: env.HOSTINGER_RUNNER == 'true'",
 		"actual_version=$(dagger version",
