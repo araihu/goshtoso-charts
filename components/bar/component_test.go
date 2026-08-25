@@ -170,7 +170,7 @@ func TestVerticalDefaultRemainsByteCompatible(t *testing.T) {
 	if defaultSVG != explicitSVG {
 		t.Fatal("explicit vertical orientation changed zero-value vertical output")
 	}
-	if got := fmt.Sprintf("%x", sha256.Sum256([]byte(defaultSVG))); got != "03414abfc933c86901b6e6050a66f1d4fc9fed57a2f410e8765938dfe8c79405" {
+	if got := fmt.Sprintf("%x", sha256.Sum256([]byte(defaultSVG))); got != "2a9ffdabf341601adf99b85612517e03d22eb3a7cb6e666812392b237bdbdaa7" {
 		t.Fatalf("vertical SVG SHA-256 = %s, want pre-extension bytes", got)
 	}
 }

@@ -348,7 +348,7 @@ func tokenizedSVG(svg string, cfg Config) string {
 			if cfg.Area.Opacity > 0 {
 				opacityByte = uint8(math.Round(cfg.Area.Opacity * 255))
 			}
-			fillSentinel := fmt.Sprintf("rgba(%d,%d,%d,%.1f)", 5+index, 5+index, 5+index, float64(opacityByte)/255)
+			fillSentinel := fmt.Sprintf("rgba(%d,%d,%d,%.3f)", 5+index, 5+index, 5+index, float64(opacityByte)/255)
 			fillColor := fmt.Sprintf("color-mix(in srgb, %s %.6f%%, transparent)", html.EscapeString(seriesColor(cfg, index)), float64(opacityByte)/255*100)
 			replacements = append(replacements, fillSentinel, fillColor)
 		}

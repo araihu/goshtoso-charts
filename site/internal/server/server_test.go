@@ -547,8 +547,8 @@ func TestAttributionsCentralizeBackingLibraryCredits(t *testing.T) {
 	body := attributions.Body.String()
 	for _, want := range []string{
 		"Foundation dependencies", "Chart and rendering libraries", "Bundled runtime and assets",
-		"Goshtoso", "v0.2.0", "Goshtoso App Shells", "v0.1.1-0.20260730145401-4f5174eeb1a9", "templ", "v0.3.1020", "Heroicons", "v2.2.0",
-		"go-analyze/charts", "v0.6.0", "go-echarts", "v2.7.2", "Apache ECharts", "v5.6.0",
+		"Goshtoso", "v0.2.6", "Goshtoso App Shells", "v0.1.7", "templ", "v0.3.1020", "Heroicons", "v2.2.0",
+		"go-analyze/charts", "v0.6.1", "go-echarts", "v2.7.2", "Apache ECharts", "v5.6.0",
 		"examples/1-Painter/scatter_chart-3-dense_data/main.go",
 		"examples/pie.go",
 		"examples/1-Painter/radar_chart-1-basic/main.go",
