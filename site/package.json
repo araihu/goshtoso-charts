@@ -4,7 +4,7 @@
   "type": "module",
   "devDependencies": {
     "playwright": "1.62.1",
-    "sharp": "0.35.3"
+    "sharp": "0.35.4"
   },
   "scripts": {
     "test:app-shell-release": "node --test browser/app_shell_release_contract.test.cjs",
