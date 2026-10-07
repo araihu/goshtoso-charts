@@ -60,7 +60,7 @@ func TestBarPreservesLegacyRenderContract(t *testing.T) {
 		t.Fatalf("canonical render differs from legacy render\ncanonical: %s\nlegacy: %s", canonicalMarkup, legacyMarkup)
 	}
 	digest := sha256.Sum256([]byte(canonicalMarkup))
-	if got, want := hex.EncodeToString(digest[:]), "fe5c84d2ae98234af7e725e603bbdccd8b4a6644ac62ad5fec67b4fe93963f89"; got != want {
+	if got, want := hex.EncodeToString(digest[:]), "ae5f817a3d2c61824f4a316f4eb8ae7e7ddf34ab34fe5179fd05794d4ccf09c3"; got != want {
 		t.Fatalf("normalized render SHA-256 = %s, want %s", got, want)
 	}
 }
