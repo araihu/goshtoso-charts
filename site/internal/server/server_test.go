@@ -513,9 +513,9 @@ func TestGettingStartedReplacesChartCardOverview(t *testing.T) {
 		"Render a static chart", "Render an interactive chart", "Choose delivery and wrapper behavior",
 		"chartassets", "Handler", "dependencies", "Dependencies", "dependencies.WithCDN()",
 		`href="/examples/live-availability"`, `class="max-w-3xl space-y-12"`,
-		`class="codeblock overflow-x-auto"`, `x-data="{ copied: false, copyCode()`,
+		`class="codeblock overflow-x-auto"`, `data-code-block-copy`,
 		`aria-label="Copy bash code"`, `aria-label="Copy Go code"`, `aria-label="Copy templ code"`,
-		`x-text="copied ? 'Copied!' : 'Copy'"`,
+		`data-code-block-copy-status role="status" aria-live="polite"`,
 	} {
 		if !strings.Contains(body, want) {
 			t.Errorf("getting-started page missing %q", want)

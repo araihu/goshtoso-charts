@@ -48,7 +48,7 @@ func TestHeatMapNormalizedRenderHashes(t *testing.T) {
 				SeriesOptions: chart.SeriesOptions{Animation: chart.Bool(false)},
 				Style:         charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
 			},
-		want: "d01c5d9faed69042bbc688223868c3b62062ff425ead77e5446fe7b45fca7391",
+		want: "cd65ff51f0a6a634449941d7f7940d85d25d027bd3110af793061e52903a20e9",
 		},
 		"Calendar": {
 			cfg: Config{
@@ -66,7 +66,7 @@ func TestHeatMapNormalizedRenderHashes(t *testing.T) {
 				Options:    chart.ChartOptions{Controls: chartcontrol.Options{Mode: chartcontrol.WrapperModeHidden}, Export: &chartcontrol.ExportOptions{Disabled: true}},
 				Style:      charttheme.Style{Palette: charttheme.PalettePastel},
 			},
-		want: "744cddf2d1b5d8df915511b0b32ac48703ae94078b346be561bf36947cf5dcba",
+		want: "fc6b99459c579868113f61894056907cedb262852398e22e0f3917e700479229",
 		},
 	}
 	for name, test := range tests {

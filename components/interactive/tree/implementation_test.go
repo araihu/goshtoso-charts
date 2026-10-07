@@ -34,7 +34,7 @@ func TestTreeNormalizedRenderHashes(t *testing.T) {
 		{
 			name:       "default layered",
 			config:     Config{Label: "Hierarchy", Roots: []*Node{{Name: "Root", Children: []*Node{{Name: "Leaf"}}}}},
-		fullDigest: "86bef443c712624070bd1267c9ff33de5ef463becbfd84f37f431f551b52c636", scriptDigest: "9083a4fa2285e8cda342ed6cda68305c3968f9412abc7ef506bf5af24c23a4de", shellDigest: "ba169728f970b9227f1097963db77df109961a4dcc7a08e414d5ab5ec6be2ec7",
+		fullDigest: "7f41c538f46e8bc3e24d2294241f16f6f4d03e5da299d49aacc1ec730d5af412", scriptDigest: "9083a4fa2285e8cda342ed6cda68305c3968f9412abc7ef506bf5af24c23a4de", shellDigest: "e17ab212d714cf92491f0ab4b3633bdb3e6b6030909d5aea604e959d510c1a23",
 		},
 		{
 			name: "collapsed navigation and wrapper",
@@ -53,7 +53,7 @@ func TestTreeNormalizedRenderHashes(t *testing.T) {
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Ownership"}, Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "ownership"}},
 				Style:   charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "overflow-x-auto"},
 			},
-		fullDigest: "980d005e528b6860b96d025ef20fa76280ae292747819f28dcb834ae09ce033c", scriptDigest: "b1c6c14900803fb19b7121701eeefd41feb3660efbc439a5fd773a6b772976a0", shellDigest: "4156e859f24055e3059c455bd722ee77e04d3824d6cda900a939e30890a6e1b1",
+		fullDigest: "e68edd5355ddd52f13899f3bc307e879668a1f7405c6bfccdd7dbf473c6ab57f", scriptDigest: "b1c6c14900803fb19b7121701eeefd41feb3660efbc439a5fd773a6b772976a0", shellDigest: "1d0d57b4eebe38ce80a0f9dbfb8da248d62ef841a93d04a200181398b60562df",
 		},
 		{
 			name: "radial expanded wrapper omitted",
