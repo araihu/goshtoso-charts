@@ -3,7 +3,7 @@ module github.com/araihu/goshtoso-charts/site
 go 1.27.0
 
 require (
-	github.com/a-h/templ v0.3.1020
+	github.com/a-h/templ v0.3.1070
 	github.com/araihu/goshtoso v0.3.3
 	github.com/araihu/goshtoso-app-shells v0.1.8
 	github.com/araihu/goshtoso-charts v0.0.0
