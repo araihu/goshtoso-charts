@@ -13,6 +13,8 @@ const GO_IMAGE =
   "golang:1.27.0-bookworm@sha256:484ef6066fa69acb059fdfeda7ba2b8f7391f2ef6abc6f9b8411e669ebd56466"
 const JQ_IMAGE =
   "ghcr.io/jqlang/jq:1.8.2@sha256:b9c68867e5766576263a222e91db3de422d802069c7af70440e667a95344e486"
+const NODE_IMAGE =
+  "node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03"
 
 const SOURCE_EXCLUDES = [
   ".cache",
@@ -35,14 +37,22 @@ const ASSET_OUTPUTS = [
 
 @object()
 export class GoshtosoCharts {
-  /** Run the exact required root, site, Muamba, race, vet, and workflow checks. */
+  /** Run the required root, site, runtime, Muamba, race, vet, and workflow checks. */
   @func({ cache: "never" })
   async ci(
     @argument({ defaultPath: ".", ignore: SOURCE_EXCLUDES }) source: Directory,
     trustDomain: string,
     runNonce: string,
   ): Promise<string> {
-    return this.goProject(source, trustDomain, runNonce)
+    const project = this.goProject(source, trustDomain, runNonce)
+    await dag.container()
+      .from(NODE_IMAGE)
+      .withDirectory("/work", source)
+      .withWorkdir("/work")
+      .withExec(["node", "--test", "components/internal/interactive/theme_runtime.test.cjs"])
+      .sync()
+
+    return project
       .withExec([
         "go", "tool", "muamba", "sync", "--strict", "--cache-dir", ".cache/muamba",
       ])

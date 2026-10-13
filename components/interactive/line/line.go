@@ -143,12 +143,14 @@ type Series struct {
 	References References
 }
 
-// Data describes one finite line value and optional point symbol.
+// Data describes one finite line value or missing observation and optional point symbol.
 type Data struct {
 	Name       string
 	Value      float64
 	Symbol     string
 	SymbolSize int
+	// Missing leaves a gap in the line and ignores Value.
+	Missing bool
 }
 
 // Line builds a reusable interactive line component.
@@ -201,10 +203,14 @@ func Line(cfg Config) Instance {
 		data := make([]opts.LineData, len(series.Data))
 		for index, point := range series.Data {
 			value := any(point.Value)
+			if point.Missing {
+				// A typed nil preserves an explicit null through the renderer's omitempty field.
+				value = (*float64)(nil)
+			}
 			if cfg.TimeAxis != nil {
-				value = []any{lineTimeValue(cfg.TimeAxis.Values[index]), point.Value}
+				value = []any{lineTimeValue(cfg.TimeAxis.Values[index]), value}
 			} else if cfg.ValueAxis != nil {
-				value = []any{cfg.ValueAxis.Values[index], point.Value}
+				value = []any{cfg.ValueAxis.Values[index], value}
 			}
 			data[index] = opts.LineData{Name: point.Name, Value: value, Symbol: point.Symbol, SymbolSize: point.SymbolSize}
 		}
@@ -290,7 +296,7 @@ func validateConfig(cfg Config) error {
 			return fmt.Errorf("line chart series %q has %d data points for %d x-axis values", series.Name, len(series.Data), axisLen)
 		}
 		for dataIndex, point := range series.Data {
-			if !internalinteractive.FiniteNumber(point.Value) {
+			if !point.Missing && !internalinteractive.FiniteNumber(point.Value) {
 				return fmt.Errorf("line chart series %q data point %d value must be finite", series.Name, dataIndex)
 			}
 			if err := validateLineSymbol(point.Symbol); err != nil {
@@ -605,6 +611,13 @@ func lineDetails(cfg Config) templ.Component {
 		return nil
 	}
 	return lineExactValues(cfg)
+}
+
+func lineExactValue(point Data) string {
+	if point.Missing {
+		return "Unavailable"
+	}
+	return strconv.FormatFloat(point.Value, 'g', -1, 64)
 }
 
 func lineExactValuesAttributes(cfg Config) templ.Attributes {

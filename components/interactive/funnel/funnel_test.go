@@ -28,7 +28,7 @@ func TestFunnelNormalizedRenderHashes(t *testing.T) {
 			config: Config{
 				Label: "Pipeline", Series: []Series{{Name: "Pipeline", Data: []Data{{Name: "Lead", Value: 100}, {Name: "Won", Value: 15}}}},
 			},
-		want: "e9a2e7648ddba706f167171d9405ecd1af8f2dae5642c2ae439dfd1d8f772788",
+		want: "74b65e859f634afac7d348fc044fac037fbc520716801b8611359689742bd24b",
 		},
 		"ascending custom": {
 			config: Config{
@@ -41,7 +41,7 @@ func TestFunnelNormalizedRenderHashes(t *testing.T) {
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Conversion"}}, SeriesOptions: chart.SeriesOptions{Label: &chart.LabelOptions{Show: chart.Bool(true), Position: "left"}},
 				Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
 			},
-		want: "74bad2fbcb072859abfe956e8889059ea6af1aa0e730144ae6b58edd8efbcc4e",
+		want: "7cc9644bd1dfa1686d58cb69c778fce6eb0db3863f51aedfec3701ff80f13d6f",
 		},
 		"data order wrapper": {
 			config: Config{
@@ -50,7 +50,7 @@ func TestFunnelNormalizedRenderHashes(t *testing.T) {
 				Options: chart.ChartOptions{Animation: chart.Bool(false), Controls: chartcontrol.Options{Mode: chartcontrol.WrapperModeOmitted}, Export: &chartcontrol.ExportOptions{Filename: "exact-funnel"}},
 				Style:   charttheme.Style{Palette: charttheme.PalettePastel, Class: "caller-funnel"},
 			},
-			want: "68804d580d388508c0379a0de17a542a23be0ed4063130644cb498abca030436",
+			want: "8c9bc3b897a82c029b8ff4f536c2f8887d3fd427179eb98c640330cbc446c38b",
 		},
 	}
 	for name, test := range tests {

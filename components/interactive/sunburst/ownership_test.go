@@ -91,7 +91,7 @@ func TestSunburstFacadePreservesNavigationSortRenderingValidationAndBaseHashes(t
 			cfg: interactivesunburst.Config{
 				Label: "Hierarchy", Nodes: []*interactivesunburst.Node{{Name: "root", Value: 1}},
 			},
-		fullDigest: "e551e54785745533360aa78b47afe5d50a5a4298e46d4d1a7dc81a9f5e5afb17", scriptDigest: "aab685fb06c9122f7ddd1e53530b36c2c385c75be1b25e7c8dd803760fe88d97", shellDigest: "7716aacc19361e96ba7eeba50e5489e45d5cfc2f41a50bae6e0ca7cbb48e0537",
+		fullDigest: "f612fd1c0d55da4cc43a3b7225daf13691234f5973b0d135c2160223db733f8b", scriptDigest: "676d7cca3c45a1baf5bbfbc55033d069694520ae519071da6f592442da877b8d", shellDigest: "7716aacc19361e96ba7eeba50e5489e45d5cfc2f41a50bae6e0ca7cbb48e0537",
 		},
 		{
 			name: "configured-hierarchy",
@@ -107,7 +107,7 @@ func TestSunburstFacadePreservesNavigationSortRenderingValidationAndBaseHashes(t
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Basic sunburst example"}, Animation: chart.Bool(false)}, Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "rounded-radius max-w-full"},
 				RootAttrs: templ.Attributes{"id": "basic-sunburst", "data-chart-purpose": "hierarchy"},
 			},
-		fullDigest: "994919f23c10aa6c0b1c6ea868e07eca4ced01d991c29199892c8fd2fcd3546d", scriptDigest: "b22667986b58ee9c42bf10f641c3dc57ce646fb837f932f9d5cb049373b30eea", shellDigest: "c5dd97a01a37755b066155f4b1b627ed01b8411d3556f94862ee20dea8536f48",
+		fullDigest: "d0ff0a0b3d2af2edc1acb6face15c29399c129f78e83429026c4946b6e379474", scriptDigest: "29671028a355a3fda904e12793c9b3a4db86767c61713a8383edee788c3ff3df", shellDigest: "c5dd97a01a37755b066155f4b1b627ed01b8411d3556f94862ee20dea8536f48",
 		},
 		{
 			name: "fixed-input-wrapper-omitted",
@@ -118,7 +118,7 @@ func TestSunburstFacadePreservesNavigationSortRenderingValidationAndBaseHashes(t
 				Options: chart.ChartOptions{Controls: chartcontrol.Options{Mode: chartcontrol.WrapperModeOmitted}, Export: &chartcontrol.ExportOptions{Filename: "fixed-hierarchy"}},
 				Style:   charttheme.Style{Palette: charttheme.PalettePastel, Class: "caller-sunburst"}, RootAttrs: templ.Attributes{"data-owner": "consumer"},
 			},
-			fullDigest: "7a18bb5a926e1f7c2919270b801a81c8173dff5668ec36413d8f0997284f9745", scriptDigest: "876f2695e08168f639a987c347de482bbe1b340750213eaf3508d7a9b068cf7e", shellDigest: "266cebeb904299687c7cd6b4d4ac4e31a21c5a06627f9556f4971611465c04fb",
+			fullDigest: "966c048dbfdf240af17c9e21148e1739e8defa9b0a5042c2b4a072fe8a615242", scriptDigest: "98d77a337b3ef831913a6d357fdca871bb3102b7f09016ae5a17a572e6d58d11", shellDigest: "266cebeb904299687c7cd6b4d4ac4e31a21c5a06627f9556f4971611465c04fb",
 		},
 	}
 	for _, variant := range variants {

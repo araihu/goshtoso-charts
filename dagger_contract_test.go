@@ -71,6 +71,25 @@ func TestDaggerProvidesPinnedJQForPayloadRegressions(t *testing.T) {
 	}
 }
 
+func TestDaggerRequiresInteractiveRuntimeRegressions(t *testing.T) {
+	data, err := os.ReadFile(".dagger/src/index.ts")
+	if err != nil {
+		t.Fatal(err)
+	}
+	source := string(data)
+	for _, required := range []string{
+		"node:24.19.0-bookworm-slim@sha256:3638d9a6fe4030bd716be989438248074489337ba3275657f93595428be4fc03",
+		`await dag.container()`,
+		`.from(NODE_IMAGE)`,
+		`.withExec(["node", "--test", "components/internal/interactive/theme_runtime.test.cjs"])`,
+		`.sync()`,
+	} {
+		if !strings.Contains(source, required) {
+			t.Fatalf("Dagger CI misses mandatory runtime regression gate %q", required)
+		}
+	}
+}
+
 func TestPullRequestsUseHostIsolatedPersistentCaches(t *testing.T) {
 	data, err := os.ReadFile(".dagger/src/index.ts")
 	if err != nil {

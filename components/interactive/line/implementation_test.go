@@ -204,6 +204,67 @@ func TestLineRendersCategoricalExactValues(t *testing.T) {
 	}
 }
 
+func TestLineMissingObservationsRemainGaps(t *testing.T) {
+	t.Parallel()
+	start := time.Date(2026, time.October, 10, 12, 0, 0, 0, time.UTC)
+	for _, axis := range []string{"category", "time", "value"} {
+		t.Run(axis, func(t *testing.T) {
+			t.Parallel()
+			for _, ignored := range []float64{0, 99, math.NaN(), math.Inf(1)} {
+				cfg := Config{
+					Label: "Missing observations",
+					Series: []Series{{Name: "Values", Data: []Data{
+						{Missing: true, Value: ignored}, {Value: 0}, {Missing: true, Value: ignored}, {Value: 42}, {Missing: true, Value: ignored},
+					}}},
+				}
+				var values []string
+				switch axis {
+				case "category":
+					cfg.XAxis = []string{"A", "B", "C", "D", "E"}
+					values = []string{`"value":null`, `"value":0`, `"value":null`, `"value":42`, `"value":null`}
+				case "time":
+					cfg.TimeAxis = &TimeAxis{Minimum: start}
+					for i, value := range []string{"null", "0", "null", "42", "null"} {
+						at := start.Add(time.Duration(i) * time.Minute)
+						cfg.TimeAxis.Values = append(cfg.TimeAxis.Values, at)
+						values = append(values, `"value":["`+at.Format(time.RFC3339)+`",`+value+`]`)
+					}
+				case "value":
+					cfg.ValueAxis = &ValueAxis{Values: []float64{0, 1, 2, 3, 4}}
+					values = []string{`"value":[0,null]`, `"value":[1,0]`, `"value":[2,null]`, `"value":[3,42]`, `"value":[4,null]`}
+				}
+				var output bytes.Buffer
+				if err := Line(cfg).Render(context.Background(), &output); err != nil {
+					t.Fatalf("Render() with ignored value %v: %v", ignored, err)
+				}
+				markup := output.String()
+				remaining := markup
+				for _, value := range values {
+					_, after, ok := strings.Cut(remaining, value)
+					if !ok {
+						t.Fatalf("missing ordered renderer point %s", value)
+					}
+					remaining = after
+				}
+				if got := strings.Count(markup, ">Unavailable</td>"); got != 3 {
+					t.Errorf("Unavailable cells = %d, want 3", got)
+				}
+				if !strings.Contains(markup, ">0</td>") || !strings.Contains(markup, ">42</td>") {
+					t.Error("exact values lost an observed zero or nonzero point")
+				}
+			}
+		})
+	}
+}
+
+func TestLineMissingDoesNotBypassSymbolValidation(t *testing.T) {
+	t.Parallel()
+	cfg := Config{Label: "Missing point", XAxis: []string{"A"}, Series: []Series{{Name: "Values", Data: []Data{{Missing: true, Symbol: "star"}}}}}
+	if err := validateConfig(cfg); err == nil || !strings.Contains(err.Error(), `symbol "star" is not supported`) {
+		t.Fatalf("validateConfig() = %v, want unsupported symbol", err)
+	}
+}
+
 func TestLineDoesNotRenderStaleExactValuesForLiveData(t *testing.T) {
 	t.Parallel()
 	instance := Line(Config{

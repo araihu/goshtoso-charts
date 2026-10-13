@@ -34,7 +34,7 @@ func TestTreeNormalizedRenderHashes(t *testing.T) {
 		{
 			name:       "default layered",
 			config:     Config{Label: "Hierarchy", Roots: []*Node{{Name: "Root", Children: []*Node{{Name: "Leaf"}}}}},
-		fullDigest: "7f41c538f46e8bc3e24d2294241f16f6f4d03e5da299d49aacc1ec730d5af412", scriptDigest: "9083a4fa2285e8cda342ed6cda68305c3968f9412abc7ef506bf5af24c23a4de", shellDigest: "e17ab212d714cf92491f0ab4b3633bdb3e6b6030909d5aea604e959d510c1a23",
+		fullDigest: "99f0a04281060a4b60cf2256f3846cc0d533568decaefc4ac2eb69f10c2b5f48", scriptDigest: "909d3868304d08732ca65b3d5dae009013d302cd18d8c1d21eff3c58ce9a975f", shellDigest: "e17ab212d714cf92491f0ab4b3633bdb3e6b6030909d5aea604e959d510c1a23",
 		},
 		{
 			name: "collapsed navigation and wrapper",
@@ -53,7 +53,7 @@ func TestTreeNormalizedRenderHashes(t *testing.T) {
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Ownership"}, Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "ownership"}},
 				Style:   charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "overflow-x-auto"},
 			},
-		fullDigest: "e68edd5355ddd52f13899f3bc307e879668a1f7405c6bfccdd7dbf473c6ab57f", scriptDigest: "b1c6c14900803fb19b7121701eeefd41feb3660efbc439a5fd773a6b772976a0", shellDigest: "1d0d57b4eebe38ce80a0f9dbfb8da248d62ef841a93d04a200181398b60562df",
+		fullDigest: "686f3b3e0614d3224710d8ef52afa0a19f944e286c896d516082c98db2dd4bef", scriptDigest: "4f7f59059675696651cf44240216013fbca441564d1c4eaa92a36642c5064ca5", shellDigest: "1d0d57b4eebe38ce80a0f9dbfb8da248d62ef841a93d04a200181398b60562df",
 		},
 		{
 			name: "radial expanded wrapper omitted",
@@ -63,7 +63,7 @@ func TestTreeNormalizedRenderHashes(t *testing.T) {
 				Options: chart.ChartOptions{Animation: chart.Bool(false), Controls: chartcontrol.Options{Mode: chartcontrol.WrapperModeOmitted}, Export: &chartcontrol.ExportOptions{Filename: "organization"}},
 				Style:   charttheme.Style{Palette: charttheme.PalettePastel, Class: "caller-tree"},
 			},
-			fullDigest: "5f4af9a746a8d6d3b8ac35e1946be4c063059f62ed3d63cf0725586b3568b4e7", scriptDigest: "36a31bd731bf5e2781483720a45df4bd444376f611a5f008110f9b44f4e74b5c", shellDigest: "0f0fb3724440b69e203d1e4d61a094290ad142abe717def0ba14714dc3b9df00",
+			fullDigest: "8b4fc7ef84f5c9db05681efd844a420d7e8d6acd0daf84c74bcbd47a9273ff53", scriptDigest: "1518d525b8607ec8c560c92352608035dae09a21f653f373256b9871d48abc56", shellDigest: "0f0fb3724440b69e203d1e4d61a094290ad142abe717def0ba14714dc3b9df00",
 		},
 	}
 	for _, variant := range variants {

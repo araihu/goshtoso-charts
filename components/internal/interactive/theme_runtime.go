@@ -87,6 +87,11 @@ const ThemeRuntimeMarkup = `<script data-goshtoso-charts-theme-runtime>
 		};
 	    var unregister = function (figure) {
 			stopPieAutoEmphasis(figure);
+	      if (!figure.isConnected) {
+	        var host = figure.querySelector("[_echarts_instance_]");
+	        var chart = host && window.echarts && window.echarts.getInstanceByDom(host);
+	        if (chart && (!chart.isDisposed || !chart.isDisposed())) chart.dispose();
+	      }
 	      var state = responsiveFigures.get(figure);
 	      if (!state) return;
 	      state.targets.forEach(function (target) {

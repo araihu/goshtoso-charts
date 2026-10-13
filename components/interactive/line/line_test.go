@@ -24,6 +24,10 @@ func TestCanonicalAndCompatibilityPathsRenderIdentically(t *testing.T) {
 	minimum := time.Date(2025, time.January, 1, 0, 0, 0, 0, time.UTC)
 
 	tests := map[string]line.Config{
+		"missing observations": {
+			Label: "Gaps", XAxis: []string{"Mon", "Tue", "Wed"},
+			Series: []line.Series{{Name: "Values", Data: []line.Data{{Value: 0}, {Missing: true}, {Value: 42}}}},
+		},
 		"categorical live": {
 			Label: "Live traffic", XAxis: []string{"Mon", "Tue"},
 			Series: []line.Series{{Name: "API", Data: []line.Data{{Value: 12}, {Value: 18}}}},

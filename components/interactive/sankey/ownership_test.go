@@ -96,7 +96,7 @@ func TestSankeyFacadePreservesCanonicalRenderValidationAndBaseHashes(t *testing.
 			cfg: interactivesankey.Config{
 				Label: "Flow", Series: []interactivesankey.Series{{Name: "Flow", Nodes: []interactivesankey.Node{{Name: "Input"}, {Name: "Output"}}, Links: []interactivesankey.Link{{Source: "Input", Target: "Output", Value: 1}}}},
 			},
-		fullDigest: "d936ff7d95fb3f2c2f310a170850bc92dd71508637f3aac3553a42ca9793d7dc", scriptDigest: "d088cb9fa29de4db7223affcb6261fdd1af8f01240fa71fe1f0397907972f8e7", shellDigest: "0e63aafce3d4a9661a6ed45d2d7b49eb14e106540f96051c6ffd714677f3b1b2",
+		fullDigest: "79e240fb8d44fc27b244aa366bdfcf946c8caaea59ecab0af2e938a3c1655cad", scriptDigest: "5e13d32637ed2dff797ba62a3e38210c46359da8037ffa56bca3ea041aa8c106", shellDigest: "0e63aafce3d4a9661a6ed45d2d7b49eb14e106540f96051c6ffd714677f3b1b2",
 		},
 		{
 			name: "vertical-custom",
@@ -107,7 +107,7 @@ func TestSankeyFacadePreservesCanonicalRenderValidationAndBaseHashes(t *testing.
 				Width:  "720px", Height: "420px", Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Energy balance"}}, SeriesOptions: chart.SeriesOptions{Label: &chart.LabelOptions{Show: chart.Bool(true), Position: "right"}, LineStyle: &chart.LineStyle{Color: "source", Opacity: chart.Float(0.6)}},
 				Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-96"},
 			},
-		fullDigest: "5685c60732d0f534adbca0c5d5609b6fb0380a344c71c378264ac9bcb774f7de", scriptDigest: "6953f7e39dc3bb7fdcf21e1c1b3a063b150f6e3a735354c8c2b02c08551b08a1", shellDigest: "b8f523d1baa3402bf21b86c2fb141e4aa8add7de1d4f1fa1edffc59f5f3060ea",
+		fullDigest: "75758be7d7e9d845949d1ab2955dd9323fd6fa982b0bf86ea540ea9a239484a2", scriptDigest: "b0acd283a8302b697ce4c4578db309689e0cb471aae6e62bc12a9ee3adbbf6f7", shellDigest: "b8f523d1baa3402bf21b86c2fb141e4aa8add7de1d4f1fa1edffc59f5f3060ea",
 		},
 		{
 			name: "multiple-wrapper-omitted",
@@ -120,7 +120,7 @@ func TestSankeyFacadePreservesCanonicalRenderValidationAndBaseHashes(t *testing.
 				Options: chart.ChartOptions{Animation: chart.Bool(false), Controls: chartcontrol.Options{Mode: chartcontrol.WrapperModeOmitted}, Export: &chartcontrol.ExportOptions{Filename: "material-flows"}}, SeriesOptions: chart.SeriesOptions{LineStyle: &chart.LineStyle{Opacity: chart.Float(0.4)}},
 				Style: charttheme.Style{Palette: charttheme.PalettePastel, Class: "caller-sankey"},
 			},
-			fullDigest: "4910031ab7ea5165dae6c812ba4d60d6aea26060a7b35b03efa4b36b0f7f36fd", scriptDigest: "3af9e02be276e6be363915ee4a64225e475bbbba5738d65cbfd0236f520d0268", shellDigest: "365eb2ea473e14518059bc464042ed6aba4b1028ec953aaac09356dbade497a2",
+			fullDigest: "6ee575435f88df1282015d134338e064dd9995ccc79b8014eaf9d2965bf7c670", scriptDigest: "aa240679eea12d99baeb51336c15acda6faa23e17d0e7201658cc7387fa4f0d4", shellDigest: "365eb2ea473e14518059bc464042ed6aba4b1028ec953aaac09356dbade497a2",
 		},
 	}
 	for _, variant := range variants {
@@ -230,7 +230,7 @@ func TestSankeyUsesUnchangedSharedTemplateRuntimeAndCentralProvenance(t *testing
 		}
 	}
 	for path, want := range map[string]string{
-		filepath.Join("..", "..", "internal", "interactive", "theme_runtime.go"):     "07607b72118cf2e2e1cc71d81ec3c64789dd2f053ff0f9282a2e41f92cbf24ae",
+		filepath.Join("..", "..", "internal", "interactive", "theme_runtime.go"):     "5a6cb17e5fe559bb3ac566e4e74953a7d99ac045e134af07b598eb29a2dffd4d",
 		filepath.Join("..", "..", "internal", "interactive", "interactive.templ"):    "96137171bb2e6cb69372a59596963d0f4e7e6f87f3079863ccc92f3f59f8680a",
 		filepath.Join("..", "..", "internal", "interactive", "interactive_templ.go"): "9e83e969108d203fe38fce502a21fed7c0f85d150cd8978d4ca76e596d278808",
 	} {

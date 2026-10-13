@@ -34,7 +34,7 @@ func TestTreemapNormalizedRenderHashes(t *testing.T) {
 	}{
 		{
 			name: "default hierarchy", config: Config{Label: "Hierarchy", Nodes: []*Node{{Name: "file", Value: 1}}},
-			fullDigest: "8ac36d7624c3a0d713b2b4ef4e44b7fdb4ec2b36c913a976a17639f8d09491ab", scriptDigest: "5cf11d02f729204c6ae5b778370f78ba80d10f95705399d35d213904f0d0d71c", shellDigest: "0de33e4ac3ba577ca3186935bdb6e34ed6aa751c1fec9c16e00741d3a7cad3df",
+			fullDigest: "83180c8e58f62f31b5f6cf3b1040a316eb7eb7d7aefa286e5702009c41ba2004", scriptDigest: "ac2fa5ebdef637014d0a6a78b71d46c3dad35216c76a68702931340735880564", shellDigest: "0de33e4ac3ba577ca3186935bdb6e34ed6aa751c1fec9c16e00741d3a7cad3df",
 		},
 		{
 			name: "configured hierarchy navigation and exact values",
@@ -49,7 +49,7 @@ func TestTreemapNormalizedRenderHashes(t *testing.T) {
 				Width:  "100%", Height: "500px", Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Basic treemap example"}, Animation: chart.Bool(false), Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "basic-treemap"}},
 				Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "rounded-radius max-w-full"}, RootAttrs: templ.Attributes{"id": "basic-treemap", "data-chart-purpose": "hierarchy"},
 			},
-			fullDigest: "05133b8a6d97e9d4296d968e36746b61e1a6baa4a07dc96e2c5b6295928113e0", scriptDigest: "f74025c088ca01ffacc2bc835241c45bbaf0c42c30413c657a714ceb800fbcc7", shellDigest: "71858daea014b21f48778d0c1b7a752e7646f3e41533b4be960805e3866b7f98",
+			fullDigest: "97d32ad32b948c63daad0e1731e7eaae0476fc52681d97fbc837ae687b68a81f", scriptDigest: "c1e8a83f7038ad989101579c5fa540d18b410b0367c454ab2c1d73547f9fe673", shellDigest: "71858daea014b21f48778d0c1b7a752e7646f3e41533b4be960805e3866b7f98",
 		},
 		{
 			name: "navigation disabled wrapper omitted",
@@ -58,7 +58,7 @@ func TestTreemapNormalizedRenderHashes(t *testing.T) {
 				Options: chart.ChartOptions{Controls: chartcontrol.Options{Mode: chartcontrol.WrapperModeOmitted}, Export: &chartcontrol.ExportOptions{Filename: "fixed-hierarchy"}},
 				Style:   charttheme.Style{Palette: charttheme.PalettePastel, Class: "caller-treemap"}, RootAttrs: templ.Attributes{"data-owner": "consumer"},
 			},
-			fullDigest: "7dcf5a57b8cb6abeb2a0a8f169039c6cb5cdd1a24076e3a9104b8a2637625cc9", scriptDigest: "761c9e863a7e76e60276bb6fd35e14c8039b6ad50e1b8bbca41bfb67b15a145d", shellDigest: "704af68ae99542879d17052c83d944d0490806380ace0e246a4a470dba2997e7",
+			fullDigest: "74b0b12dd3be234dadac060897d5257c72bd29d4474801c7a07a3f572aa5be2a", scriptDigest: "0c28abef1a49c4f815f4b97b8ebc8f1ad3c22f77d283ac65bd04fee3ce4c558c", shellDigest: "704af68ae99542879d17052c83d944d0490806380ace0e246a4a470dba2997e7",
 		},
 	}
 	for _, variant := range variants {
