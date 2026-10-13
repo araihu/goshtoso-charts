@@ -107,7 +107,7 @@ func TestWordCloudFacadePreservesRenderingRuntimeValidationAndBaseHashes(t *test
 		{
 			name:       "default",
 			cfg:        interactivewordcloud.Config{Label: "basic WordCloud example", Series: interactivewordcloud.Series{Name: "wordcloud", Words: []interactivewordcloud.Word{{Name: "Sam S Club", Value: 10000}, {Name: "Macys", Value: 6181}}}},
-			fullDigest: "5edac00ae30de0a0ef58caed5bd0927a99717dc8d1cd88bb541e62a8c1a9b000", scriptDigest: "486e71b440f25b6f58dba54760b2b5092a0f79258b72c436230d0c67894b8de0", shellDigest: "3e0fe8100f63395f45f22353aea896e6dbfcd2b6640eaac949e26df69a557951",
+			fullDigest: "e301cdc18c1827f8fbf429e5b842ba1f71bf4dc620e0ee8aa145f867a29f12c0", scriptDigest: "c8aee976c29d9ded686402dbc57ce614c93b5d0d50ec6cc104904760f720119c", shellDigest: "3e0fe8100f63395f45f22353aea896e6dbfcd2b6640eaac949e26df69a557951",
 		},
 		{
 			name: "configured",
@@ -120,7 +120,7 @@ func TestWordCloudFacadePreservesRenderingRuntimeValidationAndBaseHashes(t *test
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "basic WordCloud example"}, Tooltip: &chart.TooltipOptions{Show: chart.Bool(true), Trigger: "item"}, Animation: chart.Bool(false), Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "word-cloud"}},
 				Style:   charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "caller-class"}, RootAttrs: templ.Attributes{"id": "search-terms", "data-purpose": "weighted-terms"},
 			},
-			fullDigest: "71cf257c9b0a08087668101b8b0b9dc8fa866bd55d4fb00084e11bcbc5c3add6", scriptDigest: "a15424f675c0ab22edc44bd644897973a38ad8bb63975b5f744b5356c1a27384", shellDigest: "90c3fe3ebea6f78d81444491e7519d52a8347a4be24d79e3daa2b1a1c3d49d20",
+			fullDigest: "2c8c56ce4ac043058060a08ee4fcafa09d48ceebf4f10917ad191b33145e655b", scriptDigest: "2e67c4dbb7cae53f7af66fc62035fb0dd0637e8779407369dfdd8e530c44897f", shellDigest: "90c3fe3ebea6f78d81444491e7519d52a8347a4be24d79e3daa2b1a1c3d49d20",
 		},
 		{
 			name: "bounded-wrapper-omitted",
@@ -128,7 +128,7 @@ func TestWordCloudFacadePreservesRenderingRuntimeValidationAndBaseHashes(t *test
 				Label: "Large cloud", Caption: "Bounded exact values.", Series: interactivewordcloud.Series{Name: "bulk", Words: words, Options: interactivewordcloud.SeriesOptions{Shape: interactivewordcloud.ShapeDiamond, Layout: interactivewordcloud.Layout{Horizontal: interactivewordcloud.HorizontalLeft, Vertical: interactivewordcloud.VerticalBottom, WidthPercent: chart.Float(100), HeightPercent: chart.Float(50)}}},
 				Width: "720px", Height: "420px", Options: chart.ChartOptions{Controls: chartcontrol.Options{Mode: chartcontrol.WrapperModeOmitted}}, Style: charttheme.Style{Palette: charttheme.PalettePastel, Class: "caller-wordcloud"}, RootAttrs: templ.Attributes{"data-owner": "consumer"},
 			},
-			fullDigest: "11e81fd325b32a719b918b8614c94b67bd64d016fe4609dd55846f4033b55d54", scriptDigest: "4a8b1400a7808e5d1c18cf898affc53c89d4f5abc452da57b0b465a028855d65", shellDigest: "a464292b8479769a7ab9d44f4eaecd82d7eeb2a6dda88095490c264d2d7801e1",
+			fullDigest: "bb596ae3bfe0b155bec4d99c920d98cad0b31d01671966e51f51323f9b0bacc4", scriptDigest: "ee673eed9753ea3c04a7495cf278109572adb8b1c607cec49dcf0d079bd90c04", shellDigest: "a464292b8479769a7ab9d44f4eaecd82d7eeb2a6dda88095490c264d2d7801e1",
 		},
 	}
 	for _, variant := range variants {

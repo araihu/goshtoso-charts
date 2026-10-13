@@ -34,7 +34,7 @@ func TestBoxPlotVariantsPreserveLegacyRenderContracts(t *testing.T) {
 				Label: "Distribution", Categories: []string{"A"},
 				Series: []interactiveboxplot.Series{{Name: "Samples", Data: []interactiveboxplot.Data{{Min: 1, Q1: 2, Median: 3, Q3: 4, Max: 5}}}},
 			},
-			hash: "776a235c98c388d395c55dd3d810d75f6e6d801d92e21483d9a8230456357080",
+			hash: "58ba9970aa6bca2b4a44a414452e97d1be1b4ceb2e0f55f2cfc3339b2469a0d7",
 		},
 		"multiple-custom": {
 			cfg: interactiveboxplot.Config{
@@ -55,7 +55,7 @@ func TestBoxPlotVariantsPreserveLegacyRenderContracts(t *testing.T) {
 				SeriesOptions: chart.SeriesOptions{ItemStyle: &chart.ItemStyle{BorderWidth: 2}},
 				Style:         charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
 			},
-			hash: "d884aaaa3724e6f5018cb7f3d52dde4a3e0f45731f40af2d4a62e054f5c0a2a4",
+			hash: "b710d52db6abd63d3d169fea4a56c2a979ff026aac535c15ad9f8307a3795bf2",
 		},
 		"point-overrides": {
 			cfg: interactiveboxplot.Config{
@@ -67,7 +67,7 @@ func TestBoxPlotVariantsPreserveLegacyRenderContracts(t *testing.T) {
 				Options: chart.ChartOptions{Animation: chart.Bool(false), XAxis: &chart.AxisOptions{Name: "Period", LabelInterval: chart.Int(1)}},
 				Style:   charttheme.Style{Palette: charttheme.PalettePastel, Class: "caller-boxplot"},
 			},
-			hash: "4bd605342008f1b5e3a52c943b5621d6158efa7840e8a982e2d7c14747b51018",
+			hash: "eb837e381c488d16f8c7fa365c33f21231ada6c1212da3b9ac0551d72674b784",
 		},
 	}
 	for name, test := range tests {
@@ -241,7 +241,7 @@ func TestBoxPlotTemplateProvenanceRemainsInSharedPrivateShell(t *testing.T) {
 		}
 	}
 	for path, want := range map[string]string{
-		filepath.Join("..", "..", "internal", "interactive", "theme_runtime.go"):     "07607b72118cf2e2e1cc71d81ec3c64789dd2f053ff0f9282a2e41f92cbf24ae",
+		filepath.Join("..", "..", "internal", "interactive", "theme_runtime.go"):     "5a6cb17e5fe559bb3ac566e4e74953a7d99ac045e134af07b598eb29a2dffd4d",
 		filepath.Join("..", "..", "internal", "interactive", "interactive.templ"):    "96137171bb2e6cb69372a59596963d0f4e7e6f87f3079863ccc92f3f59f8680a",
 		filepath.Join("..", "..", "internal", "interactive", "interactive_templ.go"): "9e83e969108d203fe38fce502a21fed7c0f85d150cd8978d4ca76e596d278808",
 	} {

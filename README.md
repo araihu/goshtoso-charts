@@ -390,6 +390,13 @@ Interactive Line uses its canonical chart-specific package too. Existing
 [interactive package migration](docs/interactive-package-layout.md) for the
 shared-options boundary and phase-1 compatibility policy.
 
+Set `interactiveline.Data{Missing: true}` for an unavailable observation.
+Category, time, and value axes retain its position and leave a gap in the line;
+the exact-value table displays `Unavailable`. `Missing` ignores `Value`, while
+ordinary points still require finite values. `chart.LiveData` snapshots retain
+their finite-value contract; missing points are supported in the initial chart
+configuration and in HTML replacements of the chart.
+
 Word clouds keep weighted words, silhouettes, sizing, rotation, layout, and
 semantic classes in a typed renderer-neutral config. Exact values remain in a
 bounded adjacent table.
@@ -533,6 +540,7 @@ go tool muamba verify --strict
 go tool muamba generate-go --strict --check --dir assets --output muamba_gen.go
 templ generate
 go test ./...
+node --test components/internal/interactive/theme_runtime.test.cjs
 git diff --exit-code
 ```
 

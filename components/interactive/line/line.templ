@@ -1,7 +1,6 @@
 package line
 
 import (
-	"fmt"
 	"strconv"
 )
 
@@ -17,7 +16,7 @@ templ lineExactValues(cfg Config) {
 				<tbody>
 					for index := 0; index < lineXAxisLength(cfg); index++ {
 						for _, series := range cfg.Series {
-							<tr class="border-t border-outline dark:border-outline-dark"><th class="px-3 py-2 font-semibold" scope="row">{ lineXAxisValue(cfg, index) }</th><td class="px-3 py-2">{ series.Name }</td><td class="px-3 py-2 tabular-nums">{ fmt.Sprintf("%g", series.Data[index].Value) }</td></tr>
+							<tr class="border-t border-outline dark:border-outline-dark"><th class="px-3 py-2 font-semibold" scope="row">{ lineXAxisValue(cfg, index) }</th><td class="px-3 py-2">{ series.Name }</td><td class="px-3 py-2 tabular-nums">{ lineExactValue(series.Data[index]) }</td></tr>
 						}
 					}
 				</tbody>
