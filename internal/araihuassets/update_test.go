@@ -58,6 +58,52 @@ func TestUpdateCopiesAllowlistedBrandFallbacksInStableOrderAndIsIdempotent(t *te
 	}
 }
 
+func TestUpdateSupportsCatalogVersionsAndRejectsUnknownVersionsBeforeWriting(t *testing.T) {
+	for _, schema := range []int{0, 1, 2, 3} {
+		t.Run(fmt.Sprintf("schema_%d", schema), func(t *testing.T) {
+			repoRoot := t.TempDir()
+			releaseRoot := t.TempDir()
+			release := writeReleaseFixtureWithCatalogSchema(t, releaseRoot, schema)
+			manifest := fixtureManifest(release)
+			writeJSON(t, filepath.Join(repoRoot, "araihu-assets.json"), manifest)
+			writeOldFallbacks(t, repoRoot, manifest.Mappings)
+			paths := []string{"araihu-assets.json"}
+			for _, mapping := range manifest.Mappings {
+				paths = append(paths, mapping.Destination)
+			}
+			before := snapshotFiles(t, repoRoot, paths)
+
+			result, err := Update(Options{RepoRoot: repoRoot, ReleaseRoot: releaseRoot})
+			if schema != 1 && schema != 2 {
+				if err == nil || !strings.Contains(err.Error(), "catalog.json schemaVersion") {
+					t.Fatalf("Update() error = %v, want unsupported catalog schema", err)
+				}
+				assertFilesMatch(t, repoRoot, paths, before)
+				return
+			}
+			if err != nil {
+				t.Fatal(err)
+			}
+			if len(result.Changed) != len(manifest.Mappings) {
+				t.Fatalf("changed paths = %q, want two fallback updates", result.Changed)
+			}
+			for _, mapping := range manifest.Mappings {
+				got, err := os.ReadFile(filepath.Join(repoRoot, filepath.FromSlash(mapping.Destination)))
+				if err != nil {
+					t.Fatal(err)
+				}
+				want, err := os.ReadFile(filepath.Join(releaseRoot, filepath.FromSlash(mapping.Source)))
+				if err != nil {
+					t.Fatal(err)
+				}
+				if string(got) != string(want) {
+					t.Fatalf("%s differs from verified release source", mapping.Destination)
+				}
+			}
+		})
+	}
+}
+
 func TestUpdateStagesAllWritesAndRollsBackReleaseUpgradeFailure(t *testing.T) {
 	repoRoot := t.TempDir()
 	releaseRoot := t.TempDir()
@@ -334,13 +380,18 @@ type fixtureRelease struct {
 
 func writeReleaseFixture(t *testing.T, root string) fixtureRelease {
 	t.Helper()
+	return writeReleaseFixtureWithCatalogSchema(t, root, 1)
+}
+
+func writeReleaseFixtureWithCatalogSchema(t *testing.T, root string, schema int) fixtureRelease {
+	t.Helper()
 	files := map[string][]byte{
 		"brand/goshtoso/logo/adaptive-transparent-optical.svg":       []byte("<svg>logo</svg>\n"),
 		"icons/brand/goshtoso-icon-adaptive-transparent-optical.svg": []byte("<svg>icon</svg>\n"),
 		"unlisted.txt": []byte("do not copy\n"),
 	}
 	catalog := map[string]any{
-		"schemaVersion":    1,
+		"schemaVersion":    schema,
 		"release":          "v1.2.3",
 		"identityRevision": 11,
 		"assets": []map[string]any{

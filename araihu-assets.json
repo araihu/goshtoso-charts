@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
   "assetsRepository": "araihu/assets",
-  "assetsRevision": "d0737086195982c8b0af431714ed18c063717253",
-  "release": "v0.1.4",
-  "releaseUrl": "https://github.com/araihu/assets/releases/download/v0.1.4/araihu-assets-v0.1.4.tar.gz",
-  "releaseSha256": "6d7cb48531f6968d21227eae525ff6fb4c814778fa126caf2b5b5fc3cda11538",
-  "releaseJsonSha256": "7a36cf1e9d80e26510953414dcb6e85526554fef00ffc2c0c90029f1c0e65d2e",
+  "assetsRevision": "da708ce30a3806757644278df421ae39fa4ec37c",
+  "release": "v0.2.5",
+  "releaseUrl": "https://github.com/araihu/assets/releases/download/v0.2.5/araihu-assets-v0.2.5.tar.gz",
+  "releaseSha256": "9f5331dc4b6c075aa2dee9b653b0fd7e5ea67d64069155f20da93777fa1df857",
+  "releaseJsonSha256": "b749ac93b9a56a0884fa9345a4906b99e6b96df903311a5835af3cc4768b79c6",
   "mappings": [
     {
       "source": "icons/brand/goshtoso-icon-adaptive-transparent-optical.svg",
