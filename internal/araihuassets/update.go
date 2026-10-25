@@ -405,8 +405,10 @@ func loadReleaseCatalog(root *os.Root, document releaseDocument, inventory map[s
 	if err := decodeExactJSON(catalogBytes, "catalog.json", &catalog); err != nil {
 		return catalogDocument{}, err
 	}
-	if catalog.SchemaVersion != 1 {
-		return catalogDocument{}, fmt.Errorf("catalog.json schemaVersion = %d, want 1", catalog.SchemaVersion)
+	// Catalog v2 expands allowed names and appearances without changing the
+	// fields used by the repository-owned canonical selections below.
+	if catalog.SchemaVersion != 1 && catalog.SchemaVersion != 2 {
+		return catalogDocument{}, fmt.Errorf("catalog.json schemaVersion = %d, want 1 or 2", catalog.SchemaVersion)
 	}
 	if catalog.Release != release {
 		return catalogDocument{}, fmt.Errorf("catalog release = %q, want %q", catalog.Release, release)
