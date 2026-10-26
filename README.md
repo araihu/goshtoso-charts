@@ -544,7 +544,7 @@ node --test components/internal/interactive/theme_runtime.test.cjs
 git diff --exit-code
 ```
 
-The required CI pipeline is also available locally through Dagger 0.21.8:
+The required CI pipeline is also available locally through Dagger 0.21.11:
 
 ```bash
 dagger call ci --source=. --trust-domain=local --run-nonce=1-1
