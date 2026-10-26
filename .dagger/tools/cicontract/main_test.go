@@ -68,7 +68,7 @@ func TestExternalValuesNeverEnterActionArgs(t *testing.T) {
 	}
 }
 
-func TestHostingerUsesOnlyEmbeddedExactDagger(t *testing.T) {
+func TestHostingerInstallsAndChecksExactDagger(t *testing.T) {
 	contents := workflow(t, "ci.yml")
 	action := "dagger/dagger-for-github@27b130bf0f79a7f6fbbbe0fbca6760dc9bb40a77"
 	for _, required := range []string{
@@ -87,8 +87,21 @@ func TestHostingerUsesOnlyEmbeddedExactDagger(t *testing.T) {
 	if strings.Contains(contents, "version: latest") {
 		t.Fatal("CI workflow may not query or install the latest Dagger version")
 	}
-	if strings.Count(contents, action) != 1 {
-		t.Fatalf("expected exactly one GitHub-hosted Dagger action adapter, got %d", strings.Count(contents, action))
+	if strings.Count(contents, action) != 2 {
+		t.Fatalf("expected one Hostinger installer and one GitHub-hosted execution adapter, got %d", strings.Count(contents, action))
+	}
+	_, installer, found := strings.Cut(contents, "      - name: Install exact Dagger CLI on Hostinger\n")
+	if !found {
+		t.Fatal("Hostinger must install the exact CLI before using an older runner image")
+	}
+	installer = strings.SplitN(installer, "\n      - name:", 2)[0]
+	for _, required := range []string{"if: env.HOSTINGER_RUNNER == 'true'", action, "version: ${{ env.DAGGER_VERSION }}"} {
+		if !strings.Contains(installer, required) {
+			t.Fatalf("Hostinger CLI installer missing %q", required)
+		}
+	}
+	if strings.Contains(installer, "verb:") || strings.Index(contents, "Install exact Dagger CLI on Hostinger") > strings.Index(contents, "actual_version=$(dagger version") {
+		t.Fatal("Hostinger must install before the version check and execute through the shell adapter")
 	}
 	githubHostedAdapter := "if: env.HOSTINGER_RUNNER != 'true'\n        uses: " + action
 	if !strings.Contains(contents, githubHostedAdapter) {
