@@ -24,7 +24,7 @@ App Shell assets, and presentation runtime remain dependency-owned.
 
 ## Install
 
-Requires Go 1.27.0+ and a Goshtoso-integrated templ application. Set up
+Requires Go 1.27.3+ and a Goshtoso-integrated templ application. Set up
 Goshtoso's `/assets/` handler and `head.Dependencies()` first; see the
 [consumer integration guide](https://github.com/araihu/goshtoso/blob/main/docs/USAGE.md).
 
@@ -544,7 +544,7 @@ node --test components/internal/interactive/theme_runtime.test.cjs
 git diff --exit-code
 ```
 
-The required CI pipeline is also available locally through Dagger 0.21.8:
+The required CI pipeline is also available locally through Dagger 0.21.11:
 
 ```bash
 dagger call ci --source=. --trust-domain=local --run-nonce=1-1

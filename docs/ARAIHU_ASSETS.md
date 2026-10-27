@@ -53,7 +53,7 @@ Focused verification:
 go test ./internal/araihuassets ./cmd/araihu-assets-update -count=1
 ```
 
-Dagger 0.21.8 can perform the complete immutable download, provenance check,
+Dagger 0.21.11 can perform the complete immutable download, provenance check,
 idempotency proof, focused tests, and allowlisted export locally. Supply a
 read-only GitHub token through Dagger's secret provider:
 
