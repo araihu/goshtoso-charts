@@ -178,63 +178,6 @@ export class GoshtosoCharts {
       .withFile(ASSET_OUTPUTS[2], updated.file(`/work/${ASSET_OUTPUTS[2]}`))
   }
 
-  /** Resolve the exact deployment version without causing an external effect. */
-  @func({ cache: "never" })
-  async resolveDeployVersion(
-    @argument({ defaultPath: ".", ignore: SOURCE_EXCLUDES }) source: Directory,
-    refType: string,
-    refName: string,
-    sourceSha: string,
-    runNonce: string,
-  ): Promise<string> {
-    this.validateRunNonce(runNonce)
-    return this.base(source, "deploy", runNonce)
-      .withExec(["./scripts/resolve-deploy-version_test.sh"])
-      .withExec(["./scripts/resolve-deploy-version.sh", refType, refName, sourceSha])
-      .stdout()
-  }
-
-  /** Resolve a version and dispatch the verified identity to araihu/fly-deploy. */
-  @func({ cache: "never" })
-  async dispatchFly(
-    @argument({ defaultPath: ".", ignore: SOURCE_EXCLUDES }) source: Directory,
-    payload: File,
-    token: Secret,
-    runNonce: string,
-  ): Promise<string> {
-    const input = await this.readStringObject(payload, [
-      "ref_type",
-      "ref_name",
-      "source_sha",
-      "source_run_id",
-      "source_repository",
-    ])
-    this.validateSourceRepository(input.source_repository)
-    const refType = input.ref_type
-    const refName = input.ref_name
-    const sourceSha = input.source_sha
-    const sourceRunId = input.source_run_id
-    this.validateRunNonce(runNonce)
-    if (!/^[1-9][0-9]*$/.test(sourceRunId)) {
-      throw new Error("source run ID must be a positive decimal GitHub run ID")
-    }
-
-    const version = (await this.base(source, "deploy", runNonce)
-      .withExec(["./scripts/resolve-deploy-version_test.sh"])
-      .withExec(["./scripts/resolve-deploy-version.sh", refType, refName, sourceSha])
-      .stdout()).trim()
-
-    return this.base(source, "deploy", runNonce)
-      .withSecretVariable("FLY_DEPLOY_DISPATCH_TOKEN", token)
-      .withExec([
-        "go", "run", "./.dagger/tools/flydispatch",
-        "-source-sha", sourceSha,
-        "-source-run-id", sourceRunId,
-        "-version", version,
-      ])
-      .stdout()
-  }
-
   private goProject(source: Directory, trustDomain: string, runNonce: string): Container {
     const partition = this.validateTrustDomain(trustDomain)
     // hostinger-vps-pr and GitHub-hosted PRs execute on Engines separated from
@@ -275,7 +218,7 @@ export class GoshtosoCharts {
   }
 
   private validateTrustDomain(value: string): string {
-    if (!/^(fork|internal|main|manual|assets|deploy|local)$/.test(value)) {
+    if (!/^(fork|internal|main|manual|assets|local)$/.test(value)) {
       throw new Error(`unsafe trust domain: ${value}`)
     }
     return value

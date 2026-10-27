@@ -550,19 +550,12 @@ The required CI pipeline is also available locally through Dagger 0.21.11:
 dagger call ci --source=. --trust-domain=local --run-nonce=1-1
 ```
 
-Deployment identity resolution is side-effect free. The separate
-`dispatch-fly` function requires an explicit secret and performs the external
-repository dispatch used by the protected GitHub Actions workflow:
-
-```bash
-dagger call resolve-deploy-version --source=. \
-  --ref-type=branch --ref-name=main \
-  --source-sha="$(git rev-parse HEAD)" --run-nonce=1-1
-```
-
 ## Demo site
 
 `site/` is a separate consumer module, shaped after the Goshtoso component demo catalog. It mounts Goshtoso assets at `/assets/`, Goshtoso Charts assets at `/charts/assets/`, and uses both dependency components.
+
+The retired central deployment integration has been removed. Automated public
+demo deployment is pending a new publisher; the demo can still be run locally.
 
 ```bash
 cd site

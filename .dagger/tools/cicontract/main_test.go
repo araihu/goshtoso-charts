@@ -48,7 +48,6 @@ func TestExternalValuesNeverEnterActionArgs(t *testing.T) {
 		payload  string
 	}{
 		{"araihu-assets.yml", "--payload=.dagger-inputs/assets.json"},
-		{"deploy.yml", "--payload=.dagger-inputs/deploy.json"},
 	}
 	for _, test := range tests {
 		t.Run(test.workflow, func(t *testing.T) {

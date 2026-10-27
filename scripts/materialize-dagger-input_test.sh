@@ -22,18 +22,11 @@ jq -e --arg expected "$injection" '.release == $expected' "$test_dir/assets.json
 jq -e '.release_url == "https://example.invalid/a b;$(false)"' "$test_dir/assets.json" >/dev/null
 jq -e 'keys == ["assets_repository", "assets_revision", "release", "release_json_sha256", "release_sha256", "release_url", "source_repository"]' "$test_dir/assets.json" >/dev/null
 
-REF_TYPE='tag' \
-	REF_NAME="$injection" \
-	SOURCE_SHA='0123456789abcdef0123456789abcdef01234567' \
-	SOURCE_RUN_ID='12345' \
-	GITHUB_REPOSITORY='araihu/goshtoso-charts' \
-	"$materializer" deploy "$test_dir/deploy.json"
-
-jq -e --arg expected "$injection" '.ref_name == $expected' "$test_dir/deploy.json" >/dev/null
-jq -e 'keys == ["ref_name", "ref_type", "source_repository", "source_run_id", "source_sha"]' "$test_dir/deploy.json" >/dev/null
 test ! -e "$test_dir/never-run"
 
-if "$materializer" unknown "$test_dir/unknown.json" >/dev/null 2>&1; then
-	echo "unsupported input type unexpectedly passed" >&2
-	exit 1
-fi
+for input_type in deploy unknown; do
+	if "$materializer" "$input_type" "$test_dir/$input_type.json" >/dev/null 2>&1; then
+		echo "unsupported input type unexpectedly passed: $input_type" >&2
+		exit 1
+	fi
+done
