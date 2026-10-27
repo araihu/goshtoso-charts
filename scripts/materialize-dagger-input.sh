@@ -31,21 +31,6 @@ assets)
 			source_repository: $source_repository
 		}' >"$output"
 	;;
-deploy)
-	jq -n \
-		--arg ref_type "${REF_TYPE:?}" \
-		--arg ref_name "${REF_NAME:?}" \
-		--arg source_sha "${SOURCE_SHA:?}" \
-		--arg source_run_id "${SOURCE_RUN_ID:?}" \
-		--arg source_repository "${GITHUB_REPOSITORY:?}" \
-		'{
-			ref_type: $ref_type,
-			ref_name: $ref_name,
-			source_sha: $source_sha,
-			source_run_id: $source_run_id,
-			source_repository: $source_repository
-		}' >"$output"
-	;;
 *)
 	echo "unsupported Dagger input type: $input_type" >&2
 	exit 2
