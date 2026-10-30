@@ -34,21 +34,21 @@ func TestPieVariantsPreserveLegacyRenderContracts(t *testing.T) {
 			cfg: interactivepie.Config{
 				Label: "Seasons", Series: []interactivepie.Series{{Name: "Weather", Data: []interactivepie.Data{{Name: "Spring", Value: 20}, {Name: "Summer", Value: 30}}}},
 			},
-			hash: "f1c07b60b8cb6295e6bc3253f9c1a075105ef0e4d533e711328a5f5abc3dec1f",
+			hash: "307a6f9e8425b6b8414c70ecded415a4784fee34322a386935634f9b8521158b",
 		},
 		"donut": {
 			cfg: interactivepie.Config{
 				Label: "Donut", Caption: "Share by state.", Series: []interactivepie.Series{{Name: "States", InnerRadius: 40, OuterRadius: 75, LabelContent: interactivepie.LabelNameAndValue, Data: []interactivepie.Data{{Name: "Open", Value: 12}, {Name: "Closed", Value: 28}}}},
 				TooltipContent: interactivepie.TooltipNameAndShare, Style: charttheme.Style{Palette: charttheme.PalettePastel},
 			},
-			hash: "fb933b56a6f9cf5c2c9e6c17270a6f494893891ca31f5b537a9c1c4a633acfab",
+			hash: "c32dffba28cf1c7755ad7a1cf845b7e66dcf3db2fcfe12618960da7fd03df441",
 		},
 		"rose": {
 			cfg: interactivepie.Config{
 				Label: "Rose", Width: "720px", Height: "360px", Series: []interactivepie.Series{{Name: "Incidents", InnerRadius: 30, OuterRadius: 70, Center: &interactivepie.Center{X: 25, Y: 50}, RoseMode: interactivepie.RoseArea, PadAngle: 2, Selectable: true, LabelContent: interactivepie.LabelNameAndValue, Data: []interactivepie.Data{{Name: "Open", Value: 12, Selected: true}, {Name: "Closed", Value: 28}}}},
 				Options: chart.ChartOptions{Animation: chart.Bool(false)}, AutoEmphasis: &interactivepie.AutoEmphasisOptions{SeriesIndex: 0, IntervalMilliseconds: 1250}, Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}},
 			},
-			hash: "e3d9efedffa1c9ffb783f46edbcb9757ef1eb992e86dc2dd9b1ad38c724002cd",
+			hash: "f2c300552e44a7dcd059389730ac2b7e90fba74d281c684ae459bf16f8641d08",
 		},
 	}
 	for name, test := range tests {

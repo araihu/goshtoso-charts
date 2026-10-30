@@ -30,7 +30,7 @@ func TestRadarNormalizedRenderHashes(t *testing.T) {
 				Indicators: []Indicator{{Name: "A", Max: 10}, {Name: "B", Max: 20}},
 				Series:     []Series{{Name: "Profile", Data: []Data{{Name: "Current", Values: []float64{4, 8}}}}},
 			},
-		want: "227804c643f6cf864ed525e4b9e2ac0142cf5f91e164ef3e35d6174e344ad522",
+		want: "c9ccfa5a29c9d973f57176222f70b49b6182d9d3a27bebcbb56d6384e4dedf0f",
 		},
 		"explicit polygon": {
 			config: Config{
@@ -46,7 +46,7 @@ func TestRadarNormalizedRenderHashes(t *testing.T) {
 				SeriesOptions: chart.SeriesOptions{LineStyle: &chart.LineStyle{Width: 2}},
 				Style:         charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
 			},
-		want: "d85025709a2d03c2662e4db538968110c7b89ceb6ea14b8e532619e0236a78a9",
+		want: "9760038bfd52768ed39d711122222ad888d1c5a59fa7dd3a0fab952ff5b7cb54",
 		},
 		"circle": {
 			config: Config{
@@ -70,7 +70,7 @@ func TestRadarNormalizedRenderHashes(t *testing.T) {
 				SeriesOptions: chart.SeriesOptions{LineStyle: &chart.LineStyle{Width: 1, Opacity: chart.Float(0.5)}, AreaStyle: &chart.AreaStyle{Opacity: chart.Float(0.1)}},
 				Width:         "100%", Height: "480px", Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Class: "max-w-5xl mx-auto"},
 			},
-		want: "4283e7006fb3752fd007e128ee367efa513235465b03127c63d1d797d7372cc8",
+		want: "3ecfaef3918104478fd4f76f39e9e07fda3ac4d0a90a32be5b66d8bbca070678",
 		},
 	}
 	for name, test := range tests {

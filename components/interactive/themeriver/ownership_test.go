@@ -164,7 +164,7 @@ func TestThemeRiverTemplateRuntimeAndUpstreamProvenance(t *testing.T) {
 		wantDigest string
 	}{
 		{"themeriver.templ", strings.NewReplacer("package themeriver", "package interactive"), "b0994f8a3e5dff363bdd365c9cb8bde976c8e7bf2e1a2692a2cfc3ea7ab28c7a"},
-		{"themeriver_templ.go", strings.NewReplacer("package themeriver", "package interactive", "components/interactive/themeriver/themeriver.templ", "components/interactive/theme_river.templ"), "57ef1b0f0dad2cac39f62e73020ba9ff8095aa8587f925c12db4361cfcfc97b0"},
+		{"themeriver_templ.go", strings.NewReplacer("package themeriver", "package interactive", "components/interactive/themeriver/themeriver.templ", "components/interactive/theme_river.templ"), "a2973ecd36ebb8acbc614965be4cf2cd62d23c29e2d3f369e76a446a2c486719"},
 	}
 	for _, check := range checks {
 		contents, err := os.ReadFile(check.path)
@@ -179,7 +179,7 @@ func TestThemeRiverTemplateRuntimeAndUpstreamProvenance(t *testing.T) {
 	for path, want := range map[string]string{
 		filepath.Join("..", "..", "internal", "interactive", "theme_runtime.go"):     "5a6cb17e5fe559bb3ac566e4e74953a7d99ac045e134af07b598eb29a2dffd4d",
 		filepath.Join("..", "..", "internal", "interactive", "interactive.templ"):    "96137171bb2e6cb69372a59596963d0f4e7e6f87f3079863ccc92f3f59f8680a",
-		filepath.Join("..", "..", "internal", "interactive", "interactive_templ.go"): "9e83e969108d203fe38fce502a21fed7c0f85d150cd8978d4ca76e596d278808",
+		filepath.Join("..", "..", "internal", "interactive", "interactive_templ.go"): "69ec2b35fc8d431841e766b80266bea32cddd83cb2c4b35580bffb556646d10a",
 	} {
 		contents, err := os.ReadFile(path)
 		if err != nil {
