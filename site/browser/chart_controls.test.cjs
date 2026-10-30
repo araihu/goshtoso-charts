@@ -1177,6 +1177,13 @@ test("Sunburst drill-down and back survive modal, theme, resize, and fullscreen 
   const page = await pageAt("/components/interactive/sunburst");
   try {
     const wrapper = page.locator("[data-goshtoso-chart-wrapper]").first();
+    const waitForResize = (expanded) => page.waitForFunction((isExpanded) => {
+      const element = document.querySelector("[data-goshtoso-chart-wrapper]");
+      const host = element?.querySelector("[_echarts_instance_]");
+      const instance = host && window.echarts.getInstanceByDom(host);
+      return element?.classList.contains("goshtoso-charts-expanded") === isExpanded &&
+        host?.clientWidth > 0 && instance?.getWidth() === host.clientWidth;
+    }, expanded);
     const initial = await wrapper.evaluate((element) => {
       element.style.width = "607px";
       const host = element.querySelector("[_echarts_instance_]");
@@ -1187,7 +1194,7 @@ test("Sunburst drill-down and back survive modal, theme, resize, and fullscreen 
       instance.dispatchAction({ type: "sunburstRootToNode", seriesIndex: 0, targetNode: target });
       return { root: series.getData().tree.root.name, target: target.name };
     });
-    await page.waitForTimeout(350);
+    await waitForResize(false);
     const measure = async () => wrapper.evaluate((element) => {
       const host = element.querySelector("[_echarts_instance_]");
       const instance = window.echarts.getInstanceByDom(host);
@@ -1207,24 +1214,25 @@ test("Sunburst drill-down and back survive modal, theme, resize, and fullscreen 
     const dialog = wrapper.getByRole("dialog", { name: "Basic sunburst example" });
     await dialog.waitFor({ state: "visible" });
     await page.evaluate(() => document.documentElement.classList.add("dark"));
-    await page.waitForTimeout(400);
+    await waitForResize(true);
     state = await measure();
     assert.equal(state.sameInstance, true);
     assert.equal(state.viewRoot, initial.target);
     assert.equal(state.canvasWidth, state.hostWidth);
     await page.keyboard.press("Escape");
     await dialog.waitFor({ state: "hidden" });
+    await waitForResize(false);
 
     await enterFullscreen(wrapper);
     await page.waitForFunction(() => document.fullscreenElement !== null);
-    await page.waitForTimeout(350);
+    await waitForResize(false);
     state = await measure();
     assert.equal(state.sameInstance, true);
     assert.equal(state.viewRoot, initial.target);
     assert.equal(state.canvasWidth, state.hostWidth);
     await page.evaluate(() => document.exitFullscreen());
     await page.waitForFunction(() => document.fullscreenElement === null);
-    await page.waitForTimeout(350);
+    await waitForResize(false);
 
     const restored = await wrapper.evaluate((element, rootName) => {
       const host = element.querySelector("[_echarts_instance_]");

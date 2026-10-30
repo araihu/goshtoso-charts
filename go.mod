@@ -4,7 +4,7 @@ go 1.27.3
 
 require (
 	github.com/a-h/templ v0.3.1100
-	github.com/araihu/goshtoso v0.4.6-0.20261030162228-79bae652aa33
+	github.com/araihu/goshtoso v0.4.6
 	github.com/go-analyze/charts v0.6.4
 	github.com/go-echarts/go-echarts/v2 v2.7.3
 	golang.org/x/tools v0.52.0
