@@ -27,8 +27,8 @@ func TestReleasedAppShellDependenciesArePinnedWithoutOverrides(t *testing.T) {
 		path    string
 		version string
 	}{
-		{path: "github.com/araihu/goshtoso", version: "v0.4.0"},
-		{path: "github.com/araihu/goshtoso-app-shells", version: "v0.1.8"},
+		{path: "github.com/araihu/goshtoso", version: "v0.4.6-0.20261030162228-79bae652aa33"},
+		{path: "github.com/araihu/goshtoso-app-shells", version: "v0.1.9-0.20261030162658-e1a09f4d4eb6"},
 	} {
 		if !moduleRequiresVersion(module, dependency.path, dependency.version) {
 			t.Errorf("released consumer dependency %s is not pinned to exact %s", dependency.path, dependency.version)
