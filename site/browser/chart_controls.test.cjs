@@ -75,23 +75,23 @@ async function download(page, label) {
   await page.evaluate(() => { globalThis.__chartBlobTypes.length = 0; });
   const pending = page.waitForEvent("download");
   const direct = page.getByRole("button", { name: label });
+  let exportMenu;
   if (await direct.count()) {
     await direct.first().click();
 	} else {
     const match = label.match(/^Download (.+) as (SVG|PNG)$/);
     assert.ok(match, `no direct export button and unsupported label ${label}`);
 		const trigger = page.getByRole("button", { name: `Export ${match[1]}` }).first();
-		const menu = popoverMenu(trigger);
-		if (!(await menu.isVisible())) await trigger.click();
-		await menu.locator('[role="menuitem"]').filter({ hasText: `Download ${match[2]}` }).first().click();
+		exportMenu = popoverMenu(trigger);
+		if (!(await exportMenu.isVisible())) await trigger.click();
+		await exportMenu.locator('[role="menuitem"]').filter({ hasText: `Download ${match[2]}` }).first().click();
   }
   const artifact = await pending;
 	const artifactPath = await artifact.path();
 	assert.ok(artifactPath);
-	const openMenu = page.getByRole("menu").filter({ visible: true });
-	if (await openMenu.count()) {
-		if (await openMenu.isVisible()) await page.keyboard.press("Escape");
-		await openMenu.waitFor({ state: "hidden" });
+	if (exportMenu) {
+		if (await exportMenu.isVisible()) await page.keyboard.press("Escape");
+		await exportMenu.waitFor({ state: "hidden" });
 	}
 	return {
     filename: artifact.suggestedFilename(),

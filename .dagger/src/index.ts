@@ -66,7 +66,7 @@ export class GoshtosoCharts {
       .withExec(["git", "diff", "--exit-code"])
       .withExec(["go", "test", "./...", "-count=1"])
       .withExec([
-        "go", "test", "-race", "./assets", "./components/interactive/wordcloud", "-count=1",
+        "go", "test", "-race", "./...", "-count=1",
       ])
       .withExec(["go", "vet", "./..."])
       .withExec(["bash", "-euo", "pipefail", "-c", "cd site && go vet ./..."])
