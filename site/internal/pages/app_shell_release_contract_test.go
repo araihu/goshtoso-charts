@@ -16,7 +16,7 @@ import (
 	goshtosoassets "github.com/araihu/goshtoso/assets"
 )
 
-func TestReleasedAppShellDependenciesArePinnedWithoutOverrides(t *testing.T) {
+func TestAppShellDependenciesArePinnedWithoutOverrides(t *testing.T) {
 	t.Parallel()
 	content, err := os.ReadFile("../../go.mod")
 	if err != nil {
@@ -31,10 +31,10 @@ func TestReleasedAppShellDependenciesArePinnedWithoutOverrides(t *testing.T) {
 		{path: "github.com/araihu/goshtoso-app-shells", version: "v0.1.9-0.20261030162658-e1a09f4d4eb6"},
 	} {
 		if !moduleRequiresVersion(module, dependency.path, dependency.version) {
-			t.Errorf("released consumer dependency %s is not pinned to exact %s", dependency.path, dependency.version)
+			t.Errorf("consumer dependency %s is not pinned to exact %s", dependency.path, dependency.version)
 		}
 		if moduleReplacesPath(module, dependency.path) {
-			t.Errorf("released consumer dependency %s uses a replace override", dependency.path)
+			t.Errorf("consumer dependency %s uses a replace override", dependency.path)
 		}
 	}
 }
