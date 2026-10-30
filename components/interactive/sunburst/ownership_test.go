@@ -91,7 +91,7 @@ func TestSunburstFacadePreservesNavigationSortRenderingValidationAndBaseHashes(t
 			cfg: interactivesunburst.Config{
 				Label: "Hierarchy", Nodes: []*interactivesunburst.Node{{Name: "root", Value: 1}},
 			},
-		fullDigest: "f612fd1c0d55da4cc43a3b7225daf13691234f5973b0d135c2160223db733f8b", scriptDigest: "676d7cca3c45a1baf5bbfbc55033d069694520ae519071da6f592442da877b8d", shellDigest: "7716aacc19361e96ba7eeba50e5489e45d5cfc2f41a50bae6e0ca7cbb48e0537",
+		fullDigest: "4e75311d868e3da201b785df02f2246d6284bd739d66c3e151145ff738f9e4b4", scriptDigest: "676d7cca3c45a1baf5bbfbc55033d069694520ae519071da6f592442da877b8d", shellDigest: "6ba71cb7530e07f2eed85c429f462754463f3afdff3021e1c3aebaffe2cd5c2d",
 		},
 		{
 			name: "configured-hierarchy",
@@ -107,7 +107,7 @@ func TestSunburstFacadePreservesNavigationSortRenderingValidationAndBaseHashes(t
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Basic sunburst example"}, Animation: chart.Bool(false)}, Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "rounded-radius max-w-full"},
 				RootAttrs: templ.Attributes{"id": "basic-sunburst", "data-chart-purpose": "hierarchy"},
 			},
-		fullDigest: "d0ff0a0b3d2af2edc1acb6face15c29399c129f78e83429026c4946b6e379474", scriptDigest: "29671028a355a3fda904e12793c9b3a4db86767c61713a8383edee788c3ff3df", shellDigest: "c5dd97a01a37755b066155f4b1b627ed01b8411d3556f94862ee20dea8536f48",
+		fullDigest: "6b631abd8dfee8d044c1a2f94ccc114e8010a8280172bbd4a3963c20a7c2ff6b", scriptDigest: "29671028a355a3fda904e12793c9b3a4db86767c61713a8383edee788c3ff3df", shellDigest: "85cc2088575fdd444a01c0d1f1e82edd87debb1499fd385c1778ae68ff640949",
 		},
 		{
 			name: "fixed-input-wrapper-omitted",
@@ -226,7 +226,7 @@ func TestSunburstTemplateRuntimeAndUpstreamProvenance(t *testing.T) {
 		wantDigest string
 	}{
 		{"sunburst.templ", strings.NewReplacer("package sunburst", "package interactive", "[]valueRow", "[]sunburstValueRow"), "21d74e9158e25ad202dcd079b8191b6cf69be6fc07812861875a6167f88322bc"},
-		{"sunburst_templ.go", strings.NewReplacer("package sunburst", "package interactive", "components/interactive/sunburst/sunburst.templ", "components/interactive/sunburst.templ", "[]valueRow", "[]sunburstValueRow"), "0e0957600b5bbcc5fec2b34fe2de11e12c8b37e202b3933ce15478fb937065e3"},
+		{"sunburst_templ.go", strings.NewReplacer("package sunburst", "package interactive", "components/interactive/sunburst/sunburst.templ", "components/interactive/sunburst.templ", "[]valueRow", "[]sunburstValueRow"), "8bbbda82541bfdd2717c03386542a75be8f2d6e59d1b52f295a4eb3b03646b03"},
 	}
 	for _, check := range checks {
 		contents, err := os.ReadFile(check.path)

@@ -107,7 +107,7 @@ func TestWordCloudFacadePreservesRenderingRuntimeValidationAndBaseHashes(t *test
 		{
 			name:       "default",
 			cfg:        interactivewordcloud.Config{Label: "basic WordCloud example", Series: interactivewordcloud.Series{Name: "wordcloud", Words: []interactivewordcloud.Word{{Name: "Sam S Club", Value: 10000}, {Name: "Macys", Value: 6181}}}},
-			fullDigest: "e301cdc18c1827f8fbf429e5b842ba1f71bf4dc620e0ee8aa145f867a29f12c0", scriptDigest: "c8aee976c29d9ded686402dbc57ce614c93b5d0d50ec6cc104904760f720119c", shellDigest: "3e0fe8100f63395f45f22353aea896e6dbfcd2b6640eaac949e26df69a557951",
+			fullDigest: "499428c9cdae144f9094c61090bda149b5388fac32b20b9b334e32f7e9cab9b5", scriptDigest: "c8aee976c29d9ded686402dbc57ce614c93b5d0d50ec6cc104904760f720119c", shellDigest: "713e03cfca3998464258eb14a4e2b2efe1d161fc7fda390eb6da4cbe52733c2a",
 		},
 		{
 			name: "configured",
@@ -120,7 +120,7 @@ func TestWordCloudFacadePreservesRenderingRuntimeValidationAndBaseHashes(t *test
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "basic WordCloud example"}, Tooltip: &chart.TooltipOptions{Show: chart.Bool(true), Trigger: "item"}, Animation: chart.Bool(false), Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "word-cloud"}},
 				Style:   charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "caller-class"}, RootAttrs: templ.Attributes{"id": "search-terms", "data-purpose": "weighted-terms"},
 			},
-			fullDigest: "2c8c56ce4ac043058060a08ee4fcafa09d48ceebf4f10917ad191b33145e655b", scriptDigest: "2e67c4dbb7cae53f7af66fc62035fb0dd0637e8779407369dfdd8e530c44897f", shellDigest: "90c3fe3ebea6f78d81444491e7519d52a8347a4be24d79e3daa2b1a1c3d49d20",
+			fullDigest: "b4be822e44ccf68822a56624fc94a5fec4b350871333c872f6251c50864d0cf0", scriptDigest: "2e67c4dbb7cae53f7af66fc62035fb0dd0637e8779407369dfdd8e530c44897f", shellDigest: "9fa1e8f6978e29b73817d5b0a6c6def644782455a54347af592b22a789b7023f",
 		},
 		{
 			name: "bounded-wrapper-omitted",
@@ -236,7 +236,7 @@ func TestWordCloudTemplateRuntimeHooksAndUpstreamProvenance(t *testing.T) {
 		wantDigest string
 	}{
 		{"wordcloud.templ", strings.NewReplacer("package wordcloud", "package interactive", "values valueRows", "values wordCloudValueRows"), "0d69b119b2cd5c836ee6d8acdb4cb43585539afa7a77e318c2210f6dece8ad27"},
-		{"wordcloud_templ.go", strings.NewReplacer("package wordcloud", "package interactive", "components/interactive/wordcloud/wordcloud.templ", "components/interactive/wordcloud.templ", "values valueRows", "values wordCloudValueRows"), "0fcd4e022384257d01448cf4e30ffc8cdefffe05ffe1f598dd568f17349898b7"},
+		{"wordcloud_templ.go", strings.NewReplacer("package wordcloud", "package interactive", "components/interactive/wordcloud/wordcloud.templ", "components/interactive/wordcloud.templ", "values valueRows", "values wordCloudValueRows"), "cf326985936e04b33778e0d75483371d36ad2da7c5ba04fa781f9b364f852542"},
 	}
 	for _, check := range checks {
 		contents, err := os.ReadFile(check.path)

@@ -3,8 +3,8 @@ module github.com/araihu/goshtoso-charts
 go 1.27.3
 
 require (
-	github.com/a-h/templ v0.3.1070
-	github.com/araihu/goshtoso v0.4.0
+	github.com/a-h/templ v0.3.1100
+	github.com/araihu/goshtoso v0.4.6
 	github.com/go-analyze/charts v0.6.4
 	github.com/go-echarts/go-echarts/v2 v2.7.3
 	golang.org/x/tools v0.52.0
@@ -17,7 +17,7 @@ require (
 	github.com/gofrs/flock v0.13.1 // indirect
 	github.com/golang/freetype v0.0.0-20170609003504-e2365dfdc4a0 // indirect
 	go.yaml.in/yaml/v3 v3.0.5 // indirect
-	golang.org/x/image v0.46.0 // indirect
+	golang.org/x/image v0.47.0 // indirect
 	golang.org/x/mod v0.42.0 // indirect
 	golang.org/x/sync v0.24.0 // indirect
 	golang.org/x/sys v0.49.0 // indirect

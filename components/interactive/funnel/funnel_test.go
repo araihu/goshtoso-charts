@@ -28,7 +28,7 @@ func TestFunnelNormalizedRenderHashes(t *testing.T) {
 			config: Config{
 				Label: "Pipeline", Series: []Series{{Name: "Pipeline", Data: []Data{{Name: "Lead", Value: 100}, {Name: "Won", Value: 15}}}},
 			},
-		want: "74b65e859f634afac7d348fc044fac037fbc520716801b8611359689742bd24b",
+		want: "d5fac23e8b2f35c57b8d6c1b958e5e990bc5ff9bac15e686edefff3be318954e",
 		},
 		"ascending custom": {
 			config: Config{
@@ -41,7 +41,7 @@ func TestFunnelNormalizedRenderHashes(t *testing.T) {
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Conversion"}}, SeriesOptions: chart.SeriesOptions{Label: &chart.LabelOptions{Show: chart.Bool(true), Position: "left"}},
 				Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-80"},
 			},
-		want: "7cc9644bd1dfa1686d58cb69c778fce6eb0db3863f51aedfec3701ff80f13d6f",
+		want: "82a78401634adcb9458878b3a2e0eca2a300a24bb9bf81e47aba85b09b4a077d",
 		},
 		"data order wrapper": {
 			config: Config{
