@@ -4,9 +4,9 @@ This ledger records deliberate delivery trade-offs. It is not a permanent
 backlog: every open or accepted item has a revisit trigger and measurable exit
 criteria.
 
-Last reviewed: 2026-10-27 for removal of the retired central deployment
-integration. Existing unrelated items retain their recorded status; this review
-does not close their release gates.
+Last reviewed: 2026-10-30 for templ v0.3.1100 compatibility validation.
+Existing unrelated items retain their recorded status; this review does not
+close their release gates.
 
 ## Status and review rules
 
@@ -31,6 +31,7 @@ not debt.
 
 | ID | Status | Area | Risk / impact | Evidence / source | Deferred work | Revisit trigger | Exit criteria |
 | --- | --- | --- | --- | --- | --- | --- | --- |
+| GSC-TD-019 | Open | Browser control verification | The shared download helper assumes exactly one visible menu, so overlapping closing action and export menus can fail Playwright strict mode without reaching its PNG assertions. | 2026-10-30 templ v0.3.1100 compatibility: the full controls suite passed 60/61 cases; the ThemeRiver fullscreen/download case matched both stacked-action and export menu panels. Its isolated rerun passed, and the all-public-page wrapper/strict-CSP matrix passed 3/3. Root/site Go suites, vet/build, focused race checks, and generated/runtime integrity checks passed. | Scope the download helper to the actual export menu and repeat the full controls matrix under representative load. | Next controls/browser maintenance lane, or before releasing the templ compatibility update. | Full controls matrix passes with deterministic export-menu selection and no skipped PNG assertions; wrapper and strict-CSP coverage stays green. |
 | GSC-TD-001 | Accepted | Review quality | Low residual risk that an advisory reviewer would find a scoped Map/Geo defect after merge. | [PR #23](https://github.com/araihu/goshtoso-charts/pull/23) merged exact reviewed head `a99767b` after manual scoped review and required gates; substantive exact-head CodeRabbit review was quota-limited. | One substantive post-merge review of that exact diff. | Next ledger review, no later than the next release. | Review completed against the exact merged diff; valid findings fixed with focused checks, or a no-finding result recorded here and item closed. |
 | GSC-TD-002 | Open | Browser tests | Slow feedback and timing-sensitive failures make fast iteration harder. | `site/browser` currently contains 77 `waitForTimeout` calls, 17 `networkidle` navigations, and inherited fixed `setTimeout` waits (inventory on 2026-07-30). | Replace fixed waits with condition-specific readiness, fake time, or event-driven settlement; measure and shard the long suite. | Next browser-test maintenance lane, or any full-suite runtime above 10 minutes. | Publish before/after runtime evidence; remove unjustified fixed waits from affected tests; focused and full suites remain green with at least 30% lower wall time for the optimized slice. |
 | GSC-TD-003 | Open | Hosted deployment | Merged or tagged revisions no longer trigger an automatic public demo deployment. | 2026-10-27: the central deployment repository was removed. Its workflow, Dagger functions, token dependency, and dispatch helpers have been removed from this repository. Required library/site CI and asset updates remain available. | Choose and implement a supported publisher for the demo. | Before the next public demo update or release. | A repository-owned workflow publishes the exact source SHA and version successfully, and the deployed demo reports the same SHA. |
