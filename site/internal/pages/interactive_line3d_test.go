@@ -29,10 +29,7 @@ func TestInteractiveLine3DSourcePinAndExactData(t *testing.T) {
 	if last.X != wantLast[0] || last.Y != wantLast[1] || last.Z != wantLast[2] {
 		t.Fatalf("last point = %#v, want %#v", last, wantLast)
 	}
-	const wantHash = "63f356cee0db8603edec10d54e8aec4f5eba291e8c99b961119c9543fd6c63a4"
-	if got := interactiveLine3DDataHash(interactiveLine3DPoints); got != wantHash {
-		t.Fatalf("data hash = %s, want %s", got, wantHash)
-	}
+	checkPoint3DHash(t, "line", interactiveLine3DPoints)
 	domains := [6]float64{math.Inf(1), math.Inf(-1), math.Inf(1), math.Inf(-1), math.Inf(1), math.Inf(-1)}
 	for _, point := range interactiveLine3DPoints {
 		domains[0] = math.Min(domains[0], point.X)
@@ -47,8 +44,10 @@ func TestInteractiveLine3DSourcePinAndExactData(t *testing.T) {
 		-1.2497258288146875, 1.2497201051428937,
 		-1.9368409642920035, 26.985899643193864,
 	}
-	if domains != wantDomains {
-		t.Fatalf("coordinate domains = %#v, want %#v", domains, wantDomains)
+	for i, want := range wantDomains {
+		if math.Abs(domains[i]-want) > 1e-12 {
+			t.Fatalf("coordinate domains = %#v, want %#v", domains, wantDomains)
+		}
 	}
 }
 

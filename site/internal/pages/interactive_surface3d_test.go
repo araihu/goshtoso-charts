@@ -37,18 +37,9 @@ func TestInteractiveSurface3DSourcePinAndExactData(t *testing.T) {
 	if roseLast.X != 2.9 || roseLast.Y != 2.9 {
 		t.Fatalf("rose last point = %#v", roseLast)
 	}
-	const wantBaseHash = "84dc950f2c5fb6d80b289da7568bf7f119e5f0a372cff23350b43bc31ac7d6e1"
-	const wantRoseHash = "c0c847473affc08312baf3226c5f011d6070c3a3fb93a7c71ac330642829e0da"
-	if got := interactiveSurface3DDataHash(interactiveSurface3DBasePoints); got != wantBaseHash {
-		t.Fatalf("base data hash = %s, want %s", got, wantBaseHash)
-	}
-	if got := interactiveSurface3DDataHash(interactiveSurface3DRosePoints); got != wantRoseHash {
-		t.Fatalf("rose data hash = %s, want %s", got, wantRoseHash)
-	}
-	const wantHeartHash = "2d77e94a90650cb960391cc5f61322c8b344a6bd5c859042924b498f173b5fff"
-	if got := interactiveSurface3DDataHash(interactiveSurface3DHeartPoints); got != wantHeartHash {
-		t.Fatalf("heart data hash = %s, want %s", got, wantHeartHash)
-	}
+	checkPoint3DHash(t, "surface", interactiveSurface3DBasePoints)
+	checkPoint3DHash(t, "rose", interactiveSurface3DRosePoints)
+	checkPoint3DHash(t, "heart", interactiveSurface3DHeartPoints)
 	for column := 0; column < interactiveSurface3DHeartColumns; column++ {
 		first := interactiveSurface3DHeartPoints[column]
 		last := interactiveSurface3DHeartPoints[(interactiveSurface3DHeartRows-1)*interactiveSurface3DHeartColumns+column]

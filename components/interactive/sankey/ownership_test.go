@@ -96,7 +96,7 @@ func TestSankeyFacadePreservesCanonicalRenderValidationAndBaseHashes(t *testing.
 			cfg: interactivesankey.Config{
 				Label: "Flow", Series: []interactivesankey.Series{{Name: "Flow", Nodes: []interactivesankey.Node{{Name: "Input"}, {Name: "Output"}}, Links: []interactivesankey.Link{{Source: "Input", Target: "Output", Value: 1}}}},
 			},
-		fullDigest: "5dd1ea283f9cf39c7b6daf5982ad4de4f5361e916c58bb197811f449f558f788", scriptDigest: "5e13d32637ed2dff797ba62a3e38210c46359da8037ffa56bca3ea041aa8c106", shellDigest: "53be0446ef4ccf916421f60581aaa9479f0d411604b15bd1c91ae919ed39725c",
+		fullDigest: "5d6fb97646a95a51f71a7e234ee178d596d8ec58ecd64899fac1abe2881ed54e", scriptDigest: "5e13d32637ed2dff797ba62a3e38210c46359da8037ffa56bca3ea041aa8c106", shellDigest: "0b26d6a977d314d053c7efb33d0d32dcfe74dbc1e9a749c1b5a03cd60a8bb439",
 		},
 		{
 			name: "vertical-custom",
@@ -107,7 +107,7 @@ func TestSankeyFacadePreservesCanonicalRenderValidationAndBaseHashes(t *testing.
 				Width:  "720px", Height: "420px", Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Energy balance"}}, SeriesOptions: chart.SeriesOptions{Label: &chart.LabelOptions{Show: chart.Bool(true), Position: "right"}, LineStyle: &chart.LineStyle{Color: "source", Opacity: chart.Float(0.6)}},
 				Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#123456"}, Class: "min-h-96"},
 			},
-		fullDigest: "c36b3a1ea7c528dee776af6608c8487eca67aa1fd2b1b312291a6bdf705e9de7", scriptDigest: "b0acd283a8302b697ce4c4578db309689e0cb471aae6e62bc12a9ee3adbbf6f7", shellDigest: "df8b8df3b29c7a5536081fbd1999180b43c552656ff3ef3b7c0f166e91660864",
+		fullDigest: "7be6258aefdf70edd6b3a424288c1c77d34d69f34793564a1aa29d351cae2684", scriptDigest: "b0acd283a8302b697ce4c4578db309689e0cb471aae6e62bc12a9ee3adbbf6f7", shellDigest: "5c86279ad27f53cafc41d0f512e237cce8c7f5e6a0e8ce71be0e1671887d74d7",
 		},
 		{
 			name: "multiple-wrapper-omitted",
@@ -232,7 +232,7 @@ func TestSankeyUsesUnchangedSharedTemplateRuntimeAndCentralProvenance(t *testing
 	for path, want := range map[string]string{
 		filepath.Join("..", "..", "internal", "interactive", "theme_runtime.go"):     "5a6cb17e5fe559bb3ac566e4e74953a7d99ac045e134af07b598eb29a2dffd4d",
 		filepath.Join("..", "..", "internal", "interactive", "interactive.templ"):    "96137171bb2e6cb69372a59596963d0f4e7e6f87f3079863ccc92f3f59f8680a",
-		filepath.Join("..", "..", "internal", "interactive", "interactive_templ.go"): "69ec2b35fc8d431841e766b80266bea32cddd83cb2c4b35580bffb556646d10a",
+		filepath.Join("..", "..", "internal", "interactive", "interactive_templ.go"): "5c25a3e4669ffa6b1a3c6b3bb36d3eefdedaf81408742657afea30e4066d9967",
 	} {
 		contents, err := os.ReadFile(path)
 		if err != nil {

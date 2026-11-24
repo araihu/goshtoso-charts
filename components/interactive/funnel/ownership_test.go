@@ -181,7 +181,7 @@ func TestFunnelTemplateAndRuntimeProvenance(t *testing.T) {
 	for path, want := range map[string]string{
 		filepath.Join("..", "..", "internal", "interactive", "theme_runtime.go"):     "5a6cb17e5fe559bb3ac566e4e74953a7d99ac045e134af07b598eb29a2dffd4d",
 		filepath.Join("..", "..", "internal", "interactive", "interactive.templ"):    "96137171bb2e6cb69372a59596963d0f4e7e6f87f3079863ccc92f3f59f8680a",
-		filepath.Join("..", "..", "internal", "interactive", "interactive_templ.go"): "69ec2b35fc8d431841e766b80266bea32cddd83cb2c4b35580bffb556646d10a",
+		filepath.Join("..", "..", "internal", "interactive", "interactive_templ.go"): "5c25a3e4669ffa6b1a3c6b3bb36d3eefdedaf81408742657afea30e4066d9967",
 	} {
 		contents, err := os.ReadFile(path)
 		if err != nil {

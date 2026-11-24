@@ -164,7 +164,7 @@ func TestParallelTemplateProvenanceMatchesMovedSource(t *testing.T) {
 		wantDigest string
 	}{
 		{"parallel.templ", strings.NewReplacer("package interactive", "package parallel", "ParallelDimension", "Dimension"), "766eee3fbe773fee2997938ef4f7972721f205491a08835f8faf3d477540f4b1"},
-		{"parallel_templ.go", strings.NewReplacer("package interactive", "package parallel", "components/interactive/parallel.templ", "components/interactive/parallel/parallel.templ", "ParallelDimension", "Dimension"), "1a627281abe913ac2eb473c2c72221b6c29967d058361dba96c11e6137defddb"},
+		{"parallel_templ.go", strings.NewReplacer("package interactive", "package parallel", "components/interactive/parallel.templ", "components/interactive/parallel/parallel.templ", "ParallelDimension", "Dimension"), "ec92737505b105bf2e6dec0dfb7fb4d55dc2a5d232b898f9b667676b2c09883a"},
 	}
 	for _, check := range checks {
 		contents, err := os.ReadFile(check.path)

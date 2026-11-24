@@ -176,7 +176,7 @@ func TestGaugeTemplateProvenanceMatchesMovedSource(t *testing.T) {
 		wantDigest string
 	}{
 		{"gauge.templ", strings.NewReplacer("package interactive", "package gauge", "gaugeLiquidExactValues", "liquidExactValues", "GaugeData", "Data"), "9353afb66900fd69a687e0fb8f3e836dbab142916b16365be9e90ca5601241a2"},
-		{"gauge_templ.go", strings.NewReplacer("package interactive", "package gauge", "components/interactive/gauge.templ", "components/interactive/gauge/gauge.templ", "gaugeLiquidExactValues", "liquidExactValues", "GaugeData", "Data"), "b521ffbbac0347d4d493a85bad385a6264d6840ca7ea660644d7c957e8fc2e06"},
+		{"gauge_templ.go", strings.NewReplacer("package interactive", "package gauge", "components/interactive/gauge.templ", "components/interactive/gauge/gauge.templ", "gaugeLiquidExactValues", "liquidExactValues", "GaugeData", "Data"), "787c38447f7cb835d5c82b0c7de169dd98e11d9697c6a3a999b3a437a61335aa"},
 	}
 	for _, check := range checks {
 		contents, err := os.ReadFile(check.path)

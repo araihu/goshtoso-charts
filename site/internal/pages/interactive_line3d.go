@@ -1,9 +1,6 @@
 package pages
 
 import (
-	"crypto/sha256"
-	"encoding/hex"
-	"encoding/json"
 	"math"
 
 	"github.com/araihu/goshtoso-charts/components/chartcontrol"
@@ -32,16 +29,6 @@ func generateInteractiveLine3DPoints() []interactive.Point3D {
 		})
 	}
 	return points
-}
-
-func interactiveLine3DDataHash(points []interactive.Point3D) string {
-	values := make([][3]float64, len(points))
-	for index, point := range points {
-		values[index] = [3]float64{point.X, point.Y, point.Z}
-	}
-	encoded, _ := json.Marshal(values)
-	sum := sha256.Sum256(encoded)
-	return hex.EncodeToString(sum[:])
 }
 
 func sampleInteractiveLine3D(label, filename string, autoRotate bool) interactive.Instance {

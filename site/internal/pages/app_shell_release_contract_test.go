@@ -5,6 +5,7 @@ import (
 	"context"
 	"io/fs"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"reflect"
 	"strings"
@@ -23,11 +24,23 @@ func TestAppShellDependenciesArePinnedWithoutOverrides(t *testing.T) {
 		t.Fatal(err)
 	}
 	module := string(content)
+	const goshtoso = "github.com/araihu/goshtoso"
+	command := exec.Command("go", "list", "-mod=readonly", "-m", "-f", "{{if not .Replace}}{{.Version}}{{end}}", goshtoso)
+	command.Dir = "../../.."
+	command.Env = append(os.Environ(), "GOWORK=off")
+	output, err := command.CombinedOutput()
+	if err != nil {
+		t.Fatalf("read root Goshtoso pin: %v: %s", err, output)
+	}
+	rootVersion := strings.TrimSpace(string(output))
+	if !releasedSiteVersionPattern.MatchString(rootVersion) {
+		t.Fatalf("root Goshtoso dependency must use an exact release without an override, got %q", rootVersion)
+	}
 	for _, dependency := range []struct {
 		path    string
 		version string
 	}{
-		{path: "github.com/araihu/goshtoso", version: "v0.4.6"},
+		{path: goshtoso, version: rootVersion},
 		{path: "github.com/araihu/goshtoso-app-shells", version: "v0.1.9"},
 	} {
 		if !moduleRequiresVersion(module, dependency.path, dependency.version) {

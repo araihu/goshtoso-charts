@@ -69,7 +69,8 @@ export class GoshtosoCharts {
         "go", "test", "-race", "./...", "-count=1",
       ])
       .withExec(["go", "vet", "./..."])
-      .withExec(["bash", "-euo", "pipefail", "-c", "cd site && go vet ./..."])
+      .withExec(["go", "-C", "site", "test", "./...", "-count=1"])
+      .withExec(["go", "-C", "site", "vet", "./..."])
       .withExec(["./scripts/materialize-dagger-input_test.sh"])
       .withExec(["go", "test", "./.dagger/tools/...", "-count=1"])
       .withExec([
