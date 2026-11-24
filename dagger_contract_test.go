@@ -71,7 +71,7 @@ func TestDaggerProvidesPinnedJQForPayloadRegressions(t *testing.T) {
 	}
 }
 
-func TestDaggerRequiresInteractiveRuntimeRegressions(t *testing.T) {
+func TestDaggerRequiresSiteAndInteractiveRuntimeRegressions(t *testing.T) {
 	data, err := os.ReadFile(".dagger/src/index.ts")
 	if err != nil {
 		t.Fatal(err)
@@ -82,6 +82,7 @@ func TestDaggerRequiresInteractiveRuntimeRegressions(t *testing.T) {
 		`await dag.container()`,
 		`.from(NODE_IMAGE)`,
 		`.withExec(["node", "--test", "components/internal/interactive/theme_runtime.test.cjs"])`,
+		`.withExec(["go", "-C", "site", "test", "./...", "-count=1"])`,
 		`.sync()`,
 	} {
 		if !strings.Contains(source, required) {
