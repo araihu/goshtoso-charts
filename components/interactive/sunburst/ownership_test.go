@@ -226,7 +226,7 @@ func TestSunburstTemplateRuntimeAndUpstreamProvenance(t *testing.T) {
 		wantDigest string
 	}{
 		{"sunburst.templ", strings.NewReplacer("package sunburst", "package interactive", "[]valueRow", "[]sunburstValueRow"), "21d74e9158e25ad202dcd079b8191b6cf69be6fc07812861875a6167f88322bc"},
-		{"sunburst_templ.go", strings.NewReplacer("package sunburst", "package interactive", "components/interactive/sunburst/sunburst.templ", "components/interactive/sunburst.templ", "[]valueRow", "[]sunburstValueRow"), "8bbbda82541bfdd2717c03386542a75be8f2d6e59d1b52f295a4eb3b03646b03"},
+		{"sunburst_templ.go", strings.NewReplacer("package sunburst", "package interactive", "components/interactive/sunburst/sunburst.templ", "components/interactive/sunburst.templ", "[]valueRow", "[]sunburstValueRow"), "603dc6032477bc0d5688fb98c529efcfced8ff3eaa2aecb668bd07477218074f"},
 	}
 	for _, check := range checks {
 		contents, err := os.ReadFile(check.path)

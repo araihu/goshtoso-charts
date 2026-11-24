@@ -236,7 +236,7 @@ func TestWordCloudTemplateRuntimeHooksAndUpstreamProvenance(t *testing.T) {
 		wantDigest string
 	}{
 		{"wordcloud.templ", strings.NewReplacer("package wordcloud", "package interactive", "values valueRows", "values wordCloudValueRows"), "0d69b119b2cd5c836ee6d8acdb4cb43585539afa7a77e318c2210f6dece8ad27"},
-		{"wordcloud_templ.go", strings.NewReplacer("package wordcloud", "package interactive", "components/interactive/wordcloud/wordcloud.templ", "components/interactive/wordcloud.templ", "values valueRows", "values wordCloudValueRows"), "cf326985936e04b33778e0d75483371d36ad2da7c5ba04fa781f9b364f852542"},
+		{"wordcloud_templ.go", strings.NewReplacer("package wordcloud", "package interactive", "components/interactive/wordcloud/wordcloud.templ", "components/interactive/wordcloud.templ", "values valueRows", "values wordCloudValueRows"), "c8a2715e92ff55f4017f7a6fa6f2517517ee3fd30d3ba19b23d567fd55e7e7db"},
 	}
 	for _, check := range checks {
 		contents, err := os.ReadFile(check.path)

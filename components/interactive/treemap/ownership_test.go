@@ -182,7 +182,7 @@ func TestTreemapTemplateRuntimeAndUpstreamProvenance(t *testing.T) {
 		wantDigest string
 	}{
 		{"treemap.templ", strings.NewReplacer("package treemap", "package interactive"), "0afd301a38bdde2f84106d607b084645b7dd3db0d476c98586f0e93a2a0f6622"},
-		{"treemap_templ.go", strings.NewReplacer("package treemap", "package interactive", "components/interactive/treemap/treemap.templ", "components/interactive/treemap.templ"), "e1f9e3fdfe4b3d833c4da2ef7512e358331ad768deebf9caa45501f5d2903ec9"},
+		{"treemap_templ.go", strings.NewReplacer("package treemap", "package interactive", "components/interactive/treemap/treemap.templ", "components/interactive/treemap.templ"), "483ace7db5585c17ef71445a13d71ef5c159cc80457cd90e6ce05f738f8add59"},
 	}
 	for _, check := range checks {
 		contents, err := os.ReadFile(check.path)
