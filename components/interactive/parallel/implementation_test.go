@@ -28,7 +28,7 @@ func TestParallelNormalizedRenderHashes(t *testing.T) {
 	}{
 		"mixed defaults": {
 			config: validParallelConfig(),
-		want:   "a1f9b835884a2d367e0194aad760d118c8b89ad19b1ff95a6f24734338073baf",
+		want:   "aebfcacab8b8b2bc31578b0724d19cdee46c02a4f4d5c0f328f40cffc194f295",
 		},
 		"typed layout and presentation": {
 			config: Config{
@@ -47,7 +47,7 @@ func TestParallelNormalizedRenderHashes(t *testing.T) {
 				Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Multi Series"}, Legend: &chart.LegendOptions{Show: chart.Bool(true)}, Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "air-quality-profiles"}},
 				Style:   charttheme.Style{Palette: charttheme.PaletteAraiHu, Class: "max-w-full"}, RootAttrs: templ.Attributes{"id": "air-quality", "data-chart-purpose": "multivariate"},
 			},
-		want: "02ce506e2e6f4c08fde8cbce2859c95f39485fcffe6e2cf9a3b93059d4c32332",
+		want: "d1994cbd48fc6350ca109fdd6cabccc1c08e87f99c33bd997c393258b7a6abd9",
 		},
 		"log and middle labels": {
 			config: Config{
@@ -58,7 +58,7 @@ func TestParallelNormalizedRenderHashes(t *testing.T) {
 				},
 				Series: []Series{{Name: "Service", Observations: []Observation{{Name: "Current", Values: []Value{Number(10), Number(100)}}}}},
 			},
-		want: "ee21c2ca17b21b1b884590387a136362514d4cf517028247a6c80fac4c62e9b0",
+		want: "ed12b2dd3cca7e640818a2173709243648f04bcd083acafa41ed0b7f4582bcdd",
 		},
 	}
 	for name, test := range tests {

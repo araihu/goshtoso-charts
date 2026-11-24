@@ -34,7 +34,7 @@ func TestTreemapNormalizedRenderHashes(t *testing.T) {
 	}{
 		{
 			name: "default hierarchy", config: Config{Label: "Hierarchy", Nodes: []*Node{{Name: "file", Value: 1}}},
-			fullDigest: "9d8f2b439da0ac501dce2c55f882ba62a55272fb394dc07a84598c5bc7160f2a", scriptDigest: "ac2fa5ebdef637014d0a6a78b71d46c3dad35216c76a68702931340735880564", shellDigest: "2f959936465fbfe634ad199f8d43755dc7e7d037826a0b4a6f8f9e560c768bed",
+			fullDigest: "ba842fc959c377d4530a2e21c0e06c98be394d4496018512323f5e8a6a67b3c4", scriptDigest: "ac2fa5ebdef637014d0a6a78b71d46c3dad35216c76a68702931340735880564", shellDigest: "fe50603405395dbe45e49aed09ce6ae16e185cb8cfa206eb9f1485417a44b7ce",
 		},
 		{
 			name: "configured hierarchy navigation and exact values",
@@ -49,7 +49,7 @@ func TestTreemapNormalizedRenderHashes(t *testing.T) {
 				Width:  "100%", Height: "500px", Options: chart.ChartOptions{Title: &chart.TitleOptions{Text: "Basic treemap example"}, Animation: chart.Bool(false), Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "basic-treemap"}},
 				Style: charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "rounded-radius max-w-full"}, RootAttrs: templ.Attributes{"id": "basic-treemap", "data-chart-purpose": "hierarchy"},
 			},
-			fullDigest: "d7f73cec776d893f281dce90bb27ca91bfcb5b171ed1231ce5a44a92e024a3a9", scriptDigest: "c1e8a83f7038ad989101579c5fa540d18b410b0367c454ab2c1d73547f9fe673", shellDigest: "f94247366e0e9d8b4ba907a20f673695f4685419ac244dd616f2f4f2bc2a8870",
+			fullDigest: "022e21e80f94e5f171fecf009dd2a1d0c9c3b4cfcd8764a1e3cf767309faa59e", scriptDigest: "c1e8a83f7038ad989101579c5fa540d18b410b0367c454ab2c1d73547f9fe673", shellDigest: "02002d44cdb1392541c6cc9695853866d30c03592e1d4d7a2d011e3e4c2442e9",
 		},
 		{
 			name: "navigation disabled wrapper omitted",

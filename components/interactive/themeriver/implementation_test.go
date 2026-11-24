@@ -34,7 +34,7 @@ func TestThemeRiverNormalizedRenderHashes(t *testing.T) {
 	}{
 		"default aligned": {
 			config: validThemeRiverConfig(),
-		want:   "3c4c727d7af6045d780c9c93e17083c22522e28d8371a96d8c3ca06ba5f819c5",
+		want:   "0b6237d15a7af5efbfa04426c320740e91ff74018b68c1bc7e7691fb51f34a39",
 		},
 		"custom boundary wrapper": {
 			config: Config{
@@ -48,7 +48,7 @@ func TestThemeRiverNormalizedRenderHashes(t *testing.T) {
 				Options:      chart.ChartOptions{Title: &chart.TitleOptions{Text: "ThemeRiver-SingleAxis-Time"}, Legend: &chart.LegendOptions{Show: chart.Bool(true), Top: "top"}, Tooltip: &chart.TooltipOptions{Show: chart.Bool(true), Trigger: "axis"}, Animation: chart.Bool(false), Controls: chartcontrol.Options{Fullscreen: true}, Export: &chartcontrol.ExportOptions{Filename: "theme-river"}},
 				Style:        charttheme.Style{Palette: charttheme.PaletteAraiHu, Colors: []string{"#654321"}, Class: "caller-class"}, RootAttrs: templ.Attributes{"id": "river"},
 			},
-		want: "e6a0f04734bae8171f96c69986350cf637b02ac79609cfc9dc691fde4d6bac1b",
+		want: "c27d335c0be189766e0c6313691532bc7a1d566dc432c2849a1912723ba23fc0",
 		},
 		"timestamp layout omitted": {
 			config: Config{
