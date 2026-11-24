@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const { checkPoint3DHash } = require("./point3d-hash.cjs");
 const { after, before, test } = require("node:test");
 const fs = require("node:fs/promises");
 const net = require("node:net");
@@ -92,7 +93,6 @@ async function measure(wrapper) {
     const option = instance.getOption();
     const series = option.series[0];
     const values = series.data.map((point) => point.value.slice(0, 3));
-    const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(values)));
     const summary = element.parentElement.querySelector("[data-surface3d-exact-data]");
     const seriesModel = instance.getModel().getSeriesByIndex(0);
     const geometry = instance.getViewOfSeriesModel(seriesModel)._surfaceMesh.geometry;
@@ -108,7 +108,6 @@ async function measure(wrapper) {
       canvasCount: host.querySelectorAll("canvas").length,
       seriesType: series.type,
       count: values.length,
-      hash: [...new Uint8Array(bytes)].map((value) => value.toString(16).padStart(2, "0")).join(""),
       values,
       range: visualMap ? [visualMap.min, visualMap.max] : null,
       calculable: visualMap ? visualMap.calculable : null,
@@ -146,7 +145,7 @@ test("both exact surfaces, local runtime order, route/search, palette, and CSV a
     assert.equal(base.seriesType, "surface");
     assert.ok(base.canvasCount >= 1);
     assert.equal(base.count, 14400);
-    assert.equal(base.hash, "5530efe5532a0482cab10949d18ee56cee3eca691ebe2b37f593804f3565e5c3");
+    checkPoint3DHash("surface", base.values);
     assert.deepEqual(base.values[0].slice(0, 2), [-1, -1]);
     assert.ok(Math.abs(base.values[0][2]) < 1e-15);
     assert.deepEqual(base.values.at(-1).slice(0, 2), [59 / 60, 59 / 60]);
@@ -160,7 +159,7 @@ test("both exact surfaces, local runtime order, route/search, palette, and CSV a
     const rose = await measure(wrapperFor(page, "rose"));
     assert.equal(rose.seriesType, "surface");
     assert.equal(rose.count, 3600);
-    assert.equal(rose.hash, "987c440f0454e249cb105bb15ac2356d26989b1dde57b6a8f3197e0e19e91b42");
+    checkPoint3DHash("rose", rose.values);
     assert.deepEqual(rose.values[0].slice(0, 2), [-3, -3]);
     assert.deepEqual(rose.values.at(-1).slice(0, 2), [2.9, 2.9]);
     assert.deepEqual(rose.range, [-3, 3]);
@@ -202,6 +201,7 @@ test("closed heart mesh is solid, connected, accessible, and backed by WebGL", a
     const heart = await measure(wrapperFor(page, "heart"));
     assert.equal(heart.seriesType, "surface");
     assert.equal(heart.count, 49 * 65);
+    checkPoint3DHash("heart", heart.values);
     assert.deepEqual(heart.dataShape, [49, 65]);
     assert.ok(heart.boxSize[2] < heart.boxSize[0] * 0.4, `heart depth ${heart.boxSize[2]} is too close to width ${heart.boxSize[0]}`);
     assert.equal(heart.wireframe, false);

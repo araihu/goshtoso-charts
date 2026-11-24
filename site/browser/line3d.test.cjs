@@ -1,4 +1,5 @@
 const assert = require("node:assert/strict");
+const { checkPoint3DHash } = require("./point3d-hash.cjs");
 const { after, before, test } = require("node:test");
 const fs = require("node:fs/promises");
 const net = require("node:net");
@@ -91,7 +92,6 @@ async function measure(wrapper) {
     const instance = window.echarts.getInstanceByDom(host);
     const option = instance.getOption();
     const values = option.series[0].data.map((point) => Array.isArray(point) ? point.slice(0, 3) : point.value.slice(0, 3));
-    const bytes = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(JSON.stringify(values)));
     const summary = element.parentElement.querySelector("[data-line3d-exact-data]");
     return {
       sameInstance: !element.__line3DInstance || instance === element.__line3DInstance,
@@ -103,7 +103,6 @@ async function measure(wrapper) {
       type: option.series[0].type,
       name: option.series[0].name,
       count: values.length,
-      hash: [...new Uint8Array(bytes)].map((value) => value.toString(16).padStart(2, "0")).join(""),
       values,
       range: [option.visualMap[0].min, option.visualMap[0].max],
       calculable: option.visualMap[0].calculable,
@@ -134,21 +133,24 @@ test("both treatments preserve exact plotted order, CSV, local assets, route, an
     assert.equal(base.name, "line3D");
     assert.ok(base.canvasCount >= 1);
     assert.equal(base.count, 25000);
-    assert.equal(base.hash, "63f356cee0db8603edec10d54e8aec4f5eba291e8c99b961119c9543fd6c63a4");
+    checkPoint3DHash("line", base.values);
     assert.deepEqual(base.values[0], [1.25, 0, 0]);
     assert.deepEqual(base.range, [0, 30]);
     assert.equal(base.calculable, true);
     assert.equal(base.scaleColors.length, 10);
     assert.equal(base.autoRotate, false);
     assert.match(base.formula, /i \/ 1000.*cos\(75.*sin\(75/);
-    assert.match(base.summary, /25000 ordered points.*t domain \[0, 24\.999\].*X domain \[-1\.2489045114273476, 1\.25\].*Y domain \[-1\.2497258288146875, 1\.2497201051428937\].*Z domain \[-1\.9368409642920035, 26\.985899643193864\]/);
+    assert.match(base.summary, /25000 ordered points.*t domain \[0, 24\.999\]/);
+    for (const [index, axis] of ["X", "Y", "Z"].entries()) {
+      const coordinates = base.values.map((point) => point[index]);
+      assert.ok(base.summary.includes(`${axis} domain [${Math.min(...coordinates)}, ${Math.max(...coordinates)}]`));
+    }
     assert.match(base.motion, /remains stationary/);
     assert.equal(base.tableRows, 0);
 
     const rotating = await measure(wrapperFor(page, "auto-rotate"));
     assert.equal(rotating.type, "line3D");
     assert.equal(rotating.count, 25000);
-    assert.equal(rotating.hash, base.hash);
     assert.deepEqual(rotating.values, base.values);
     assert.deepEqual(rotating.range, base.range);
     assert.deepEqual(rotating.scaleColors, base.scaleColors);
